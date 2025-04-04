@@ -1,10 +1,52 @@
 <div class="bg-dark-100 rounded-lg border border-gray-800 p-8 shadow-lg backdrop-blur-sm relative overflow-hidden">
   <div class="absolute -top-10 -right-10 w-40 h-40 bg-neon-blue/20 rounded-full blur-3xl"></div>
   <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-neon-purple/20 rounded-full blur-3xl"></div>
-  
+
+  <% if (locals.maintenanceMode && !locals.adminLogin) { %>
+    <div class="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg">
+      <div class="flex items-start">
+        <i class="fas fa-exclamation-triangle text-red-400 mt-1 mr-3"></i>
+        <div>
+          <h3 class="font-semibold text-red-400">Maintenance Mode Active</h3>
+          <p class="text-gray-300 text-sm">The site is currently in maintenance mode. Only administrators can log in at this time.</p>
+          <% if (locals.maintenanceRedirect) { %>
+            <div class="mt-2 text-sm">
+              <p class="text-yellow-400">You will be redirected to the maintenance page in <span id="redirect-countdown">5</span> seconds.</p>
+            </div>
+            <script>
+              // Auto-redirect countdown
+              let seconds = 5;
+              const countdownElement = document.getElementById('redirect-countdown');
+
+              const countdownInterval = setInterval(() => {
+                seconds--;
+                countdownElement.textContent = seconds;
+
+                if (seconds <= 0) {
+                  clearInterval(countdownInterval);
+                  window.location.href = '/maintenance';
+                }
+              }, 1000);
+            </script>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  <% } else if (locals.maintenanceMode && locals.adminLogin) { %>
+    <div class="mb-6 p-4 bg-blue-500/20 border border-blue-500/50 rounded-lg">
+      <div class="flex items-start">
+        <i class="fas fa-info-circle text-blue-400 mt-1 mr-3"></i>
+        <div>
+          <h3 class="font-semibold text-blue-400">Admin Login During Maintenance</h3>
+          <p class="text-gray-300 text-sm">Please enter your admin credentials to access the system during maintenance mode.</p>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
   <h2 class="text-2xl font-bold mb-6 text-center">Login to Your Account</h2>
-  
-  <form action="/users/login" method="POST">
+
+  <form action="<%= locals.adminLogin ? '/users/login?bypass=true' : '/users/login' %>" method="POST">
     <div class="mb-4">
       <label for="email" class="block text-gray-300 mb-2">Email</label>
       <div class="relative">
@@ -21,7 +63,7 @@
         />
       </div>
     </div>
-    
+
     <div class="mb-6">
       <label for="password" class="block text-gray-300 mb-2">Password</label>
       <div class="relative">
@@ -38,7 +80,7 @@
         />
       </div>
     </div>
-    
+
     <button
       type="submit"
       class="w-full bg-gradient-to-r from-neon-blue to-neon-purple text-white py-3 rounded-md font-medium hover:opacity-90 transition-opacity"
@@ -46,9 +88,9 @@
       Login
     </button>
   </form>
-  
+
   <div class="mt-6 text-center text-gray-400">
-    Don't have an account? 
+    Don't have an account?
     <a href="/users/register" class="text-neon-blue hover:underline">Register here</a>
   </div>
 </div>

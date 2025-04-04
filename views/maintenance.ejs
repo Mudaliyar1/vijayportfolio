@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- GSAP Animation Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <!-- Favicon -->
+  <link rel="icon" href="/images/favicon.ico">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            },
+            secondary: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              200: '#ddd6fe',
+              300: '#c4b5fd',
+              400: '#a78bfa',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+              800: '#5b21b6',
+              900: '#4c1d95',
+            },
+            dark: {
+              100: '#1e1e2e',
+              200: '#181825',
+              300: '#11111b',
+            },
+            neon: {
+              blue: '#00f2ff',
+              purple: '#8a2be2',
+              pink: '#ff00ff',
+              green: '#00ff9f',
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'glow': 'glow 2s ease-in-out infinite alternate',
+            'float': 'float 6s ease-in-out infinite',
+            'spin-slow': 'spin 3s linear infinite',
+            'bounce-slow': 'bounce 3s infinite',
+          },
+          keyframes: {
+            glow: {
+              '0%': { 'box-shadow': '0 0 5px rgba(0, 242, 255, 0.5), 0 0 10px rgba(0, 242, 255, 0.3)' },
+              '100%': { 'box-shadow': '0 0 10px rgba(0, 242, 255, 0.8), 0 0 20px rgba(0, 242, 255, 0.5), 0 0 30px rgba(0, 242, 255, 0.3)' }
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' }
+            }
+          },
+          backdropBlur: {
+            xs: '2px',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom Animations */
+    @keyframes rotate3d {
+      0% { transform: rotate3d(1, 1, 1, 0deg); }
+      100% { transform: rotate3d(1, 1, 1, 360deg); }
+    }
+
+    .rotate-3d {
+      animation: rotate3d 20s linear infinite;
+    }
+
+    /* Particle Animation */
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    /* Glowing Text */
+    .glow-text {
+      text-shadow: 0 0 10px rgba(0, 242, 255, 0.7),
+                   0 0 20px rgba(0, 242, 255, 0.5),
+                   0 0 30px rgba(0, 242, 255, 0.3);
+    }
+
+    /* Progress Bar Animation */
+    @keyframes progress {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+
+    .progress-animation {
+      animation: progress 60s linear infinite;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(61, 61, 92, 0.4);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(77, 77, 106, 0.6);
+    }
+  </style>
+</head>
+<body class="dark bg-dark-300 text-gray-100 min-h-screen overflow-x-hidden">
+  <!-- Animated Background Elements -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <!-- Animated Grid -->
+    <div class="absolute inset-0 opacity-10">
+      <div id="grid" class="w-full h-full"></div>
+    </div>
+
+    <!-- Floating Particles -->
+    <div id="particles" class="absolute inset-0"></div>
+
+    <!-- Glowing Orbs -->
+    <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-neon-blue/20 rounded-full blur-3xl opacity-30 animate-pulse-slow"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-80 h-80 bg-neon-purple/20 rounded-full blur-3xl opacity-30 animate-pulse-slow" style="animation-delay: 1s;"></div>
+    <div class="absolute top-3/4 right-1/3 w-40 h-40 bg-neon-pink/20 rounded-full blur-3xl opacity-20 animate-pulse-slow" style="animation-delay: 2s;"></div>
+  </div>
+
+  <div class="relative min-h-screen flex flex-col items-center justify-center p-4 z-10">
+    <!-- 3D Rotating Gear -->
+    <div class="absolute top-10 right-10 opacity-20 hidden md:block">
+      <div class="rotate-3d">
+        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="#00f2ff" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 12.8799V11.1199C2 10.0799 2.85 9.21994 3.9 9.21994C5.71 9.21994 6.45 7.93994 5.54 6.36994C5.02 5.46994 5.33 4.29994 6.24 3.77994L7.97 2.78994C8.76 2.31994 9.78 2.59994 10.25 3.38994L10.36 3.57994C11.26 5.14994 12.74 5.14994 13.65 3.57994L13.76 3.38994C14.23 2.59994 15.25 2.31994 16.04 2.78994L17.77 3.77994C18.68 4.29994 18.99 5.46994 18.47 6.36994C17.56 7.93994 18.3 9.21994 20.11 9.21994C21.15 9.21994 22.01 10.0699 22.01 11.1199V12.8799C22.01 13.9199 21.16 14.7799 20.11 14.7799C18.3 14.7799 17.56 16.0599 18.47 17.6299C18.99 18.5399 18.68 19.6999 17.77 20.2199L16.04 21.2099C15.25 21.6799 14.23 21.3999 13.76 20.6099L13.65 20.4199C12.75 18.8499 11.27 18.8499 10.36 20.4199L10.25 20.6099C9.78 21.3999 8.76 21.6799 7.97 21.2099L6.24 20.2199C5.33 19.6999 5.02 18.5299 5.54 17.6299C6.45 16.0599 5.71 14.7799 3.9 14.7799C2.85 14.7799 2 13.9199 2 12.8799Z" stroke="#00f2ff" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-3xl w-full">
+      <!-- Logo and Title -->
+      <div class="text-center mb-12">
+        <div class="relative inline-block mb-6">
+          <div class="absolute inset-0 bg-gradient-to-r from-neon-blue to-neon-purple rounded-full blur-xl opacity-30"></div>
+          <h1 id="logo" class="relative text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple glow-text">
+            FTRAISE AI
+          </h1>
+        </div>
+
+        <h2 id="title" class="text-3xl md:text-4xl font-bold mb-4 opacity-0">System Maintenance</h2>
+
+        <div id="icon-container" class="flex justify-center mb-8 opacity-0">
+          <div class="w-20 h-20 rounded-full bg-dark-200 flex items-center justify-center relative">
+            <i class="fas fa-tools text-neon-blue text-3xl"></i>
+
+            <!-- Rotating Circle -->
+            <svg class="absolute inset-0 animate-spin-slow" width="80" height="80" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="38" stroke="rgba(0, 242, 255, 0.2)" stroke-width="2" fill="none" stroke-dasharray="6 4" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Maintenance Info Card -->
+      <div id="info-card" class="bg-dark-100/80 backdrop-blur-md rounded-xl border border-gray-800 p-8 mb-10 opacity-0 transform translate-y-10">
+        <div class="flex flex-col gap-6">
+          <!-- Main Info -->
+          <div>
+            <h3 class="text-xl font-semibold mb-4 text-neon-blue"><%= maintenance.reason %></h3>
+            <p class="text-gray-300 mb-6"><%= maintenance.message %></p>
+
+            <!-- Progress Bar -->
+            <div class="mb-8">
+              <div class="flex justify-between text-sm text-gray-400 mb-2">
+                <span>Progress</span>
+                <span id="progress-percent">0%</span>
+              </div>
+              <div class="h-2 bg-dark-200 rounded-full overflow-hidden">
+                <div id="progress-bar" class="h-full bg-gradient-to-r from-neon-blue to-neon-purple rounded-full w-0"></div>
+              </div>
+            </div>
+
+            <!-- Countdown -->
+            <div class="mb-8">
+              <p class="text-gray-400 mb-2">We'll be back in:</p>
+              <div class="grid grid-cols-4 gap-2 text-center">
+                <div class="bg-dark-200 rounded-lg p-2">
+                  <div id="hours" class="text-2xl font-mono text-neon-blue">00</div>
+                  <div class="text-xs text-gray-500">Hours</div>
+                </div>
+                <div class="bg-dark-200 rounded-lg p-2">
+                  <div id="minutes" class="text-2xl font-mono text-neon-blue">00</div>
+                  <div class="text-xs text-gray-500">Minutes</div>
+                </div>
+                <div class="bg-dark-200 rounded-lg p-2">
+                  <div id="seconds" class="text-2xl font-mono text-neon-blue">00</div>
+                  <div class="text-xs text-gray-500">Seconds</div>
+                </div>
+                <div class="bg-dark-200 rounded-lg p-2">
+                  <div id="milliseconds" class="text-2xl font-mono text-neon-blue">00</div>
+                  <div class="text-xs text-gray-500">Centisec</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Admin Access -->
+            <div class="max-w-md mx-auto">
+              <div class="bg-dark-200 rounded-lg p-4 border border-gray-700">
+                <h4 class="font-semibold mb-3 text-center">Admin Access</h4>
+
+                <div id="login-options">
+                  <button id="show-login-btn" class="w-full py-2 px-4 bg-dark-300 hover:bg-dark-100 border border-gray-700 rounded-md text-gray-300 transition-colors flex items-center justify-center">
+                    <i class="fas fa-lock mr-2"></i> Admin Login
+                  </button>
+                </div>
+
+                <!-- Admin Login Form (Hidden by default) -->
+                <form id="admin-login-form" action="/users/login?bypass=true" method="POST" class="space-y-3 hidden">
+                  <div>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      placeholder="Admin Email"
+                      class="w-full bg-dark-300 border border-gray-700 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <input
+                      type="password"
+                      id="password"
+                      name="password"
+                      placeholder="Password"
+                      class="w-full bg-dark-300 border border-gray-700 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors"
+                      required
+                    />
+                  </div>
+
+                  <div class="flex justify-between">
+                    <button type="submit" class="py-1.5 px-3 bg-neon-blue/20 hover:bg-neon-blue/30 text-neon-blue border border-neon-blue/30 rounded-md text-sm transition-colors">
+                      Login
+                    </button>
+
+                    <button type="button" id="hide-login-btn" class="py-1.5 px-3 bg-dark-300 hover:bg-dark-100 border border-gray-700 rounded-md text-gray-400 text-sm transition-colors">
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Links -->
+      <div id="footer" class="text-center opacity-0">
+        <div class="flex justify-center space-x-6 mb-4">
+          <a href="https://github.com/Mudaliyar1/" target="_blank" class="text-gray-400 hover:text-white transition-colors">
+            <i class="fab fa-github text-xl"></i>
+          </a>
+          <a href="https://www.instagram.com/ft_raise_59?utm_source=qr&igsh=MWF0azFxdmhkOW94ag==" target="_blank" class="text-gray-400 hover:text-pink-400 transition-colors">
+            <i class="fab fa-instagram text-xl"></i>
+          </a>
+          <a href="mailto:vijaymudaliyar224@gmail.com" class="text-gray-400 hover:text-blue-400 transition-colors">
+            <i class="fas fa-envelope text-xl"></i>
+          </a>
+        </div>
+        <p class="text-gray-500 text-sm">© <%= new Date().getFullYear() %> FTRAISE AI. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // GSAP Animations
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initial animations
+      gsap.to("#logo", {
+        y: 0,
+        opacity: 1,
+        duration: 1.5,
+        ease: "elastic.out(1, 0.5)"
+      });
+
+      gsap.to("#title", {
+        opacity: 1,
+        duration: 1,
+        delay: 0.5
+      });
+
+      gsap.to("#icon-container", {
+        opacity: 1,
+        duration: 1,
+        delay: 0.7
+      });
+
+      gsap.to("#info-card", {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        delay: 1
+      });
+
+      gsap.to("#footer", {
+        opacity: 1,
+        duration: 1,
+        delay: 1.5
+      });
+
+      // Create grid lines
+      const grid = document.getElementById('grid');
+      const gridSize = 30;
+      const gridHTML = [];
+
+      // Horizontal lines
+      for (let i = 0; i <= 100; i += gridSize) {
+        gridHTML.push(`<div class="absolute left-0 right-0 h-px bg-gray-700/30" style="top: ${i}vh"></div>`);
+      }
+
+      // Vertical lines
+      for (let i = 0; i <= 100; i += gridSize) {
+        gridHTML.push(`<div class="absolute top-0 bottom-0 w-px bg-gray-700/30" style="left: ${i}vw"></div>`);
+      }
+
+      grid.innerHTML = gridHTML.join('');
+
+      // Create particles
+      const particles = document.getElementById('particles');
+      const particleCount = 30;
+      const particleHTML = [];
+
+      for (let i = 0; i < particleCount; i++) {
+        const size = Math.random() * 4 + 1;
+        const x = Math.random() * 100;
+        const y = Math.random() * 100;
+        const color = i % 3 === 0 ? '#00f2ff' : (i % 3 === 1 ? '#8a2be2' : '#00ff9f');
+        const animationDuration = Math.random() * 20 + 10;
+        const animationDelay = Math.random() * 5;
+
+        particleHTML.push(`
+          <div class="particle"
+               style="width: ${size}px; height: ${size}px;
+                      left: ${x}vw; top: ${y}vh;
+                      background-color: ${color};
+                      animation: float ${animationDuration}s ease-in-out ${animationDelay}s infinite;">
+          </div>
+        `);
+      }
+
+      particles.innerHTML = particleHTML.join('');
+    });
+
+    // Countdown Timer
+    const endTime = new Date('<%= maintenance.endTime %>');
+
+    function updateCountdown() {
+      const now = new Date();
+      const diff = endTime - now;
+
+      if (diff <= 0) {
+        // Maintenance period has ended, refresh the page
+        document.getElementById('hours').textContent = "00";
+        document.getElementById('minutes').textContent = "00";
+        document.getElementById('seconds').textContent = "00";
+        document.getElementById('milliseconds').textContent = "00";
+
+        // Show completed message
+        document.getElementById('progress-percent').textContent = "100%";
+        document.getElementById('progress-bar').style.width = "100%";
+
+        // Redirect after a short delay
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
+
+        return;
+      }
+
+      // Calculate time components
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      const milliseconds = Math.floor((diff % 1000) / 10);
+
+      // Format the time
+      const formattedHours = String(hours).padStart(2, '0');
+      const formattedMinutes = String(minutes).padStart(2, '0');
+      const formattedSeconds = String(seconds).padStart(2, '0');
+      const formattedMilliseconds = String(milliseconds).padStart(2, '0');
+
+      // Update the countdown timer
+      document.getElementById('hours').textContent = formattedHours;
+      document.getElementById('minutes').textContent = formattedMinutes;
+      document.getElementById('seconds').textContent = formattedSeconds;
+      document.getElementById('milliseconds').textContent = formattedMilliseconds;
+
+      // Calculate progress percentage
+      const totalDuration = <%= maintenance.durationValue %> * getTimeMultiplier('<%= maintenance.durationUnit %>');
+      const elapsedTime = totalDuration - (diff / 1000);
+      const progressPercentage = Math.min(100, Math.floor((elapsedTime / totalDuration) * 100));
+
+      // Update progress bar
+      document.getElementById('progress-percent').textContent = `${progressPercentage}%`;
+      document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
+    }
+
+    function getTimeMultiplier(unit) {
+      switch(unit) {
+        case 'seconds': return 1;
+        case 'minutes': return 60;
+        case 'hours': return 3600;
+        case 'days': return 86400;
+        case 'months': return 2592000; // Approximate
+        default: return 3600;
+      }
+    }
+
+    // Update the countdown every 50ms for smooth animation
+    updateCountdown();
+    setInterval(updateCountdown, 50);
+
+    // Admin Login Form Toggle
+    const showLoginBtn = document.getElementById('show-login-btn');
+    const hideLoginBtn = document.getElementById('hide-login-btn');
+    const adminLoginForm = document.getElementById('admin-login-form');
+    const loginOptions = document.getElementById('login-options');
+
+    showLoginBtn.addEventListener('click', () => {
+      adminLoginForm.classList.remove('hidden');
+      loginOptions.classList.add('hidden');
+
+      // Focus on email input
+      document.getElementById('email').focus();
+    });
+
+    hideLoginBtn.addEventListener('click', () => {
+      adminLoginForm.classList.add('hidden');
+      loginOptions.classList.remove('hidden');
+    });
+  </script>
+</body>
+</html>

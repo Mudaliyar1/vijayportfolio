@@ -186,5 +186,40 @@ module.exports = {
       req.flash('error_msg', 'An error occurred while updating your profile picture');
       res.redirect('/profile');
     }
+  },
+
+  // Remove profile picture
+  removeProfilePicture: async (req, res) => {
+    try {
+      // Get user's current profile picture
+      const user = await User.findById(req.user._id);
+      const currentPicture = user.profilePicture;
+
+      // Check if user already has the default picture
+      if (currentPicture === '/images/default-avatar.png') {
+        req.flash('info_msg', 'You are already using the default profile picture');
+        return res.redirect('/profile');
+      }
+
+      // Delete the current profile picture file
+      if (currentPicture) {
+        const picturePath = path.join(__dirname, '../public', currentPicture);
+        if (fs.existsSync(picturePath)) {
+          fs.unlinkSync(picturePath);
+        }
+      }
+
+      // Set user's profile picture to default
+      await User.findByIdAndUpdate(req.user._id, {
+        profilePicture: '/images/default-avatar.png'
+      });
+
+      req.flash('success_msg', 'Profile picture removed successfully');
+      res.redirect('/profile');
+    } catch (err) {
+      console.error('Profile picture removal error:', err);
+      req.flash('error_msg', 'An error occurred while removing your profile picture');
+      res.redirect('/profile');
+    }
   }
 };

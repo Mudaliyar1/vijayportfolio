@@ -1,11 +1,80 @@
-<div class="flex h-[calc(100vh-10rem)] flex-col md:flex-row w-full max-w-full overflow-hidden">
+<style>
+  /* Custom scrollbar for chat history */
+  .history-list::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .history-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .history-list::-webkit-scrollbar-thumb {
+    background: rgba(61, 61, 92, 0.4);
+    border-radius: 10px;
+  }
+
+  .history-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(77, 77, 106, 0.6);
+  }
+
+  /* Custom scrollbar for chat container */
+  .chat-container::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .chat-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .chat-container::-webkit-scrollbar-thumb {
+    background: rgba(61, 61, 92, 0.4);
+    border-radius: 10px;
+  }
+
+  .chat-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(77, 77, 106, 0.6);
+  }
+
+  /* Fix for chat container height */
+  @media (max-width: 768px) {
+    #chat-messages {
+      height: calc(100vh - 14rem);
+      max-height: calc(100vh - 14rem);
+    }
+  }
+
+  @media (min-width: 769px) {
+    #chat-messages {
+      height: calc(100vh - 16rem);
+      max-height: calc(100vh - 16rem);
+    }
+  }
+</style>
+
+<div class="flex h-[calc(100vh-5rem)] sm:h-[calc(100vh-8rem)] md:h-[calc(100vh-10rem)] flex-col md:flex-row w-full max-w-full overflow-hidden justify-center">
+  <div class="w-full max-w-5xl flex flex-col md:flex-row h-full">
   <!-- Chat History Sidebar (Hidden by default) -->
-  <div id="history-sidebar" class="hidden md:w-80 bg-dark-200 border-r border-gray-800 flex flex-col h-full transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out absolute md:relative z-10 w-full md:w-80">
+  <div id="history-sidebar" class="hidden md:w-80 bg-dark-200 border-r border-gray-800 flex flex-col h-full transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out absolute md:relative z-10 w-[85%] md:w-80 max-w-[320px]">
     <div class="p-4 border-b border-gray-800 flex justify-between items-center">
       <h2 class="text-xl font-semibold">Chat History</h2>
       <button id="close-history" class="text-gray-400 hover:text-white">
         <i class="fas fa-times"></i>
       </button>
+    </div>
+
+    <!-- Search Filter for History -->
+    <div class="px-4 py-3 border-b border-gray-800">
+      <div class="relative">
+        <input
+          type="text"
+          id="history-search"
+          placeholder="Search your chats..."
+          class="w-full bg-dark-300 border border-gray-700 rounded-md py-2 pl-9 pr-3 text-sm text-white focus:outline-none focus:border-neon-blue transition-colors"
+        >
+        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+      </div>
     </div>
 
     <div id="history-list" class="flex-grow overflow-y-auto p-2">
@@ -59,7 +128,7 @@
     </div>
 
     <!-- Chat Messages -->
-    <div id="chat-messages" class="flex-grow overflow-y-auto p-2 sm:p-4 space-y-4 w-full">
+    <div id="chat-messages" class="chat-container flex-grow overflow-y-auto p-2 sm:p-4 space-y-4 w-full">
       <!-- Welcome Message -->
       <div class="flex items-start mb-4 animate-fade-in">
         <div class="w-8 h-8 rounded-full bg-gradient-to-r from-neon-blue to-neon-purple flex items-center justify-center mr-3 flex-shrink-0">
@@ -74,7 +143,7 @@
     </div>
 
     <!-- Chat Input -->
-    <div class="border-t border-gray-800 p-2 sm:p-4 bg-dark-200">
+    <div class="border-t border-gray-800 p-2 sm:p-4 bg-dark-200 sticky bottom-0 z-10">
       <form id="chat-form" class="flex items-center">
         <div class="relative flex-grow">
           <textarea
@@ -165,6 +234,7 @@
   const showHistoryBtn = document.getElementById('show-history');
   const closeHistoryBtn = document.getElementById('close-history');
   const historyList = document.getElementById('history-list');
+  const historySearch = document.getElementById('history-search');
   const newChatBtn = document.getElementById('new-chat');
   const requestsCount = document.getElementById('requests-count');
   const authModal = document.getElementById('auth-modal');
@@ -325,6 +395,9 @@
     authModal.classList.add('hidden');
   });
 
+  // Store all chats for filtering
+  let allChats = [];
+
   // Load chat history
   async function loadChatHistory() {
     try {
@@ -341,6 +414,8 @@
       const data = await response.json();
 
       if (data.success && data.chats.length > 0) {
+        // Store all chats for filtering
+        allChats = data.chats;
         historyList.innerHTML = '';
 
         data.chats.forEach(chat => {
@@ -348,18 +423,18 @@
           const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
           const chatItem = document.createElement('div');
-          chatItem.className = `p-2 hover:bg-dark-100 rounded-md cursor-pointer transition-colors ${currentChatId === chat._id ? 'bg-dark-100 border-l-2 border-neon-blue' : ''}`;
+          chatItem.className = `chat-history-item p-2 hover:bg-dark-100 rounded-md cursor-pointer transition-colors ${currentChatId === chat._id ? 'bg-dark-100 border-l-2 border-neon-blue' : ''}`;
           chatItem.innerHTML = `
             <div class="flex justify-between items-center">
               <div class="truncate flex-grow">
                 <i class="fas fa-comment-alt text-gray-500 mr-2"></i>
-                <span>${chat.title}</span>
+                <span class="chat-title">${chat.title}</span>
               </div>
               <button class="delete-chat text-gray-500 hover:text-red-500 p-1" data-id="${chat._id}">
                 <i class="fas fa-trash-alt"></i>
               </button>
             </div>
-            <div class="text-xs text-gray-500 mt-1">${formattedDate}</div>
+            <div class="chat-date text-xs text-gray-500 mt-1">${formattedDate}</div>
           `;
 
           chatItem.addEventListener('click', (e) => {
@@ -485,12 +560,17 @@
   // Add message to UI
   function addMessageToUI(role, content) {
     const messageDiv = document.createElement('div');
+    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     if (role === 'user') {
       // User message - right side
       messageDiv.className = 'flex items-start mb-4 animate-fade-in justify-end';
       messageDiv.innerHTML = `
         <div class="bg-dark-200 rounded-lg p-3 sm:p-4 max-w-[75%] sm:max-w-3xl">
+          <div class="flex justify-between items-start mb-1">
+            <span class="text-gray-500 text-xs">${timestamp}</span>
+            <span class="font-medium text-neon-green ml-2">You</span>
+          </div>
           <div class="text-white">${formatMessage(content)}</div>
         </div>
         <div class="w-8 h-8 rounded-full bg-gradient-to-r from-neon-green to-neon-blue flex items-center justify-center ml-3 flex-shrink-0">
@@ -524,6 +604,10 @@
           <i class="fas fa-robot text-white text-sm"></i>
         </div>
         <div class="bg-dark-100 rounded-lg p-3 sm:p-4 max-w-[75%] sm:max-w-3xl">
+          <div class="flex justify-between items-start mb-1">
+            <span class="font-medium text-neon-blue">FTRAISE AI</span>
+            <span class="text-gray-500 text-xs ml-2">${timestamp}</span>
+          </div>
           <div class="text-white">${formatMessage(content)}</div>
         </div>
       `;
@@ -688,3 +772,7 @@
     messageInput.focus();
   });
 </script>
+
+<!-- Chat Search Script -->
+<script src="/js/chat-search.js"></script>
+</div>

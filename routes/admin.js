@@ -19,6 +19,24 @@ const {
   deleteInteraction
 } = require('../controllers/adminController');
 
+const {
+  getReviewManagement,
+  toggleReviewApproval,
+  toggleReviewDisplay,
+  deleteReview
+} = require('../controllers/reviewController');
+
+const {
+  getMaintenanceManagement,
+  getMaintenanceHistory,
+  getLoginAttempts,
+  updateMaintenanceSettings,
+  deleteLoginAttempt,
+  clearLoginAttempts,
+  deleteMaintenanceHistory,
+  bulkDeleteMaintenanceHistory
+} = require('../controllers/maintenanceController');
+
 // Apply admin middleware to all routes
 router.use(ensureAdmin);
 
@@ -46,5 +64,21 @@ router.get('/memories', getMemoryManagement);
 router.get('/memories/:id', viewMemory);
 router.delete('/memories/:id', deleteMemory);
 router.delete('/memories/:memoryId/interactions/:interactionIndex', deleteInteraction);
+
+// Review management
+router.get('/reviews', getReviewManagement);
+router.put('/reviews/:id/approve', toggleReviewApproval);
+router.put('/reviews/:id/display', toggleReviewDisplay);
+router.delete('/reviews/:id', deleteReview);
+
+// Maintenance management
+router.get('/maintenance', getMaintenanceManagement);
+router.get('/maintenance/history', getMaintenanceHistory);
+router.get('/maintenance/attempts', getLoginAttempts);
+router.post('/maintenance', updateMaintenanceSettings);
+router.delete('/maintenance/attempts/:id', deleteLoginAttempt);
+router.delete('/maintenance/attempts', clearLoginAttempts);
+router.delete('/maintenance/history/:id', deleteMaintenanceHistory);
+router.delete('/maintenance/history/bulk-delete', bulkDeleteMaintenanceHistory);
 
 module.exports = router;

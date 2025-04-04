@@ -1,0 +1,434 @@
+<div class="flex flex-col md:flex-row">
+  <!-- Sidebar -->
+  <%- include('./partials/sidebar', { path: '/admin/maintenance' }) %>
+
+  <!-- Main Content -->
+  <div class="flex-grow p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Maintenance Management</h1>
+    </div>
+
+    <!-- Maintenance Settings -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 mb-8">
+      <h2 class="text-xl font-semibold mb-4">Maintenance Mode Settings</h2>
+
+      <form action="/admin/maintenance" method="POST" class="space-y-6">
+        <!-- Enable/Disable Maintenance Mode -->
+        <div>
+          <label class="block text-gray-300 mb-2">Maintenance Mode</label>
+          <div class="flex space-x-4">
+            <label class="inline-flex items-center">
+              <input type="radio" name="isEnabled" value="true" class="form-radio text-neon-blue" <%= maintenance.isEnabled ? 'checked' : '' %>>
+              <span class="ml-2">Enabled</span>
+            </label>
+            <label class="inline-flex items-center">
+              <input type="radio" name="isEnabled" value="false" class="form-radio text-neon-blue" <%= !maintenance.isEnabled ? 'checked' : '' %>>
+              <span class="ml-2">Disabled</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Maintenance Reason -->
+        <div>
+          <label for="reason" class="block text-gray-300 mb-2">Maintenance Reason</label>
+          <select
+            id="reason"
+            name="reason"
+            class="w-full bg-dark-200 border border-gray-700 rounded-md py-2 px-3 text-white focus:outline-none focus:border-neon-blue transition-colors"
+          >
+            <option value="System Maintenance" <%= maintenance.reason === 'System Maintenance' ? 'selected' : '' %>>System Maintenance</option>
+            <option value="AI Model Training" <%= maintenance.reason === 'AI Model Training' ? 'selected' : '' %>>AI Model Training</option>
+            <option value="System Update" <%= maintenance.reason === 'System Update' ? 'selected' : '' %>>System Update</option>
+            <option value="Bug Fixing" <%= maintenance.reason === 'Bug Fixing' ? 'selected' : '' %>>Bug Fixing</option>
+            <option value="Database Optimization" <%= maintenance.reason === 'Database Optimization' ? 'selected' : '' %>>Database Optimization</option>
+            <option value="Security Update" <%= maintenance.reason === 'Security Update' ? 'selected' : '' %>>Security Update</option>
+          </select>
+        </div>
+
+        <!-- Maintenance Message -->
+        <div>
+          <label for="message" class="block text-gray-300 mb-2">Maintenance Message</label>
+          <textarea
+            id="message"
+            name="message"
+            rows="3"
+            class="w-full bg-dark-200 border border-gray-700 rounded-md py-2 px-3 text-white focus:outline-none focus:border-neon-blue transition-colors"
+          ><%= maintenance.message %></textarea>
+        </div>
+
+        <!-- Duration -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="durationValue" class="block text-gray-300 mb-2">Duration Value</label>
+            <input
+              type="number"
+              id="durationValue"
+              name="durationValue"
+              min="1"
+              value="<%= maintenance.durationValue || 1 %>"
+              class="w-full bg-dark-200 border border-gray-700 rounded-md py-2 px-3 text-white focus:outline-none focus:border-neon-blue transition-colors"
+            >
+          </div>
+
+          <div>
+            <label for="durationUnit" class="block text-gray-300 mb-2">Duration Unit</label>
+            <select
+              id="durationUnit"
+              name="durationUnit"
+              class="w-full bg-dark-200 border border-gray-700 rounded-md py-2 px-3 text-white focus:outline-none focus:border-neon-blue transition-colors"
+            >
+              <option value="seconds" <%= maintenance.durationUnit === 'seconds' ? 'selected' : '' %>>Seconds</option>
+              <option value="minutes" <%= maintenance.durationUnit === 'minutes' ? 'selected' : '' %>>Minutes</option>
+              <option value="hours" <%= maintenance.durationUnit === 'hours' ? 'selected' : '' %>>Hours</option>
+              <option value="days" <%= maintenance.durationUnit === 'days' ? 'selected' : '' %>>Days</option>
+              <option value="months" <%= maintenance.durationUnit === 'months' ? 'selected' : '' %>>Months</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex justify-end">
+          <button type="submit" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white py-2 px-6 rounded-md hover:opacity-90 transition-opacity">
+            Save Settings
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Maintenance History -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden mb-8">
+      <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+        <h2 class="text-xl font-semibold">Recent Maintenance History</h2>
+        <div class="flex items-center space-x-2">
+          <span class="text-gray-500 text-sm"><%= maintenanceHistory.length %> of <%= totalMaintenanceHistory %> records</span>
+          <a href="/admin/maintenance/history" class="text-neon-blue hover:underline flex items-center">
+            View All History <i class="fas fa-arrow-right ml-2"></i>
+          </a>
+        </div>
+      </div>
+
+
+
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-dark-200 border-b border-gray-800">
+              <th class="py-3 px-4 text-left">Reason</th>
+              <th class="py-3 px-4 text-left">Admin</th>
+              <th class="py-3 px-4 text-left">Start Time</th>
+              <th class="py-3 px-4 text-left">Duration</th>
+              <th class="py-3 px-4 text-left">Status</th>
+              <th class="py-3 px-4 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (maintenanceHistory && maintenanceHistory.length > 0) { %>
+              <% maintenanceHistory.forEach(history => { %>
+                <tr class="border-b border-gray-800 hover:bg-dark-200 transition-colors">
+                  <td class="py-3 px-4">
+                    <div class="font-medium"><%= history.reason %></div>
+                    <div class="text-xs text-gray-400 truncate max-w-[200px]"><%= history.message %></div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <% if (history.adminId) { %>
+                      <%= history.adminId.username %>
+                    <% } else { %>
+                      <span class="text-gray-500">Unknown</span>
+                    <% } %>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div><%= new Date(history.startTime).toLocaleDateString() %></div>
+                    <div class="text-xs text-gray-400"><%= new Date(history.startTime).toLocaleTimeString() %></div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <%= history.durationValue %> <%= history.durationUnit %>
+                  </td>
+                  <td class="py-3 px-4">
+                    <span class="px-2 py-1 rounded-full text-xs
+                      <%= history.status === 'completed' ? 'bg-green-500/20 text-green-400' :
+                         history.status === 'cancelled' ? 'bg-red-500/20 text-red-400' :
+                         'bg-yellow-500/20 text-yellow-400' %>">
+                      <%= history.status.charAt(0).toUpperCase() + history.status.slice(1) %>
+                    </span>
+                  </td>
+                  <td class="py-3 px-4">
+                    <form method="POST" action="/admin/maintenance/history/<%= history._id %>?_method=DELETE" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this maintenance history record?');">
+                      <button type="submit" class="text-red-500 hover:text-red-400 transition-colors">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="5" class="py-4 text-center text-gray-500">No maintenance history found</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Login Attempts During Maintenance -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden">
+      <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+        <h2 class="text-xl font-semibold">Login Attempts During Maintenance</h2>
+        <div class="flex items-center space-x-2">
+          <span class="text-gray-500 text-sm"><%= loginAttempts.length %> of <%= totalLoginAttempts %> records</span>
+          <% if (totalLoginAttempts > loginAttempts.length) { %>
+            <a href="/admin/maintenance/attempts" class="text-neon-blue hover:underline flex items-center">
+              View All <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+          <% } %>
+
+          <div class="relative">
+            <input
+              type="text"
+              id="attempt-search"
+              placeholder="Search attempts..."
+              class="bg-dark-200 border border-gray-700 rounded-md py-2 pl-10 pr-4 text-white focus:outline-none focus:border-neon-blue transition-colors w-64"
+            >
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+          </div>
+
+          <form action="/admin/maintenance/attempts?_method=DELETE" method="POST" onsubmit="return confirm('Are you sure you want to clear all login attempts? This action cannot be undone.');">
+            <button type="submit" class="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors">
+              Clear All
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="p-4 border-b border-gray-800 bg-dark-200">
+        <div class="flex flex-wrap gap-2">
+          <select id="filter-type" class="bg-dark-300 border border-gray-700 rounded-md py-1 px-3 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors">
+            <option value="all">All Fields</option>
+            <option value="username">Username</option>
+            <option value="ip">IP Address</option>
+            <option value="device">Device</option>
+            <option value="browser">Browser</option>
+            <option value="time">Time</option>
+            <option value="status">Status</option>
+          </select>
+
+          <input
+            type="date"
+            id="date-filter"
+            class="bg-dark-300 border border-gray-700 rounded-md py-1 px-3 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors"
+          >
+
+          <select id="device-filter" class="bg-dark-300 border border-gray-700 rounded-md py-1 px-3 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors">
+            <option value="all">All Devices</option>
+            <option value="Mobile">Mobile</option>
+            <option value="Tablet">Tablet</option>
+            <option value="Desktop">Desktop</option>
+          </select>
+
+          <button id="reset-filters" class="bg-dark-300 border border-gray-700 rounded-md py-1 px-3 text-white text-sm hover:bg-dark-400 transition-colors">
+            Reset Filters
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-dark-200 border-b border-gray-800">
+              <th class="py-3 px-4 text-left">Username</th>
+              <th class="py-3 px-4 text-left">IP Address</th>
+              <th class="py-3 px-4 text-left">Device</th>
+              <th class="py-3 px-4 text-left">Browser</th>
+              <th class="py-3 px-4 text-left">Time</th>
+              <th class="py-3 px-4 text-left">Status</th>
+              <th class="py-3 px-4 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="attempts-table-body">
+            <% if (loginAttempts.length > 0) { %>
+              <% loginAttempts.forEach(attempt => { %>
+                <tr class="border-b border-gray-800 hover:bg-dark-200 transition-colors">
+                  <td class="py-3 px-4"><%= attempt.username %></td>
+                  <td class="py-3 px-4">
+                    <div class="font-mono text-xs"><%= attempt.ipAddress %></div>
+                    <% if (attempt.forwardedIp) { %>
+                      <div class="text-xs text-gray-500 mt-1">Forwarded: <%= attempt.forwardedIp %></div>
+                    <% } %>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div>
+                      <span class="<%= attempt.deviceType.toLowerCase() === 'smartphone' ? 'text-green-400' : (attempt.deviceType.toLowerCase() === 'tablet' ? 'text-blue-400' : 'text-gray-400') %>">
+                        <i class="fas <%= attempt.deviceType.toLowerCase() === 'smartphone' ? 'fa-mobile-alt' : (attempt.deviceType.toLowerCase() === 'tablet' ? 'fa-tablet-alt' : 'fa-desktop') %> mr-1"></i>
+                        <%= attempt.deviceType %>
+                      </span>
+                    </div>
+                    <% if (attempt.deviceBrand || attempt.deviceModel) { %>
+                      <div class="text-xs text-gray-400 mt-1">
+                        <%= attempt.deviceBrand %> <%= attempt.deviceModel %>
+                      </div>
+                    <% } %>
+                    <div class="text-xs text-gray-500 mt-1">
+                      <%= attempt.operatingSystem %> <%= attempt.osVersion %>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div><%= attempt.browser %></div>
+                    <div class="text-xs text-gray-500"><%= attempt.browserVersion %></div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div><%= new Date(attempt.timestamp).toLocaleDateString() %></div>
+                    <div class="text-xs text-gray-500"><%= new Date(attempt.timestamp).toLocaleTimeString() %></div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <span class="px-2 py-1 rounded-full text-xs
+                      <%= attempt.status === 'passed' ? 'bg-green-500/20 text-green-400' :
+                         attempt.status === 'blocked' ? 'bg-yellow-500/20 text-yellow-400' :
+                         'bg-red-500/20 text-red-400' %>">
+                      <%= attempt.status.charAt(0).toUpperCase() + attempt.status.slice(1) %>
+                    </span>
+                    <% if (attempt.reason) { %>
+                      <div class="text-xs text-gray-500 mt-1"><%= attempt.reason %></div>
+                    <% } %>
+                  </td>
+                  <td class="py-3 px-4">
+                    <form method="POST" action="/admin/maintenance/attempts/<%= attempt._id %>?_method=DELETE" class="inline-block">
+                      <button type="submit" class="text-red-500 hover:text-red-400 transition-colors">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="7" class="py-4 text-center text-gray-500">No login attempts recorded during maintenance</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // DOM Elements
+  const attemptSearch = document.getElementById('attempt-search');
+  const attemptsTableBody = document.getElementById('attempts-table-body');
+  const filterType = document.getElementById('filter-type');
+  const dateFilter = document.getElementById('date-filter');
+  const deviceFilter = document.getElementById('device-filter');
+  const resetFiltersBtn = document.getElementById('reset-filters');
+
+
+
+  // Advanced Search for Login Attempts
+  function filterAttempts() {
+    const searchTerm = attemptSearch.value.toLowerCase();
+    const filterTypeValue = filterType.value;
+    const dateFilterValue = dateFilter.value ? new Date(dateFilter.value) : null;
+    const deviceFilterValue = deviceFilter.value;
+
+    const rows = attemptsTableBody.querySelectorAll('tr');
+
+    rows.forEach(row => {
+      if (row.querySelector('td:first-child')) {
+        const username = row.querySelector('td:first-child').textContent.toLowerCase();
+        const ipAddress = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        const device = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+        const browser = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+        const timeStr = row.querySelector('td:nth-child(5)').textContent;
+        const time = new Date(timeStr);
+        const status = row.querySelector('td:nth-child(6)')?.textContent.toLowerCase() || '';
+
+        // Check search term based on filter type
+        let matchesSearch = false;
+
+        if (filterTypeValue === 'all') {
+          matchesSearch = username.includes(searchTerm) ||
+                         ipAddress.includes(searchTerm) ||
+                         device.includes(searchTerm) ||
+                         browser.includes(searchTerm) ||
+                         timeStr.toLowerCase().includes(searchTerm) ||
+                         status.includes(searchTerm);
+        } else if (filterTypeValue === 'username') {
+          matchesSearch = username.includes(searchTerm);
+        } else if (filterTypeValue === 'ip') {
+          matchesSearch = ipAddress.includes(searchTerm);
+        } else if (filterTypeValue === 'device') {
+          matchesSearch = device.includes(searchTerm);
+        } else if (filterTypeValue === 'browser') {
+          matchesSearch = browser.includes(searchTerm);
+        } else if (filterTypeValue === 'time') {
+          matchesSearch = timeStr.toLowerCase().includes(searchTerm);
+        } else if (filterTypeValue === 'status') {
+          matchesSearch = status.includes(searchTerm);
+        }
+
+        // Check date filter
+        let matchesDate = true;
+        if (dateFilterValue) {
+          const rowDate = new Date(timeStr.split(',')[0]);
+          matchesDate = rowDate.toDateString() === dateFilterValue.toDateString();
+        }
+
+        // Check device filter
+        let matchesDevice = true;
+        if (deviceFilterValue !== 'all') {
+          if (deviceFilterValue === 'Mobile') {
+            matchesDevice = device.toLowerCase().includes('smartphone') || device.toLowerCase().includes('mobile');
+          } else if (deviceFilterValue === 'Tablet') {
+            matchesDevice = device.toLowerCase().includes('tablet');
+          } else if (deviceFilterValue === 'Desktop') {
+            matchesDevice = device.toLowerCase().includes('desktop') ||
+                           (!device.toLowerCase().includes('smartphone') &&
+                            !device.toLowerCase().includes('mobile') &&
+                            !device.toLowerCase().includes('tablet'));
+          } else {
+            matchesDevice = device.toLowerCase().includes(deviceFilterValue.toLowerCase());
+          }
+        }
+
+        // Show/hide row based on all filters
+        if (matchesSearch && matchesDate && matchesDevice) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      }
+    });
+
+    // Show "no results" message if all rows are hidden
+    const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
+    const noResultsRow = attemptsTableBody.querySelector('.no-results-row');
+
+    if (visibleRows.length === 0 && !noResultsRow) {
+      const newRow = document.createElement('tr');
+      newRow.className = 'no-results-row';
+      newRow.innerHTML = `
+        <td colspan="6" class="py-4 text-center text-gray-500">
+          No login attempts match your search criteria
+        </td>
+      `;
+      attemptsTableBody.appendChild(newRow);
+    } else if (visibleRows.length > 0 && noResultsRow) {
+      noResultsRow.remove();
+    }
+  }
+
+  // Reset filters
+  resetFiltersBtn.addEventListener('click', () => {
+    attemptSearch.value = '';
+    filterType.value = 'all';
+    dateFilter.value = '';
+    deviceFilter.value = 'all';
+    filterAttempts();
+  });
+
+  // Event listeners for filters
+  attemptSearch.addEventListener('input', filterAttempts);
+  filterType.addEventListener('change', filterAttempts);
+  dateFilter.addEventListener('change', filterAttempts);
+  deviceFilter.addEventListener('change', filterAttempts);
+
+
+</script>

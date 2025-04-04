@@ -1,7 +1,7 @@
 <div class="flex flex-col md:flex-row">
   <!-- Sidebar -->
   <%- include('./partials/sidebar', { path: '/admin/users' }) %>
-  
+
   <!-- Main Content -->
   <div class="flex-grow p-6">
     <div class="flex justify-between items-center mb-6">
@@ -10,22 +10,22 @@
         <i class="fas fa-plus mr-2"></i> Add User
       </button>
     </div>
-    
+
     <!-- User Table -->
     <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden">
       <div class="p-4 border-b border-gray-800 flex justify-between items-center">
         <h2 class="text-xl font-semibold">All Users</h2>
         <div class="relative">
-          <input 
-            type="text" 
-            id="user-search" 
-            placeholder="Search users..." 
+          <input
+            type="text"
+            id="user-search"
+            placeholder="Search users..."
             class="bg-dark-200 border border-gray-700 rounded-md py-2 pl-10 pr-4 text-white focus:outline-none focus:border-neon-blue transition-colors w-64"
           >
           <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
         </div>
       </div>
-      
+
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead>
@@ -63,9 +63,12 @@
                     <button class="text-neon-purple hover:text-neon-purple/80 mr-2 reset-password-btn" data-id="<%= user._id %>" data-username="<%= user.username %>">
                       <i class="fas fa-key"></i>
                     </button>
-                    <button class="text-red-500 hover:text-red-400 delete-user-btn" data-id="<%= user._id %>" data-username="<%= user.username %>">
-                      <i class="fas fa-trash-alt"></i>
-                    </button>
+                    <form method="POST" action="/admin/users/<%= user._id %>?_method=DELETE" class="inline-block delete-user-form">
+                      <input type="hidden" name="username" value="<%= user.username %>">
+                      <button type="button" class="text-red-500 hover:text-red-400 delete-user-btn" data-id="<%= user._id %>" data-username="<%= user.username %>">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </form>
                   </td>
                 </tr>
               <% }); %>
@@ -90,7 +93,7 @@
         <i class="fas fa-times"></i>
       </button>
     </div>
-    
+
     <form action="/admin/users" method="POST">
       <div class="mb-4">
         <label for="username" class="block text-gray-300 mb-2">Username</label>
@@ -103,7 +106,7 @@
           required
         />
       </div>
-      
+
       <div class="mb-4">
         <label for="email" class="block text-gray-300 mb-2">Email</label>
         <input
@@ -115,7 +118,7 @@
           required
         />
       </div>
-      
+
       <div class="mb-4">
         <label for="password" class="block text-gray-300 mb-2">Password</label>
         <input
@@ -127,7 +130,7 @@
           required
         />
       </div>
-      
+
       <div class="mb-6">
         <label for="role" class="block text-gray-300 mb-2">Role</label>
         <select
@@ -140,7 +143,7 @@
           <option value="admin">Admin</option>
         </select>
       </div>
-      
+
       <div class="flex justify-end">
         <button type="button" class="py-2 px-4 border border-gray-700 text-white rounded-md mr-2 hover:bg-dark-200 transition-colors close-modal">
           Cancel
@@ -162,10 +165,10 @@
         <i class="fas fa-times"></i>
       </button>
     </div>
-    
+
     <form action="/admin/users?_method=PUT" method="POST">
       <input type="hidden" id="edit-user-id" name="userId">
-      
+
       <div class="mb-4">
         <label for="edit-username" class="block text-gray-300 mb-2">Username</label>
         <input
@@ -176,7 +179,7 @@
           required
         />
       </div>
-      
+
       <div class="mb-4">
         <label for="edit-email" class="block text-gray-300 mb-2">Email</label>
         <input
@@ -187,7 +190,7 @@
           required
         />
       </div>
-      
+
       <div class="mb-6">
         <label for="edit-role" class="block text-gray-300 mb-2">Role</label>
         <select
@@ -200,7 +203,7 @@
           <option value="admin">Admin</option>
         </select>
       </div>
-      
+
       <div class="flex justify-end">
         <button type="button" class="py-2 px-4 border border-gray-700 text-white rounded-md mr-2 hover:bg-dark-200 transition-colors close-modal">
           Cancel
@@ -222,12 +225,12 @@
         <i class="fas fa-times"></i>
       </button>
     </div>
-    
+
     <p class="text-gray-300 mb-4">Reset password for <span id="reset-username" class="font-semibold"></span></p>
-    
+
     <form action="/admin/users/reset-password?_method=PUT" method="POST">
       <input type="hidden" id="reset-user-id" name="userId">
-      
+
       <div class="mb-6">
         <label for="new-password" class="block text-gray-300 mb-2">New Password</label>
         <input
@@ -239,7 +242,7 @@
           required
         />
       </div>
-      
+
       <div class="flex justify-end">
         <button type="button" class="py-2 px-4 border border-gray-700 text-white rounded-md mr-2 hover:bg-dark-200 transition-colors close-modal">
           Cancel
@@ -264,12 +267,12 @@
   const deleteUserBtns = document.querySelectorAll('.delete-user-btn');
   const userSearch = document.getElementById('user-search');
   const usersTableBody = document.getElementById('users-table-body');
-  
+
   // Show Add User Modal
   addUserBtn.addEventListener('click', () => {
     addUserModal.classList.remove('hidden');
   });
-  
+
   // Close Modals
   closeModalBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -278,7 +281,7 @@
       resetPasswordModal.classList.add('hidden');
     });
   });
-  
+
   // Edit User
   editUserBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -286,50 +289,75 @@
       const username = btn.dataset.username;
       const email = btn.dataset.email;
       const role = btn.dataset.role;
-      
+
       document.getElementById('edit-user-id').value = userId;
       document.getElementById('edit-username').value = username;
       document.getElementById('edit-email').value = email;
       document.getElementById('edit-role').value = role;
-      
+
       editUserModal.classList.remove('hidden');
     });
   });
-  
+
   // Reset Password
   resetPasswordBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const userId = btn.dataset.id;
       const username = btn.dataset.username;
-      
+
       document.getElementById('reset-user-id').value = userId;
       document.getElementById('reset-username').textContent = username;
-      
+
       resetPasswordModal.classList.remove('hidden');
     });
   });
-  
+
   // Delete User
   deleteUserBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const userId = btn.dataset.id;
       const username = btn.dataset.username;
-      
-      if (confirm(`Are you sure you want to delete ${username}? This action cannot be undone.`)) {
-        window.location.href = `/admin/users/${userId}?_method=DELETE`;
+      const currentUserId = '<%= currentUser._id %>'; // Current logged-in admin's ID
+      const form = btn.closest('.delete-user-form');
+
+      let confirmMessage = `Are you sure you want to delete ${username}? This action cannot be undone.`;
+
+      // Add warning if admin is trying to delete their own account
+      if (userId === currentUserId) {
+        confirmMessage += '\n\nWARNING: You are about to delete your own account! You will be logged out immediately.\n\nAre you absolutely sure?';
+      }
+
+      if (confirm(confirmMessage)) {
+        // For self-deletion, show a loading message
+        if (userId === currentUserId) {
+          document.body.innerHTML = `
+            <div class="fixed inset-0 bg-dark-300 flex items-center justify-center z-50">
+              <div class="text-center">
+                <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-neon-blue mx-auto mb-4"></div>
+                <h2 class="text-xl font-semibold mb-2">Deleting Your Account</h2>
+                <p class="text-gray-400">You will be redirected to the login page shortly...</p>
+              </div>
+            </div>
+          `;
+        }
+
+        // Submit the form instead of redirecting
+        if (form) {
+          form.submit();
+        }
       }
     });
   });
-  
+
   // Search Users
   userSearch.addEventListener('input', () => {
     const searchTerm = userSearch.value.toLowerCase();
     const rows = usersTableBody.querySelectorAll('tr');
-    
+
     rows.forEach(row => {
       const username = row.querySelector('td:first-child')?.textContent.toLowerCase() || '';
       const email = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
-      
+
       if (username.includes(searchTerm) || email.includes(searchTerm)) {
         row.style.display = '';
       } else {

@@ -11,32 +11,32 @@
         <p class="text-sm text-gray-500 mt-2">Member since <%= new Date(user.createdAt).toLocaleDateString() %></p>
       </div>
     </div>
-    
+
     <div class="p-6">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div class="bg-dark-200 p-4 rounded-lg text-center">
           <h3 class="text-gray-400 text-sm mb-1">Total Requests</h3>
           <p class="text-2xl font-semibold"><%= user.requestsCount %></p>
         </div>
-        
+
         <div class="bg-dark-200 p-4 rounded-lg text-center">
           <h3 class="text-gray-400 text-sm mb-1">Account Type</h3>
           <p class="text-2xl font-semibold capitalize"><%= user.role %></p>
         </div>
-        
+
         <div class="bg-dark-200 p-4 rounded-lg text-center">
           <h3 class="text-gray-400 text-sm mb-1">Chat History</h3>
           <p class="text-2xl font-semibold"><%= typeof chatCount !== 'undefined' ? chatCount : 0 %></p>
         </div>
       </div>
-      
+
       <div class="flex justify-between items-center">
         <h2 class="text-xl font-semibold mb-4">Account Settings</h2>
         <a href="/chat" class="text-neon-blue hover:underline flex items-center">
           <i class="fas fa-arrow-left mr-1"></i> Back to Chat
         </a>
       </div>
-      
+
       <div class="border-t border-gray-800 pt-4">
         <!-- Tabs -->
         <div class="flex border-b border-gray-800 mb-6">
@@ -53,7 +53,7 @@
             Danger Zone
           </button>
         </div>
-        
+
         <!-- Profile Tab -->
         <div id="profile-tab" class="tab-content">
           <% if (typeof errors != 'undefined') { %>
@@ -63,7 +63,7 @@
               <% }); %>
             </div>
           <% } %>
-          
+
           <form action="/profile/update?_method=PUT" method="POST">
             <div class="mb-4">
               <label for="username" class="block text-gray-300 mb-2">Username</label>
@@ -76,7 +76,7 @@
                 required
               />
             </div>
-            
+
             <div class="mb-6">
               <label for="email" class="block text-gray-300 mb-2">Email</label>
               <input
@@ -88,7 +88,7 @@
                 required
               />
             </div>
-            
+
             <button
               type="submit"
               class="bg-gradient-to-r from-neon-blue to-neon-purple text-white py-2 px-6 rounded-md font-medium hover:opacity-90 transition-opacity"
@@ -97,7 +97,7 @@
             </button>
           </form>
         </div>
-        
+
         <!-- Password Tab -->
         <div id="password-tab" class="tab-content hidden">
           <% if (typeof passwordErrors != 'undefined') { %>
@@ -107,7 +107,7 @@
               <% }); %>
             </div>
           <% } %>
-          
+
           <form action="/profile/password?_method=PUT" method="POST">
             <div class="mb-4">
               <label for="currentPassword" class="block text-gray-300 mb-2">Current Password</label>
@@ -120,7 +120,7 @@
                 required
               />
             </div>
-            
+
             <div class="mb-4">
               <label for="newPassword" class="block text-gray-300 mb-2">New Password</label>
               <input
@@ -132,7 +132,7 @@
                 required
               />
             </div>
-            
+
             <div class="mb-6">
               <label for="confirmPassword" class="block text-gray-300 mb-2">Confirm New Password</label>
               <input
@@ -144,7 +144,7 @@
                 required
               />
             </div>
-            
+
             <button
               type="submit"
               class="bg-gradient-to-r from-neon-blue to-neon-purple text-white py-2 px-6 rounded-md font-medium hover:opacity-90 transition-opacity"
@@ -153,15 +153,25 @@
             </button>
           </form>
         </div>
-        
+
         <!-- Profile Picture Tab -->
         <div id="picture-tab" class="tab-content hidden">
           <div class="mb-6">
             <div class="w-32 h-32 rounded-full mx-auto mb-4 border-2 border-neon-blue overflow-hidden">
               <img src="<%= user.profilePicture %>" alt="<%= user.username %>" class="w-full h-full object-cover" id="profile-preview">
             </div>
+
+            <% if (user.profilePicture !== '/images/default-avatar.png') { %>
+              <div class="text-center">
+                <form action="/profile/picture/remove?_method=DELETE" method="POST" class="inline-block">
+                  <button type="submit" class="text-red-500 hover:text-red-400 transition-colors text-sm">
+                    <i class="fas fa-trash-alt mr-1"></i> Remove Profile Picture
+                  </button>
+                </form>
+              </div>
+            <% } %>
           </div>
-          
+
           <form action="/profile/picture?_method=PUT" method="POST" enctype="multipart/form-data">
             <div class="mb-6">
               <label for="profilePicture" class="block text-gray-300 mb-2">Upload New Picture</label>
@@ -175,7 +185,7 @@
               />
               <p class="text-gray-500 text-sm mt-1">Max file size: 5MB. Recommended size: 200x200 pixels.</p>
             </div>
-            
+
             <button
               type="submit"
               class="bg-gradient-to-r from-neon-blue to-neon-purple text-white py-2 px-6 rounded-md font-medium hover:opacity-90 transition-opacity"
@@ -184,7 +194,7 @@
             </button>
           </form>
         </div>
-        
+
         <!-- Danger Zone Tab -->
         <div id="danger-tab" class="tab-content hidden">
           <div class="bg-red-900/30 border border-red-800 rounded-lg p-6">
@@ -192,7 +202,7 @@
             <p class="text-gray-300 mb-6">
               Warning: This action is permanent and cannot be undone. All your data, including chat history, will be permanently deleted.
             </p>
-            
+
             <form id="delete-account-form" action="/users/delete?_method=DELETE" method="POST">
               <div class="mb-4">
                 <label class="flex items-center">
@@ -200,7 +210,7 @@
                   <span class="text-gray-300">I understand that this action cannot be undone</span>
                 </label>
               </div>
-              
+
               <button
                 type="submit"
                 id="delete-account-btn"
@@ -221,29 +231,29 @@
   // Tab switching
   const tabBtns = document.querySelectorAll('.tab-btn');
   const tabContents = document.querySelectorAll('.tab-content');
-  
+
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       // Remove active class from all buttons
       tabBtns.forEach(b => b.classList.remove('active', 'border-neon-blue', 'text-white'));
       tabBtns.forEach(b => b.classList.add('text-gray-400', 'border-transparent'));
-      
+
       // Add active class to clicked button
       btn.classList.add('active', 'border-neon-blue', 'text-white');
       btn.classList.remove('text-gray-400', 'border-transparent');
-      
+
       // Hide all tab contents
       tabContents.forEach(content => content.classList.add('hidden'));
-      
+
       // Show selected tab content
       document.getElementById(`${btn.dataset.tab}-tab`).classList.remove('hidden');
     });
   });
-  
+
   // Profile picture preview
   const profilePicture = document.getElementById('profilePicture');
   const profilePreview = document.getElementById('profile-preview');
-  
+
   profilePicture?.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -254,12 +264,12 @@
       reader.readAsDataURL(file);
     }
   });
-  
+
   // Delete account confirmation
   const confirmDelete = document.getElementById('confirm-delete');
   const deleteAccountBtn = document.getElementById('delete-account-btn');
   const deleteAccountForm = document.getElementById('delete-account-form');
-  
+
   confirmDelete?.addEventListener('change', () => {
     if (confirmDelete.checked) {
       deleteAccountBtn.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -269,7 +279,7 @@
       deleteAccountBtn.disabled = true;
     }
   });
-  
+
   deleteAccountForm?.addEventListener('submit', (e) => {
     if (!confirm('Are you absolutely sure you want to delete your account? This action cannot be undone.')) {
       e.preventDefault();

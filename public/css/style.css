@@ -80,6 +80,28 @@
   background: #4d4d6a;
 }
 
+/* Transparent Scrollbar for Chat */
+.chat-container::-webkit-scrollbar,
+#history-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-container::-webkit-scrollbar-track,
+#history-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-container::-webkit-scrollbar-thumb,
+#history-list::-webkit-scrollbar-thumb {
+  background: rgba(61, 61, 92, 0.4);
+  border-radius: 10px;
+}
+
+.chat-container::-webkit-scrollbar-thumb:hover,
+#history-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(77, 77, 106, 0.6);
+}
+
 /* Utility Classes */
 .text-shadow {
   text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);

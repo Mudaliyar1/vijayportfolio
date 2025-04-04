@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Chat = require('../models/Chat');
 const GuestUser = require('../models/GuestUser');
 const Memory = require('../models/Memory');
+const Review = require('../models/Review');
 
 module.exports = {
   // Render admin dashboard
@@ -49,6 +50,7 @@ module.exports = {
       res.render('admin/users', {
         title: 'User Management - FTRAISE AI',
         users,
+        currentUser: req.user, // Pass the current user to the view
         path: '/admin/users',
         layout: 'layouts/no-footer'
       });
@@ -294,18 +296,47 @@ module.exports = {
     try {
       const userId = req.params.id;
 
+      // Check if user exists
+      const userToDelete = await User.findById(userId);
+      if (!userToDelete) {
+        req.flash('error_msg', 'User not found');
+        return res.redirect('/admin/users');
+      }
+
+      // Check if admin is trying to delete their own account
+      const isSelfDelete = userId === req.user._id.toString();
+
       // Delete user's chats
       await Chat.deleteMany({ userId });
+
+      // Delete user's memories
+      await Memory.deleteMany({ userId });
+
+      // Delete user's reviews
+      await Review.deleteMany({ userId });
 
       // Delete user
       await User.findByIdAndDelete(userId);
 
-      req.flash('success_msg', 'User deleted successfully');
-      res.redirect('/admin/users');
+      if (isSelfDelete) {
+        // If admin deleted their own account, destroy the session and redirect to login
+        req.flash('success_msg', 'Your account has been deleted successfully');
+        return req.logout(function(err) {
+          if (err) {
+            console.error('Error during logout:', err);
+            return res.redirect('/admin/users');
+          }
+          res.redirect('/users/login');
+        });
+      } else {
+        // Normal redirect for deleting other users
+        req.flash('success_msg', 'User deleted successfully');
+        return res.redirect('/admin/users');
+      }
     } catch (err) {
-      console.error(err);
+      console.error('Error deleting user:', err);
       req.flash('error_msg', 'An error occurred while deleting the user');
-      res.redirect('/admin/users');
+      return res.redirect('/admin/users');
     }
   },
 

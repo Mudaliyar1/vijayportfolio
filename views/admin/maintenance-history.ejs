@@ -1,0 +1,391 @@
+<div class="flex flex-col md:flex-row">
+  <!-- Sidebar -->
+  <%- include('./partials/sidebar', { path: '/admin/maintenance' }) %>
+
+  <!-- Main Content -->
+  <div class="flex-grow p-6">
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <a href="/admin/maintenance" class="text-neon-blue hover:underline flex items-center mb-2">
+          <i class="fas fa-arrow-left mr-2"></i> Back to Maintenance Management
+        </a>
+        <h1 class="text-2xl font-bold">Maintenance History</h1>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <div class="relative">
+          <input
+            type="text"
+            id="history-search"
+            placeholder="Search history..."
+            class="bg-dark-200 border border-gray-700 rounded-md py-2 pl-10 pr-4 text-white focus:outline-none focus:border-neon-blue transition-colors w-64"
+          >
+          <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+        </div>
+
+        <select
+          id="filter-field"
+          class="bg-dark-200 border border-gray-700 rounded-md py-2 px-3 text-white focus:outline-none focus:border-neon-blue transition-colors"
+        >
+          <option value="all">All Fields</option>
+          <option value="reason">Reason</option>
+          <option value="admin">Admin</option>
+          <option value="time">Time</option>
+          <option value="duration">Duration</option>
+          <option value="status">Status</option>
+          <option value="attempts">Login Attempts</option>
+        </select>
+
+        <select
+          id="history-filter"
+          class="bg-dark-200 border border-gray-700 rounded-md py-2 px-3 text-white focus:outline-none focus:border-neon-blue transition-colors"
+        >
+          <option value="all">All Status</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+          <option value="active">Active</option>
+        </select>
+
+        <button id="reset-filters" class="bg-dark-200 border border-gray-700 rounded-md py-2 px-3 text-white hover:bg-dark-300 transition-colors">
+          <i class="fas fa-redo-alt mr-1"></i> Reset
+        </button>
+      </div>
+    </div>
+
+    <!-- Maintenance History Table -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden">
+      <div class="p-4 border-b border-gray-800 bg-dark-200 flex justify-between items-center">
+        <div class="flex items-center">
+          <input type="checkbox" id="select-all-history" class="mr-2 h-4 w-4 rounded border-gray-700 text-neon-blue focus:ring-neon-blue">
+          <label for="select-all-history" class="text-sm text-gray-400">Select All</label>
+        </div>
+
+        <button id="delete-selected-history" class="bg-red-600 text-white py-1 px-3 rounded-md hover:bg-red-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+          Delete Selected
+        </button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-dark-200 border-b border-gray-800">
+              <th class="py-3 px-4 text-left w-10">
+                <span class="sr-only">Select</span>
+              </th>
+              <th class="py-3 px-4 text-left">Reason</th>
+              <th class="py-3 px-4 text-left">Admin</th>
+              <th class="py-3 px-4 text-left">Start Time</th>
+              <th class="py-3 px-4 text-left">Duration</th>
+              <th class="py-3 px-4 text-left">Status</th>
+              <th class="py-3 px-4 text-left">Login Attempts</th>
+              <th class="py-3 px-4 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="history-table-body">
+            <% if (maintenanceHistory.length > 0) { %>
+              <% maintenanceHistory.forEach(history => { %>
+                <tr class="border-b border-gray-800 hover:bg-dark-200 transition-colors">
+                  <td class="py-3 px-4">
+                    <input type="checkbox" class="history-checkbox h-4 w-4 rounded border-gray-700 text-neon-blue focus:ring-neon-blue" data-id="<%= history._id %>">
+                  </td>
+                  <td class="py-3 px-4">
+                    <div class="font-medium"><%= history.reason %></div>
+                    <div class="text-xs text-gray-400 truncate max-w-[200px]"><%= history.message %></div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <% if (history.adminId) { %>
+                      <%= history.adminId.username %>
+                    <% } else { %>
+                      <span class="text-gray-500">Unknown</span>
+                    <% } %>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div><%= new Date(history.startTime).toLocaleDateString() %></div>
+                    <div class="text-xs text-gray-400"><%= new Date(history.startTime).toLocaleTimeString() %></div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <%= history.durationValue %> <%= history.durationUnit %>
+                  </td>
+                  <td class="py-3 px-4">
+                    <span class="px-2 py-1 rounded-full text-xs
+                      <%= history.status === 'completed' ? 'bg-green-500/20 text-green-400' :
+                         history.status === 'cancelled' ? 'bg-red-500/20 text-red-400' :
+                         'bg-yellow-500/20 text-yellow-400' %>">
+                      <%= history.status.charAt(0).toUpperCase() + history.status.slice(1) %>
+                    </span>
+                  </td>
+                  <td class="py-3 px-4 text-center">
+                    <%= history.loginAttempts %>
+                  </td>
+                  <td class="py-3 px-4">
+                    <button class="text-neon-blue hover:text-neon-blue/80 view-details-btn" data-id="<%= history._id %>">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="7" class="py-4 text-center text-gray-500">No maintenance history found</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <% if (totalPages > 1) { %>
+      <div class="flex justify-center mt-6">
+        <div class="flex space-x-2">
+          <% if (currentPage > 1) { %>
+            <a href="/admin/maintenance/history?page=<%= currentPage - 1 %>" class="px-3 py-1 bg-dark-200 rounded-md hover:bg-dark-300 transition-colors">
+              <i class="fas fa-chevron-left"></i>
+            </a>
+          <% } %>
+
+          <% for (let i = 1; i <= totalPages; i++) { %>
+            <a href="/admin/maintenance/history?page=<%= i %>" class="px-3 py-1 <%= currentPage === i ? 'bg-neon-blue text-white' : 'bg-dark-200 hover:bg-dark-300' %> rounded-md transition-colors">
+              <%= i %>
+            </a>
+          <% } %>
+
+          <% if (currentPage < totalPages) { %>
+            <a href="/admin/maintenance/history?page=<%= currentPage + 1 %>" class="px-3 py-1 bg-dark-200 rounded-md hover:bg-dark-300 transition-colors">
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- View Details Modal -->
+<div id="details-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 max-w-2xl w-full mx-4">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-xl font-semibold">Maintenance Details</h3>
+      <button class="text-gray-400 hover:text-white close-modal">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div id="details-content" class="space-y-4">
+      <!-- Content will be loaded dynamically -->
+      <div class="animate-pulse">
+        <div class="h-4 bg-dark-200 rounded w-3/4 mb-2"></div>
+        <div class="h-4 bg-dark-200 rounded w-1/2 mb-2"></div>
+        <div class="h-4 bg-dark-200 rounded w-5/6 mb-2"></div>
+        <div class="h-4 bg-dark-200 rounded w-2/3 mb-2"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // DOM Elements
+  const historySearch = document.getElementById('history-search');
+  const historyFilter = document.getElementById('history-filter');
+  const filterField = document.getElementById('filter-field');
+  const resetFiltersBtn = document.getElementById('reset-filters');
+  const historyTableBody = document.getElementById('history-table-body');
+  const detailsModal = document.getElementById('details-modal');
+  const detailsContent = document.getElementById('details-content');
+  const closeModalBtns = document.querySelectorAll('.close-modal');
+  const viewDetailsBtns = document.querySelectorAll('.view-details-btn');
+
+  // Bulk Delete Elements
+  const selectAllHistory = document.getElementById('select-all-history');
+  const deleteSelectedHistory = document.getElementById('delete-selected-history');
+  const historyCheckboxes = document.querySelectorAll('.history-checkbox');
+
+  // Close modal
+  closeModalBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      detailsModal.classList.add('hidden');
+    });
+  });
+
+  // View details
+  viewDetailsBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const historyId = btn.dataset.id;
+
+      // Show modal with loading state
+      detailsModal.classList.remove('hidden');
+
+      // In a real implementation, you would fetch the details from the server
+      // For now, we'll just show some dummy content
+      const row = btn.closest('tr');
+      const reason = row.querySelector('td:first-child div:first-child').textContent;
+      const message = row.querySelector('td:first-child div:last-child').textContent;
+      const admin = row.querySelector('td:nth-child(2)').textContent.trim();
+      const startDate = row.querySelector('td:nth-child(3) div:first-child').textContent;
+      const startTime = row.querySelector('td:nth-child(3) div:last-child').textContent;
+      const duration = row.querySelector('td:nth-child(4)').textContent.trim();
+      const status = row.querySelector('td:nth-child(5) span').textContent.trim();
+      const loginAttempts = row.querySelector('td:nth-child(6)').textContent.trim();
+
+      // Update modal content
+      detailsContent.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <p class="text-gray-400">Reason:</p>
+            <p class="text-white">${reason}</p>
+          </div>
+          <div>
+            <p class="text-gray-400">Admin:</p>
+            <p class="text-white">${admin}</p>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <p class="text-gray-400">Message:</p>
+          <p class="text-white">${message}</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <div>
+            <p class="text-gray-400">Start Time:</p>
+            <p class="text-white">${startDate} ${startTime}</p>
+          </div>
+          <div>
+            <p class="text-gray-400">Duration:</p>
+            <p class="text-white">${duration}</p>
+          </div>
+          <div>
+            <p class="text-gray-400">Status:</p>
+            <p class="text-white">${status}</p>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <p class="text-gray-400">Login Attempts:</p>
+          <p class="text-white">${loginAttempts}</p>
+        </div>
+      `;
+    });
+  });
+
+  // Search and filter history
+  function filterHistory() {
+    const searchTerm = historySearch.value.toLowerCase();
+    const filterValue = historyFilter.value;
+    const fieldValue = filterField.value;
+    const rows = historyTableBody.querySelectorAll('tr');
+
+    rows.forEach(row => {
+      if (row.querySelector('td:first-child')) {
+        const reason = row.querySelector('td:first-child div:first-child')?.textContent.toLowerCase() || '';
+        const message = row.querySelector('td:first-child div:last-child')?.textContent.toLowerCase() || '';
+        const admin = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
+        const startTime = row.querySelector('td:nth-child(3)')?.textContent.toLowerCase() || '';
+        const duration = row.querySelector('td:nth-child(4)')?.textContent.toLowerCase() || '';
+        const status = row.querySelector('td:nth-child(5) span')?.textContent.toLowerCase() || '';
+        const attempts = row.querySelector('td:nth-child(6)')?.textContent.toLowerCase() || '0';
+
+        // Check search term based on field filter
+        let matchesSearch = false;
+
+        if (fieldValue === 'all') {
+          matchesSearch = reason.includes(searchTerm) ||
+                         message.includes(searchTerm) ||
+                         admin.includes(searchTerm) ||
+                         startTime.includes(searchTerm) ||
+                         duration.includes(searchTerm) ||
+                         status.includes(searchTerm) ||
+                         attempts.includes(searchTerm);
+        } else if (fieldValue === 'reason') {
+          matchesSearch = reason.includes(searchTerm) || message.includes(searchTerm);
+        } else if (fieldValue === 'admin') {
+          matchesSearch = admin.includes(searchTerm);
+        } else if (fieldValue === 'time') {
+          matchesSearch = startTime.includes(searchTerm);
+        } else if (fieldValue === 'duration') {
+          matchesSearch = duration.includes(searchTerm);
+        } else if (fieldValue === 'status') {
+          matchesSearch = status.includes(searchTerm);
+        } else if (fieldValue === 'attempts') {
+          matchesSearch = attempts.includes(searchTerm);
+        }
+
+        const matchesFilter = filterValue === 'all' || status.toLowerCase().includes(filterValue);
+
+        if (matchesSearch && matchesFilter) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      }
+    });
+  }
+
+  // Event listeners for search and filter
+  historySearch.addEventListener('input', filterHistory);
+  historyFilter.addEventListener('change', filterHistory);
+  filterField.addEventListener('change', filterHistory);
+
+  // Reset filters
+  resetFiltersBtn.addEventListener('click', () => {
+    historySearch.value = '';
+    historyFilter.value = 'all';
+    filterField.value = 'all';
+    filterHistory();
+  });
+
+  // Handle select all checkbox
+  selectAllHistory.addEventListener('change', () => {
+    const isChecked = selectAllHistory.checked;
+    historyCheckboxes.forEach(checkbox => {
+      checkbox.checked = isChecked;
+    });
+    updateDeleteButton();
+  });
+
+  // Handle individual checkboxes
+  historyCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+      updateDeleteButton();
+
+      // Update select all checkbox
+      const allChecked = Array.from(historyCheckboxes).every(cb => cb.checked);
+      selectAllHistory.checked = allChecked;
+    });
+  });
+
+  // Update delete button state
+  function updateDeleteButton() {
+    const checkedCount = Array.from(historyCheckboxes).filter(cb => cb.checked).length;
+    deleteSelectedHistory.disabled = checkedCount === 0;
+    deleteSelectedHistory.textContent = `Delete Selected (${checkedCount})`;
+  }
+
+  // Handle delete selected button
+  deleteSelectedHistory.addEventListener('click', () => {
+    const selectedIds = Array.from(historyCheckboxes)
+      .filter(cb => cb.checked)
+      .map(cb => cb.dataset.id);
+
+    if (selectedIds.length === 0) return;
+
+    if (confirm(`Are you sure you want to delete ${selectedIds.length} maintenance history records? This action cannot be undone.`)) {
+      // Create a form to submit the delete request
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/admin/maintenance/history/bulk-delete?_method=DELETE';
+
+      // Add the selected IDs as hidden inputs
+      selectedIds.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'ids[]';
+        input.value = id;
+        form.appendChild(input);
+      });
+
+      // Add the form to the document and submit it
+      document.body.appendChild(form);
+      form.submit();
+    }
+  });
+</script>

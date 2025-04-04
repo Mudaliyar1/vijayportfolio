@@ -3,11 +3,12 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const { ensureAuthenticated } = require('../middlewares/auth');
-const { 
-  getProfilePage, 
-  updateProfile, 
+const {
+  getProfilePage,
+  updateProfile,
   updatePassword,
-  updateProfilePicture
+  updateProfilePicture,
+  removeProfilePicture
 } = require('../controllers/profileController');
 
 // Configure multer for file uploads
@@ -29,7 +30,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({ 
+const upload = multer({
   storage: storage,
   limits: {
     fileSize: 1024 * 1024 * 5 // 5MB limit
@@ -48,5 +49,8 @@ router.put('/password', ensureAuthenticated, updatePassword);
 
 // Update profile picture
 router.put('/picture', ensureAuthenticated, upload.single('profilePicture'), updateProfilePicture);
+
+// Remove profile picture
+router.delete('/picture/remove', ensureAuthenticated, removeProfilePicture);
 
 module.exports = router;

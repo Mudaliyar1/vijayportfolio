@@ -1,0 +1,307 @@
+<div class="flex flex-col md:flex-row">
+  <!-- Sidebar -->
+  <%- include('./partials/sidebar', { path: '/admin/maintenance' }) %>
+  
+  <!-- Main Content -->
+  <div class="flex-grow p-6">
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <a href="/admin/maintenance" class="text-neon-blue hover:underline flex items-center mb-2">
+          <i class="fas fa-arrow-left mr-2"></i> Back to Maintenance Management
+        </a>
+        <h1 class="text-2xl font-bold">Login Attempts During Maintenance</h1>
+      </div>
+      
+      <div class="flex items-center space-x-2">
+        <div class="relative">
+          <input 
+            type="text" 
+            id="attempt-search" 
+            placeholder="Search attempts..." 
+            class="bg-dark-200 border border-gray-700 rounded-md py-2 pl-10 pr-4 text-white focus:outline-none focus:border-neon-blue transition-colors w-64"
+          >
+          <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+        </div>
+        
+        <form action="/admin/maintenance/attempts?_method=DELETE" method="POST" onsubmit="return confirm('Are you sure you want to clear all login attempts? This action cannot be undone.');">
+          <button type="submit" class="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors">
+            Clear All
+          </button>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-4 mb-6">
+      <div class="flex flex-wrap gap-2">
+        <select id="filter-type" class="bg-dark-200 border border-gray-700 rounded-md py-1 px-3 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors">
+          <option value="all">All Fields</option>
+          <option value="username">Username</option>
+          <option value="ip">IP Address</option>
+          <option value="device">Device</option>
+          <option value="browser">Browser</option>
+          <option value="time">Time</option>
+          <option value="status">Status</option>
+        </select>
+        
+        <input 
+          type="date" 
+          id="date-filter" 
+          class="bg-dark-200 border border-gray-700 rounded-md py-1 px-3 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors"
+        >
+        
+        <select id="device-filter" class="bg-dark-200 border border-gray-700 rounded-md py-1 px-3 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors">
+          <option value="all">All Devices</option>
+          <option value="Mobile">Mobile</option>
+          <option value="Tablet">Tablet</option>
+          <option value="Desktop">Desktop</option>
+        </select>
+        
+        <select id="status-filter" class="bg-dark-200 border border-gray-700 rounded-md py-1 px-3 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors">
+          <option value="all">All Status</option>
+          <option value="passed">Passed</option>
+          <option value="failed">Failed</option>
+          <option value="blocked">Blocked</option>
+        </select>
+        
+        <button id="reset-filters" class="bg-dark-200 border border-gray-700 rounded-md py-1 px-3 text-white text-sm hover:bg-dark-300 transition-colors">
+          Reset Filters
+        </button>
+      </div>
+    </div>
+    
+    <!-- Login Attempts Table -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-dark-200 border-b border-gray-800">
+              <th class="py-3 px-4 text-left">Username</th>
+              <th class="py-3 px-4 text-left">IP Address</th>
+              <th class="py-3 px-4 text-left">Device</th>
+              <th class="py-3 px-4 text-left">Browser</th>
+              <th class="py-3 px-4 text-left">Time</th>
+              <th class="py-3 px-4 text-left">Status</th>
+              <th class="py-3 px-4 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="attempts-table-body">
+            <% if (loginAttempts.length > 0) { %>
+              <% loginAttempts.forEach(attempt => { %>
+                <tr class="border-b border-gray-800 hover:bg-dark-200 transition-colors">
+                  <td class="py-3 px-4"><%= attempt.username %></td>
+                  <td class="py-3 px-4">
+                    <div class="font-mono text-xs"><%= attempt.ipAddress %></div>
+                    <% if (attempt.forwardedIp) { %>
+                      <div class="text-xs text-gray-500 mt-1">Forwarded: <%= attempt.forwardedIp %></div>
+                    <% } %>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div>
+                      <span class="<%= attempt.deviceType.toLowerCase() === 'smartphone' ? 'text-green-400' : (attempt.deviceType.toLowerCase() === 'tablet' ? 'text-blue-400' : 'text-gray-400') %>">
+                        <i class="fas <%= attempt.deviceType.toLowerCase() === 'smartphone' ? 'fa-mobile-alt' : (attempt.deviceType.toLowerCase() === 'tablet' ? 'fa-tablet-alt' : 'fa-desktop') %> mr-1"></i>
+                        <%= attempt.deviceType %>
+                      </span>
+                    </div>
+                    <% if (attempt.deviceBrand || attempt.deviceModel) { %>
+                      <div class="text-xs text-gray-400 mt-1">
+                        <%= attempt.deviceBrand %> <%= attempt.deviceModel %>
+                      </div>
+                    <% } %>
+                    <div class="text-xs text-gray-500 mt-1">
+                      <%= attempt.operatingSystem %> <%= attempt.osVersion %>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div><%= attempt.browser %></div>
+                    <div class="text-xs text-gray-500"><%= attempt.browserVersion %></div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div><%= new Date(attempt.timestamp).toLocaleDateString() %></div>
+                    <div class="text-xs text-gray-500"><%= new Date(attempt.timestamp).toLocaleTimeString() %></div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <span class="px-2 py-1 rounded-full text-xs 
+                      <%= attempt.status === 'passed' ? 'bg-green-500/20 text-green-400' : 
+                         attempt.status === 'blocked' ? 'bg-yellow-500/20 text-yellow-400' : 
+                         'bg-red-500/20 text-red-400' %>">
+                      <%= attempt.status.charAt(0).toUpperCase() + attempt.status.slice(1) %>
+                    </span>
+                    <% if (attempt.reason) { %>
+                      <div class="text-xs text-gray-500 mt-1"><%= attempt.reason %></div>
+                    <% } %>
+                  </td>
+                  <td class="py-3 px-4">
+                    <form method="POST" action="/admin/maintenance/attempts/<%= attempt._id %>?_method=DELETE" class="inline-block">
+                      <button type="submit" class="text-red-500 hover:text-red-400 transition-colors">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="7" class="py-4 text-center text-gray-500">No login attempts recorded during maintenance</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Pagination -->
+    <% if (totalPages > 1) { %>
+      <div class="flex justify-center mt-6">
+        <div class="flex space-x-2">
+          <% if (currentPage > 1) { %>
+            <a href="/admin/maintenance/attempts?page=<%= currentPage - 1 %>" class="px-3 py-1 bg-dark-200 rounded-md hover:bg-dark-300 transition-colors">
+              <i class="fas fa-chevron-left"></i>
+            </a>
+          <% } %>
+          
+          <% for (let i = 1; i <= totalPages; i++) { %>
+            <a href="/admin/maintenance/attempts?page=<%= i %>" class="px-3 py-1 <%= currentPage === i ? 'bg-neon-blue text-white' : 'bg-dark-200 hover:bg-dark-300' %> rounded-md transition-colors">
+              <%= i %>
+            </a>
+          <% } %>
+          
+          <% if (currentPage < totalPages) { %>
+            <a href="/admin/maintenance/attempts?page=<%= currentPage + 1 %>" class="px-3 py-1 bg-dark-200 rounded-md hover:bg-dark-300 transition-colors">
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<script>
+  // DOM Elements
+  const attemptSearch = document.getElementById('attempt-search');
+  const attemptsTableBody = document.getElementById('attempts-table-body');
+  const filterType = document.getElementById('filter-type');
+  const dateFilter = document.getElementById('date-filter');
+  const deviceFilter = document.getElementById('device-filter');
+  const statusFilter = document.getElementById('status-filter');
+  const resetFiltersBtn = document.getElementById('reset-filters');
+  
+  // Advanced Search for Login Attempts
+  function filterAttempts() {
+    const searchTerm = attemptSearch.value.toLowerCase();
+    const filterTypeValue = filterType.value;
+    const dateFilterValue = dateFilter.value ? new Date(dateFilter.value) : null;
+    const deviceFilterValue = deviceFilter.value;
+    const statusFilterValue = statusFilter.value;
+    
+    const rows = attemptsTableBody.querySelectorAll('tr');
+    
+    rows.forEach(row => {
+      if (row.querySelector('td:first-child')) {
+        const username = row.querySelector('td:first-child').textContent.toLowerCase();
+        const ipAddress = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        const device = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+        const browser = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+        const timeStr = row.querySelector('td:nth-child(5)').textContent;
+        const time = new Date(timeStr);
+        const status = row.querySelector('td:nth-child(6)')?.textContent.toLowerCase() || '';
+        
+        // Check search term based on filter type
+        let matchesSearch = false;
+        
+        if (filterTypeValue === 'all') {
+          matchesSearch = username.includes(searchTerm) || 
+                         ipAddress.includes(searchTerm) || 
+                         device.includes(searchTerm) || 
+                         browser.includes(searchTerm) ||
+                         timeStr.toLowerCase().includes(searchTerm) ||
+                         status.includes(searchTerm);
+        } else if (filterTypeValue === 'username') {
+          matchesSearch = username.includes(searchTerm);
+        } else if (filterTypeValue === 'ip') {
+          matchesSearch = ipAddress.includes(searchTerm);
+        } else if (filterTypeValue === 'device') {
+          matchesSearch = device.includes(searchTerm);
+        } else if (filterTypeValue === 'browser') {
+          matchesSearch = browser.includes(searchTerm);
+        } else if (filterTypeValue === 'time') {
+          matchesSearch = timeStr.toLowerCase().includes(searchTerm);
+        } else if (filterTypeValue === 'status') {
+          matchesSearch = status.includes(searchTerm);
+        }
+        
+        // Check date filter
+        let matchesDate = true;
+        if (dateFilterValue) {
+          const rowDate = new Date(timeStr.split(',')[0]);
+          matchesDate = rowDate.toDateString() === dateFilterValue.toDateString();
+        }
+        
+        // Check device filter
+        let matchesDevice = true;
+        if (deviceFilterValue !== 'all') {
+          if (deviceFilterValue === 'Mobile') {
+            matchesDevice = device.toLowerCase().includes('smartphone') || device.toLowerCase().includes('mobile');
+          } else if (deviceFilterValue === 'Tablet') {
+            matchesDevice = device.toLowerCase().includes('tablet');
+          } else if (deviceFilterValue === 'Desktop') {
+            matchesDevice = device.toLowerCase().includes('desktop') || 
+                           (!device.toLowerCase().includes('smartphone') && 
+                            !device.toLowerCase().includes('mobile') && 
+                            !device.toLowerCase().includes('tablet'));
+          } else {
+            matchesDevice = device.toLowerCase().includes(deviceFilterValue.toLowerCase());
+          }
+        }
+        
+        // Check status filter
+        let matchesStatus = true;
+        if (statusFilterValue !== 'all') {
+          matchesStatus = status.toLowerCase().includes(statusFilterValue.toLowerCase());
+        }
+        
+        // Show/hide row based on all filters
+        if (matchesSearch && matchesDate && matchesDevice && matchesStatus) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      }
+    });
+    
+    // Show "no results" message if all rows are hidden
+    const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
+    const noResultsRow = attemptsTableBody.querySelector('.no-results-row');
+    
+    if (visibleRows.length === 0 && !noResultsRow) {
+      const newRow = document.createElement('tr');
+      newRow.className = 'no-results-row';
+      newRow.innerHTML = `
+        <td colspan="7" class="py-4 text-center text-gray-500">
+          No login attempts match your search criteria
+        </td>
+      `;
+      attemptsTableBody.appendChild(newRow);
+    } else if (visibleRows.length > 0 && noResultsRow) {
+      noResultsRow.remove();
+    }
+  }
+  
+  // Reset filters
+  resetFiltersBtn.addEventListener('click', () => {
+    attemptSearch.value = '';
+    filterType.value = 'all';
+    dateFilter.value = '';
+    deviceFilter.value = 'all';
+    statusFilter.value = 'all';
+    filterAttempts();
+  });
+  
+  // Event listeners for filters
+  attemptSearch.addEventListener('input', filterAttempts);
+  filterType.addEventListener('change', filterAttempts);
+  dateFilter.addEventListener('change', filterAttempts);
+  deviceFilter.addEventListener('change', filterAttempts);
+  statusFilter.addEventListener('change', filterAttempts);
+</script>

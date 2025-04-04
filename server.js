@@ -9,6 +9,10 @@ const methodOverride = require('method-override');
 const path = require('path');
 const expressLayouts = require('express-ejs-layouts');
 const cookieParser = require('cookie-parser');
+const useragent = require('useragent');
+
+// Load maintenance middleware
+const { maintenanceMiddleware } = require('./controllers/maintenanceController');
 
 // Initialize Express app
 const app = express();
@@ -40,7 +44,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({ 
+  store: MongoStore.create({
     mongoUrl: process.env.MONGODB_URI,
     ttl: 14 * 24 * 60 * 60 // 14 days
   }),
@@ -66,12 +70,17 @@ app.use((req, res, next) => {
   next();
 });
 
+// Maintenance mode middleware
+app.use(maintenanceMiddleware);
+
 // Routes
 app.use('/', require('./routes/index'));
 app.use('/users', require('./routes/users'));
 app.use('/chat', require('./routes/chat'));
 app.use('/admin', require('./routes/admin'));
 app.use('/profile', require('./routes/profile'));
+app.use('/reviews', require('./routes/reviews'));
+app.use('/maintenance', require('./routes/maintenance'));
 
 // 404 handler
 app.use((req, res) => {
