@@ -92,7 +92,7 @@
                     <div class="text-xs text-gray-400 truncate max-w-[200px]"><%= history.message %></div>
                   </td>
                   <td class="py-3 px-4">
-                    <% if (history.adminId) { %>
+                    <% if (history.adminId && history.adminId.username) { %>
                       <%= history.adminId.username %>
                     <% } else { %>
                       <span class="text-gray-500">Unknown</span>
@@ -214,56 +214,67 @@
       // Show modal with loading state
       detailsModal.classList.remove('hidden');
 
-      // In a real implementation, you would fetch the details from the server
-      // For now, we'll just show some dummy content
-      const row = btn.closest('tr');
-      const reason = row.querySelector('td:first-child div:first-child').textContent;
-      const message = row.querySelector('td:first-child div:last-child').textContent;
-      const admin = row.querySelector('td:nth-child(2)').textContent.trim();
-      const startDate = row.querySelector('td:nth-child(3) div:first-child').textContent;
-      const startTime = row.querySelector('td:nth-child(3) div:last-child').textContent;
-      const duration = row.querySelector('td:nth-child(4)').textContent.trim();
-      const status = row.querySelector('td:nth-child(5) span').textContent.trim();
-      const loginAttempts = row.querySelector('td:nth-child(6)').textContent.trim();
-
-      // Update modal content
+      // Show loading state
       detailsContent.innerHTML = `
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <p class="text-gray-400">Reason:</p>
-            <p class="text-white">${reason}</p>
-          </div>
-          <div>
-            <p class="text-gray-400">Admin:</p>
-            <p class="text-white">${admin}</p>
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <p class="text-gray-400">Message:</p>
-          <p class="text-white">${message}</p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          <div>
-            <p class="text-gray-400">Start Time:</p>
-            <p class="text-white">${startDate} ${startTime}</p>
-          </div>
-          <div>
-            <p class="text-gray-400">Duration:</p>
-            <p class="text-white">${duration}</p>
-          </div>
-          <div>
-            <p class="text-gray-400">Status:</p>
-            <p class="text-white">${status}</p>
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <p class="text-gray-400">Login Attempts:</p>
-          <p class="text-white">${loginAttempts}</p>
+        <div class="animate-pulse">
+          <div class="h-4 bg-dark-200 rounded w-3/4 mb-2"></div>
+          <div class="h-4 bg-dark-200 rounded w-1/2 mb-2"></div>
+          <div class="h-4 bg-dark-200 rounded w-5/6 mb-2"></div>
+          <div class="h-4 bg-dark-200 rounded w-2/3 mb-2"></div>
         </div>
       `;
+
+      // Get data from the row
+      const row = btn.closest('tr');
+      const reason = row.querySelector('td:nth-child(2) div:first-child').textContent;
+      const message = row.querySelector('td:nth-child(2) div:last-child').textContent;
+      const admin = row.querySelector('td:nth-child(3)').textContent.trim();
+      const startDate = row.querySelector('td:nth-child(4) div:first-child').textContent;
+      const startTime = row.querySelector('td:nth-child(4) div:last-child').textContent;
+      const duration = row.querySelector('td:nth-child(5)').textContent.trim();
+      const status = row.querySelector('td:nth-child(6) span').textContent.trim();
+      const loginAttempts = row.querySelector('td:nth-child(7)').textContent.trim();
+
+      // Update modal content with a slight delay to ensure DOM is ready
+      setTimeout(() => {
+        detailsContent.innerHTML = `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p class="text-gray-400">Reason:</p>
+              <p class="text-white font-medium">${reason}</p>
+            </div>
+            <div>
+              <p class="text-gray-400">Admin:</p>
+              <p class="text-white font-medium">${admin}</p>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <p class="text-gray-400">Message:</p>
+            <p class="text-white">${message}</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div>
+              <p class="text-gray-400">Start Time:</p>
+              <p class="text-white">${startDate} ${startTime}</p>
+            </div>
+            <div>
+              <p class="text-gray-400">Duration:</p>
+              <p class="text-white">${duration}</p>
+            </div>
+            <div>
+              <p class="text-gray-400">Status:</p>
+              <p class="text-white font-medium">${status}</p>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <p class="text-gray-400">Login Attempts:</p>
+            <p class="text-white">${loginAttempts}</p>
+          </div>
+        `;
+      }, 100);
     });
   });
 
