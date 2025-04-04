@@ -38,6 +38,12 @@ if (typeof path === 'undefined') {
           <span class="ml-3">Guest Management</span>
         </a>
       </li>
+      <li>
+        <a href="/admin/memories" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/memories' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+          <i class="fas fa-brain w-5"></i>
+          <span class="ml-3">AI Memory</span>
+        </a>
+      </li>
     </ul>
   </nav>
 
@@ -113,6 +119,12 @@ if (typeof path === 'undefined') {
           <a href="/admin/guests" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/guests' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
             <i class="fas fa-user-secret w-5"></i>
             <span class="ml-3">Guest Management</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/memories" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/memories' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-brain w-5"></i>
+            <span class="ml-3">AI Memory</span>
           </a>
         </li>
       </ul>

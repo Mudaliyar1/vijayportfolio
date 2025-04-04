@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { ensureAdmin } = require('../middlewares/auth');
-const { 
-  getDashboard, 
-  getUserManagement, 
+const {
+  getDashboard,
+  getUserManagement,
   getChatManagement,
   getGuestManagement,
   createUser,
@@ -12,7 +12,11 @@ const {
   deleteUser,
   viewChat,
   deleteChat,
-  deleteGuest
+  deleteGuest,
+  getMemoryManagement,
+  viewMemory,
+  deleteMemory,
+  deleteInteraction
 } = require('../controllers/adminController');
 
 // Apply admin middleware to all routes
@@ -36,5 +40,11 @@ router.delete('/chats/:id', deleteChat);
 // Guest management
 router.get('/guests', getGuestManagement);
 router.delete('/guests/:id', deleteGuest);
+
+// Memory management
+router.get('/memories', getMemoryManagement);
+router.get('/memories/:id', viewMemory);
+router.delete('/memories/:id', deleteMemory);
+router.delete('/memories/:memoryId/interactions/:interactionIndex', deleteInteraction);
 
 module.exports = router;

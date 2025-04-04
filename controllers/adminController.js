@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Chat = require('../models/Chat');
 const GuestUser = require('../models/GuestUser');
+const Memory = require('../models/Memory');
 
 module.exports = {
   // Render admin dashboard
@@ -366,6 +367,9 @@ module.exports = {
       // Delete guest's chats
       await Chat.deleteMany({ guestId: guest.ipAddress });
 
+      // Delete guest's memories
+      await Memory.deleteMany({ guestId: guest.ipAddress });
+
       // Delete guest
       await GuestUser.findByIdAndDelete(guestId);
 
@@ -375,6 +379,95 @@ module.exports = {
       console.error(err);
       req.flash('error_msg', 'An error occurred while deleting the guest user');
       res.redirect('/admin/guests');
+    }
+  },
+
+  // Render memory management page
+  getMemoryManagement: async (req, res) => {
+    try {
+      // Get all memories and populate user information
+      const memories = await Memory.find()
+        .sort({ updatedAt: -1 })
+        .populate('userId', 'username');
+
+      res.render('admin/memories', {
+        title: 'AI Memory Management - FTRAISE AI',
+        memories,
+        path: '/admin/memories',
+        layout: 'layouts/no-footer'
+      });
+    } catch (err) {
+      console.error(err);
+      req.flash('error_msg', 'An error occurred while loading memories');
+      res.redirect('/admin');
+    }
+  },
+
+  // View a specific memory
+  viewMemory: async (req, res) => {
+    try {
+      const memoryId = req.params.id;
+
+      const memory = await Memory.findById(memoryId)
+        .populate('userId', 'username');
+
+      if (!memory) {
+        req.flash('error_msg', 'Memory not found');
+        return res.redirect('/admin/memories');
+      }
+
+      res.render('admin/view-memory', {
+        title: 'View Memory - FTRAISE AI',
+        memory,
+        path: '/admin/memories',
+        layout: 'layouts/no-footer'
+      });
+    } catch (err) {
+      console.error(err);
+      req.flash('error_msg', 'An error occurred while loading the memory');
+      res.redirect('/admin/memories');
+    }
+  },
+
+  // Delete a memory
+  deleteMemory: async (req, res) => {
+    try {
+      const memoryId = req.params.id;
+
+      await Memory.findByIdAndDelete(memoryId);
+
+      req.flash('success_msg', 'Memory deleted successfully');
+      res.redirect('/admin/memories');
+    } catch (err) {
+      console.error(err);
+      req.flash('error_msg', 'An error occurred while deleting the memory');
+      res.redirect('/admin/memories');
+    }
+  },
+
+  // Delete a specific interaction from memory
+  deleteInteraction: async (req, res) => {
+    try {
+      const { memoryId, interactionIndex } = req.params;
+
+      const memory = await Memory.findById(memoryId);
+
+      if (!memory) {
+        req.flash('error_msg', 'Memory not found');
+        return res.redirect('/admin/memories');
+      }
+
+      // Remove the interaction at the specified index
+      memory.interactions.splice(interactionIndex, 1);
+
+      await memory.save();
+
+      req.flash('success_msg', 'Interaction deleted successfully');
+      res.redirect(`/admin/memories/${memoryId}`);
+    } catch (err) {
+      console.error(err);
+      req.flash('error_msg', 'An error occurred while deleting the interaction');
+      res.redirect('/admin/memories');
     }
   }
 };

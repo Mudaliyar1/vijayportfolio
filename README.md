@@ -47,16 +47,79 @@ A sleek, futuristic, highly interactive, and fully responsive AI chat website us
    - Open `http://localhost:3000/generate-favicon.html` in your browser
    - Follow the instructions to save the favicon as `public/images/favicon.ico`
 
-5. Start the server:
+5. Run the database migration script (if upgrading from a previous version):
+   ```
+   npm run migrate
+   ```
+
+6. Start the server:
    ```
    npm start
    ```
 
-6. For development with auto-restart:
+7. For development with auto-restart:
    ```
    npm run dev
    ```
 
+
+## Deployment
+
+### Deploying to Render
+
+1. Create a Render account at [render.com](https://render.com)
+
+2. Create a new Web Service:
+   - Connect your GitHub repository
+   - Select the branch to deploy
+   - Use the following settings:
+     - **Environment**: Node
+     - **Build Command**: `npm install`
+     - **Start Command**: `node server.js`
+
+3. Add Environment Variables:
+   - `NODE_ENV`: production
+   - `PORT`: 10000 (Render will override this with its own port)
+   - `MONGODB_URI`: your MongoDB connection string
+   - `AI_API_KEY`: your Cohere API key
+   - `AI_MODEL`: command
+   - `SESSION_SECRET`: a secure random string
+
+4. Run the database migration (if needed):
+   - Go to the Render dashboard
+   - Open a shell for your service
+   - Run `npm run migrate`
+
+5. Deploy the service
+
+### Deploying to Heroku
+
+1. Create a Heroku account and install the Heroku CLI
+
+2. Login to Heroku and create a new app:
+   ```
+   heroku login
+   heroku create your-app-name
+   ```
+
+3. Add environment variables:
+   ```
+   heroku config:set NODE_ENV=production
+   heroku config:set MONGODB_URI=your_mongodb_connection_string
+   heroku config:set AI_API_KEY=your_cohere_api_key
+   heroku config:set AI_MODEL=command
+   heroku config:set SESSION_SECRET=your_session_secret
+   ```
+
+4. Push to Heroku:
+   ```
+   git push heroku main
+   ```
+
+5. Run the database migration (if needed):
+   ```
+   heroku run npm run migrate
+   ```
 
 ## Project Structure
 

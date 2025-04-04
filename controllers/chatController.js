@@ -2,6 +2,8 @@ const cohere = require('cohere-ai');
 const Chat = require('../models/Chat');
 const User = require('../models/User');
 const GuestUser = require('../models/GuestUser');
+const Memory = require('../models/Memory');
+const { detectLanguage } = require('../utils/languageDetection');
 
 // Initialize Cohere client
 console.log('API Key:', process.env.AI_API_KEY ? 'API key is set' : 'API key is not set');
@@ -113,7 +115,99 @@ module.exports = {
         content: message
       });
 
-      // We'll use the chat history directly in the API call
+      // Detect the language of the user's message
+      const languageInfo = detectLanguage(message);
+      console.log('Detected language:', languageInfo);
+
+      // Find or create a memory for this user/guest
+      let memory = null;
+      if (userId) {
+        memory = await Memory.findOne({ userId });
+      } else if (guestId) {
+        memory = await Memory.findOne({ guestId });
+      }
+
+      if (!memory) {
+        // Create new memory for first-time user
+        memory = new Memory({
+          userId,
+          guestId,
+          languagePreferences: {
+            primary: languageInfo.primary,
+            secondary: languageInfo.secondary,
+            history: [{
+              language: languageInfo.primary,
+              timestamp: new Date()
+            }]
+          },
+          context: 'General conversation',
+          learningProgress: {
+            languages: [{
+              name: languageInfo.primary,
+              proficiency: 1,
+              lastUsed: new Date()
+            }]
+          }
+        });
+        await memory.save();
+      } else {
+        // Update language preferences based on current detection
+
+        // Add to language history
+        memory.languagePreferences.history.push({
+          language: languageInfo.primary,
+          timestamp: new Date()
+        });
+
+        // Keep history at a reasonable size
+        if (memory.languagePreferences.history.length > 20) {
+          memory.languagePreferences.history = memory.languagePreferences.history.slice(-20);
+        }
+
+        // Update primary language if it's consistently used
+        const recentHistory = memory.languagePreferences.history.slice(-5);
+        const languageCounts = {};
+
+        recentHistory.forEach(entry => {
+          languageCounts[entry.language] = (languageCounts[entry.language] || 0) + 1;
+        });
+
+        // Find most frequent language in recent history
+        let mostFrequentLanguage = memory.languagePreferences.primary;
+        let highestCount = 0;
+
+        for (const [language, count] of Object.entries(languageCounts)) {
+          if (count > highestCount) {
+            mostFrequentLanguage = language;
+            highestCount = count;
+          }
+        }
+
+        // Update primary language if a new one is more frequent
+        if (mostFrequentLanguage !== memory.languagePreferences.primary) {
+          memory.languagePreferences.secondary = memory.languagePreferences.primary;
+          memory.languagePreferences.primary = mostFrequentLanguage;
+        }
+
+        // Update learning progress
+        let languageEntry = memory.learningProgress.languages.find(l => l.name === languageInfo.primary);
+
+        if (languageEntry) {
+          // Update existing language
+          languageEntry.proficiency = Math.min(10, languageEntry.proficiency + 0.1);
+          languageEntry.lastUsed = new Date();
+        } else {
+          // Add new language
+          memory.learningProgress.languages.push({
+            name: languageInfo.primary,
+            proficiency: 1,
+            commonPhrases: [],
+            lastUsed: new Date()
+          });
+        }
+
+        await memory.save();
+      }
 
       // Generate AI response
       let aiResponse;
@@ -122,8 +216,71 @@ module.exports = {
 
         // Use the generate endpoint for older versions of the API
         console.log('Using model:', process.env.AI_MODEL || 'command');
-        // Create a better prompt with context
-        const promptWithContext = `You are FTRAISE AI, a helpful, friendly, and knowledgeable AI assistant created by ftraise59/vijay. You provide accurate, concise, and helpful responses. You're designed to be conversational but focused on delivering valuable information.\n\nUser: ${message}\n\nFTRAISE AI:`;
+        // Create a better prompt with context and language instructions
+        let languageInstruction = '';
+        let exampleResponse = '';
+
+        // Add language-specific instructions based on detected language and user's history
+        const primaryLanguage = memory.languagePreferences.primary;
+        const secondaryLanguage = memory.languagePreferences.secondary;
+
+        // Check if this is a mixed language input
+        if (languageInfo.mixed) {
+          languageInstruction = `The user is communicating in a mix of ${languageInfo.primary} and ${languageInfo.secondary}. Respond using a similar mix of languages, adapting to the user's style.`;
+        } else {
+          // Instructions based on primary detected language
+          switch(languageInfo.primary) {
+            case 'hindi':
+              languageInstruction = 'Respond in Hindi. If the user is writing Hindi in Latin script (Hinglish), you should also respond in Hindi using Latin script.';
+              exampleResponse = 'आप कैसे हैं? मैं आपकी कैसे मदद कर सकता हूँ?';
+              break;
+            case 'tamil':
+              languageInstruction = 'Respond in Tamil. If the user is writing Tamil in Latin script, you should also respond in Tamil using Latin script.';
+              exampleResponse = 'நீங்கள் எப்படி இருக்கிறீர்கள்? நான் உங்களுக்கு எப்படி உதவ முடியும்?';
+              break;
+            case 'spanish':
+              languageInstruction = 'Respond in Spanish.';
+              exampleResponse = '¿Cómo estás? ¿En qué puedo ayudarte hoy?';
+              break;
+            case 'french':
+              languageInstruction = 'Respond in French.';
+              exampleResponse = 'Comment allez-vous? Comment puis-je vous aider aujourd\'hui?';
+              break;
+            default:
+              languageInstruction = 'Respond in English.';
+              exampleResponse = 'How are you? How can I help you today?';
+          }
+        }
+
+        // Add language adaptation instructions
+        const adaptationInstructions = `
+1. Always respond in the same language the user is using.
+2. If the user switches languages mid-conversation, you should also switch to that language.
+3. For mixed language inputs, respond with a similar mix of languages.
+4. Maintain a natural, conversational tone appropriate for the language being used.
+5. If you're unsure about the language, default to ${primaryLanguage}.
+`;
+
+        // Get previous interactions from memory for context (up to 5 most recent)
+        const previousInteractions = memory.interactions.slice(-5).map(interaction =>
+          `User: ${interaction.query}\nAI: ${interaction.response}`
+        ).join('\n\n');
+
+        // Create a comprehensive prompt with language instructions and examples
+        const promptWithContext = `You are FTRAISE AI, a helpful, friendly, and knowledgeable multilingual AI assistant created by ftraise59/vijay. You provide accurate, concise, and helpful responses. You're designed to be conversational but focused on delivering valuable information.
+
+${languageInstruction}
+
+${adaptationInstructions}
+
+Example response in ${languageInfo.primary}: ${exampleResponse}
+
+Previous conversation:
+${previousInteractions}
+
+User: ${message}
+
+FTRAISE AI:`;
 
         const response = await cohere.generate({
           prompt: promptWithContext,
@@ -193,6 +350,39 @@ module.exports = {
 
       // Update the response for the JSON return
       aiResponse = processedResponse;
+
+      // Determine the response language (same as query language unless specified otherwise)
+      const responseLanguage = languageInfo.primary;
+
+      // Save the interaction to memory with language information
+      memory.interactions.push({
+        query: message,
+        queryLanguage: {
+          primary: languageInfo.primary,
+          secondary: languageInfo.secondary,
+          mixed: languageInfo.mixed,
+          confidence: languageInfo.confidence
+        },
+        response: processedResponse,
+        responseLanguage: responseLanguage
+      });
+
+      // Extract and save common phrases for learning
+      if (message.length < 50) {
+        // Only save short phrases that are likely to be common expressions
+        const languageEntry = memory.learningProgress.languages.find(l => l.name === languageInfo.primary);
+        if (languageEntry && !languageEntry.commonPhrases.includes(message)) {
+          languageEntry.commonPhrases.push(message);
+          // Keep the list at a reasonable size
+          if (languageEntry.commonPhrases.length > 20) {
+            languageEntry.commonPhrases = languageEntry.commonPhrases.slice(-20);
+          }
+        }
+      }
+
+      await memory.save();
+
+      console.log('Saved interaction to memory with language data');
 
       // Save chat
       await chat.save();
