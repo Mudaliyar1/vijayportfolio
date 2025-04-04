@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generate Default Avatar</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f0f0f0;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      margin: 20px 0;
+    }
+    button {
+      padding: 10px 15px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .instructions {
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Generate Default Avatar</h1>
+  
+  <div class="instructions">
+    <h2>Instructions:</h2>
+    <ol>
+      <li>Click the "Generate Avatar" button below to create a simple avatar</li>
+      <li>Right-click on the generated image and select "Save Image As..."</li>
+      <li>Save the file as "default-avatar.png" in the "public/images" directory</li>
+    </ol>
+  </div>
+  
+  <button id="generate">Generate Avatar</button>
+  <div>
+    <canvas id="avatarCanvas" width="200" height="200"></canvas>
+  </div>
+  
+  <script>
+    document.getElementById('generate').addEventListener('click', function() {
+      const canvas = document.getElementById('avatarCanvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Background gradient
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, '#00f2ff');
+      gradient.addColorStop(1, '#8a2be2');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw circle for face
+      ctx.fillStyle = '#1e1e2e';
+      ctx.beginPath();
+      ctx.arc(canvas.width/2, canvas.height/2, 70, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Draw simple face features
+      ctx.fillStyle = '#00f2ff';
+      
+      // Eyes
+      ctx.beginPath();
+      ctx.arc(canvas.width/2 - 25, canvas.height/2 - 10, 10, 0, Math.PI * 2);
+      ctx.arc(canvas.width/2 + 25, canvas.height/2 - 10, 10, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Smile
+      ctx.beginPath();
+      ctx.arc(canvas.width/2, canvas.height/2 + 20, 30, 0, Math.PI);
+      ctx.stroke();
+    });
+    
+    // Generate avatar on page load
+    window.onload = function() {
+      document.getElementById('generate').click();
+    };
+  </script>
+</body>
+</html>

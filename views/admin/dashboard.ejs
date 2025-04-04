@@ -1,0 +1,143 @@
+<div class="flex flex-col md:flex-row">
+  <!-- Sidebar -->
+  <%- include('./partials/sidebar', { path: '/admin' }) %>
+
+  <!-- Main Content -->
+  <div class="flex-grow p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Admin Dashboard</h1>
+      <span class="text-sm text-gray-400">Welcome, <%= user.username %></span>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-blue transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Total Users</h3>
+          <div class="w-10 h-10 rounded-full bg-neon-blue/20 flex items-center justify-center">
+            <i class="fas fa-users text-neon-blue"></i>
+          </div>
+        </div>
+        <p class="text-3xl font-bold"><%= userCount %></p>
+        <a href="/admin/users" class="text-sm text-neon-blue hover:underline mt-2 inline-block">View All Users</a>
+      </div>
+
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-purple transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Total Chats</h3>
+          <div class="w-10 h-10 rounded-full bg-neon-purple/20 flex items-center justify-center">
+            <i class="fas fa-comments text-neon-purple"></i>
+          </div>
+        </div>
+        <p class="text-3xl font-bold"><%= chatCount %></p>
+        <a href="/admin/chats" class="text-sm text-neon-purple hover:underline mt-2 inline-block">View All Chats</a>
+      </div>
+
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-green transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Guest Users</h3>
+          <div class="w-10 h-10 rounded-full bg-neon-green/20 flex items-center justify-center">
+            <i class="fas fa-user-secret text-neon-green"></i>
+          </div>
+        </div>
+        <p class="text-3xl font-bold"><%= guestCount %></p>
+        <a href="/admin/guests" class="text-sm text-neon-green hover:underline mt-2 inline-block">View Guest Users</a>
+      </div>
+    </div>
+
+    <!-- Recent Users -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Recent Users</h2>
+        <a href="/admin/users" class="text-sm text-neon-blue hover:underline">View All</a>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b border-gray-800">
+              <th class="py-3 px-4 text-left">Username</th>
+              <th class="py-3 px-4 text-left">Email</th>
+              <th class="py-3 px-4 text-left">Role</th>
+              <th class="py-3 px-4 text-left">Joined</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (recentUsers.length > 0) { %>
+              <% recentUsers.forEach(user => { %>
+                <tr class="border-b border-gray-800 hover:bg-dark-200 transition-colors">
+                  <td class="py-3 px-4">
+                    <div class="flex items-center">
+                      <img src="<%= user.profilePicture %>" alt="<%= user.username %>" class="w-8 h-8 rounded-full mr-3">
+                      <%= user.username %>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4"><%= user.email %></td>
+                  <td class="py-3 px-4">
+                    <span class="px-2 py-1 rounded-full text-xs <%= user.role === 'admin' ? 'bg-neon-purple/20 text-neon-purple' : 'bg-neon-blue/20 text-neon-blue' %>">
+                      <%= user.role %>
+                    </span>
+                  </td>
+                  <td class="py-3 px-4"><%= new Date(user.createdAt).toLocaleDateString() %></td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="4" class="py-4 text-center text-gray-500">No users found</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recent Chats -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Recent Chats</h2>
+        <a href="/admin/chats" class="text-sm text-neon-blue hover:underline">View All</a>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b border-gray-800">
+              <th class="py-3 px-4 text-left">Title</th>
+              <th class="py-3 px-4 text-left">User</th>
+              <th class="py-3 px-4 text-left">Messages</th>
+              <th class="py-3 px-4 text-left">Last Updated</th>
+              <th class="py-3 px-4 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (recentChats.length > 0) { %>
+              <% recentChats.forEach(chat => { %>
+                <tr class="border-b border-gray-800 hover:bg-dark-200 transition-colors">
+                  <td class="py-3 px-4 truncate max-w-[200px]"><%= chat.title %></td>
+                  <td class="py-3 px-4">
+                    <% if (chat.userId) { %>
+                      <%= chat.userId.username %>
+                    <% } else { %>
+                      <span class="text-gray-500">Guest</span>
+                    <% } %>
+                  </td>
+                  <td class="py-3 px-4"><%= chat.messages.length %></td>
+                  <td class="py-3 px-4"><%= new Date(chat.updatedAt).toLocaleString() %></td>
+                  <td class="py-3 px-4">
+                    <a href="/admin/chats/<%= chat._id %>" class="text-neon-blue hover:underline mr-3">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="5" class="py-4 text-center text-gray-500">No chats found</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,690 @@
+<div class="flex h-[calc(100vh-10rem)] flex-col md:flex-row w-full max-w-full overflow-hidden">
+  <!-- Chat History Sidebar (Hidden by default) -->
+  <div id="history-sidebar" class="hidden md:w-80 bg-dark-200 border-r border-gray-800 flex flex-col h-full transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out absolute md:relative z-10 w-full md:w-80">
+    <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+      <h2 class="text-xl font-semibold">Chat History</h2>
+      <button id="close-history" class="text-gray-400 hover:text-white">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div id="history-list" class="flex-grow overflow-y-auto p-2">
+      <div class="flex justify-center items-center h-full text-gray-500">
+        <div class="text-center">
+          <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+          <p>Loading history...</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-3 border-t border-gray-800">
+      <button id="new-chat" class="w-full py-2 px-4 bg-dark-100 hover:bg-dark-300 text-white rounded-md flex items-center justify-center transition-colors">
+        <i class="fas fa-plus mr-2"></i> New Chat
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Chat Area -->
+  <div class="flex-grow flex flex-col h-full relative">
+    <!-- Chat Header -->
+    <div class="bg-dark-200 border-b border-gray-800 p-4 flex items-center justify-between">
+      <div class="flex items-center">
+        <button id="show-history" class="mr-3 text-gray-400 hover:text-white">
+          <i class="fas fa-history"></i>
+        </button>
+        <h1 class="text-xl font-semibold">FTRAISE AI Chat</h1>
+      </div>
+
+      <div class="flex items-center">
+        <div class="text-sm text-gray-400 mr-4">
+          <% if (user) { %>
+            <span class="bg-dark-100 px-2 py-1 rounded-md">
+              <i class="fas fa-bolt text-neon-blue"></i>
+              <span id="requests-count"><%= rateLimit.remaining %></span>/<%= rateLimit.limit %>
+            </span>
+          <% } else { %>
+            <span class="bg-dark-100 px-2 py-1 rounded-md">
+              <i class="fas fa-bolt text-neon-blue"></i>
+              <span id="requests-count"><%= rateLimit.remaining %></span>/<%= rateLimit.limit %> (Guest)
+            </span>
+          <% } %>
+        </div>
+
+        <% if (!user) { %>
+          <a href="/users/login" class="text-sm bg-neon-blue/20 text-neon-blue px-3 py-1 rounded-md hover:bg-neon-blue/30 transition-colors">
+            Login
+          </a>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Chat Messages -->
+    <div id="chat-messages" class="flex-grow overflow-y-auto p-2 sm:p-4 space-y-4 w-full">
+      <!-- Welcome Message -->
+      <div class="flex items-start mb-4 animate-fade-in">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-neon-blue to-neon-purple flex items-center justify-center mr-3 flex-shrink-0">
+          <i class="fas fa-robot text-white text-sm"></i>
+        </div>
+        <div class="bg-dark-100 rounded-lg p-3 sm:p-4 max-w-[75%] sm:max-w-3xl">
+          <div class="text-white">
+            <p>👋 Hello! I'm FTRAISE AI, your futuristic AI assistant. How can I help you today?</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Input -->
+    <div class="border-t border-gray-800 p-2 sm:p-4 bg-dark-200">
+      <form id="chat-form" class="flex items-center">
+        <div class="relative flex-grow">
+          <textarea
+            id="message-input"
+            class="w-full bg-dark-100 border border-gray-700 rounded-lg py-3 px-4 pr-10 text-white focus:outline-none focus:border-neon-blue transition-colors resize-none"
+            placeholder="Type your message here..."
+            rows="1"
+          ></textarea>
+          <div id="ai-thinking" class="hidden absolute right-3 top-1/2 transform -translate-y-1/2">
+            <div class="flex space-x-1">
+              <div class="w-2 h-2 bg-neon-blue rounded-full animate-pulse"></div>
+              <div class="w-2 h-2 bg-neon-blue rounded-full animate-pulse delay-75"></div>
+              <div class="w-2 h-2 bg-neon-blue rounded-full animate-pulse delay-150"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Send/Stop Button with two distinct states -->
+        <button
+          type="submit"
+          id="send-button"
+          class="ml-2 bg-gradient-to-r from-neon-blue to-neon-purple text-white px-4 py-3 rounded-lg hover:opacity-90 transition-all duration-300 flex items-center justify-center"
+          style="min-width: 50px;"
+        >
+          <!-- Send State -->
+          <div id="send-state" class="flex items-center justify-center">
+            <i class="fas fa-paper-plane text-lg"></i>
+          </div>
+
+          <!-- Stop State (when AI is thinking) -->
+          <div id="stop-state" class="hidden flex items-center justify-center">
+            <i class="fas fa-stop text-lg"></i>
+          </div>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Login/Register Modal (for guest users who reach limit) -->
+<div id="auth-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 max-w-md w-full mx-4 relative">
+    <button id="close-modal" class="absolute top-3 right-3 text-gray-400 hover:text-white">
+      <i class="fas fa-times"></i>
+    </button>
+
+    <div class="text-center mb-6">
+      <div class="inline-block p-3 bg-yellow-500/20 rounded-full mb-4">
+        <i class="fas fa-exclamation-triangle text-yellow-500 text-2xl"></i>
+      </div>
+      <h3 class="text-xl font-semibold mb-2">Request Limit Reached</h3>
+      <p class="text-gray-300">You've reached the limit for guest users. Create an account to continue chatting!</p>
+    </div>
+
+    <div class="flex flex-col space-y-3">
+      <a href="/users/login" class="py-2 px-4 bg-neon-blue text-white rounded-md text-center hover:bg-neon-blue/90 transition-colors">
+        Login to Your Account
+      </a>
+      <a href="/users/register" class="py-2 px-4 border border-neon-blue text-white rounded-md text-center hover:bg-neon-blue/10 transition-colors">
+        Create New Account
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Custom animation for the thinking dots */
+  @keyframes bounceDot {
+    0%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-5px); }
+  }
+
+  .animate-bounce {
+    animation: bounceDot 1.4s infinite ease-in-out both;
+  }
+</style>
+
+<script>
+  // DOM Elements
+  const chatForm = document.getElementById('chat-form');
+  const messageInput = document.getElementById('message-input');
+  const chatMessages = document.getElementById('chat-messages');
+  const sendButton = document.getElementById('send-button');
+  const sendState = document.getElementById('send-state');
+  const stopState = document.getElementById('stop-state');
+  let isProcessing = false; // Flag to track if AI is currently processing
+  const aiThinking = document.getElementById('ai-thinking');
+  const historySidebar = document.getElementById('history-sidebar');
+  const showHistoryBtn = document.getElementById('show-history');
+  const closeHistoryBtn = document.getElementById('close-history');
+  const historyList = document.getElementById('history-list');
+  const newChatBtn = document.getElementById('new-chat');
+  const requestsCount = document.getElementById('requests-count');
+  const authModal = document.getElementById('auth-modal');
+  const closeModalBtn = document.getElementById('close-modal');
+
+  // Current chat ID
+  let currentChatId = null;
+
+  // Function to start a countdown timer
+  function startCountdownTimer(elementId, endTime) {
+    const timerElement = document.getElementById(elementId);
+    if (!timerElement) return;
+
+    // Update the timer every second
+    const timerInterval = setInterval(() => {
+      // Calculate the remaining time
+      const now = new Date().getTime();
+      const timeRemaining = endTime - now;
+
+      if (timeRemaining <= 0) {
+        // Timer has ended
+        clearInterval(timerInterval);
+        timerElement.textContent = '0m 0s';
+        timerElement.classList.remove('text-neon-blue');
+        timerElement.classList.add('text-green-500');
+
+        // Add a message that the user can now send messages again
+        const messageElement = timerElement.closest('.text-white');
+        if (messageElement) {
+          messageElement.innerHTML += '<br><br><span class="text-green-500">✓ Cooldown period has ended. You can now send messages again!</span>';
+        }
+
+        return;
+      }
+
+      // Calculate minutes and seconds
+      const minutes = Math.floor(timeRemaining / (1000 * 60));
+      const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+      // Update the timer text
+      timerElement.textContent = `${minutes}m ${seconds}s`;
+    }, 1000);
+  }
+
+  // Function to toggle button state
+  function toggleButtonState(isThinking) {
+    isProcessing = isThinking;
+
+    if (isThinking) {
+      // Change to stop state
+      sendButton.style.width = '50px';
+      sendState.classList.add('hidden');
+      stopState.classList.remove('hidden');
+      sendButton.type = 'button'; // Change from submit to regular button
+      sendButton.classList.remove('bg-gradient-to-r', 'from-neon-blue', 'to-neon-purple');
+      sendButton.classList.add('bg-red-600', 'hover:bg-red-700');
+
+      // Add the AI thinking message to the chat
+      const thinkingMessage = document.getElementById('ai-thinking-message');
+      if (!thinkingMessage) {
+        addMessageToUI('thinking');
+      }
+    } else {
+      // Change to send state
+      sendButton.style.width = '50px';
+      stopState.classList.add('hidden');
+      sendState.classList.remove('hidden');
+      sendButton.type = 'submit'; // Change back to submit button
+      sendButton.classList.add('bg-gradient-to-r', 'from-neon-blue', 'to-neon-purple');
+      sendButton.classList.remove('bg-red-600', 'hover:bg-red-700');
+
+      // Remove the AI thinking message if it exists
+      const thinkingMessage = document.getElementById('ai-thinking-message');
+      if (thinkingMessage) {
+        thinkingMessage.remove();
+      }
+    }
+  }
+
+  // Auto-resize textarea
+  messageInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight) + 'px';
+    // Limit to 5 rows
+    if (this.scrollHeight > 150) {
+      this.style.height = '150px';
+    }
+  });
+
+  // Send message on Enter key (but allow Shift+Enter for new lines)
+  messageInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey && !isProcessing) {
+      e.preventDefault();
+      chatForm.dispatchEvent(new Event('submit'));
+    }
+  });
+
+  // Handle stop button click
+  sendButton.addEventListener('click', function(e) {
+    if (isProcessing) {
+      e.preventDefault(); // Prevent form submission
+
+      // Stop the AI processing
+      console.log('Stopping AI processing...');
+
+      // Reset the button state
+      toggleButtonState(false);
+
+      // Add a message indicating the request was stopped
+      addMessageToUI('assistant', 'The request was stopped by the user.');
+
+      // Enable the input field
+      messageInput.disabled = false;
+    }
+  });
+
+  // Toggle history sidebar
+  showHistoryBtn.addEventListener('click', () => {
+    historySidebar.classList.remove('hidden');
+    historySidebar.classList.remove('-translate-x-full');
+    loadChatHistory();
+  });
+
+  closeHistoryBtn.addEventListener('click', () => {
+    historySidebar.classList.add('-translate-x-full');
+    setTimeout(() => {
+      historySidebar.classList.add('hidden');
+    }, 300);
+  });
+
+  // New chat button
+  newChatBtn.addEventListener('click', () => {
+    currentChatId = null;
+    chatMessages.innerHTML = `
+      <div class="flex items-start mb-4 animate-fade-in">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-neon-blue to-neon-purple flex items-center justify-center mr-3 flex-shrink-0">
+          <i class="fas fa-robot text-white text-sm"></i>
+        </div>
+        <div class="bg-dark-100 rounded-lg p-3 sm:p-4 max-w-[75%] sm:max-w-3xl">
+          <div class="text-white">
+            <p>👋 Hello! I'm FTRAISE AI, your futuristic AI assistant. How can I help you today?</p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Close sidebar on mobile
+    if (window.innerWidth < 768) {
+      historySidebar.classList.add('-translate-x-full');
+      setTimeout(() => {
+        historySidebar.classList.add('hidden');
+      }, 300);
+    }
+  });
+
+  // Close modal
+  closeModalBtn.addEventListener('click', () => {
+    authModal.classList.add('hidden');
+  });
+
+  // Load chat history
+  async function loadChatHistory() {
+    try {
+      historyList.innerHTML = `
+        <div class="flex justify-center items-center h-full text-gray-500">
+          <div class="text-center">
+            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+            <p>Loading history...</p>
+          </div>
+        </div>
+      `;
+
+      const response = await fetch('/chat/history');
+      const data = await response.json();
+
+      if (data.success && data.chats.length > 0) {
+        historyList.innerHTML = '';
+
+        data.chats.forEach(chat => {
+          const date = new Date(chat.updatedAt);
+          const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+          const chatItem = document.createElement('div');
+          chatItem.className = `p-2 hover:bg-dark-100 rounded-md cursor-pointer transition-colors ${currentChatId === chat._id ? 'bg-dark-100 border-l-2 border-neon-blue' : ''}`;
+          chatItem.innerHTML = `
+            <div class="flex justify-between items-center">
+              <div class="truncate flex-grow">
+                <i class="fas fa-comment-alt text-gray-500 mr-2"></i>
+                <span>${chat.title}</span>
+              </div>
+              <button class="delete-chat text-gray-500 hover:text-red-500 p-1" data-id="${chat._id}">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+            <div class="text-xs text-gray-500 mt-1">${formattedDate}</div>
+          `;
+
+          chatItem.addEventListener('click', (e) => {
+            if (!e.target.closest('.delete-chat')) {
+              loadChat(chat._id);
+            }
+          });
+
+          historyList.appendChild(chatItem);
+        });
+
+        // Add event listeners to delete buttons
+        document.querySelectorAll('.delete-chat').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteChat(btn.dataset.id);
+          });
+        });
+      } else {
+        historyList.innerHTML = `
+          <div class="flex justify-center items-center h-full text-gray-500">
+            <div class="text-center">
+              <i class="fas fa-history text-2xl mb-2"></i>
+              <p>No chat history yet</p>
+            </div>
+          </div>
+        `;
+      }
+    } catch (err) {
+      console.error('Error loading chat history:', err);
+      historyList.innerHTML = `
+        <div class="flex justify-center items-center h-full text-gray-500">
+          <div class="text-center">
+            <i class="fas fa-exclamation-circle text-2xl mb-2"></i>
+            <p>Failed to load history</p>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  // Load specific chat
+  async function loadChat(chatId) {
+    try {
+      chatMessages.innerHTML = `
+        <div class="flex justify-center items-center h-full text-gray-500">
+          <div class="text-center">
+            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+            <p>Loading chat...</p>
+          </div>
+        </div>
+      `;
+
+      const response = await fetch(`/chat/${chatId}`);
+      const data = await response.json();
+
+      if (data.success) {
+        currentChatId = chatId;
+        chatMessages.innerHTML = '';
+
+        data.chat.messages.forEach(message => {
+          addMessageToUI(message.role, message.content);
+        });
+
+        // Highlight current chat in sidebar
+        document.querySelectorAll('#history-list > div').forEach(item => {
+          if (item.querySelector('.delete-chat')?.dataset.id === chatId) {
+            item.classList.add('bg-dark-100', 'border-l-2', 'border-neon-blue');
+          } else {
+            item.classList.remove('bg-dark-100', 'border-l-2', 'border-neon-blue');
+          }
+        });
+
+        // Close sidebar on mobile
+        if (window.innerWidth < 768) {
+          historySidebar.classList.add('-translate-x-full');
+          setTimeout(() => {
+            historySidebar.classList.add('hidden');
+          }, 300);
+        }
+
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      } else {
+        alert('Failed to load chat: ' + data.message);
+      }
+    } catch (err) {
+      console.error('Error loading chat:', err);
+      alert('An error occurred while loading the chat');
+    }
+  }
+
+  // Delete chat
+  async function deleteChat(chatId) {
+    if (!confirm('Are you sure you want to delete this chat?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/chat/${chatId}`, {
+        method: 'DELETE'
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // If deleting current chat, start a new one
+        if (currentChatId === chatId) {
+          newChatBtn.click();
+        }
+
+        // Reload chat history
+        loadChatHistory();
+      } else {
+        alert('Failed to delete chat: ' + data.message);
+      }
+    } catch (err) {
+      console.error('Error deleting chat:', err);
+      alert('An error occurred while deleting the chat');
+    }
+  }
+
+  // Add message to UI
+  function addMessageToUI(role, content) {
+    const messageDiv = document.createElement('div');
+
+    if (role === 'user') {
+      // User message - right side
+      messageDiv.className = 'flex items-start mb-4 animate-fade-in justify-end';
+      messageDiv.innerHTML = `
+        <div class="bg-dark-200 rounded-lg p-3 sm:p-4 max-w-[75%] sm:max-w-3xl">
+          <div class="text-white">${formatMessage(content)}</div>
+        </div>
+        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-neon-green to-neon-blue flex items-center justify-center ml-3 flex-shrink-0">
+          <i class="fas fa-user text-white text-sm"></i>
+        </div>
+      `;
+    } else if (role === 'thinking') {
+      // AI thinking message - left side with special styling
+      messageDiv.className = 'flex items-start mb-4 animate-fade-in';
+      messageDiv.id = 'ai-thinking-message';
+      messageDiv.innerHTML = `
+        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-neon-blue to-neon-purple flex items-center justify-center mr-3 flex-shrink-0">
+          <i class="fas fa-robot text-white text-sm"></i>
+        </div>
+        <div class="bg-dark-300 rounded-lg p-3 sm:p-4 max-w-[75%] sm:max-w-3xl border border-neon-blue/30">
+          <div class="text-gray-300 flex items-center">
+            <span>AI is thinking</span>
+            <div class="flex space-x-1 ml-2">
+              <div class="w-1.5 h-1.5 bg-neon-blue rounded-full animate-bounce" style="animation-delay: 0ms;"></div>
+              <div class="w-1.5 h-1.5 bg-neon-blue rounded-full animate-bounce" style="animation-delay: 150ms;"></div>
+              <div class="w-1.5 h-1.5 bg-neon-blue rounded-full animate-bounce" style="animation-delay: 300ms;"></div>
+            </div>
+          </div>
+        </div>
+      `;
+    } else {
+      // AI message - left side
+      messageDiv.className = 'flex items-start mb-4 animate-fade-in';
+      messageDiv.innerHTML = `
+        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-neon-blue to-neon-purple flex items-center justify-center mr-3 flex-shrink-0">
+          <i class="fas fa-robot text-white text-sm"></i>
+        </div>
+        <div class="bg-dark-100 rounded-lg p-3 sm:p-4 max-w-[75%] sm:max-w-3xl">
+          <div class="text-white">${formatMessage(content)}</div>
+        </div>
+      `;
+    }
+
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // Format message with markdown-like syntax
+  function formatMessage(content) {
+    // Replace URLs with clickable links
+    content = content.replace(
+      /(https?:\/\/[^\s]+)/g,
+      '<a href="$1" target="_blank" class="text-neon-blue hover:underline">$1</a>'
+    );
+
+    // Replace code blocks
+    content = content.replace(
+      /```([^`]+)```/g,
+      '<pre class="bg-dark-300 p-3 rounded-md my-2 overflow-x-auto text-gray-300 font-mono text-sm">$1</pre>'
+    );
+
+    // Replace inline code
+    content = content.replace(
+      /`([^`]+)`/g,
+      '<code class="bg-dark-300 px-1 py-0.5 rounded text-gray-300 font-mono text-sm">$1</code>'
+    );
+
+    // Replace bold text
+    content = content.replace(
+      /\*\*([^*]+)\*\*/g,
+      '<strong>$1</strong>'
+    );
+
+    // Replace italic text
+    content = content.replace(
+      /\*([^*]+)\*/g,
+      '<em>$1</em>'
+    );
+
+    // Replace newlines with <br>
+    content = content.replace(/\n/g, '<br>');
+
+    return content;
+  }
+
+  // Handle form submission
+  chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const message = messageInput.value.trim();
+    if (!message) return;
+
+    // Clear input
+    messageInput.value = '';
+    messageInput.style.height = 'auto';
+
+    // Add user message to UI
+    addMessageToUI('user', message);
+
+    // Show AI thinking animation and update send button
+    aiThinking.classList.remove('hidden');
+    messageInput.disabled = true;
+
+    // Change button to thinking state
+    toggleButtonState(true);
+
+    console.log('Changed to thinking state');
+
+    try {
+      const response = await fetch('/chat/process', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message,
+          chatId: currentChatId
+        })
+      });
+
+      const data = await response.json();
+
+      // Hide AI thinking animation and restore send button
+      aiThinking.classList.add('hidden');
+      messageInput.disabled = false;
+
+      // Change button back to send state
+      toggleButtonState(false);
+
+      console.log('Changed back to send state');
+
+      if (data.success) {
+        // Update current chat ID
+        if (!currentChatId) {
+          currentChatId = data.chatId;
+          // Reload chat history
+          loadChatHistory();
+        }
+
+        // Add AI response to UI
+        addMessageToUI('assistant', data.response);
+
+        // Update requests count
+        if (data.rateLimit) {
+          requestsCount.textContent = data.rateLimit.remaining;
+        }
+      } else if (data.isRateLimited) {
+        // Handle rate limit
+        if (data.isGuest) {
+          // Add AI response with rate limit message and login/register buttons
+          const limitMessage = `⚠️ You have reached the limit of 5 requests for guest users. Please login or register to continue using the AI chat.<br><br>
+          As a guest user, you are limited to 5 requests total.<br>
+          You have used 5 of 5 requests.<br><br>
+          👉 Create an account to get 8 requests per 3 minutes!<br><br>
+          <div class="flex space-x-3 mt-2">
+            <a href="/users/login" class="px-4 py-2 bg-neon-blue rounded-md text-white hover:bg-neon-blue/80 transition-colors">Login to Your Account</a>
+            <a href="/users/register" class="px-4 py-2 border border-neon-blue rounded-md text-white hover:bg-neon-blue/20 transition-colors">Create New Account</a>
+          </div>`;
+
+          addMessageToUI('assistant', limitMessage);
+        } else {
+          // Add AI response with rate limit message and countdown timer
+          const cooldownEndTime = data.cooldownEndTime;
+          const countdownId = 'countdown-timer-' + Date.now();
+
+          // Create the message with a placeholder for the countdown
+          const limitMessage = `⏳ You have reached the limit of 8 requests within 3 minutes. Please wait for the cooldown to end.<br><br>
+          You can generate requests again in <span id="${countdownId}" class="font-bold text-neon-blue">calculating...</span>`;
+
+          // Add the message to the UI
+          addMessageToUI('assistant', limitMessage);
+
+          // Start the countdown timer
+          startCountdownTimer(countdownId, cooldownEndTime);
+        }
+      } else {
+        // Handle other errors
+        addMessageToUI('assistant', 'Sorry, an error occurred while processing your message. Please try again.');
+      }
+    } catch (err) {
+      console.error('Error processing message:', err);
+
+      // Hide AI thinking animation and restore send button
+      aiThinking.classList.add('hidden');
+      messageInput.disabled = false;
+
+      // Change button back to send state
+      toggleButtonState(false);
+
+      console.log('Changed back to send state (error case)');
+
+      // Add error message
+      addMessageToUI('assistant', 'Sorry, an error occurred while processing your message. Please try again.');
+    }
+  });
+
+  // Load chat history on page load
+  window.addEventListener('DOMContentLoaded', () => {
+    // Auto-focus input
+    messageInput.focus();
+  });
+</script>

@@ -1,0 +1,340 @@
+<div class="flex flex-col md:flex-row">
+  <!-- Sidebar -->
+  <%- include('./partials/sidebar', { path: '/admin/users' }) %>
+  
+  <!-- Main Content -->
+  <div class="flex-grow p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">User Management</h1>
+      <button id="add-user-btn" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white py-2 px-4 rounded-md flex items-center">
+        <i class="fas fa-plus mr-2"></i> Add User
+      </button>
+    </div>
+    
+    <!-- User Table -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden">
+      <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+        <h2 class="text-xl font-semibold">All Users</h2>
+        <div class="relative">
+          <input 
+            type="text" 
+            id="user-search" 
+            placeholder="Search users..." 
+            class="bg-dark-200 border border-gray-700 rounded-md py-2 pl-10 pr-4 text-white focus:outline-none focus:border-neon-blue transition-colors w-64"
+          >
+          <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+        </div>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-dark-200 border-b border-gray-800">
+              <th class="py-3 px-4 text-left">Username</th>
+              <th class="py-3 px-4 text-left">Email</th>
+              <th class="py-3 px-4 text-left">Role</th>
+              <th class="py-3 px-4 text-left">Requests</th>
+              <th class="py-3 px-4 text-left">Joined</th>
+              <th class="py-3 px-4 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="users-table-body">
+            <% if (users.length > 0) { %>
+              <% users.forEach(user => { %>
+                <tr class="border-b border-gray-800 hover:bg-dark-200 transition-colors">
+                  <td class="py-3 px-4">
+                    <div class="flex items-center">
+                      <img src="<%= user.profilePicture %>" alt="<%= user.username %>" class="w-8 h-8 rounded-full mr-3">
+                      <%= user.username %>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4"><%= user.email %></td>
+                  <td class="py-3 px-4">
+                    <span class="px-2 py-1 rounded-full text-xs <%= user.role === 'admin' ? 'bg-neon-purple/20 text-neon-purple' : 'bg-neon-blue/20 text-neon-blue' %>">
+                      <%= user.role %>
+                    </span>
+                  </td>
+                  <td class="py-3 px-4"><%= user.requestsCount %></td>
+                  <td class="py-3 px-4"><%= new Date(user.createdAt).toLocaleDateString() %></td>
+                  <td class="py-3 px-4">
+                    <button class="text-neon-blue hover:text-neon-blue/80 mr-2 edit-user-btn" data-id="<%= user._id %>" data-username="<%= user.username %>" data-email="<%= user.email %>" data-role="<%= user.role %>">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="text-neon-purple hover:text-neon-purple/80 mr-2 reset-password-btn" data-id="<%= user._id %>" data-username="<%= user.username %>">
+                      <i class="fas fa-key"></i>
+                    </button>
+                    <button class="text-red-500 hover:text-red-400 delete-user-btn" data-id="<%= user._id %>" data-username="<%= user.username %>">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="6" class="py-4 text-center text-gray-500">No users found</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add User Modal -->
+<div id="add-user-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 max-w-md w-full mx-4">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-xl font-semibold">Add New User</h3>
+      <button class="text-gray-400 hover:text-white close-modal">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <form action="/admin/users" method="POST">
+      <div class="mb-4">
+        <label for="username" class="block text-gray-300 mb-2">Username</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          class="w-full bg-dark-200 border border-gray-700 rounded-md py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
+          placeholder="Enter username"
+          required
+        />
+      </div>
+      
+      <div class="mb-4">
+        <label for="email" class="block text-gray-300 mb-2">Email</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          class="w-full bg-dark-200 border border-gray-700 rounded-md py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
+          placeholder="Enter email"
+          required
+        />
+      </div>
+      
+      <div class="mb-4">
+        <label for="password" class="block text-gray-300 mb-2">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="w-full bg-dark-200 border border-gray-700 rounded-md py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
+          placeholder="Enter password"
+          required
+        />
+      </div>
+      
+      <div class="mb-6">
+        <label for="role" class="block text-gray-300 mb-2">Role</label>
+        <select
+          id="role"
+          name="role"
+          class="w-full bg-dark-200 border border-gray-700 rounded-md py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
+          required
+        >
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      
+      <div class="flex justify-end">
+        <button type="button" class="py-2 px-4 border border-gray-700 text-white rounded-md mr-2 hover:bg-dark-200 transition-colors close-modal">
+          Cancel
+        </button>
+        <button type="submit" class="py-2 px-4 bg-gradient-to-r from-neon-blue to-neon-purple text-white rounded-md hover:opacity-90 transition-opacity">
+          Add User
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit User Modal -->
+<div id="edit-user-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 max-w-md w-full mx-4">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-xl font-semibold">Edit User</h3>
+      <button class="text-gray-400 hover:text-white close-modal">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <form action="/admin/users?_method=PUT" method="POST">
+      <input type="hidden" id="edit-user-id" name="userId">
+      
+      <div class="mb-4">
+        <label for="edit-username" class="block text-gray-300 mb-2">Username</label>
+        <input
+          type="text"
+          id="edit-username"
+          name="username"
+          class="w-full bg-dark-200 border border-gray-700 rounded-md py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
+          required
+        />
+      </div>
+      
+      <div class="mb-4">
+        <label for="edit-email" class="block text-gray-300 mb-2">Email</label>
+        <input
+          type="email"
+          id="edit-email"
+          name="email"
+          class="w-full bg-dark-200 border border-gray-700 rounded-md py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
+          required
+        />
+      </div>
+      
+      <div class="mb-6">
+        <label for="edit-role" class="block text-gray-300 mb-2">Role</label>
+        <select
+          id="edit-role"
+          name="role"
+          class="w-full bg-dark-200 border border-gray-700 rounded-md py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
+          required
+        >
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      
+      <div class="flex justify-end">
+        <button type="button" class="py-2 px-4 border border-gray-700 text-white rounded-md mr-2 hover:bg-dark-200 transition-colors close-modal">
+          Cancel
+        </button>
+        <button type="submit" class="py-2 px-4 bg-gradient-to-r from-neon-blue to-neon-purple text-white rounded-md hover:opacity-90 transition-opacity">
+          Update User
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div id="reset-password-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 max-w-md w-full mx-4">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-xl font-semibold">Reset Password</h3>
+      <button class="text-gray-400 hover:text-white close-modal">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <p class="text-gray-300 mb-4">Reset password for <span id="reset-username" class="font-semibold"></span></p>
+    
+    <form action="/admin/users/reset-password?_method=PUT" method="POST">
+      <input type="hidden" id="reset-user-id" name="userId">
+      
+      <div class="mb-6">
+        <label for="new-password" class="block text-gray-300 mb-2">New Password</label>
+        <input
+          type="password"
+          id="new-password"
+          name="newPassword"
+          class="w-full bg-dark-200 border border-gray-700 rounded-md py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
+          placeholder="Enter new password"
+          required
+        />
+      </div>
+      
+      <div class="flex justify-end">
+        <button type="button" class="py-2 px-4 border border-gray-700 text-white rounded-md mr-2 hover:bg-dark-200 transition-colors close-modal">
+          Cancel
+        </button>
+        <button type="submit" class="py-2 px-4 bg-gradient-to-r from-neon-purple to-neon-pink text-white rounded-md hover:opacity-90 transition-opacity">
+          Reset Password
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // DOM Elements
+  const addUserBtn = document.getElementById('add-user-btn');
+  const addUserModal = document.getElementById('add-user-modal');
+  const editUserModal = document.getElementById('edit-user-modal');
+  const resetPasswordModal = document.getElementById('reset-password-modal');
+  const closeModalBtns = document.querySelectorAll('.close-modal');
+  const editUserBtns = document.querySelectorAll('.edit-user-btn');
+  const resetPasswordBtns = document.querySelectorAll('.reset-password-btn');
+  const deleteUserBtns = document.querySelectorAll('.delete-user-btn');
+  const userSearch = document.getElementById('user-search');
+  const usersTableBody = document.getElementById('users-table-body');
+  
+  // Show Add User Modal
+  addUserBtn.addEventListener('click', () => {
+    addUserModal.classList.remove('hidden');
+  });
+  
+  // Close Modals
+  closeModalBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      addUserModal.classList.add('hidden');
+      editUserModal.classList.add('hidden');
+      resetPasswordModal.classList.add('hidden');
+    });
+  });
+  
+  // Edit User
+  editUserBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const userId = btn.dataset.id;
+      const username = btn.dataset.username;
+      const email = btn.dataset.email;
+      const role = btn.dataset.role;
+      
+      document.getElementById('edit-user-id').value = userId;
+      document.getElementById('edit-username').value = username;
+      document.getElementById('edit-email').value = email;
+      document.getElementById('edit-role').value = role;
+      
+      editUserModal.classList.remove('hidden');
+    });
+  });
+  
+  // Reset Password
+  resetPasswordBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const userId = btn.dataset.id;
+      const username = btn.dataset.username;
+      
+      document.getElementById('reset-user-id').value = userId;
+      document.getElementById('reset-username').textContent = username;
+      
+      resetPasswordModal.classList.remove('hidden');
+    });
+  });
+  
+  // Delete User
+  deleteUserBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const userId = btn.dataset.id;
+      const username = btn.dataset.username;
+      
+      if (confirm(`Are you sure you want to delete ${username}? This action cannot be undone.`)) {
+        window.location.href = `/admin/users/${userId}?_method=DELETE`;
+      }
+    });
+  });
+  
+  // Search Users
+  userSearch.addEventListener('input', () => {
+    const searchTerm = userSearch.value.toLowerCase();
+    const rows = usersTableBody.querySelectorAll('tr');
+    
+    rows.forEach(row => {
+      const username = row.querySelector('td:first-child')?.textContent.toLowerCase() || '';
+      const email = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
+      
+      if (username.includes(searchTerm) || email.includes(searchTerm)) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  });
+</script>
