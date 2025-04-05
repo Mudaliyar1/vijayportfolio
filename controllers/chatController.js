@@ -7,7 +7,9 @@ const { detectLanguage } = require('../utils/languageDetection');
 const { enhanceChatPrompt } = require('../utils/coherePromptEnhancer');
 
 // Initialize Cohere client
-cohere.init(process.env.COHERE_API_KEY);
+const COHERE_API_KEY = process.env.COHERE_API_KEY || 'sw2JkgFWgvRJ4aylridTNPLYLzOOIqEYRkCrkd1t';
+console.log('Using Cohere API key:', COHERE_API_KEY.substring(0, 5) + '...');
+cohere.init(COHERE_API_KEY);
 
 // Chat page
 const chatPage = (req, res) => {
@@ -266,8 +268,7 @@ const sendMessage = async (req, res) => {
       let exampleResponse = '';
 
       // Add language-specific instructions based on detected language and user's history
-      const primaryLanguage = memory.languagePreferences.primary;
-      const secondaryLanguage = memory.languagePreferences.secondary;
+      // We use memory.languagePreferences directly in the code below
 
       // Check if this is a mixed language input
       if (languageInfo.mixed) {
@@ -323,7 +324,13 @@ const sendMessage = async (req, res) => {
         .join('\n\n');
 
       // Enhance the prompt using Cohere AI prompt engineering
-      const enhancedMessage = await enhanceChatPrompt(message, userId ? req.user : null);
+      let enhancedMessage;
+      try {
+        enhancedMessage = await enhanceChatPrompt(message, userId ? req.user : null);
+      } catch (enhanceError) {
+        console.error('Error enhancing prompt:', enhanceError);
+        enhancedMessage = message; // Use original message if enhancement fails
+      }
 
       // Create a comprehensive prompt with language instructions and examples
       const promptWithContext = `You are FTRAISE AI, a helpful, friendly, and knowledgeable multilingual AI assistant created by ftraise59/vijay. You provide accurate, concise, and helpful responses. You're designed to be conversational but focused on delivering valuable information.
@@ -343,39 +350,146 @@ FTRAISE AI:`;
 
       // Generate response using Cohere API
       console.log('Sending prompt to Cohere API:', promptWithContext);
-      const response = await cohere.generate({
-        model: process.env.AI_MODEL || 'command',
-        prompt: promptWithContext,
-        max_tokens: 800,
-        temperature: 0.7,
-        k: 0,
-        stop_sequences: ["User:", "FTRAISE AI:"],
-        return_likelihoods: 'NONE'
-      });
+      try {
+        // Initialize response variable outside the conditional blocks
+        let response = null;
 
-      // Extract the response text from the generate API
-      if (response && response.body && response.body.generations && response.body.generations.length > 0) {
-        aiResponse = response.body.generations[0].text;
-        console.log('Using response.body.generations[0].text');
-      } else if (response && response.generations && response.generations.length > 0) {
-        aiResponse = response.generations[0].text;
-        console.log('Using response.generations[0].text');
-      } else {
-        console.log('Could not find valid response structure');
-        aiResponse = "I'm sorry, I couldn't generate a response at this time. Please try again.";
+        // Special handling for very short messages like 'hi', 'hello', etc.
+        if (message.trim().length < 5) {
+          console.log('Short greeting detected, using predefined response');
+
+          // Array of friendly greetings
+          const greetings = [
+            "👋 Hello! How can I assist you today?",
+            "Hi there! What can I help you with?",
+            "Greetings! I'm FTRAISE AI. What would you like to know?",
+            "Hello! I'm here to help. What's on your mind?",
+            "Hi! I'm ready to assist you. What would you like to talk about?",
+            "Hello there! How can I be of service today?",
+            "Hi! What can I do for you today?",
+            "Greetings! How may I assist you?",
+            "Hello! What would you like to explore today?",
+            "Hi there! I'm FTRAISE AI. How can I help you?"
+          ];
+
+          // Select a random greeting
+          const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
+          aiResponse = randomGreeting;
+        } else {
+          // For normal messages, use the Cohere API
+          try {
+            response = await cohere.generate({
+              model: process.env.AI_MODEL || 'command',
+              prompt: promptWithContext,
+              max_tokens: 800,
+              temperature: 0.7,
+              k: 0,
+              stop_sequences: ["User:", "FTRAISE AI:"],
+              return_likelihoods: 'NONE'
+            });
+            console.log('Successfully used cohere.generate API');
+
+            // Extract the response text from the generate API
+            if (response && response.body && response.body.generations && response.body.generations.length > 0) {
+              aiResponse = response.body.generations[0].text;
+              console.log('Using response.body.generations[0].text:', aiResponse);
+            } else if (response && response.generations && response.generations.length > 0) {
+              aiResponse = response.generations[0].text;
+              console.log('Using response.generations[0].text:', aiResponse);
+            } else {
+              console.log('Could not find valid response structure in:', response);
+
+              // Check if this is a rate limit error (429)
+              if (response && response.statusCode === 429) {
+                // Custom error message for rate limit
+                const instagramUrl = process.env.INSTAGRAM_URL || 'https://www.instagram.com/ft_raise_59';
+                const githubUrl = process.env.GITHUB_URL || 'https://github.com/Mudaliyar1';
+                const emailAddress = process.env.EMAIL_ADDRESS || 'vijaymudaliyar224@gmail.com';
+
+                aiResponse = "⚠️ The AI service has reached its rate limit. Please contact admin (Vijay) for assistance:\n\n" +
+                          `- Instagram: [@ft_raise_59](${instagramUrl})\n` +
+                          `- GitHub: [Mudaliyar1](${githubUrl})\n` +
+                          `- Email: [${emailAddress}](mailto:${emailAddress})`;
+              } else {
+                // Fallback response with a friendly message
+                aiResponse = "I'm here to help! What would you like to know or discuss today?";
+              }
+            }
+          } catch (apiError) {
+            console.error('Error calling Cohere API:', apiError);
+            throw apiError; // Let the outer catch block handle this
+          }
+        }
+
+        // Only process response object if we used the Cohere API (not for short messages)
+        if (response) {
+          // Check for rate limit error (429) first
+          if (response.statusCode === 429) {
+            // Custom error message for rate limit
+            const instagramUrl = process.env.INSTAGRAM_URL || 'https://www.instagram.com/ft_raise_59';
+            const githubUrl = process.env.GITHUB_URL || 'https://github.com/Mudaliyar1';
+            const emailAddress = process.env.EMAIL_ADDRESS || 'vijaymudaliyar224@gmail.com';
+
+            aiResponse = "⚠️ The AI service has reached its rate limit. Please contact admin (Vijay) for assistance:\n\n" +
+                      `- Instagram: [@ft_raise_59](${instagramUrl})\n` +
+                      `- GitHub: [Mudaliyar1](${githubUrl})\n` +
+                      `- Email: [${emailAddress}](mailto:${emailAddress})`;
+
+            console.log('Rate limit exceeded (429). Using custom error message.');
+          }
+          // Extract the response text based on which API was used
+          else if (response.text) {
+            // New chat API format
+            aiResponse = response.text;
+            console.log('Using response.text from chat API:', aiResponse);
+          } else if (response.body && response.body.generations && response.body.generations.length > 0) {
+            // Old generate API format (body.generations)
+            aiResponse = response.body.generations[0].text;
+            console.log('Using response.body.generations[0].text:', aiResponse);
+          } else if (response.generations && response.generations.length > 0) {
+            // Old generate API format (generations)
+            aiResponse = response.generations[0].text;
+            console.log('Using response.generations[0].text:', aiResponse);
+          } else {
+            console.log('Could not find valid response structure in:', response);
+
+            // Fallback response with a friendly message
+            aiResponse = "Hello! I'm FTRAISE AI. How can I assist you today?";
+          }
+        }
+
+        // If the response is empty or just whitespace, provide a fallback
+        if (!aiResponse || aiResponse.trim() === '') {
+          aiResponse = "I'm here to help! What would you like to know or discuss today?";
+        }
+      } catch (apiError) {
+        console.error('Error calling Cohere API:', apiError);
+
+        // Custom error message with contact information from environment variables
+        const instagramUrl = process.env.INSTAGRAM_URL || 'https://www.instagram.com/ft_raise_59';
+        const githubUrl = process.env.GITHUB_URL || 'https://github.com/Mudaliyar1';
+        const emailAddress = process.env.EMAIL_ADDRESS || 'vijaymudaliyar224@gmail.com';
+
+        aiResponse = "I'm having trouble connecting to my AI service right now. Please contact admin (Vijay) for assistance:\n\n" +
+                    `- Instagram: [@ft_raise_59](${instagramUrl})\n` +
+                    `- GitHub: [Mudaliyar1](${githubUrl})\n` +
+                    `- Email: [${emailAddress}](mailto:${emailAddress})`;
       }
     } catch (error) {
-      console.error('Error generating AI response:', error);
+      console.error('Error in overall AI response generation process:', error);
 
       // Custom error message with contact information from environment variables
       const instagramUrl = process.env.INSTAGRAM_URL || 'https://www.instagram.com/ft_raise_59';
       const githubUrl = process.env.GITHUB_URL || 'https://github.com/Mudaliyar1';
       const emailAddress = process.env.EMAIL_ADDRESS || 'vijaymudaliyar224@gmail.com';
 
-      aiResponse = "The AI service is taking too long to respond. Please contact admin (Vijay):\n\n" +
-                  `- Instagram: [@ft_raise_59](${instagramUrl})\n` +
-                  `- GitHub: [Mudaliyar1](${githubUrl})\n` +
-                  `- Email: [${emailAddress}](mailto:${emailAddress})`;
+      // If we haven't already set an aiResponse in the inner try-catch
+      if (!aiResponse) {
+        aiResponse = "I'm experiencing technical difficulties. Please contact admin (Vijay):\n\n" +
+                    `- Instagram: [@ft_raise_59](${instagramUrl})\n` +
+                    `- GitHub: [Mudaliyar1](${githubUrl})\n` +
+                    `- Email: [${emailAddress}](mailto:${emailAddress})`;
+      }
     }
     // Process AI response to fix spacing, add emojis, and enhance links
     let processedResponse = aiResponse.trim();
@@ -387,7 +501,7 @@ FTRAISE AI:`;
     // Process YouTube links to make them more user-friendly and validate them
     processedResponse = processedResponse.replace(
       /(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})([^\s]*)/g,
-      (match, protocol, subdomain, domain, videoId, extra) => {
+      (match, _protocol, _subdomain, _domain, videoId, _extra) => {
         // Validate the video ID format (should be exactly 11 characters of letters, numbers, dashes, or underscores)
         if (videoId && videoId.length === 11 && /^[\w-]{11}$/.test(videoId)) {
           const fullUrl = `https://www.youtube.com/watch?v=${videoId}`;

@@ -252,20 +252,22 @@ async function enhanceImagePrompt(prompt, style = 'realistic', hasReferenceImage
  * @param {object} user - The user object (optional)
  * @returns {string} - The enhanced prompt for the chat AI
  */
-async function enhanceChatPrompt(prompt, user = null) {
-  console.log('🧠 Step 1: Analyzing user prompt');
+function enhanceChatPrompt(prompt, user = null) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      console.log('🧠 Step 1: Analyzing user prompt');
 
-  // First, correct any spelling mistakes
-  const correctedPrompt = correctSpelling(prompt);
+      // First, correct any spelling mistakes
+      const correctedPrompt = correctSpelling(prompt);
 
-  // Start with the corrected prompt
-  let enhancedPrompt = correctedPrompt;
+      // Start with the corrected prompt
+      let enhancedPrompt = correctedPrompt;
 
-  console.log('🔍 Step 2: Adding context from past conversations');
+      console.log('🔍 Step 2: Adding context from past conversations');
 
-  // Add context from past conversations if user is provided
-  let contextAdded = false;
-  if (user) {
+      // Add context from past conversations if user is provided
+      let contextAdded = false;
+      if (user) {
     try {
       // Find user's past conversations
       const userChats = await Chat.find({
@@ -322,10 +324,15 @@ async function enhanceChatPrompt(prompt, user = null) {
     console.error('Error adding cross-user learning:', error);
   }
 
-  console.log(`Original prompt: "${prompt}"`);
-  console.log(`Enhanced prompt: "${enhancedPrompt}"`);
+      console.log(`Original prompt: "${prompt}"`);
+      console.log(`Enhanced prompt: "${enhancedPrompt}"`);
 
-  return enhancedPrompt;
+      resolve(enhancedPrompt);
+    } catch (error) {
+      console.error('Error enhancing chat prompt:', error);
+      reject(error);
+    }
+  });
 }
 
 /**
