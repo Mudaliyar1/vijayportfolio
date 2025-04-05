@@ -2,6 +2,7 @@ const fs = require('fs');
 const User = require('../models/User');
 const Image = require('../models/Image');
 const { processRateLimit } = require('../middlewares/rateLimiter');
+const { enhancePrompt } = require('../utils/imagePromptEnhancer');
 
 // Advanced image search function using multiple APIs
 const generateImageFromPrompt = async (prompt, style, referenceImagePath = null) => {
@@ -12,14 +13,11 @@ const generateImageFromPrompt = async (prompt, style, referenceImagePath = null)
   }
 
   try {
-    // Advanced AI-based prompt enhancement system based on Cohere AI techniques
-    // This system implements the detailed prompt engineering approach described in the user's request
-    // It analyzes the prompt, identifies subjects, and creates a highly detailed prompt for image generation
+    // Use the advanced prompt enhancer based on Cohere AI techniques
+    const enhancedPrompt = enhancePrompt(prompt, style, referenceImagePath !== null);
 
-    console.log('🔍 Step 1: Understanding the user prompt');
-
-    // First, analyze the prompt to identify key subjects and themes
-    const promptLower = prompt.toLowerCase();
+    // Skip the old prompt analysis since we're using the enhancePrompt utility
+    /* const promptLower = prompt.toLowerCase();
 
     // Define subject categories with expanded keywords for better detection
     const subjects = {
@@ -182,6 +180,7 @@ const generateImageFromPrompt = async (prompt, style, referenceImagePath = null)
     if (enhancedPrompt.length > 500) {
       enhancedPrompt = enhancedPrompt.substring(0, 500);
     }
+    */
 
     console.log(`Enhanced prompt: ${enhancedPrompt}`);
 
@@ -191,6 +190,7 @@ const generateImageFromPrompt = async (prompt, style, referenceImagePath = null)
     // Try Pexels API first (higher quality than Pixabay)
     try {
       console.log('Searching for images on Pexels...');
+      // Use the enhanced prompt from our utility
       const response = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(enhancedPrompt)}&per_page=15&size=large`, {
         headers: {
           'Authorization': '563492ad6f91700001000001f89d893f82d3415fb29c0f8c378be192' // Public demo key

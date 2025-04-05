@@ -308,11 +308,15 @@ FTRAISE AI:`;
       } catch (error) {
         console.error('Error generating AI response:', error);
 
-        // Custom error message with contact information
+        // Custom error message with contact information from environment variables
+        const instagramUrl = process.env.INSTAGRAM_URL || 'https://www.instagram.com/ft_raise_59';
+        const githubUrl = process.env.GITHUB_URL || 'https://github.com/Mudaliyar1';
+        const emailAddress = process.env.EMAIL_ADDRESS || 'vijaymudaliyar224@gmail.com';
+
         aiResponse = "The AI service is taking too long to respond. Please contact admin (Vijay):\n\n" +
-                    "- Instagram: [@ft_raise_59](https://www.instagram.com/ft_raise_59)\n" +
-                    "- GitHub: [Mudaliyar1](https://github.com/Mudaliyar1)\n" +
-                    "- Email: [vijaymudaliyar224@gmail.com](mailto:vijaymudaliyar224@gmail.com)";
+                    `- Instagram: [@ft_raise_59](${instagramUrl})\n` +
+                    `- GitHub: [Mudaliyar1](${githubUrl})\n` +
+                    `- Email: [${emailAddress}](mailto:${emailAddress})`;
       }
       // Process AI response to fix spacing, add emojis, and enhance links
       let processedResponse = aiResponse.trim();
