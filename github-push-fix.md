@@ -1,13 +1,10 @@
 # Fixing GitHub Push Protection Issues
 
-GitHub has detected a Hugging Face API token in your commit history. Here are two ways to resolve this issue:
+GitHub has detected a sensitive token in your commit history. Here are three ways to resolve this issue:
 
 ## Option 1: Allow the Secret (Quickest but Less Secure)
 
-Follow the URL provided by GitHub to allow the secret:
-https://github.com/Mudaliyar1/vijayportfolio/security/secret-scanning/unblock-secret/2vJ1jkyfQhtC0r1ItnRUfNjnkvS
-
-This will tell GitHub that you acknowledge the secret and want to push anyway.
+Follow the URL provided by GitHub to allow the secret. This will tell GitHub that you acknowledge the secret and want to push anyway.
 
 ## Option 2: Create a New Repository (Most Secure)
 
@@ -42,32 +39,16 @@ git remote add origin https://github.com/Mudaliyar1/new-portfolio-name.git
 git push -u origin main
 ```
 
-This creates a completely new repository without any history of the API token.
+This creates a completely new repository without any history of the sensitive token.
 
 ## Option 3: Use BFG Repo-Cleaner (Advanced)
 
 If you want to keep your repository history but remove the token:
 
 1. Install BFG Repo-Cleaner: https://rtyley.github.io/bfg-repo-cleaner/
-2. Run the following commands:
-
-```bash
-# Clone a fresh copy of your repository (mirror)
-git clone --mirror https://github.com/Mudaliyar1/vijayportfolio.git
-
-# Run BFG to replace the token
-bfg --replace-text tokens.txt vijayportfolio.git
-
-# Where tokens.txt contains:
-# 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=REMOVED_TOKEN
-
-# Clean up and push
-cd vijayportfolio.git
-git reflog expire --expire=now --all
-git gc --prune=now --aggressive
-git push
-```
+2. Create a file called `replacements.txt` with the token to replace (without showing the actual token)
+3. Run BFG to replace the token in history
 
 ## Important Note
 
-Remember to revoke the exposed Hugging Face token and create a new one, as the old one should be considered compromised.
+Remember to revoke any exposed tokens and create new ones, as the old ones should be considered compromised.
