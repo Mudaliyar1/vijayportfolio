@@ -1517,8 +1517,8 @@
             progressStatus.textContent = 'Generating AI image...';
           }
 
-          // Use our secure server-side proxy for AI image generation
-          const generateResponse = await fetch('/api/ai/generate-image', {
+          // Use our secure server-side AI service for image generation
+          const generateResponse = await fetch('/api/ai/generate', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
