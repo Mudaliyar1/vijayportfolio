@@ -25,5 +25,19 @@ module.exports = {
     res.render('about', {
       title: 'About - FTRAISE AI'
     });
+  },
+
+  // Render demo page
+  getDemoPage: (req, res) => {
+    res.render('demo', {
+      title: 'Interactive Demos - FTRAISE AI'
+    });
+  },
+
+  // Render analytics page
+  getAnalyticsPage: (req, res) => {
+    res.render('analytics', {
+      title: 'Platform Analytics - FTRAISE AI'
+    });
   }
 };

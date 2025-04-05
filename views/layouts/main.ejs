@@ -12,6 +12,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/space-animations.css">
+  <link rel="stylesheet" href="/css/interactive-demo.css">
+  <link rel="stylesheet" href="/css/demo-page.css">
   <!-- Favicon -->
   <link rel="icon" href="/images/favicon.ico">
   <script>
@@ -82,15 +85,27 @@
 </head>
 <body class="dark bg-dark-300 text-gray-100 min-h-screen flex flex-col">
   <%- include('../partials/navbar') %>
-  
+
   <div class="container mx-auto px-4 py-6 flex-grow">
     <%- include('../partials/messages') %>
     <%- body %>
   </div>
-  
+
   <%- include('../partials/footer') %>
-  
+
   <!-- Custom JS -->
   <script src="/js/main.js"></script>
+  <script src="/js/interactive-demo.js"></script>
+  <script src="/js/counter-animation.js"></script>
+  <script src="/js/demo-page.js"></script>
+
+  <!-- ApexCharts for Analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+  <!-- Space Animation & Onboarding -->
+  <script src="/js/space-animation.js"></script>
+  <script src="/js/sound-manager.js"></script>
+  <script src="/js/onboarding.js"></script>
+  <script src="/js/space-init.js"></script>
 </body>
 </html>
