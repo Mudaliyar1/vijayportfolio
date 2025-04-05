@@ -40,17 +40,6 @@ module.exports = {
     try {
       // Skip maintenance check for maintenance page itself and admin routes
       if (req.path === '/maintenance' || req.path.startsWith('/admin')) {
-        // For admin routes, still check if user is admin during maintenance mode
-        if (req.path.startsWith('/admin')) {
-          // Check if maintenance mode is enabled
-          const maintenanceSettings = await module.exports.isMaintenanceMode();
-
-          // If maintenance is active, verify the user is an admin
-          if (maintenanceSettings && (!req.isAuthenticated() || req.user.role !== 'admin')) {
-            req.flash('error_msg', 'Only administrators can access admin pages during maintenance.');
-            return res.redirect('/maintenance');
-          }
-        }
         return next();
       }
 
@@ -63,12 +52,12 @@ module.exports = {
       }
 
       // Allow admin users to bypass maintenance mode
-      if (req.isAuthenticated() && req.user.role === 'admin') {
+      if (req.isAuthenticated() && req.user.isAdmin) {
         return next();
       }
 
       // If a non-admin user is logged in, log them out
-      if (req.isAuthenticated() && req.user.role !== 'admin') {
+      if (req.isAuthenticated() && !req.user.isAdmin) {
         return req.logout(function(err) {
           if (err) {
             console.error('Error during logout:', err);
@@ -97,16 +86,8 @@ module.exports = {
             const userAgentString = req.headers['user-agent'];
             const deviceInfo = deviceDetector.parse(userAgentString);
 
-            // Get IP addresses - check multiple sources
-            const ipAddress = req.headers['x-real-ip'] ||
-                             req.headers['x-forwarded-for'] ||
-                             req.connection.remoteAddress ||
-                             req.socket.remoteAddress ||
-                             '0.0.0.0';
-
-            // Clean up IPv6 format if present (::ffff:127.0.0.1 -> 127.0.0.1)
-            const cleanIpAddress = ipAddress.includes('::ffff:') ? ipAddress.split(':').pop() : ipAddress;
-
+            // Get IP addresses
+            const ipAddress = req.connection.remoteAddress || '0.0.0.0';
             const forwardedIp = req.headers['x-forwarded-for'] || '';
 
             // Determine device type, brand, and model
@@ -130,7 +111,7 @@ module.exports = {
             // Log the attempt with detailed information
             const loginAttempt = new MaintenanceLoginAttempt({
               username: email,
-              ipAddress: cleanIpAddress,
+              ipAddress: ipAddress,
               forwardedIp: forwardedIp,
               userAgent: userAgentString,
               browser: browser,
@@ -173,16 +154,8 @@ module.exports = {
         const userAgentString = req.headers['user-agent'];
         const deviceInfo = deviceDetector.parse(userAgentString);
 
-        // Get IP addresses - check multiple sources
-        const ipAddress = req.headers['x-real-ip'] ||
-                         req.headers['x-forwarded-for'] ||
-                         req.connection.remoteAddress ||
-                         req.socket.remoteAddress ||
-                         '0.0.0.0';
-
-        // Clean up IPv6 format if present (::ffff:127.0.0.1 -> 127.0.0.1)
-        const cleanIpAddress = ipAddress.includes('::ffff:') ? ipAddress.split(':').pop() : ipAddress;
-
+        // Get IP addresses
+        const ipAddress = req.connection.remoteAddress || '0.0.0.0';
         const forwardedIp = req.headers['x-forwarded-for'] || '';
 
         // Determine device type, brand, and model
@@ -205,7 +178,7 @@ module.exports = {
         // Log the attempt with detailed information
         const loginAttempt = new MaintenanceLoginAttempt({
           username: email || 'Unknown',
-          ipAddress: cleanIpAddress,
+          ipAddress: ipAddress,
           forwardedIp: forwardedIp,
           userAgent: userAgentString,
           browser: browser,
@@ -369,42 +342,16 @@ module.exports = {
       // Get total count for pagination
       const totalCount = await MaintenanceHistory.countDocuments();
 
-      // Get maintenance history with pagination and populate admin details
+      // Get maintenance history with pagination
       const maintenanceHistory = await MaintenanceHistory.find()
         .sort({ startTime: -1 })
-        .populate('adminId', 'username email')
+        .populate('adminId', 'username')
         .skip(skip)
         .limit(limit);
 
-      // Format dates for display and ensure all data is properly populated
-      const formattedHistory = maintenanceHistory.map(record => {
-        // Create a plain object from the Mongoose document
-        const plainRecord = record.toObject ? record.toObject() : record;
-
-        return {
-          ...plainRecord,
-          startTimeFormatted: new Date(record.startTime).toLocaleString(),
-          endTimeFormatted: new Date(record.endTime).toLocaleString(),
-          actualEndTimeFormatted: record.actualEndTime ? new Date(record.actualEndTime).toLocaleString() : 'N/A',
-          // Ensure adminId is properly populated
-          adminId: record.adminId || { username: 'Unknown Admin' }
-        };
-      });
-
-      // Debug log to check data
-      console.log('Maintenance history records:', formattedHistory.length);
-      if (formattedHistory.length > 0) {
-        console.log('First record sample:', {
-          id: formattedHistory[0]._id,
-          reason: formattedHistory[0].reason,
-          admin: formattedHistory[0].adminId?.username || 'Unknown',
-          startTime: formattedHistory[0].startTimeFormatted
-        });
-      }
-
       res.render('admin/maintenance-history', {
         title: 'Maintenance History - FTRAISE AI',
-        maintenanceHistory: formattedHistory,
+        maintenanceHistory,
         currentPage: page,
         totalPages: Math.ceil(totalCount / limit),
         totalCount,
@@ -650,3 +597,4 @@ module.exports = {
     }
   }
 };
+
