@@ -56,6 +56,19 @@ if (typeof path === 'undefined') {
           <span class="ml-3">Maintenance</span>
         </a>
       </li>
+      <li>
+        <a href="/admin/images" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/images' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+          <i class="fas fa-images w-5"></i>
+          <span class="ml-3">Image Management</span>
+        </a>
+      </li>
+      <li>
+        <a href="/admin/rate-limits" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/rate-limits' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+          <i class="fas fa-tachometer-alt w-5"></i>
+          <span class="ml-3">Rate Limits</span>
+          <span id="pending-requests-badge" class="ml-auto bg-neon-blue text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+        </a>
+      </li>
     </ul>
   </nav>
 
@@ -151,6 +164,19 @@ if (typeof path === 'undefined') {
             <span class="ml-3">Maintenance</span>
           </a>
         </li>
+        <li>
+          <a href="/admin/images" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/images' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-images w-5"></i>
+            <span class="ml-3">Image Management</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/rate-limits" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/rate-limits' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-tachometer-alt w-5"></i>
+            <span class="ml-3">Rate Limits</span>
+            <span id="mobile-pending-requests-badge" class="ml-auto bg-neon-blue text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+          </a>
+        </li>
       </ul>
     </nav>
 
@@ -198,4 +224,29 @@ if (typeof path === 'undefined') {
 
   closeSidebar.addEventListener('click', hideSidebar);
   sidebarBackdrop.addEventListener('click', hideSidebar);
+
+  // Load pending rate limit requests count
+  async function loadPendingRequestsCount() {
+    try {
+      const response = await fetch('/admin/rate-limits?status=pending&count=true');
+      const data = await response.json();
+
+      if (data.success && data.count > 0) {
+        // Update desktop badge
+        const desktopBadge = document.getElementById('pending-requests-badge');
+        desktopBadge.textContent = data.count;
+        desktopBadge.classList.remove('hidden');
+
+        // Update mobile badge
+        const mobileBadge = document.getElementById('mobile-pending-requests-badge');
+        mobileBadge.textContent = data.count;
+        mobileBadge.classList.remove('hidden');
+      }
+    } catch (err) {
+      console.error('Error loading pending requests count:', err);
+    }
+  }
+
+  // Load pending requests count on page load
+  loadPendingRequestsCount();
 </script>

@@ -81,6 +81,11 @@ app.use('/admin', require('./routes/admin'));
 app.use('/profile', require('./routes/profile'));
 app.use('/reviews', require('./routes/reviews'));
 app.use('/maintenance', require('./routes/maintenance'));
+app.use('/images', require('./routes/images'));
+app.use('/api/images', require('./routes/api-images'));
+app.use('/admin/images', require('./routes/admin-images'));
+app.use('/rate-limits', require('./routes/rate-limits'));
+app.use('/admin/rate-limits', require('./routes/admin-rate-limits'));
 
 // 404 handler
 app.use((req, res) => {

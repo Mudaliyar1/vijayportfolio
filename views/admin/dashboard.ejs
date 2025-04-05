@@ -10,7 +10,7 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-blue transition-colors">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-semibold">Total Users</h3>
@@ -42,6 +42,17 @@
         </div>
         <p class="text-3xl font-bold"><%= guestCount %></p>
         <a href="/admin/guests" class="text-sm text-neon-green hover:underline mt-2 inline-block">View Guest Users</a>
+      </div>
+
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-orange transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Total Images</h3>
+          <div class="w-10 h-10 rounded-full bg-neon-orange/20 flex items-center justify-center">
+            <i class="fas fa-images text-neon-orange"></i>
+          </div>
+        </div>
+        <p class="text-3xl font-bold"><%= imageCount %></p>
+        <a href="/admin/images" class="text-sm text-neon-orange hover:underline mt-2 inline-block">View All Images</a>
       </div>
     </div>
 

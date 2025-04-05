@@ -40,6 +40,25 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
+  // Custom rate limits
+  chatRateLimit: {
+    type: Number,
+    default: 8 // Default: 8 requests per window
+  },
+  imageRateLimit: {
+    type: Number,
+    default: 1 // Default: 1 image per window
+  },
+  // Image generation window start time (separate from chat)
+  imageWindowStartTime: {
+    type: Date,
+    default: null
+  },
+  // Image generation requests in window
+  imageRequestsInWindow: {
+    type: Number,
+    default: 0
+  },
   createdAt: {
     type: Date,
     default: Date.now

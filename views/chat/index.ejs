@@ -229,12 +229,12 @@
           <% if (user) { %>
             <span class="bg-dark-100 px-2 py-1 rounded-md">
               <i class="fas fa-bolt text-neon-blue"></i>
-              <span id="requests-count"><%= rateLimit.remaining %></span>/<%= rateLimit.limit %>
+              <span id="requests-count"><%= rateLimit.remaining %></span>/<span id="rate-limit-max"><%= rateLimit.limit %></span>
             </span>
           <% } else { %>
             <span class="bg-dark-100 px-2 py-1 rounded-md">
               <i class="fas fa-bolt text-neon-blue"></i>
-              <span id="requests-count"><%= rateLimit.remaining %></span>/<%= rateLimit.limit %> (Guest)
+              <span id="requests-count"><%= rateLimit.remaining %></span>/<span id="rate-limit-max"><%= rateLimit.limit %></span> (Guest)
             </span>
           <% } %>
         </div>
@@ -812,10 +812,21 @@
 
   // Format message with markdown-like syntax
   function formatMessage(content) {
-    // Replace URLs with clickable links
+    // Replace URLs with clickable links (with domain name display)
     content = content.replace(
       /(https?:\/\/[^\s]+)/g,
-      '<a href="$1" target="_blank" class="text-neon-blue hover:underline">$1</a>'
+      (match) => {
+        // Get the domain name for display
+        let domain = match;
+        try {
+          domain = new URL(match).hostname;
+        } catch (e) {
+          console.error('Error parsing URL:', e);
+        }
+        return `<a href="${match}" target="_blank" class="text-neon-blue hover:underline flex items-center inline-flex">
+          <i class="fas fa-external-link-alt text-xs mr-1"></i> ${domain}
+        </a>`;
+      }
     );
 
     // Replace code blocks with copy button
@@ -917,9 +928,15 @@
         // Add AI response to UI
         addMessageToUI('assistant', data.response);
 
-        // Update requests count
+        // Update requests count and limit
         if (data.rateLimit) {
           requestsCount.textContent = data.rateLimit.remaining;
+
+          // Update the max limit if it changed
+          const rateLimitMax = document.getElementById('rate-limit-max');
+          if (rateLimitMax && data.rateLimit.limit) {
+            rateLimitMax.textContent = data.rateLimit.limit;
+          }
         }
       } else if (data.isRateLimited) {
         // Handle rate limit
@@ -952,11 +969,18 @@
               <i class="fas fa-hourglass-half text-blue-500 mr-2 animate-pulse"></i>
               <span class="font-medium text-blue-500">Rate Limit</span>
             </div>
-            <p class="text-sm">Please wait for the cooldown to end.</p>
+            <p class="text-sm">You've reached your limit of ${data.currentLimit} requests in 3 minutes. Please wait for the cooldown to end.</p>
 
             <div class="mt-2 p-1.5 bg-dark-300 rounded-lg flex items-center justify-center text-sm">
               <i class="fas fa-clock text-blue-500 mr-1"></i>
               <span>Ready in: <span id="${countdownId}" class="font-bold text-blue-500">calculating...</span></span>
+            </div>
+
+            <div class="mt-3 text-sm text-center">
+              <p class="text-gray-400 mb-1">Need more requests?</p>
+              <a href="/rate-limits/request" class="text-blue-500 hover:underline flex items-center justify-center">
+                <i class="fas fa-arrow-up mr-1"></i> Request a rate limit increase
+              </a>
             </div>
           </div>`;
 
@@ -968,7 +992,28 @@
         }
       } else {
         // Handle other errors
-        addMessageToUI('assistant', 'Sorry, an error occurred while processing your message. Please try again.');
+        const errorMessage = `
+        <div class="p-4 bg-red-600/10 border border-red-600/30 rounded-lg mb-3">
+          <div class="flex items-center mb-2">
+            <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+            <span class="font-medium text-red-500">AI Service Error</span>
+          </div>
+          <p class="text-sm mb-3">The AI service is taking too long to respond. Please contact admin (Vijay):</p>
+
+          <div class="flex flex-wrap gap-3 mt-2">
+            <a href="https://www.instagram.com/ft_raise_59" target="_blank" class="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-white hover:opacity-90 transition-opacity flex items-center text-sm">
+              <i class="fab fa-instagram mr-1"></i> @ft_raise_59
+            </a>
+            <a href="https://github.com/Mudaliyar1" target="_blank" class="px-3 py-1.5 bg-gray-700 rounded-lg text-white hover:bg-gray-800 transition-colors flex items-center text-sm">
+              <i class="fab fa-github mr-1"></i> Mudaliyar1
+            </a>
+            <a href="mailto:vijaymudaliyar224@gmail.com" class="px-3 py-1.5 bg-blue-700 rounded-lg text-white hover:bg-blue-800 transition-colors flex items-center text-sm">
+              <i class="fas fa-envelope mr-1"></i> Email
+            </a>
+          </div>
+        </div>
+        `;
+        addMessageToUI('assistant', errorMessage);
       }
     } catch (err) {
       console.error('Error processing message:', err);
@@ -982,8 +1027,29 @@
 
       console.log('Changed back to send state (error case)');
 
-      // Add error message
-      addMessageToUI('assistant', 'Sorry, an error occurred while processing your message. Please try again.');
+      // Add error message with contact info
+      const errorMessage = `
+      <div class="p-4 bg-red-600/10 border border-red-600/30 rounded-lg mb-3">
+        <div class="flex items-center mb-2">
+          <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+          <span class="font-medium text-red-500">AI Service Error</span>
+        </div>
+        <p class="text-sm mb-3">The AI service is taking too long to respond. Please contact admin (Vijay):</p>
+
+        <div class="flex flex-wrap gap-3 mt-2">
+          <a href="https://www.instagram.com/ft_raise_59" target="_blank" class="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-white hover:opacity-90 transition-opacity flex items-center text-sm">
+            <i class="fab fa-instagram mr-1"></i> @ft_raise_59
+          </a>
+          <a href="https://github.com/Mudaliyar1" target="_blank" class="px-3 py-1.5 bg-gray-700 rounded-lg text-white hover:bg-gray-800 transition-colors flex items-center text-sm">
+            <i class="fab fa-github mr-1"></i> Mudaliyar1
+          </a>
+          <a href="mailto:vijaymudaliyar224@gmail.com" class="px-3 py-1.5 bg-blue-700 rounded-lg text-white hover:bg-blue-800 transition-colors flex items-center text-sm">
+            <i class="fas fa-envelope mr-1"></i> Email
+          </a>
+        </div>
+      </div>
+      `;
+      addMessageToUI('assistant', errorMessage);
     }
   });
 

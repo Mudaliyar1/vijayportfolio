@@ -1,0 +1,186 @@
+<!-- Admin Rate Limit Requests Dashboard -->
+<div class="container mx-auto px-4">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold mb-2">Rate Limit Requests</h1>
+    <p class="text-gray-400">Manage user requests for increased rate limits</p>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-dark-200 rounded-lg border border-gray-700 p-4 mb-8">
+    <form id="filter-form" class="flex flex-col md:flex-row gap-4">
+      <div class="flex-grow">
+        <input 
+          type="text" 
+          id="search-input" 
+          placeholder="Search by username or email..." 
+          class="w-full bg-dark-300 border border-gray-700 rounded-md py-2 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
+        >
+      </div>
+      
+      <div class="flex gap-2">
+        <select 
+          name="status" 
+          id="status-filter" 
+          class="bg-dark-300 border border-gray-700 rounded-md py-2 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
+        >
+          <option value="all" <%= status === 'all' ? 'selected' : '' %>>All Status</option>
+          <option value="pending" <%= status === 'pending' ? 'selected' : '' %>>Pending</option>
+          <option value="approved" <%= status === 'approved' ? 'selected' : '' %>>Approved</option>
+          <option value="rejected" <%= status === 'rejected' ? 'selected' : '' %>>Rejected</option>
+        </select>
+        
+        <select 
+          name="type" 
+          id="type-filter" 
+          class="bg-dark-300 border border-gray-700 rounded-md py-2 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
+        >
+          <option value="all" <%= type === 'all' ? 'selected' : '' %>>All Types</option>
+          <option value="chat" <%= type === 'chat' ? 'selected' : '' %>>Chat</option>
+          <option value="image" <%= type === 'image' ? 'selected' : '' %>>Image</option>
+        </select>
+        
+        <select 
+          name="sort" 
+          id="sort-filter" 
+          class="bg-dark-300 border border-gray-700 rounded-md py-2 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
+        >
+          <option value="newest" <%= sort === 'newest' ? 'selected' : '' %>>Newest First</option>
+          <option value="oldest" <%= sort === 'oldest' ? 'selected' : '' %>>Oldest First</option>
+        </select>
+      </div>
+    </form>
+  </div>
+
+  <!-- Requests Table -->
+  <div class="bg-dark-200 rounded-lg border border-gray-700 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-dark-300">
+            <th class="py-3 px-4 text-left">User</th>
+            <th class="py-3 px-4 text-center">Type</th>
+            <th class="py-3 px-4 text-center">Current</th>
+            <th class="py-3 px-4 text-center">Requested</th>
+            <th class="py-3 px-4 text-center">Status</th>
+            <th class="py-3 px-4 text-center">Date</th>
+            <th class="py-3 px-4 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="requests-table-body">
+          <% if (requests.length === 0) { %>
+            <tr class="border-t border-gray-700">
+              <td colspan="7" class="py-4 px-4 text-center text-gray-400">No rate limit requests found</td>
+            </tr>
+          <% } else { %>
+            <% requests.forEach(request => { %>
+              <tr class="border-t border-gray-700 hover:bg-dark-300/50 request-row" 
+                  data-username="<%= request.userId ? request.userId.username.toLowerCase() : '' %>" 
+                  data-email="<%= request.userId ? request.userId.email.toLowerCase() : '' %>">
+                <td class="py-3 px-4">
+                  <% if (request.userId) { %>
+                    <div class="flex items-center">
+                      <img src="<%= request.userId.profilePicture %>" alt="<%= request.userId.username %>" class="w-8 h-8 rounded-full mr-3">
+                      <div>
+                        <p class="font-medium"><%= request.userId.username %></p>
+                        <p class="text-gray-400 text-sm"><%= request.userId.email %></p>
+                      </div>
+                    </div>
+                  <% } else { %>
+                    <div class="flex items-center">
+                      <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-gray-400"></i>
+                      </div>
+                      <div>
+                        <p class="font-medium text-gray-300">Deleted User</p>
+                      </div>
+                    </div>
+                  <% } %>
+                </td>
+                <td class="py-3 px-4 text-center">
+                  <% if (request.requestType === 'chat') { %>
+                    <span class="inline-block bg-neon-blue/20 text-neon-blue text-xs px-2 py-1 rounded-full">
+                      <i class="fas fa-comments mr-1"></i> Chat
+                    </span>
+                  <% } else if (request.requestType === 'image') { %>
+                    <span class="inline-block bg-neon-green/20 text-neon-green text-xs px-2 py-1 rounded-full">
+                      <i class="fas fa-images mr-1"></i> Image
+                    </span>
+                  <% } else { %>
+                    <span class="inline-block bg-gray-500/20 text-gray-400 text-xs px-2 py-1 rounded-full">
+                      <i class="fas fa-cog mr-1"></i> Manual
+                    </span>
+                  <% } %>
+                </td>
+                <td class="py-3 px-4 text-center"><%= request.currentLimit %></td>
+                <td class="py-3 px-4 text-center"><%= request.requestedLimit %></td>
+                <td class="py-3 px-4 text-center">
+                  <% if (request.status === 'pending') { %>
+                    <span class="inline-block bg-yellow-500/20 text-yellow-500 text-xs px-2 py-1 rounded-full">
+                      <i class="fas fa-clock mr-1"></i> Pending
+                    </span>
+                  <% } else if (request.status === 'approved') { %>
+                    <span class="inline-block bg-green-500/20 text-green-500 text-xs px-2 py-1 rounded-full">
+                      <i class="fas fa-check mr-1"></i> Approved
+                    </span>
+                  <% } else { %>
+                    <span class="inline-block bg-red-500/20 text-red-500 text-xs px-2 py-1 rounded-full">
+                      <i class="fas fa-times mr-1"></i> Rejected
+                    </span>
+                  <% } %>
+                </td>
+                <td class="py-3 px-4 text-center text-sm text-gray-400">
+                  <%= new Date(request.createdAt).toLocaleString() %>
+                </td>
+                <td class="py-3 px-4 text-center">
+                  <a href="/admin/rate-limits/<%= request._id %>" class="inline-block bg-neon-blue/20 text-neon-blue px-3 py-1 rounded-md hover:bg-neon-blue/30 transition-colors">
+                    <i class="fas fa-eye mr-1"></i> View
+                  </a>
+                </td>
+              </tr>
+            <% }); %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Filter form handling
+    const filterForm = document.getElementById('filter-form');
+    const statusFilter = document.getElementById('status-filter');
+    const typeFilter = document.getElementById('type-filter');
+    const sortFilter = document.getElementById('sort-filter');
+    
+    // Update URL when filters change
+    [statusFilter, typeFilter, sortFilter].forEach(filter => {
+      filter.addEventListener('change', () => {
+        const url = new URL(window.location);
+        url.searchParams.set('status', statusFilter.value);
+        url.searchParams.set('type', typeFilter.value);
+        url.searchParams.set('sort', sortFilter.value);
+        window.location = url.toString();
+      });
+    });
+    
+    // Live search
+    const searchInput = document.getElementById('search-input');
+    const requestRows = document.querySelectorAll('.request-row');
+    
+    searchInput.addEventListener('input', () => {
+      const searchTerm = searchInput.value.toLowerCase();
+      
+      requestRows.forEach(row => {
+        const username = row.dataset.username;
+        const email = row.dataset.email;
+        
+        if (username.includes(searchTerm) || email.includes(searchTerm)) {
+          row.classList.remove('hidden');
+        } else {
+          row.classList.add('hidden');
+        }
+      });
+    });
+  });
+</script>

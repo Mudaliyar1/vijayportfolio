@@ -1,0 +1,265 @@
+<!-- Admin Image Management Dashboard -->
+<div class="container mx-auto px-4">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold mb-2">Image Management</h1>
+    <p class="text-gray-400">Monitor and manage user image generation and uploads</p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="bg-dark-200 rounded-lg p-4 border border-gray-700">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-400 text-sm">Total Images</p>
+          <h3 class="text-2xl font-bold"><%= totalImages %></h3>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-neon-blue/20 flex items-center justify-center">
+          <i class="fas fa-images text-neon-blue"></i>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-dark-200 rounded-lg p-4 border border-gray-700">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-400 text-sm">Generated</p>
+          <h3 class="text-2xl font-bold"><%= totalGenerated %></h3>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+          <i class="fas fa-magic text-green-500"></i>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-dark-200 rounded-lg p-4 border border-gray-700">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-400 text-sm">Uploaded</p>
+          <h3 class="text-2xl font-bold"><%= totalUploaded %></h3>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+          <i class="fas fa-upload text-blue-500"></i>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-dark-200 rounded-lg p-4 border border-gray-700">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-400 text-sm">Transformed</p>
+          <h3 class="text-2xl font-bold"><%= totalTransformed %></h3>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
+          <i class="fas fa-wand-magic-sparkles text-purple-500"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Image Activity -->
+  <div class="bg-dark-200 rounded-lg border border-gray-700 mb-8">
+    <div class="p-4 border-b border-gray-700">
+      <h2 class="text-xl font-semibold">User Image Activity</h2>
+    </div>
+    
+    <!-- Search and Filters -->
+    <div class="p-4 border-b border-gray-700">
+      <div class="flex flex-col md:flex-row gap-4">
+        <div class="flex-grow">
+          <input 
+            type="text" 
+            id="user-search" 
+            placeholder="Search by username or email..." 
+            class="w-full bg-dark-300 border border-gray-700 rounded-md py-2 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
+          >
+        </div>
+        
+        <div class="flex gap-2">
+          <select 
+            id="type-filter" 
+            class="bg-dark-300 border border-gray-700 rounded-md py-2 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
+          >
+            <option value="all">All Types</option>
+            <option value="generated">Generated</option>
+            <option value="uploaded">Uploaded</option>
+            <option value="transformed">Transformed</option>
+          </select>
+          
+          <select 
+            id="sort-filter" 
+            class="bg-dark-300 border border-gray-700 rounded-md py-2 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
+          >
+            <option value="most">Most Images</option>
+            <option value="latest">Latest Activity</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Users Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-dark-300">
+            <th class="py-3 px-4 text-left">User</th>
+            <th class="py-3 px-4 text-center">Generated</th>
+            <th class="py-3 px-4 text-center">Uploaded</th>
+            <th class="py-3 px-4 text-center">Transformed</th>
+            <th class="py-3 px-4 text-center">Total</th>
+            <th class="py-3 px-4 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="users-table-body">
+          <% users.forEach(user => { %>
+            <tr class="border-t border-gray-700 hover:bg-dark-300/50 user-row" 
+                data-username="<%= user.username.toLowerCase() %>" 
+                data-email="<%= user.email.toLowerCase() %>"
+                data-total="<%= user.totalImages %>"
+                data-generated="<%= user.generatedCount %>"
+                data-uploaded="<%= user.uploadedCount %>"
+                data-transformed="<%= user.transformedCount %>">
+              <td class="py-3 px-4">
+                <div class="flex items-center">
+                  <img src="<%= user.profilePicture %>" alt="<%= user.username %>" class="w-8 h-8 rounded-full mr-3">
+                  <div>
+                    <p class="font-medium"><%= user.username %></p>
+                    <p class="text-gray-400 text-sm"><%= user.email %></p>
+                  </div>
+                </div>
+              </td>
+              <td class="py-3 px-4 text-center"><%= user.generatedCount %></td>
+              <td class="py-3 px-4 text-center"><%= user.uploadedCount %></td>
+              <td class="py-3 px-4 text-center"><%= user.transformedCount %></td>
+              <td class="py-3 px-4 text-center"><%= user.totalImages %></td>
+              <td class="py-3 px-4 text-center">
+                <a href="/admin/images/user/<%= user._id %>" class="inline-block bg-neon-blue/20 text-neon-blue px-3 py-1 rounded-md hover:bg-neon-blue/30 transition-colors">
+                  <i class="fas fa-folder-open mr-1"></i> View Images
+                </a>
+              </td>
+            </tr>
+          <% }); %>
+          
+          <% if (users.length === 0) { %>
+            <tr class="border-t border-gray-700">
+              <td colspan="6" class="py-4 px-4 text-center text-gray-400">No users found with image activity</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Guest Image Activity -->
+  <div class="bg-dark-200 rounded-lg border border-gray-700">
+    <div class="p-4 border-b border-gray-700">
+      <h2 class="text-xl font-semibold">Guest Image Activity</h2>
+    </div>
+    
+    <!-- Guests Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-dark-300">
+            <th class="py-3 px-4 text-left">Guest ID</th>
+            <th class="py-3 px-4 text-center">Generated</th>
+            <th class="py-3 px-4 text-center">Uploaded</th>
+            <th class="py-3 px-4 text-center">Transformed</th>
+            <th class="py-3 px-4 text-center">Total</th>
+            <th class="py-3 px-4 text-center">Last Activity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% guestImages.forEach(guest => { %>
+            <tr class="border-t border-gray-700 hover:bg-dark-300/50">
+              <td class="py-3 px-4">
+                <div class="flex items-center">
+                  <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center mr-3">
+                    <i class="fas fa-user text-gray-400"></i>
+                  </div>
+                  <div>
+                    <p class="font-medium text-gray-300">Guest</p>
+                    <p class="text-gray-400 text-sm truncate max-w-[200px]"><%= guest._id %></p>
+                  </div>
+                </div>
+              </td>
+              <td class="py-3 px-4 text-center"><%= guest.generatedCount %></td>
+              <td class="py-3 px-4 text-center"><%= guest.uploadedCount %></td>
+              <td class="py-3 px-4 text-center"><%= guest.transformedCount %></td>
+              <td class="py-3 px-4 text-center"><%= guest.totalImages %></td>
+              <td class="py-3 px-4 text-center"><%= new Date(guest.lastActivity).toLocaleString() %></td>
+            </tr>
+          <% }); %>
+          
+          <% if (guestImages.length === 0) { %>
+            <tr class="border-t border-gray-700">
+              <td colspan="6" class="py-4 px-4 text-center text-gray-400">No guest image activity found</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Live search and filtering
+    const userSearch = document.getElementById('user-search');
+    const typeFilter = document.getElementById('type-filter');
+    const sortFilter = document.getElementById('sort-filter');
+    const userRows = document.querySelectorAll('.user-row');
+    
+    // Function to filter and sort users
+    function filterAndSortUsers() {
+      const searchTerm = userSearch.value.toLowerCase();
+      const typeValue = typeFilter.value;
+      const sortValue = sortFilter.value;
+      
+      // Filter users
+      userRows.forEach(row => {
+        const username = row.dataset.username;
+        const email = row.dataset.email;
+        const generated = parseInt(row.dataset.generated);
+        const uploaded = parseInt(row.dataset.uploaded);
+        const transformed = parseInt(row.dataset.transformed);
+        
+        // Search filter
+        const matchesSearch = username.includes(searchTerm) || email.includes(searchTerm);
+        
+        // Type filter
+        let matchesType = true;
+        if (typeValue === 'generated' && generated === 0) matchesType = false;
+        if (typeValue === 'uploaded' && uploaded === 0) matchesType = false;
+        if (typeValue === 'transformed' && transformed === 0) matchesType = false;
+        
+        // Show/hide row
+        if (matchesSearch && matchesType) {
+          row.classList.remove('hidden');
+        } else {
+          row.classList.add('hidden');
+        }
+      });
+      
+      // Sort users
+      const tbody = document.getElementById('users-table-body');
+      const rows = Array.from(tbody.querySelectorAll('tr:not(.hidden)'));
+      
+      rows.sort((a, b) => {
+        if (sortValue === 'most') {
+          return parseInt(b.dataset.total) - parseInt(a.dataset.total);
+        } else {
+          // For 'latest', we would need timestamps, but for now we'll keep the default order
+          return 0;
+        }
+      });
+      
+      // Re-append rows in sorted order
+      rows.forEach(row => tbody.appendChild(row));
+    }
+    
+    // Add event listeners
+    userSearch.addEventListener('input', filterAndSortUsers);
+    typeFilter.addEventListener('change', filterAndSortUsers);
+    sortFilter.addEventListener('change', filterAndSortUsers);
+  });
+</script>

@@ -1,0 +1,345 @@
+<!-- Admin Rate Limit Request Detail -->
+<div class="container mx-auto px-4">
+  <div class="mb-8">
+    <div class="flex items-center">
+      <a href="/admin/rate-limits" class="text-gray-400 hover:text-white mr-3">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <h1 class="text-2xl font-bold">Rate Limit Request Details</h1>
+    </div>
+  </div>
+
+  <!-- Request Details -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <!-- User Info -->
+    <div class="bg-dark-200 rounded-lg border border-gray-700 p-6">
+      <h2 class="text-xl font-semibold mb-4">User Information</h2>
+      
+      <% if (request.userId) { %>
+        <div class="flex items-center mb-6">
+          <img src="<%= request.userId.profilePicture %>" alt="<%= request.userId.username %>" class="w-16 h-16 rounded-full mr-4">
+          <div>
+            <p class="font-medium text-lg"><%= request.userId.username %></p>
+            <p class="text-gray-400"><%= request.userId.email %></p>
+          </div>
+        </div>
+        
+        <div class="space-y-3">
+          <div>
+            <p class="text-gray-400 text-sm">Current Chat Limit</p>
+            <p class="font-medium"><%= user.chatRateLimit %> requests / 3 minutes</p>
+          </div>
+          
+          <div>
+            <p class="text-gray-400 text-sm">Current Image Limit</p>
+            <p class="font-medium"><%= user.imageRateLimit %> images / 2 minutes</p>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="flex items-center mb-6">
+          <div class="w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center mr-4">
+            <i class="fas fa-user text-gray-400 text-2xl"></i>
+          </div>
+          <div>
+            <p class="font-medium text-lg">Deleted User</p>
+            <p class="text-gray-400">User account no longer exists</p>
+          </div>
+        </div>
+      <% } %>
+    </div>
+    
+    <!-- Request Info -->
+    <div class="bg-dark-200 rounded-lg border border-gray-700 p-6">
+      <h2 class="text-xl font-semibold mb-4">Request Information</h2>
+      
+      <div class="space-y-4">
+        <div>
+          <p class="text-gray-400 text-sm">Request Type</p>
+          <p class="font-medium">
+            <% if (request.requestType === 'chat') { %>
+              <span class="inline-block bg-neon-blue/20 text-neon-blue px-2 py-1 rounded-full">
+                <i class="fas fa-comments mr-1"></i> Chat Rate Limit
+              </span>
+            <% } else if (request.requestType === 'image') { %>
+              <span class="inline-block bg-neon-green/20 text-neon-green px-2 py-1 rounded-full">
+                <i class="fas fa-images mr-1"></i> Image Rate Limit
+              </span>
+            <% } else { %>
+              <span class="inline-block bg-gray-500/20 text-gray-400 px-2 py-1 rounded-full">
+                <i class="fas fa-cog mr-1"></i> Manual Update
+              </span>
+            <% } %>
+          </p>
+        </div>
+        
+        <div>
+          <p class="text-gray-400 text-sm">Current Limit</p>
+          <p class="font-medium"><%= request.currentLimit %></p>
+        </div>
+        
+        <div>
+          <p class="text-gray-400 text-sm">Requested Limit</p>
+          <p class="font-medium"><%= request.requestedLimit %></p>
+        </div>
+        
+        <div>
+          <p class="text-gray-400 text-sm">Status</p>
+          <p class="font-medium">
+            <% if (request.status === 'pending') { %>
+              <span class="inline-block bg-yellow-500/20 text-yellow-500 px-2 py-1 rounded-full">
+                <i class="fas fa-clock mr-1"></i> Pending
+              </span>
+            <% } else if (request.status === 'approved') { %>
+              <span class="inline-block bg-green-500/20 text-green-500 px-2 py-1 rounded-full">
+                <i class="fas fa-check mr-1"></i> Approved
+              </span>
+            <% } else { %>
+              <span class="inline-block bg-red-500/20 text-red-500 px-2 py-1 rounded-full">
+                <i class="fas fa-times mr-1"></i> Rejected
+              </span>
+            <% } %>
+          </p>
+        </div>
+        
+        <div>
+          <p class="text-gray-400 text-sm">Date Requested</p>
+          <p class="font-medium"><%= new Date(request.createdAt).toLocaleString() %></p>
+        </div>
+        
+        <% if (request.reviewedAt) { %>
+          <div>
+            <p class="text-gray-400 text-sm">Date Reviewed</p>
+            <p class="font-medium"><%= new Date(request.reviewedAt).toLocaleString() %></p>
+          </div>
+          
+          <div>
+            <p class="text-gray-400 text-sm">Reviewed By</p>
+            <p class="font-medium">
+              <% if (request.reviewedBy) { %>
+                <%= request.reviewedBy.username %>
+              <% } else { %>
+                Unknown
+              <% } %>
+            </p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+    
+    <!-- Reason & Notes -->
+    <div class="bg-dark-200 rounded-lg border border-gray-700 p-6">
+      <h2 class="text-xl font-semibold mb-4">Reason & Notes</h2>
+      
+      <div class="space-y-4">
+        <div>
+          <p class="text-gray-400 text-sm mb-1">User's Reason</p>
+          <div class="bg-dark-300 rounded-lg p-3 border border-gray-700">
+            <p class="text-gray-300 whitespace-pre-line"><%= request.reason %></p>
+          </div>
+        </div>
+        
+        <% if (request.adminNotes) { %>
+          <div>
+            <p class="text-gray-400 text-sm mb-1">Admin Notes</p>
+            <div class="bg-dark-300 rounded-lg p-3 border border-gray-700">
+              <p class="text-gray-300 whitespace-pre-line"><%= request.adminNotes %></p>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Actions -->
+  <% if (request.status === 'pending' && request.userId) { %>
+    <div class="bg-dark-200 rounded-lg border border-gray-700 p-6 mb-8">
+      <h2 class="text-xl font-semibold mb-4">Review Request</h2>
+      
+      <div class="mb-4">
+        <label for="admin-notes" class="block text-gray-300 mb-2">Admin Notes (Optional)</label>
+        <textarea 
+          id="admin-notes" 
+          rows="3" 
+          class="w-full bg-dark-300 border border-gray-700 rounded-lg py-2 px-3 text-white focus:outline-none focus:border-neon-blue transition-colors resize-none"
+          placeholder="Add notes about this decision..."
+        ></textarea>
+      </div>
+      
+      <div class="flex justify-end space-x-3">
+        <button 
+          id="reject-button"
+          class="py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+          data-id="<%= request._id %>"
+        >
+          <i class="fas fa-times mr-1"></i> Reject
+        </button>
+        
+        <button 
+          id="approve-button"
+          class="py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+          data-id="<%= request._id %>"
+        >
+          <i class="fas fa-check mr-1"></i> Approve
+        </button>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Manual Rate Limit Update -->
+  <% if (request.userId) { %>
+    <div class="bg-dark-200 rounded-lg border border-gray-700 p-6">
+      <h2 class="text-xl font-semibold mb-4">Manual Rate Limit Update</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label for="chat-limit" class="block text-gray-300 mb-2">Chat Rate Limit</label>
+          <input 
+            type="number" 
+            id="chat-limit" 
+            min="0" 
+            value="<%= user.chatRateLimit %>" 
+            class="w-full bg-dark-300 border border-gray-700 rounded-lg py-2 px-3 text-white focus:outline-none focus:border-neon-blue transition-colors"
+          >
+          <p class="text-gray-400 text-xs mt-1">Requests per 3 minutes</p>
+        </div>
+        
+        <div>
+          <label for="image-limit" class="block text-gray-300 mb-2">Image Rate Limit</label>
+          <input 
+            type="number" 
+            id="image-limit" 
+            min="0" 
+            value="<%= user.imageRateLimit %>" 
+            class="w-full bg-dark-300 border border-gray-700 rounded-lg py-2 px-3 text-white focus:outline-none focus:border-neon-blue transition-colors"
+          >
+          <p class="text-gray-400 text-xs mt-1">Images per 2 minutes</p>
+        </div>
+      </div>
+      
+      <div class="mb-4">
+        <label for="manual-notes" class="block text-gray-300 mb-2">Admin Notes (Optional)</label>
+        <textarea 
+          id="manual-notes" 
+          rows="2" 
+          class="w-full bg-dark-300 border border-gray-700 rounded-lg py-2 px-3 text-white focus:outline-none focus:border-neon-blue transition-colors resize-none"
+          placeholder="Add notes about this manual update..."
+        ></textarea>
+      </div>
+      
+      <div class="flex justify-end">
+        <button 
+          id="update-limits-button"
+          class="py-2 px-4 bg-neon-blue text-white rounded-md hover:bg-neon-blue/90 transition-colors"
+          data-id="<%= request.userId._id %>"
+        >
+          <i class="fas fa-save mr-1"></i> Update Limits
+        </button>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Approve button
+    const approveButton = document.getElementById('approve-button');
+    if (approveButton) {
+      approveButton.addEventListener('click', async () => {
+        if (!confirm('Are you sure you want to approve this request?')) return;
+        
+        const requestId = approveButton.dataset.id;
+        const adminNotes = document.getElementById('admin-notes').value;
+        
+        try {
+          const response = await fetch(`/admin/rate-limits/${requestId}/approve`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ adminNotes })
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            alert('Request approved successfully');
+            window.location.reload();
+          } else {
+            alert(data.message || 'An error occurred');
+          }
+        } catch (err) {
+          console.error('Error approving request:', err);
+          alert('An error occurred while approving the request');
+        }
+      });
+    }
+    
+    // Reject button
+    const rejectButton = document.getElementById('reject-button');
+    if (rejectButton) {
+      rejectButton.addEventListener('click', async () => {
+        if (!confirm('Are you sure you want to reject this request?')) return;
+        
+        const requestId = rejectButton.dataset.id;
+        const adminNotes = document.getElementById('admin-notes').value;
+        
+        try {
+          const response = await fetch(`/admin/rate-limits/${requestId}/reject`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ adminNotes })
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            alert('Request rejected successfully');
+            window.location.reload();
+          } else {
+            alert(data.message || 'An error occurred');
+          }
+        } catch (err) {
+          console.error('Error rejecting request:', err);
+          alert('An error occurred while rejecting the request');
+        }
+      });
+    }
+    
+    // Update limits button
+    const updateLimitsButton = document.getElementById('update-limits-button');
+    if (updateLimitsButton) {
+      updateLimitsButton.addEventListener('click', async () => {
+        if (!confirm('Are you sure you want to manually update this user\'s rate limits?')) return;
+        
+        const userId = updateLimitsButton.dataset.id;
+        const chatLimit = document.getElementById('chat-limit').value;
+        const imageLimit = document.getElementById('image-limit').value;
+        const adminNotes = document.getElementById('manual-notes').value;
+        
+        try {
+          const response = await fetch(`/admin/rate-limits/user/${userId}/update`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ chatLimit, imageLimit, adminNotes })
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            alert('Rate limits updated successfully');
+            window.location.reload();
+          } else {
+            alert(data.message || 'An error occurred');
+          }
+        } catch (err) {
+          console.error('Error updating rate limits:', err);
+          alert('An error occurred while updating rate limits');
+        }
+      });
+    }
+  });
+</script>

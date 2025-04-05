@@ -1,0 +1,1141 @@
+<!-- FraiseAI Image Generation Page -->
+<div class="max-w-6xl mx-auto">
+  <div class="mb-8 text-center">
+    <h1 class="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent">
+      FraiseAI Image Generation
+    </h1>
+    <p class="text-gray-300 max-w-3xl mx-auto">
+      Create stunning AI-generated images from text prompts or transform your uploaded images with various artistic styles.
+    </p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="mb-8">
+    <div class="flex border-b border-gray-700">
+      <button id="tab-generate" class="tab-button active py-3 px-6 border-b-2 border-neon-blue text-neon-blue font-medium">
+        Generate Image
+      </button>
+      <button id="tab-upload" class="tab-button py-3 px-6 border-b-2 border-transparent text-gray-400 hover:text-white font-medium">
+        Upload & Transform
+      </button>
+      <% if (user) { %>
+        <button id="tab-my-images" class="tab-button py-3 px-6 border-b-2 border-transparent text-gray-400 hover:text-white font-medium">
+          My Images
+        </button>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Generate Image Tab Content -->
+  <div id="content-generate" class="tab-content">
+    <% if (!user) { %>
+      <!-- Guest User Warning -->
+      <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-6">
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1"></i>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-yellow-500">Guest Access Limited</h3>
+            <div class="mt-1 text-sm text-gray-300">
+              <p>Guest users cannot generate images. Please <a href="/users/login" class="text-neon-blue hover:underline">login</a> or <a href="/users/register" class="text-neon-blue hover:underline">register</a> to use the image generation feature.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% } else if (rateLimit.remaining === 0 && rateLimit.cooldown) { %>
+      <!-- Rate Limited User -->
+      <div class="bg-blue-600/10 border border-blue-600/30 rounded-lg p-4 mb-6">
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <i class="fas fa-hourglass-half text-blue-500 mt-1"></i>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-blue-500">Rate Limit Reached</h3>
+            <div class="mt-1 text-sm text-gray-300">
+              <p>You can generate only <%= rateLimit.limit %> image<%= rateLimit.limit > 1 ? 's' : '' %> per 2 minutes. Please wait for the cooldown to end.</p>
+              <div class="mt-2 p-2 bg-dark-300 rounded-lg inline-flex items-center">
+                <i class="fas fa-clock text-blue-500 mr-2"></i>
+                <span>You can generate another image in: <span id="header-countdown" class="font-bold text-blue-500 ml-1">calculating...</span></span>
+              </div>
+
+              <div class="mt-3 text-sm">
+                <p class="text-gray-400 mb-1">Need more image generation capacity?</p>
+                <a href="/rate-limits/request" class="text-blue-500 hover:underline flex items-center">
+                  <i class="fas fa-arrow-up mr-1"></i> Request a rate limit increase
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% } else if (rateLimit.remaining > 0) { %>
+      <!-- User with available requests -->
+      <div class="bg-green-600/10 border border-green-600/30 rounded-lg p-4 mb-6">
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <i class="fas fa-check-circle text-green-500 mt-1"></i>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-green-500">Ready to Generate</h3>
+            <div class="mt-1 text-sm text-gray-300">
+              <p>You can generate <%= rateLimit.remaining %> more image<%= rateLimit.remaining > 1 ? 's' : '' %> in the current 2-minute window.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% } %>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- Input Form -->
+      <div class="bg-dark-200 rounded-xl p-6 border border-gray-700">
+        <h2 class="text-xl font-semibold mb-4">Create with Text Prompt</h2>
+
+        <form id="generate-form" class="space-y-4">
+          <div>
+            <label for="prompt" class="block text-gray-300 mb-2">Describe your image</label>
+            <textarea
+              id="prompt"
+              name="prompt"
+              rows="4"
+              class="w-full bg-dark-300 border border-gray-700 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors resize-none"
+              placeholder="E.g., A futuristic cityscape with flying cars and neon lights"
+              required
+            ></textarea>
+          </div>
+
+          <div>
+            <label class="block text-gray-300 mb-2">Reference Image (Optional)</label>
+            <div class="border-2 border-dashed border-gray-700 rounded-lg p-4 text-center" id="reference-drop-area">
+              <input
+                type="file"
+                id="reference-image"
+                name="reference-image"
+                class="hidden"
+                accept="image/*"
+              >
+              <div id="reference-placeholder">
+                <i class="fas fa-image text-2xl text-gray-500 mb-2"></i>
+                <p class="text-gray-400 text-sm">Add a reference image to guide the AI</p>
+                <button
+                  type="button"
+                  id="reference-browse-button"
+                  class="mt-2 bg-dark-300 text-white py-1 px-4 rounded-lg hover:bg-dark-400 transition-colors text-sm"
+                >
+                  Browse Files
+                </button>
+              </div>
+              <div id="reference-preview" class="hidden">
+                <img id="reference-preview-image" src="" alt="Reference" class="max-h-[100px] mx-auto mb-2">
+                <button
+                  type="button"
+                  id="remove-reference"
+                  class="text-sm text-red-400 hover:underline"
+                >
+                  Remove Image
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label for="style" class="block text-gray-300 mb-2">Choose a style</label>
+            <select
+              id="style"
+              name="style"
+              class="w-full bg-dark-300 border border-gray-700 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
+            >
+              <option value="ghibli">Studio Ghibli</option>
+              <option value="pixar">Pixar</option>
+              <option value="anime">Anime</option>
+              <option value="cyberpunk">Cyberpunk</option>
+              <option value="fantasy">Fantasy</option>
+              <option value="trending">Trending on Instagram</option>
+              <option value="futuristic">Futuristic</option>
+            </select>
+          </div>
+
+          <div class="text-right">
+            <button
+              type="submit"
+              id="generate-button"
+              class="bg-gradient-to-r from-neon-blue to-neon-purple text-white py-2 px-6 rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center <%= !user || (rateLimit.remaining === 0 && rateLimit.cooldown) ? 'opacity-50 cursor-not-allowed' : '' %>"
+              <%= !user || (rateLimit.remaining === 0 && rateLimit.cooldown) ? 'disabled' : '' %>
+              data-remaining="<%= rateLimit.remaining %>"
+              data-limit="<%= rateLimit.limit %>"
+            >
+              <span>Generate Image</span>
+              <i class="fas fa-magic ml-2"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Preview Area -->
+      <div class="bg-dark-200 rounded-xl p-6 border border-gray-700">
+        <h2 class="text-xl font-semibold mb-4">Preview</h2>
+
+        <div id="generate-preview" class="flex flex-col items-center justify-center min-h-[300px]">
+          <div id="generate-placeholder" class="text-center text-gray-500">
+            <i class="fas fa-image text-5xl mb-4"></i>
+            <p>Your generated image will appear here</p>
+          </div>
+
+          <div id="generate-loading" class="text-center hidden">
+            <div class="inline-block w-16 h-16 border-4 border-neon-blue/30 border-t-neon-blue rounded-full animate-spin mb-4"></div>
+            <p class="text-neon-blue">Generating your image...</p>
+          </div>
+
+          <div id="generate-result" class="w-full hidden">
+            <div id="result-with-reference" class="hidden mb-4">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <p class="text-center text-gray-400 mb-2">Reference</p>
+                  <img id="result-reference-image" src="" alt="Reference image" class="w-full h-auto rounded-lg">
+                </div>
+                <div>
+                  <p class="text-center text-gray-400 mb-2">Generated</p>
+                  <img id="generated-image" src="" alt="Generated image" class="w-full h-auto rounded-lg">
+                </div>
+              </div>
+            </div>
+
+            <div id="result-without-reference" class="hidden mb-4">
+              <img id="generated-image-solo" src="" alt="Generated image" class="w-full h-auto rounded-lg">
+            </div>
+
+            <div class="flex justify-between items-center">
+              <div>
+                <span id="generated-style" class="inline-block bg-dark-300 text-neon-blue text-xs px-2 py-1 rounded-full"></span>
+              </div>
+              <button id="download-generated" class="text-gray-400 hover:text-white">
+                <i class="fas fa-download"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload & Transform Tab Content -->
+  <div id="content-upload" class="tab-content hidden">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- Upload Form -->
+      <div class="bg-dark-200 rounded-xl p-6 border border-gray-700">
+        <h2 class="text-xl font-semibold mb-4">Upload Your Image</h2>
+
+        <form id="upload-form" class="space-y-4">
+          <div>
+            <label for="image" class="block text-gray-300 mb-2">Select an image to upload</label>
+            <div class="border-2 border-dashed border-gray-700 rounded-lg p-6 text-center" id="drop-area">
+              <input
+                type="file"
+                id="image"
+                name="image"
+                class="hidden"
+                accept="image/*"
+                required
+              >
+              <div id="upload-placeholder">
+                <i class="fas fa-cloud-upload-alt text-3xl text-gray-500 mb-2"></i>
+                <p class="text-gray-400">Drag & drop your image here or</p>
+                <button
+                  type="button"
+                  id="browse-button"
+                  class="mt-2 bg-dark-300 text-white py-1 px-4 rounded-lg hover:bg-dark-400 transition-colors"
+                >
+                  Browse Files
+                </button>
+              </div>
+              <div id="upload-preview" class="hidden">
+                <img id="preview-image" src="" alt="Preview" class="max-h-[200px] mx-auto mb-2">
+                <p id="file-name" class="text-sm text-gray-400 truncate"></p>
+                <button
+                  type="button"
+                  id="change-image"
+                  class="mt-2 text-sm text-neon-blue hover:underline"
+                >
+                  Change Image
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-right">
+            <button
+              type="submit"
+              id="upload-button"
+              class="bg-gradient-to-r from-neon-blue to-neon-purple text-white py-2 px-6 rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center"
+            >
+              <span>Upload Image</span>
+              <i class="fas fa-upload ml-2"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Transform Area -->
+      <div class="bg-dark-200 rounded-xl p-6 border border-gray-700">
+        <h2 class="text-xl font-semibold mb-4">Transform Your Image</h2>
+
+        <div id="transform-area" class="flex flex-col items-center justify-center min-h-[300px]">
+          <div id="transform-placeholder" class="text-center text-gray-500">
+            <i class="fas fa-wand-magic-sparkles text-5xl mb-4"></i>
+            <p>Upload an image first to transform it</p>
+          </div>
+
+          <div id="transform-content" class="w-full hidden">
+            <div class="mb-4">
+              <label for="transform-style" class="block text-gray-300 mb-2">Choose a transformation style</label>
+              <select
+                id="transform-style"
+                name="transform-style"
+                class="w-full bg-dark-300 border border-gray-700 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
+              >
+                <option value="ghibli">Studio Ghibli</option>
+                <option value="pixar">Pixar</option>
+                <option value="anime">Anime</option>
+                <option value="cyberpunk">Cyberpunk</option>
+                <option value="fantasy">Fantasy</option>
+                <option value="trending">Trending on Instagram</option>
+                <option value="futuristic">Futuristic</option>
+              </select>
+            </div>
+
+            <div class="text-center">
+              <button
+                id="transform-button"
+                class="bg-gradient-to-r from-neon-blue to-neon-purple text-white py-2 px-6 rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center mx-auto"
+              >
+                <span>Transform Image</span>
+                <i class="fas fa-wand-magic-sparkles ml-2"></i>
+              </button>
+            </div>
+
+            <div id="transform-result" class="mt-6 hidden">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <p class="text-center text-gray-400 mb-2">Original</p>
+                  <img id="original-image" src="" alt="Original image" class="w-full h-auto rounded-lg">
+                </div>
+                <div>
+                  <p class="text-center text-gray-400 mb-2">Transformed</p>
+                  <img id="transformed-image" src="" alt="Transformed image" class="w-full h-auto rounded-lg">
+                </div>
+              </div>
+              <div class="mt-4 text-right">
+                <button id="download-transformed" class="text-gray-400 hover:text-white">
+                  <i class="fas fa-download"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div id="transform-loading" class="text-center hidden">
+            <div class="inline-block w-16 h-16 border-4 border-neon-blue/30 border-t-neon-blue rounded-full animate-spin mb-4"></div>
+            <p class="text-neon-blue">Transforming your image...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- My Images Tab Content -->
+  <div id="content-my-images" class="tab-content hidden">
+    <div class="bg-dark-200 rounded-xl p-6 border border-gray-700">
+      <h2 class="text-xl font-semibold mb-4">My Images</h2>
+
+      <div id="my-images-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div class="text-center text-gray-500 py-8 col-span-full">
+          <i class="fas fa-spinner fa-spin text-3xl mb-4"></i>
+          <p>Loading your images...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-image-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 max-w-md w-full mx-4 relative">
+      <button id="close-delete-modal" class="absolute top-3 right-3 text-gray-400 hover:text-white">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="text-center mb-6">
+        <div class="inline-block p-3 bg-red-500/20 rounded-full mb-4">
+          <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Delete Image</h3>
+        <p class="text-gray-300">Are you sure you want to delete this image? This action cannot be undone.</p>
+      </div>
+
+      <div class="flex justify-end space-x-3">
+        <button id="cancel-delete-image" class="py-2 px-4 bg-dark-300 text-white rounded-md hover:bg-dark-400 transition-colors">
+          Cancel
+        </button>
+        <button id="confirm-delete-image" class="py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rate Limit Modal -->
+  <div id="rate-limit-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 max-w-md w-full mx-4 relative">
+      <button id="close-modal" class="absolute top-3 right-3 text-gray-400 hover:text-white">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="text-center mb-6">
+        <div class="inline-block p-3 bg-yellow-500/20 rounded-full mb-4">
+          <i class="fas fa-exclamation-triangle text-yellow-500 text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Request Limit Reached</h3>
+        <p id="rate-limit-message" class="text-gray-300">You've reached the limit for image generation requests.</p>
+        <p class="text-sm text-gray-400 mt-2">Need more capacity? <a href="/rate-limits/request" class="text-blue-500 hover:underline">Request a rate limit increase</a></p>
+      </div>
+
+      <div id="guest-limit-actions" class="flex flex-col space-y-3 hidden">
+        <a href="/users/login" class="py-2 px-4 bg-neon-blue text-white rounded-md text-center hover:bg-neon-blue/90 transition-colors">
+          Login to Your Account
+        </a>
+        <a href="/users/register" class="py-2 px-4 border border-neon-blue text-white rounded-md text-center hover:bg-neon-blue/10 transition-colors">
+          Create New Account
+        </a>
+      </div>
+
+      <div id="user-limit-timer" class="hidden">
+        <div class="bg-dark-200 p-3 rounded-md text-center">
+          <p class="text-gray-300 mb-2">You can generate images again in:</p>
+          <p id="countdown-timer" class="text-2xl font-bold text-neon-blue">00:00</p>
+
+          <div class="mt-4 text-center">
+            <p class="text-gray-400 text-sm mb-2">Need more image generation capacity?</p>
+            <a href="/rate-limits/request" class="text-blue-500 hover:underline inline-flex items-center">
+              <i class="fas fa-arrow-up mr-1"></i> Request a rate limit increase
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize header countdown if needed
+    const headerCountdown = document.getElementById('header-countdown');
+    if (headerCountdown && <%= rateLimit.cooldown ? 'true' : 'false' %>) {
+      startCountdownTimer(<%= rateLimit.cooldown || 0 %>, headerCountdown);
+      console.log('Initialized countdown timer with cooldown: <%= rateLimit.cooldown %>');
+    }
+    // Tab switching
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        // Remove active class from all buttons
+        tabButtons.forEach(btn => {
+          btn.classList.remove('active');
+          btn.classList.remove('text-neon-blue');
+          btn.classList.remove('border-neon-blue');
+          btn.classList.add('text-gray-400');
+          btn.classList.add('border-transparent');
+        });
+
+        // Add active class to clicked button
+        button.classList.add('active');
+        button.classList.add('text-neon-blue');
+        button.classList.add('border-neon-blue');
+        button.classList.remove('text-gray-400');
+        button.classList.remove('border-transparent');
+
+        // Hide all tab contents
+        tabContents.forEach(content => {
+          content.classList.add('hidden');
+        });
+
+        // Show corresponding tab content
+        const contentId = 'content-' + button.id.split('-')[1];
+        document.getElementById(contentId).classList.remove('hidden');
+
+        // Load my images if that tab is selected
+        if (contentId === 'content-my-images') {
+          loadMyImages();
+        }
+      });
+    });
+
+    // Generate image form
+    const generateForm = document.getElementById('generate-form');
+    const generateButton = document.getElementById('generate-button');
+    const generatePlaceholder = document.getElementById('generate-placeholder');
+    const generateLoading = document.getElementById('generate-loading');
+    const generateResult = document.getElementById('generate-result');
+    const generatedImage = document.getElementById('generated-image');
+    const generatedStyle = document.getElementById('generated-style');
+    const downloadGenerated = document.getElementById('download-generated');
+
+    // Handle reference image selection
+    const referenceImage = document.getElementById('reference-image');
+    const referenceBrowseButton = document.getElementById('reference-browse-button');
+    const referencePlaceholder = document.getElementById('reference-placeholder');
+    const referencePreview = document.getElementById('reference-preview');
+    const referencePreviewImage = document.getElementById('reference-preview-image');
+    const removeReference = document.getElementById('remove-reference');
+    const referenceDropArea = document.getElementById('reference-drop-area');
+
+    // Handle reference image selection
+    referenceImage.addEventListener('change', () => {
+      const file = referenceImage.files[0];
+      if (file) {
+        referencePreviewImage.src = URL.createObjectURL(file);
+        referencePlaceholder.classList.add('hidden');
+        referencePreview.classList.remove('hidden');
+      }
+    });
+
+    // Handle reference browse button
+    referenceBrowseButton.addEventListener('click', () => {
+      referenceImage.click();
+    });
+
+    // Handle remove reference button
+    removeReference.addEventListener('click', () => {
+      referenceImage.value = '';
+      referencePlaceholder.classList.remove('hidden');
+      referencePreview.classList.add('hidden');
+    });
+
+    // Handle reference drag and drop
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      referenceDropArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      referenceDropArea.addEventListener(eventName, () => {
+        referenceDropArea.classList.add('border-neon-blue');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      referenceDropArea.addEventListener(eventName, () => {
+        referenceDropArea.classList.remove('border-neon-blue');
+      }, false);
+    });
+
+    referenceDropArea.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+
+      if (files.length > 0) {
+        referenceImage.files = files;
+        const file = files[0];
+        referencePreviewImage.src = URL.createObjectURL(file);
+        referencePlaceholder.classList.add('hidden');
+        referencePreview.classList.remove('hidden');
+      }
+    }, false);
+
+    // Form submission with reference image
+    generateForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const prompt = document.getElementById('prompt').value;
+      const style = document.getElementById('style').value;
+      const referenceFile = referenceImage.files[0];
+
+      // Get remaining requests from button data attribute
+      const remaining = parseInt(generateButton.dataset.remaining);
+      const limit = parseInt(generateButton.dataset.limit);
+
+      // Show loading state
+      generateButton.disabled = true;
+      generatePlaceholder.classList.add('hidden');
+      generateResult.classList.add('hidden');
+      generateLoading.classList.remove('hidden');
+
+      try {
+        // Create form data to handle file upload
+        const formData = new FormData();
+        formData.append('prompt', prompt);
+        formData.append('style', style);
+        if (referenceFile) {
+          formData.append('referenceImage', referenceFile);
+        }
+
+        const response = await fetch('/images/generate', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.status === 429) {
+          // Rate limit reached
+          showRateLimitModal(data);
+          generateLoading.classList.add('hidden');
+          generatePlaceholder.classList.remove('hidden');
+        } else if (!data.success) {
+          // Error
+          alert(data.message);
+          generateLoading.classList.add('hidden');
+          generatePlaceholder.classList.remove('hidden');
+        } else {
+          // Success
+          if (referenceFile) {
+            // Show side-by-side comparison with reference
+            document.getElementById('result-reference-image').src = URL.createObjectURL(referenceFile);
+            generatedImage.src = data.image.path;
+            document.getElementById('result-with-reference').classList.remove('hidden');
+            document.getElementById('result-without-reference').classList.add('hidden');
+
+            // Log the image path for debugging
+            console.log('Generated image path (with reference):', data.image.path);
+          } else {
+            // Show only generated image
+            document.getElementById('generated-image-solo').src = data.image.path;
+            document.getElementById('result-without-reference').classList.remove('hidden');
+            document.getElementById('result-with-reference').classList.add('hidden');
+
+            // Log the image path for debugging
+            console.log('Generated image path (without reference):', data.image.path);
+          }
+
+          // Add error handling for image loading
+          const handleImageError = (img) => {
+            console.error('Image failed to load:', img.src);
+            img.onerror = null; // Prevent infinite error loop
+            img.src = 'https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg'; // Fallback image
+            alert('The generated image could not be loaded. A fallback image has been displayed instead.');
+          };
+
+          // Add error handlers to images
+          generatedImage.onerror = () => handleImageError(generatedImage);
+          document.getElementById('generated-image-solo').onerror = () => handleImageError(document.getElementById('generated-image-solo'));
+
+          // Check if we're rate limited after this request
+          if (data.isRateLimited) {
+            // Show rate limit message
+            const headerCountdown = document.getElementById('header-countdown');
+            if (headerCountdown) {
+              startCountdownTimer(data.cooldownEndTime, headerCountdown);
+
+              // Show the rate limit message at the top
+              const rateLimitMessage = document.querySelector('.bg-blue-600\\/10');
+              if (rateLimitMessage && rateLimitMessage.classList.contains('hidden')) {
+                rateLimitMessage.classList.remove('hidden');
+              }
+            }
+          }
+
+          generatedStyle.textContent = data.image.style;
+
+          // Add loading indicators to images
+          const generateResultDiv = document.getElementById('generate-result');
+          generateResultDiv.classList.add('loading-image');
+
+          const allImages = document.querySelectorAll('#generate-result img');
+          allImages.forEach(img => {
+            // Add loading class
+            img.classList.add('image-loading');
+
+            // Add load event listener
+            img.onload = () => {
+              img.classList.remove('image-loading');
+              console.log('Image loaded successfully:', img.src);
+
+              // Check if all images are loaded
+              const stillLoading = document.querySelectorAll('#generate-result img.image-loading').length > 0;
+              if (!stillLoading) {
+                generateResultDiv.classList.remove('loading-image');
+              }
+            };
+          });
+
+          // Show result
+          generateLoading.classList.add('hidden');
+          generateResult.classList.remove('hidden');
+
+          // Set up download button
+          downloadGenerated.onclick = () => {
+            const imgSrc = referenceFile ? generatedImage.src : document.getElementById('generated-image-solo').src;
+            downloadImage(imgSrc, `fraiseai-${data.image.style}-${Date.now()}.jpg`);
+          };
+        }
+      } catch (err) {
+        console.error('Error generating image:', err);
+
+        // Show custom error message with contact info
+        const errorMessage = `
+        <div class="p-4 bg-red-600/10 border border-red-600/30 rounded-lg mb-3">
+          <div class="flex items-center mb-2">
+            <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+            <span class="font-medium text-red-500">AI Service Error</span>
+          </div>
+          <p class="text-sm mb-3">The AI service is taking too long to respond. Please contact admin (Vijay):</p>
+
+          <div class="flex flex-wrap gap-3 mt-2">
+            <a href="https://www.instagram.com/ft_raise_59" target="_blank" class="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-white hover:opacity-90 transition-opacity flex items-center text-sm">
+              <i class="fab fa-instagram mr-1"></i> @ft_raise_59
+            </a>
+            <a href="https://github.com/Mudaliyar1" target="_blank" class="px-3 py-1.5 bg-gray-700 rounded-lg text-white hover:bg-gray-800 transition-colors flex items-center text-sm">
+              <i class="fab fa-github mr-1"></i> Mudaliyar1
+            </a>
+            <a href="mailto:vijaymudaliyar224@gmail.com" class="px-3 py-1.5 bg-blue-700 rounded-lg text-white hover:bg-blue-800 transition-colors flex items-center text-sm">
+              <i class="fas fa-envelope mr-1"></i> Email
+            </a>
+          </div>
+        </div>
+        `;
+
+        // Display error message in the result area
+        generateLoading.classList.add('hidden');
+        generateResult.classList.remove('hidden');
+        generateResult.innerHTML = errorMessage;
+      } finally {
+        generateButton.disabled = false;
+      }
+    });
+
+    // Upload image form
+    const uploadForm = document.getElementById('upload-form');
+    const uploadButton = document.getElementById('upload-button');
+    const dropArea = document.getElementById('drop-area');
+    const browseButton = document.getElementById('browse-button');
+    const imageInput = document.getElementById('image');
+    const uploadPlaceholder = document.getElementById('upload-placeholder');
+    const uploadPreview = document.getElementById('upload-preview');
+    const previewImage = document.getElementById('preview-image');
+    const fileName = document.getElementById('file-name');
+    const changeImage = document.getElementById('change-image');
+
+    // Handle file selection
+    imageInput.addEventListener('change', () => {
+      const file = imageInput.files[0];
+      if (file) {
+        previewImage.src = URL.createObjectURL(file);
+        fileName.textContent = file.name;
+        uploadPlaceholder.classList.add('hidden');
+        uploadPreview.classList.remove('hidden');
+      }
+    });
+
+    // Handle browse button
+    browseButton.addEventListener('click', () => {
+      imageInput.click();
+    });
+
+    // Handle change image button
+    changeImage.addEventListener('click', () => {
+      imageInput.value = '';
+      uploadPlaceholder.classList.remove('hidden');
+      uploadPreview.classList.add('hidden');
+    });
+
+    // Handle drag and drop
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropArea.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight() {
+      dropArea.classList.add('border-neon-blue');
+    }
+
+    function unhighlight() {
+      dropArea.classList.remove('border-neon-blue');
+    }
+
+    dropArea.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+
+      if (files.length > 0) {
+        imageInput.files = files;
+        const file = files[0];
+        previewImage.src = URL.createObjectURL(file);
+        fileName.textContent = file.name;
+        uploadPlaceholder.classList.add('hidden');
+        uploadPreview.classList.remove('hidden');
+      }
+    }
+
+    // Handle upload form submission
+    uploadForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!imageInput.files[0]) {
+        alert('Please select an image to upload');
+        return;
+      }
+
+      // Create form data
+      const formData = new FormData();
+      formData.append('image', imageInput.files[0]);
+
+      // Show loading state
+      uploadButton.disabled = true;
+      uploadButton.innerHTML = '<span>Uploading...</span><i class="fas fa-spinner fa-spin ml-2"></i>';
+
+      try {
+        const response = await fetch('/images/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.status === 429) {
+          // Rate limit reached
+          showRateLimitModal(data);
+        } else if (!data.success) {
+          // Error
+          alert(data.message);
+        } else {
+          // Success - show transform area
+          document.getElementById('transform-placeholder').classList.add('hidden');
+          document.getElementById('transform-content').classList.remove('hidden');
+          document.getElementById('original-image').src = data.image.path;
+
+          // Store the image ID for transformation
+          document.getElementById('transform-button').dataset.imageId = data.image.id;
+
+          // Reset upload form
+          uploadForm.reset();
+          uploadPlaceholder.classList.remove('hidden');
+          uploadPreview.classList.add('hidden');
+        }
+      } catch (err) {
+        console.error('Error uploading image:', err);
+        alert('An error occurred while uploading the image. Please try again.');
+      } finally {
+        uploadButton.disabled = false;
+        uploadButton.innerHTML = '<span>Upload Image</span><i class="fas fa-upload ml-2"></i>';
+      }
+    });
+
+    // Transform image
+    const transformButton = document.getElementById('transform-button');
+    const transformLoading = document.getElementById('transform-loading');
+    const transformContent = document.getElementById('transform-content');
+    const transformResult = document.getElementById('transform-result');
+    const transformedImage = document.getElementById('transformed-image');
+    const downloadTransformed = document.getElementById('download-transformed');
+
+    transformButton.addEventListener('click', async () => {
+      const imageId = transformButton.dataset.imageId;
+      const style = document.getElementById('transform-style').value;
+
+      if (!imageId) {
+        alert('Please upload an image first');
+        return;
+      }
+
+      // Show loading state
+      transformButton.disabled = true;
+      transformContent.classList.add('hidden');
+      transformLoading.classList.remove('hidden');
+
+      try {
+        const response = await fetch('/images/transform', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ imageId, style })
+        });
+
+        const data = await response.json();
+
+        if (response.status === 429) {
+          // Rate limit reached
+          showRateLimitModal(data);
+          transformLoading.classList.add('hidden');
+          transformContent.classList.remove('hidden');
+        } else if (!data.success) {
+          // Error
+          alert(data.message);
+          transformLoading.classList.add('hidden');
+          transformContent.classList.remove('hidden');
+        } else {
+          // Success
+          transformedImage.src = data.image.path;
+
+          // Show result
+          transformLoading.classList.add('hidden');
+          transformContent.classList.remove('hidden');
+          transformResult.classList.remove('hidden');
+
+          // Set up download button
+          downloadTransformed.onclick = () => {
+            downloadImage(data.image.path, `fraiseai-transformed-${data.image.style}-${Date.now()}.jpg`);
+          };
+        }
+      } catch (err) {
+        console.error('Error transforming image:', err);
+        alert('An error occurred while transforming the image. Please try again.');
+        transformLoading.classList.add('hidden');
+        transformContent.classList.remove('hidden');
+      } finally {
+        transformButton.disabled = false;
+      }
+    });
+
+    // Load my images
+    async function loadMyImages() {
+      const myImagesContainer = document.getElementById('my-images-container');
+
+      try {
+        const response = await fetch('/images/my-images/data');
+        const data = await response.json();
+
+        if (!data.success) {
+          myImagesContainer.innerHTML = `
+            <div class="text-center text-gray-500 py-8 col-span-full">
+              <i class="fas fa-exclamation-circle text-3xl mb-4"></i>
+              <p>${data.message}</p>
+            </div>
+          `;
+          return;
+        }
+
+        if (data.images.length === 0) {
+          myImagesContainer.innerHTML = `
+            <div class="text-center text-gray-500 py-8 col-span-full">
+              <i class="fas fa-image text-3xl mb-4"></i>
+              <p>You haven't created any images yet</p>
+            </div>
+          `;
+          return;
+        }
+
+        // Render images
+        myImagesContainer.innerHTML = data.images.map(image => {
+          let imageDisplay = '';
+
+          if (image.type === 'generated' && image.referenceImagePath) {
+            // Show split view for images with references
+            imageDisplay = `
+              <div class="relative">
+                <div class="absolute inset-0 flex">
+                  <div class="w-1/2 h-48 overflow-hidden">
+                    <img src="${image.referenceImagePath}" alt="Reference" class="w-full h-full object-cover opacity-80">
+                    <div class="absolute top-2 left-2 bg-dark-300/80 backdrop-blur-sm text-xs px-2 py-1 rounded-full text-gray-300">Ref</div>
+                  </div>
+                  <div class="w-1/2 h-48 overflow-hidden">
+                    <img src="${image.path}" alt="Generated" class="w-full h-full object-cover">
+                  </div>
+                </div>
+                <img src="${image.path}" alt="Image" class="w-full h-48 object-cover opacity-0"> <!-- Invisible placeholder for height -->
+              </div>
+            `;
+          } else {
+            // Regular image display
+            imageDisplay = `<img src="${image.path}" alt="Image" class="w-full h-48 object-cover">`;
+          }
+
+          return `
+            <div class="bg-dark-300 rounded-lg overflow-hidden">
+              ${imageDisplay}
+              <div class="p-3">
+                <div class="flex justify-between items-center">
+                  <span class="text-xs text-gray-400">${new Date(image.createdAt).toLocaleDateString()}</span>
+                  <span class="inline-block bg-dark-400 text-neon-blue text-xs px-2 py-0.5 rounded-full">
+                    ${image.type.charAt(0).toUpperCase() + image.type.slice(1)}
+                    ${image.referenceImagePath ? '<i class="fas fa-images ml-1 text-xs"></i>' : ''}
+                  </span>
+                </div>
+                ${image.prompt ? `<p class="text-sm text-gray-300 mt-2 truncate">${image.prompt}</p>` : ''}
+                <div class="mt-3 flex justify-between">
+                  <button class="text-red-400 hover:text-red-300 delete-image-btn" data-id="${image._id}">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                  <button class="text-gray-400 hover:text-white" onclick="downloadImage('${image.path}', 'fraiseai-${image.type}-${Date.now()}.jpg')">
+                    <i class="fas fa-download"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        // Add event listeners to delete buttons
+        document.querySelectorAll('.delete-image-btn').forEach(button => {
+          button.addEventListener('click', () => {
+            const imageId = button.dataset.id;
+            showDeleteImageModal(imageId);
+          });
+        });
+      } catch (err) {
+        console.error('Error loading images:', err);
+        myImagesContainer.innerHTML = `
+          <div class="text-center text-gray-500 py-8 col-span-full">
+            <i class="fas fa-exclamation-circle text-3xl mb-4"></i>
+            <p>An error occurred while loading your images</p>
+          </div>
+        `;
+      }
+    }
+
+    // Delete image modal
+    const deleteImageModal = document.getElementById('delete-image-modal');
+    const closeDeleteModal = document.getElementById('close-delete-modal');
+    const cancelDeleteImage = document.getElementById('cancel-delete-image');
+    const confirmDeleteImage = document.getElementById('confirm-delete-image');
+    let currentImageId = null;
+
+    function showDeleteImageModal(imageId) {
+      currentImageId = imageId;
+      deleteImageModal.classList.remove('hidden');
+    }
+
+    function hideDeleteImageModal() {
+      deleteImageModal.classList.add('hidden');
+      currentImageId = null;
+    }
+
+    closeDeleteModal.addEventListener('click', hideDeleteImageModal);
+    cancelDeleteImage.addEventListener('click', hideDeleteImageModal);
+
+    confirmDeleteImage.addEventListener('click', async () => {
+      if (!currentImageId) return;
+
+      try {
+        const response = await fetch(`/images/my-images/${currentImageId}`, {
+          method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Reload images
+          loadMyImages();
+          // Show success message
+          alert('Image deleted successfully');
+        } else {
+          alert(data.message);
+        }
+      } catch (err) {
+        console.error('Error deleting image:', err);
+        alert('An error occurred while deleting the image');
+      } finally {
+        hideDeleteImageModal();
+      }
+    });
+
+    // Rate limit modal
+    const rateLimitModal = document.getElementById('rate-limit-modal');
+    const closeModal = document.getElementById('close-modal');
+    const guestLimitActions = document.getElementById('guest-limit-actions');
+    const userLimitTimer = document.getElementById('user-limit-timer');
+    const countdownTimer = document.getElementById('countdown-timer');
+
+    function showRateLimitModal(data) {
+      const rateLimitMessage = document.getElementById('rate-limit-message');
+      rateLimitMessage.textContent = data.message;
+
+      if (data.isGuest) {
+        guestLimitActions.classList.remove('hidden');
+        userLimitTimer.classList.add('hidden');
+      } else {
+        guestLimitActions.classList.add('hidden');
+        userLimitTimer.classList.remove('hidden');
+
+        // Start countdown timer
+        startCountdownTimer(data.cooldownEndTime);
+      }
+
+      rateLimitModal.classList.remove('hidden');
+    }
+
+    closeModal.addEventListener('click', () => {
+      rateLimitModal.classList.add('hidden');
+    });
+
+    // Countdown timer
+    function startCountdownTimer(endTime, targetElement = countdownTimer) {
+      const updateTimer = () => {
+        const now = new Date().getTime();
+        const timeRemaining = endTime - now;
+
+        if (timeRemaining <= 0) {
+          targetElement.textContent = '00:00';
+          // If this is the header countdown, reload the page to reset the form
+          if (targetElement.id === 'header-countdown') {
+            window.location.reload();
+          }
+          return;
+        }
+
+        const minutes = Math.floor(timeRemaining / (1000 * 60));
+        const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+        targetElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+        setTimeout(updateTimer, 1000);
+      };
+
+      updateTimer();
+    }
+
+    // Download image helper
+    window.downloadImage = function(src, filename) {
+      const a = document.createElement('a');
+      a.href = src;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    };
+  });
+</script>
+
+<style>
+  .image-loading {
+    opacity: 0.7;
+    filter: blur(5px);
+    transition: opacity 0.3s, filter 0.3s;
+  }
+
+  @keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+  }
+
+  #generate-result.loading-image {
+    position: relative;
+  }
+
+  #generate-result.loading-image::after {
+    content: "Loading image...";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    animation: pulse 1.5s infinite;
+    z-index: 10;
+  }
+</style>

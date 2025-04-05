@@ -1,0 +1,318 @@
+<!-- Rate Limit Request Page -->
+<div class="max-w-3xl mx-auto">
+  <div class="mb-8 text-center">
+    <h1 class="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent">
+      Request Rate Limit Increase
+    </h1>
+    <p class="text-gray-300 max-w-3xl mx-auto">
+      Need more requests? Submit a request to increase your rate limits for chat or image generation.
+    </p>
+  </div>
+
+  <!-- Current Limits -->
+  <div class="bg-dark-200 rounded-xl p-6 border border-gray-700 mb-8">
+    <h2 class="text-xl font-semibold mb-4">Your Current Limits</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-dark-300 rounded-lg p-4 border border-gray-700">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-full bg-neon-blue/20 flex items-center justify-center mr-3">
+              <i class="fas fa-comments text-neon-blue"></i>
+            </div>
+            <h3 class="font-medium">Chat Requests</h3>
+          </div>
+          <span class="text-2xl font-bold text-neon-blue"><%= user.chatRateLimit %></span>
+        </div>
+        <p class="text-gray-400 text-sm">Requests per 3 minutes</p>
+      </div>
+      
+      <div class="bg-dark-300 rounded-lg p-4 border border-gray-700">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-full bg-neon-green/20 flex items-center justify-center mr-3">
+              <i class="fas fa-images text-neon-green"></i>
+            </div>
+            <h3 class="font-medium">Image Generation</h3>
+          </div>
+          <span class="text-2xl font-bold text-neon-green"><%= user.imageRateLimit %></span>
+        </div>
+        <p class="text-gray-400 text-sm">Images per 2 minutes</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Request Form -->
+  <div class="bg-dark-200 rounded-xl p-6 border border-gray-700 mb-8">
+    <h2 class="text-xl font-semibold mb-4">Submit Request</h2>
+    
+    <form id="rate-limit-form" class="space-y-4">
+      <div>
+        <label for="request-type" class="block text-gray-300 mb-2">Request Type</label>
+        <select 
+          id="request-type" 
+          name="requestType" 
+          class="w-full bg-dark-300 border border-gray-700 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
+          required
+        >
+          <option value="">Select request type</option>
+          <option value="chat">Chat Rate Limit</option>
+          <option value="image">Image Generation Limit</option>
+        </select>
+      </div>
+      
+      <div>
+        <label for="requested-limit" class="block text-gray-300 mb-2">Requested Limit</label>
+        <input 
+          type="number" 
+          id="requested-limit" 
+          name="requestedLimit" 
+          min="1" 
+          class="w-full bg-dark-300 border border-gray-700 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
+          required
+        >
+        <p class="text-gray-400 text-xs mt-1">Must be higher than your current limit</p>
+      </div>
+      
+      <div>
+        <label for="reason" class="block text-gray-300 mb-2">Reason for Request</label>
+        <textarea 
+          id="reason" 
+          name="reason" 
+          rows="4" 
+          class="w-full bg-dark-300 border border-gray-700 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors resize-none"
+          placeholder="Please explain why you need an increased rate limit..."
+          required
+          minlength="10"
+        ></textarea>
+      </div>
+      
+      <div class="text-right">
+        <button 
+          type="submit" 
+          id="submit-button"
+          class="bg-gradient-to-r from-neon-blue to-neon-purple text-white py-2 px-6 rounded-lg font-medium hover:opacity-90 transition-opacity"
+        >
+          Submit Request
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Pending Requests -->
+  <div id="pending-requests-container" class="bg-dark-200 rounded-xl p-6 border border-gray-700 mb-8 hidden">
+    <h2 class="text-xl font-semibold mb-4">Your Pending Requests</h2>
+    
+    <div id="pending-requests" class="space-y-4">
+      <!-- Pending requests will be loaded here -->
+    </div>
+  </div>
+
+  <!-- Request History -->
+  <div id="request-history-container" class="bg-dark-200 rounded-xl p-6 border border-gray-700 hidden">
+    <h2 class="text-xl font-semibold mb-4">Request History</h2>
+    
+    <div id="request-history" class="space-y-4">
+      <!-- Request history will be loaded here -->
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Form elements
+    const form = document.getElementById('rate-limit-form');
+    const requestTypeSelect = document.getElementById('request-type');
+    const requestedLimitInput = document.getElementById('requested-limit');
+    const submitButton = document.getElementById('submit-button');
+    
+    // Load user's current limits
+    const chatLimit = <%= user.chatRateLimit %>;
+    const imageLimit = <%= user.imageRateLimit %>;
+    
+    // Update min value based on selected request type
+    requestTypeSelect.addEventListener('change', () => {
+      const type = requestTypeSelect.value;
+      
+      if (type === 'chat') {
+        requestedLimitInput.min = chatLimit + 1;
+        requestedLimitInput.value = chatLimit + 1;
+      } else if (type === 'image') {
+        requestedLimitInput.min = imageLimit + 1;
+        requestedLimitInput.value = imageLimit + 1;
+      } else {
+        requestedLimitInput.min = 1;
+        requestedLimitInput.value = '';
+      }
+    });
+    
+    // Form submission
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const requestType = requestTypeSelect.value;
+      const requestedLimit = parseInt(requestedLimitInput.value);
+      const reason = document.getElementById('reason').value;
+      
+      // Validate input
+      if (!requestType) {
+        alert('Please select a request type');
+        return;
+      }
+      
+      if (!requestedLimit || isNaN(requestedLimit)) {
+        alert('Please enter a valid requested limit');
+        return;
+      }
+      
+      if (requestType === 'chat' && requestedLimit <= chatLimit) {
+        alert(`Requested limit must be higher than your current chat limit (${chatLimit})`);
+        return;
+      }
+      
+      if (requestType === 'image' && requestedLimit <= imageLimit) {
+        alert(`Requested limit must be higher than your current image limit (${imageLimit})`);
+        return;
+      }
+      
+      if (!reason || reason.trim().length < 10) {
+        alert('Please provide a reason for your request (minimum 10 characters)');
+        return;
+      }
+      
+      // Disable submit button
+      submitButton.disabled = true;
+      submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Submitting...';
+      
+      try {
+        const response = await fetch('/rate-limits/request', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            requestType,
+            requestedLimit,
+            reason
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          alert('Your request has been submitted successfully');
+          form.reset();
+          loadRequests(); // Reload requests
+        } else {
+          alert(data.message || 'An error occurred');
+        }
+      } catch (err) {
+        console.error('Error submitting request:', err);
+        alert('An error occurred while submitting your request');
+      } finally {
+        submitButton.disabled = false;
+        submitButton.innerHTML = 'Submit Request';
+      }
+    });
+    
+    // Load user's requests
+    async function loadRequests() {
+      try {
+        const response = await fetch('/rate-limits/my-requests');
+        const data = await response.json();
+        
+        if (data.success) {
+          const pendingRequests = data.requests.filter(req => req.status === 'pending');
+          const historyRequests = data.requests.filter(req => req.status !== 'pending');
+          
+          // Pending requests
+          const pendingContainer = document.getElementById('pending-requests-container');
+          const pendingList = document.getElementById('pending-requests');
+          
+          if (pendingRequests.length > 0) {
+            pendingContainer.classList.remove('hidden');
+            pendingList.innerHTML = pendingRequests.map(req => `
+              <div class="bg-dark-300 rounded-lg p-4 border border-gray-700">
+                <div class="flex justify-between items-start mb-3">
+                  <div>
+                    <span class="inline-block ${req.requestType === 'chat' ? 'bg-neon-blue/20 text-neon-blue' : 'bg-neon-green/20 text-neon-green'} text-xs px-2 py-1 rounded-full mb-2">
+                      <i class="fas fa-${req.requestType === 'chat' ? 'comments' : 'images'} mr-1"></i> ${req.requestType === 'chat' ? 'Chat' : 'Image'} Rate Limit
+                    </span>
+                    <p class="text-sm text-gray-400">Requested on ${new Date(req.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  <span class="inline-block bg-yellow-500/20 text-yellow-500 text-xs px-2 py-1 rounded-full">
+                    <i class="fas fa-clock mr-1"></i> Pending
+                  </span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm text-gray-400">Current Limit</p>
+                    <p class="font-medium">${req.currentLimit}</p>
+                  </div>
+                  <div class="text-center">
+                    <i class="fas fa-arrow-right text-gray-500"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-400">Requested Limit</p>
+                    <p class="font-medium">${req.requestedLimit}</p>
+                  </div>
+                </div>
+              </div>
+            `).join('');
+          } else {
+            pendingContainer.classList.add('hidden');
+          }
+          
+          // Request history
+          const historyContainer = document.getElementById('request-history-container');
+          const historyList = document.getElementById('request-history');
+          
+          if (historyRequests.length > 0) {
+            historyContainer.classList.remove('hidden');
+            historyList.innerHTML = historyRequests.map(req => `
+              <div class="bg-dark-300 rounded-lg p-4 border border-gray-700">
+                <div class="flex justify-between items-start mb-3">
+                  <div>
+                    <span class="inline-block ${req.requestType === 'chat' ? 'bg-neon-blue/20 text-neon-blue' : 'bg-neon-green/20 text-neon-green'} text-xs px-2 py-1 rounded-full mb-2">
+                      <i class="fas fa-${req.requestType === 'chat' ? 'comments' : 'images'} mr-1"></i> ${req.requestType === 'chat' ? 'Chat' : 'Image'} Rate Limit
+                    </span>
+                    <p class="text-sm text-gray-400">Requested on ${new Date(req.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  <span class="inline-block ${req.status === 'approved' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'} text-xs px-2 py-1 rounded-full">
+                    <i class="fas fa-${req.status === 'approved' ? 'check' : 'times'} mr-1"></i> ${req.status === 'approved' ? 'Approved' : 'Rejected'}
+                  </span>
+                </div>
+                <div class="flex items-center justify-between mb-3">
+                  <div>
+                    <p class="text-sm text-gray-400">Current Limit</p>
+                    <p class="font-medium">${req.currentLimit}</p>
+                  </div>
+                  <div class="text-center">
+                    <i class="fas fa-arrow-right text-gray-500"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-400">Requested Limit</p>
+                    <p class="font-medium">${req.requestedLimit}</p>
+                  </div>
+                </div>
+                ${req.adminNotes ? `
+                  <div>
+                    <p class="text-sm text-gray-400 mb-1">Admin Notes</p>
+                    <p class="text-sm text-gray-300 bg-dark-400 p-2 rounded">${req.adminNotes}</p>
+                  </div>
+                ` : ''}
+              </div>
+            `).join('');
+          } else {
+            historyContainer.classList.add('hidden');
+          }
+        }
+      } catch (err) {
+        console.error('Error loading requests:', err);
+      }
+    }
+    
+    // Load requests on page load
+    loadRequests();
+  });
+</script>

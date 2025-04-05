@@ -4,6 +4,7 @@ const Chat = require('../models/Chat');
 const GuestUser = require('../models/GuestUser');
 const Memory = require('../models/Memory');
 const Review = require('../models/Review');
+const Image = require('../models/Image');
 
 module.exports = {
   // Render admin dashboard
@@ -13,6 +14,7 @@ module.exports = {
       const userCount = await User.countDocuments();
       const chatCount = await Chat.countDocuments();
       const guestCount = await GuestUser.countDocuments();
+      const imageCount = await Image.countDocuments();
 
       // Get recent users
       const recentUsers = await User.find()
@@ -30,6 +32,7 @@ module.exports = {
         userCount,
         chatCount,
         guestCount,
+        imageCount,
         recentUsers,
         recentChats,
         path: '/admin',

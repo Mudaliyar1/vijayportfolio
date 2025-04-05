@@ -307,14 +307,36 @@ FTRAISE AI:`;
         }
       } catch (error) {
         console.error('Error generating AI response:', error);
-        aiResponse = "I apologize, but I encountered an error while processing your request. Please try again.";
+
+        // Custom error message with contact information
+        aiResponse = "The AI service is taking too long to respond. Please contact admin (Vijay):\n\n" +
+                    "- Instagram: [@ft_raise_59](https://www.instagram.com/ft_raise_59)\n" +
+                    "- GitHub: [Mudaliyar1](https://github.com/Mudaliyar1)\n" +
+                    "- Email: [vijaymudaliyar224@gmail.com](mailto:vijaymudaliyar224@gmail.com)";
       }
-      // Process AI response to fix spacing and add emojis
+      // Process AI response to fix spacing, add emojis, and enhance links
       let processedResponse = aiResponse.trim();
 
       // Replace multiple newlines with a single newline
       processedResponse = processedResponse.replace(/\n\s*\n\s*\n/g, '\n\n');
       processedResponse = processedResponse.replace(/\n\s*\n/g, '\n\n');
+
+      // Process YouTube links to make them more user-friendly
+      processedResponse = processedResponse.replace(
+        /(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})([^\s]*)/g,
+        (_, __, ___, ____, videoId) => {
+          const fullUrl = `https://www.youtube.com/watch?v=${videoId}`;
+          return `[🎬 YouTube Video](${fullUrl})`;
+        }
+      );
+
+      // Process Google search links
+      processedResponse = processedResponse.replace(
+        /(https?:\/\/)?(www\.)?google\.com\/search\?([^\s]+)/g,
+        (_, __, ___, query) => {
+          return `[🔍 Google Search](https://www.google.com/search?${query})`;
+        }
+      );
 
       // Add emojis based on content
       if (processedResponse.toLowerCase().includes('hello') ||
