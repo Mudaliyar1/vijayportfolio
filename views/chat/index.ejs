@@ -37,6 +37,69 @@
     background: rgba(77, 77, 106, 0.6);
   }
 
+  /* Very small devices (under 630px) */
+  @media (max-width: 630px) {
+    /* Match message font size to input placeholder on very small screens */
+    .message-bubble {
+      font-size: 0.875rem !important; /* text-sm size */
+    }
+  }
+
+  /* Extra small devices (under 500px) */
+  @media (max-width: 500px) {
+    /* Smaller font size for very small screens */
+    .message-bubble {
+      font-size: 0.8rem !important;
+      padding: 0.4rem 0.6rem !important;
+      max-width: 85% !important;
+    }
+
+    /* Smaller timestamps */
+    .message-bubble .text-xs {
+      font-size: 0.65rem !important;
+    }
+
+    /* Reduce width of error messages */
+    .guest-limit-box,
+    .cooldown-box {
+      padding: 0.5rem !important;
+      max-width: 85% !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      font-size: 0.75rem !important;
+    }
+
+    .guest-limit-box p,
+    .cooldown-box p {
+      font-size: 0.75rem !important;
+      margin-bottom: 0.2rem !important;
+    }
+
+    .guest-limit-box .flex.items-center,
+    .cooldown-box .flex.items-center {
+      margin-bottom: 0.2rem !important;
+    }
+
+    .guest-limit-box i,
+    .cooldown-box i {
+      font-size: 0.7rem !important;
+    }
+
+    /* Make login/register buttons smaller */
+    .flex.flex-col.sm\:flex-row.gap-2 a,
+    .flex.flex-col.sm\:flex-row.gap-3 a {
+      font-size: 0.75rem !important;
+      padding: 0.3rem 0.5rem !important;
+      border-radius: 0.375rem !important;
+    }
+
+    .flex.flex-col.sm\:flex-row.gap-2 a i,
+    .flex.flex-col.sm\:flex-row.gap-3 a i {
+      font-size: 0.7rem !important;
+      margin-right: 0.2rem !important;
+    }
+  }
+
   /* Fix for chat container height */
   @media (max-width: 768px) {
     #chat-messages {
@@ -49,6 +112,63 @@
     #chat-messages {
       height: calc(100vh - 16rem);
       max-height: calc(100vh - 16rem);
+    }
+  }
+
+  /* Gradient background for chat bubbles */
+  .user-message .message-bubble {
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    color: white;
+    border-bottom-right-radius: 0.25rem;
+  }
+
+  .ai-message .message-bubble {
+    background: linear-gradient(135deg, #1f2937, #4b5563);
+    color: white;
+    border-bottom-left-radius: 0.25rem;
+  }
+
+  /* Code block styling */
+  .code-block-container {
+    position: relative;
+    margin: 1rem 0;
+  }
+
+  .copy-code-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 10;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+  }
+
+  .copy-code-btn:hover {
+    opacity: 1;
+  }
+
+  pre {
+    white-space: pre !important;
+    overflow-x: auto;
+    padding-top: 2.5rem !important;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(75, 85, 99, 0.4);
+  }
+
+  @media (max-width: 640px) {
+    .copy-code-btn {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.7rem;
+    }
+
+    pre {
+      font-size: 0.8rem;
+      padding: 2rem 0.75rem 0.75rem 0.75rem !important;
+    }
+
+    /* Match message font size to input placeholder on mobile */
+    .message-bubble {
+      font-size: 0.875rem !important; /* text-sm size */
     }
   }
 </style>
@@ -217,6 +337,79 @@
 
   .animate-bounce {
     animation: bounceDot 1.4s infinite ease-in-out both;
+  }
+
+  /* Message bubble styling */
+  .message-bubble {
+    border-radius: 1rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    font-size: 1rem; /* Match input placeholder size */
+  }
+
+  .message-bubble p {
+    margin-top: 0;
+    margin-bottom: 0.25rem;
+  }
+
+  .message-bubble p:last-child {
+    margin-bottom: 0;
+  }
+
+  .user-message .message-bubble {
+    background-color: #1e40af;
+    color: white;
+    border-bottom-right-radius: 0.25rem;
+  }
+
+  .ai-message .message-bubble {
+    background-color: #1f2937;
+    color: white;
+    border-bottom-left-radius: 0.25rem;
+  }
+
+  /* Code block styling */
+  .code-block-container {
+    position: relative;
+    margin: 1rem 0;
+  }
+
+  .copy-code-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 10;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+  }
+
+  .copy-code-btn:hover {
+    opacity: 1;
+  }
+
+  pre {
+    white-space: pre !important;
+    overflow-x: auto;
+    padding-top: 2.5rem !important;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(75, 85, 99, 0.4);
+  }
+
+  @media (max-width: 640px) {
+    .copy-code-btn {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.7rem;
+    }
+
+    pre {
+      font-size: 0.8rem;
+      padding: 2rem 0.75rem 0.75rem 0.75rem !important;
+    }
+
+    /* Match message font size to input placeholder on mobile */
+    .message-bubble {
+      font-size: 0.875rem !important; /* text-sm size */
+    }
   }
 </style>
 
@@ -625,10 +818,22 @@
       '<a href="$1" target="_blank" class="text-neon-blue hover:underline">$1</a>'
     );
 
-    // Replace code blocks
+    // Replace code blocks with copy button
     content = content.replace(
       /```([^`]+)```/g,
-      '<pre class="bg-dark-300 p-3 rounded-md my-2 overflow-x-auto text-gray-300 font-mono text-sm">$1</pre>'
+      (match, codeContent) => {
+        const uniqueId = 'code-' + Math.random().toString(36).substring(2, 9);
+        return `
+          <div class="relative code-block-container my-3">
+            <div class="absolute right-2 top-2">
+              <button class="copy-code-btn bg-dark-100 hover:bg-dark-200 text-gray-300 hover:text-white p-1.5 rounded-md transition-colors text-xs flex items-center" data-code-id="${uniqueId}">
+                <i class="fas fa-copy mr-1"></i> Copy
+              </button>
+            </div>
+            <pre class="bg-dark-300 p-3 pt-10 rounded-lg overflow-x-auto text-gray-300 font-mono text-sm border border-gray-700 shadow-inner whitespace-pre" id="${uniqueId}">${codeContent}</pre>
+          </div>
+        `;
+      }
     );
 
     // Replace inline code
@@ -720,13 +925,18 @@
         // Handle rate limit
         if (data.isGuest) {
           // Add AI response with rate limit message and login/register buttons
-          const limitMessage = `⚠️ You have reached the limit of 5 requests for guest users. Please login or register to continue using the AI chat.<br><br>
-          As a guest user, you are limited to 5 requests total.<br>
-          You have used 5 of 5 requests.<br><br>
-          👉 Create an account to get 8 requests per 3 minutes!<br><br>
-          <div class="flex space-x-3 mt-2">
-            <a href="/users/login" class="px-4 py-2 bg-neon-blue rounded-md text-white hover:bg-neon-blue/80 transition-colors">Login to Your Account</a>
-            <a href="/users/register" class="px-4 py-2 border border-neon-blue rounded-md text-white hover:bg-neon-blue/20 transition-colors">Create New Account</a>
+          const limitMessage = `⚠️ You have reached the limit of 5 requests for guest users.<br><br>
+          <div class="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg mb-3 guest-limit-box">
+            <div class="flex items-center mb-1">
+              <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+              <span class="font-medium text-yellow-500">Guest Limit</span>
+            </div>
+            <p class="text-sm">You've used <span class="font-bold text-yellow-500">5 of 5</span> requests.</p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-2 mt-2">
+            <a href="/users/login" class="px-3 py-1.5 bg-blue-700 rounded-lg text-white hover:bg-blue-800 transition-colors flex items-center justify-center text-sm"><i class="fas fa-sign-in-alt mr-1"></i>Login</a>
+            <a href="/users/register" class="px-3 py-1.5 bg-gray-700 rounded-lg text-white hover:bg-gray-800 transition-colors flex items-center justify-center text-sm"><i class="fas fa-user-plus mr-1"></i>Register</a>
           </div>`;
 
           addMessageToUI('assistant', limitMessage);
@@ -736,8 +946,19 @@
           const countdownId = 'countdown-timer-' + Date.now();
 
           // Create the message with a placeholder for the countdown
-          const limitMessage = `⏳ You have reached the limit of 8 requests within 3 minutes. Please wait for the cooldown to end.<br><br>
-          You can generate requests again in <span id="${countdownId}" class="font-bold text-neon-blue">calculating...</span>`;
+          const limitMessage = `
+          <div class="p-3 bg-blue-600/10 border border-blue-600/30 rounded-lg mb-2 cooldown-box">
+            <div class="flex items-center mb-1">
+              <i class="fas fa-hourglass-half text-blue-500 mr-2 animate-pulse"></i>
+              <span class="font-medium text-blue-500">Rate Limit</span>
+            </div>
+            <p class="text-sm">Please wait for the cooldown to end.</p>
+
+            <div class="mt-2 p-1.5 bg-dark-300 rounded-lg flex items-center justify-center text-sm">
+              <i class="fas fa-clock text-blue-500 mr-1"></i>
+              <span>Ready in: <span id="${countdownId}" class="font-bold text-blue-500">calculating...</span></span>
+            </div>
+          </div>`;
 
           // Add the message to the UI
           addMessageToUI('assistant', limitMessage);
@@ -766,10 +987,52 @@
     }
   });
 
+  // Function to handle copy code button clicks
+  function setupCopyCodeButtons() {
+    document.querySelectorAll('.copy-code-btn').forEach(button => {
+      if (!button.hasListener) {
+        button.addEventListener('click', function() {
+          const codeId = this.getAttribute('data-code-id');
+          const codeElement = document.getElementById(codeId);
+          if (codeElement) {
+            const codeText = codeElement.textContent;
+            navigator.clipboard.writeText(codeText).then(() => {
+              // Change button text temporarily
+              const originalHTML = this.innerHTML;
+              this.innerHTML = '<i class="fas fa-check mr-1"></i> Copied!';
+              this.classList.add('bg-green-700', 'text-white');
+
+              setTimeout(() => {
+                this.innerHTML = originalHTML;
+                this.classList.remove('bg-green-700', 'text-white');
+              }, 2000);
+            }).catch(err => {
+              console.error('Failed to copy code: ', err);
+            });
+          }
+        });
+        button.hasListener = true;
+      }
+    });
+  }
+
+  // Observer to watch for new messages and set up copy buttons
+  const chatObserver = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+      if (mutation.addedNodes.length) {
+        setupCopyCodeButtons();
+      }
+    });
+  });
+
+  chatObserver.observe(chatMessages, { childList: true, subtree: true });
+
   // Load chat history on page load
   window.addEventListener('DOMContentLoaded', () => {
     // Auto-focus input
     messageInput.focus();
+    // Setup any existing copy buttons
+    setupCopyCodeButtons();
   });
 </script>
 
