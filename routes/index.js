@@ -1,6 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { getHomePage, getAboutPage, getDemoPage, getAnalyticsPage } = require('../controllers/indexController');
+const {
+  getHomePage,
+  getAboutPage,
+  getDemoPage,
+  getAnalyticsPage,
+  getBlogPage,
+  getCommunityPage
+} = require('../controllers/indexController');
 
 // Home page route
 router.get('/', getHomePage);
@@ -13,5 +20,11 @@ router.get('/demo', getDemoPage);
 
 // Analytics page route
 router.get('/analytics', getAnalyticsPage);
+
+// Blog page route (redirects to blog router)
+router.get('/blog', getBlogPage);
+
+// Community page route
+router.get('/community', getCommunityPage);
 
 module.exports = router;

@@ -1,0 +1,627 @@
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <!-- Post Header -->
+  <div class="mb-8">
+    <div class="flex items-center mb-4">
+      <a href="/community" class="text-neon-purple hover:underline flex items-center">
+        <i class="fas fa-arrow-left mr-2"></i> Back to Community
+      </a>
+    </div>
+
+    <h1 class="text-3xl md:text-4xl font-bold mb-4 text-white"><%= post.title %></h1>
+
+    <div class="flex flex-wrap items-center text-sm text-gray-400 mb-6">
+      <span class="flex items-center mr-4 mb-2">
+        <i class="fas fa-user mr-1"></i> <%= post.author.name %>
+      </span>
+      <span class="flex items-center mr-4 mb-2">
+        <i class="fas fa-calendar mr-1"></i> <%= formattedDate %>
+      </span>
+      <span class="flex items-center mr-4 mb-2">
+        <i class="fas fa-tag mr-1"></i> <%= post.category %>
+      </span>
+      <span class="flex items-center mr-4 mb-2">
+        <i class="fas fa-eye mr-1"></i> <%= post.views %> views
+      </span>
+      <span class="flex items-center mb-2 like-count">
+        <i class="fas fa-heart mr-1"></i> <span id="like-count"><%= post.likes.length %></span> likes
+      </span>
+    </div>
+
+    <div class="flex flex-wrap gap-2 mb-6">
+      <% post.tags.forEach(tag => { %>
+      <span class="px-3 py-1 bg-dark-200 rounded-full text-sm text-gray-300">
+        #<%= tag %>
+      </span>
+      <% }); %>
+    </div>
+  </div>
+
+  <!-- Post Content -->
+  <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 p-6 mb-8">
+    <div class="prose prose-invert max-w-none post-content">
+      <%- post.content %>
+    </div>
+
+    <% if (post.media && post.media.length > 0) { %>
+    <div class="mt-6 border-t border-gray-700 pt-6">
+      <h3 class="text-lg font-medium mb-4">Attached Media</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <% post.media.forEach(mediaUrl => { %>
+        <div class="bg-dark-200 rounded-lg overflow-hidden">
+          <img src="<%= mediaUrl %>" alt="Attached media" class="w-full h-48 object-cover">
+        </div>
+        <% }); %>
+      </div>
+    </div>
+    <% } %>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="flex justify-between mb-8">
+    <div>
+      <button id="like-button" class="px-4 py-2 bg-dark-200 text-gray-300 rounded-md hover:bg-neon-pink/20 hover:text-neon-pink transition-colors mr-2">
+        <i class="fas fa-heart mr-1"></i> Like
+      </button>
+      <button id="share-button" class="px-4 py-2 bg-dark-200 text-gray-300 rounded-md hover:bg-neon-purple/20 hover:text-neon-purple transition-colors">
+        <i class="fas fa-share-alt mr-1"></i> Share
+      </button>
+    </div>
+
+    <% if (typeof user !== 'undefined' && user && (user._id.toString() === post.author._id.toString() || user.role === 'admin')) { %>
+    <div>
+      <a href="/community/edit/<%= post._id %>" class="px-4 py-2 bg-dark-200 text-gray-300 rounded-md hover:bg-neon-purple/20 hover:text-neon-purple transition-colors mr-2">
+        <i class="fas fa-edit mr-1"></i> Edit
+      </a>
+      <button id="delete-button" class="px-4 py-2 bg-dark-200 text-gray-300 rounded-md hover:bg-red-500/20 hover:text-red-500 transition-colors">
+        <i class="fas fa-trash mr-1"></i> Delete
+      </button>
+    </div>
+    <% } %>
+  </div>
+
+  <!-- Comments Section -->
+  <div class="mb-8">
+    <h2 class="text-2xl font-bold mb-4">Comments (<span id="comment-count"><%= post.comments.length %></span>)</h2>
+
+    <% if (typeof user !== 'undefined' && user) { %>
+    <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 p-4 mb-6">
+      <h3 class="text-lg font-medium mb-3">Add a Comment</h3>
+      <form id="comment-form">
+        <div class="mb-3">
+          <textarea
+            id="comment-text"
+            class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-purple h-24"
+            placeholder="Share your thoughts..."
+            required
+          ></textarea>
+        </div>
+        <div class="flex justify-end">
+          <button type="submit" class="px-4 py-2 bg-neon-purple/20 text-neon-purple rounded-md hover:bg-neon-purple/30 transition-colors">
+            <i class="fas fa-paper-plane mr-1"></i> Post Comment
+          </button>
+        </div>
+      </form>
+    </div>
+    <% } else { %>
+    <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 p-4 mb-6 text-center">
+      <p class="text-gray-300 mb-3">You need to be logged in to comment.</p>
+      <a href="/login" class="px-4 py-2 bg-neon-purple/20 text-neon-purple rounded-md hover:bg-neon-purple/30 transition-colors inline-block">
+        <i class="fas fa-sign-in-alt mr-1"></i> Log In
+      </a>
+    </div>
+    <% } %>
+
+    <div id="comments-container">
+      <% if (post.comments.length === 0) { %>
+      <div class="text-center py-8 text-gray-400" id="no-comments-message">
+        <i class="fas fa-comments text-3xl mb-2"></i>
+        <p>Be the first to comment!</p>
+      </div>
+      <% } else { %>
+      <div class="space-y-4">
+        <% post.comments.forEach(comment => { %>
+        <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 p-4">
+          <div class="flex justify-between mb-2">
+            <div class="flex items-center">
+              <div class="w-8 h-8 rounded-full bg-neon-purple/20 flex items-center justify-center mr-2">
+                <i class="fas fa-user text-neon-purple"></i>
+              </div>
+              <span class="font-medium"><%= comment.user.name %></span>
+            </div>
+            <span class="text-xs text-gray-500"><%= formatDate(comment.date) %></span>
+          </div>
+          <p class="text-gray-300 mb-2"><%= comment.text %></p>
+          <div class="flex justify-end">
+            <button class="like-comment-button text-xs text-gray-500 hover:text-neon-pink transition-colors" data-comment-id="<%= comment._id %>">
+              <i class="fas fa-heart mr-1"></i> <span class="comment-like-count"><%= comment.likes ? comment.likes.length : 0 %></span> likes
+            </button>
+          </div>
+        </div>
+        <% }); %>
+      </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Related Posts -->
+  <% if (relatedPosts && relatedPosts.length > 0) { %>
+  <div>
+    <h2 class="text-2xl font-bold mb-4">Related Posts</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <% relatedPosts.forEach(relatedPost => { %>
+      <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 overflow-hidden hover:border-neon-purple/30 transition-colors relative">
+        <div class="p-4">
+          <span class="inline-block px-2 py-1 bg-neon-purple/20 text-neon-purple text-xs rounded-full mb-2"><%= relatedPost.category %></span>
+          <h3 class="text-lg font-semibold mb-2"><%= relatedPost.title %></h3>
+          <p class="text-gray-400 text-sm mb-3">
+            <%= relatedPost.content.substring(0, 100) %>...
+          </p>
+          <div class="flex items-center justify-between text-xs text-gray-500">
+            <span class="flex items-center">
+              <i class="fas fa-user mr-1"></i> <%= relatedPost.author.name %>
+            </span>
+            <span class="flex items-center">
+              <i class="fas fa-comment mr-1"></i> <%= relatedPost.comments.length %>
+            </span>
+          </div>
+        </div>
+        <a href="/community/post/<%= relatedPost._id %>" class="absolute inset-0" aria-label="View post"></a>
+      </div>
+      <% }); %>
+    </div>
+  </div>
+  <% } %>
+</div>
+
+<div id="share-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-100 rounded-lg p-6 max-w-md w-full mx-4">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-xl font-bold">Share This Post</h3>
+      <button id="close-share-modal" class="text-gray-400 hover:text-white">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <p class="text-gray-400 mb-2">Share this link:</p>
+        <div class="flex">
+          <input type="text" id="share-url" class="flex-1 px-3 py-2 bg-dark-300 border border-gray-700 rounded-l-md text-white" readonly value="<%= `${process.env.BASE_URL || 'https://ftraise.com'}/community/post/${post._id}` %>">
+          <button id="copy-url" class="px-3 py-2 bg-neon-purple text-white rounded-r-md hover:bg-neon-purple/90">
+            <i class="fas fa-copy"></i>
+          </button>
+        </div>
+      </div>
+      <div>
+        <p class="text-gray-400 mb-2">Share on social media:</p>
+        <div class="flex space-x-4">
+          <a href="https://twitter.com/intent/tweet?url=<%= encodeURIComponent(`${process.env.BASE_URL || 'https://ftraise.com'}/community/post/${post._id}`) %>&text=<%= encodeURIComponent(post.title) %>" target="_blank" class="w-10 h-10 rounded-full bg-[#1DA1F2]/20 flex items-center justify-center text-[#1DA1F2] hover:bg-[#1DA1F2]/30 transition-colors">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent(`${process.env.BASE_URL || 'https://ftraise.com'}/community/post/${post._id}`) %>" target="_blank" class="w-10 h-10 rounded-full bg-[#4267B2]/20 flex items-center justify-center text-[#4267B2] hover:bg-[#4267B2]/30 transition-colors">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+          <a href="https://www.linkedin.com/shareArticle?mini=true&url=<%= encodeURIComponent(`${process.env.BASE_URL || 'https://ftraise.com'}/community/post/${post._id}`) %>&title=<%= encodeURIComponent(post.title) %>" target="_blank" class="w-10 h-10 rounded-full bg-[#0077B5]/20 flex items-center justify-center text-[#0077B5] hover:bg-[#0077B5]/30 transition-colors">
+            <i class="fab fa-linkedin-in"></i>
+          </a>
+          <a href="https://wa.me/?text=<%= encodeURIComponent(`${post.title} - ${process.env.BASE_URL || 'https://ftraise.com'}/community/post/${post._id}`) %>" target="_blank" class="w-10 h-10 rounded-full bg-[#25D366]/20 flex items-center justify-center text-[#25D366] hover:bg-[#25D366]/30 transition-colors">
+            <i class="fab fa-whatsapp"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="delete-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-100 rounded-lg p-6 max-w-md w-full mx-4">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-xl font-bold">Delete Post</h3>
+      <button id="close-delete-modal" class="text-gray-400 hover:text-white">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <p class="text-gray-300 mb-6">Are you sure you want to delete this post? This action cannot be undone.</p>
+    <div class="flex justify-end space-x-4">
+      <button id="cancel-delete" class="px-4 py-2 bg-dark-300 text-gray-300 rounded-md hover:bg-dark-400 transition-colors">
+        Cancel
+      </button>
+      <button id="confirm-delete" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors">
+        Delete
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Format post content (convert markdown to HTML)
+    const postContent = document.querySelector('.post-content');
+    if (postContent) {
+      // You can add a markdown parser here if needed
+    }
+
+    // Like button functionality
+    const likeButton = document.getElementById('like-button');
+    if (likeButton) {
+      likeButton.addEventListener('click', async function() {
+        try {
+          const response = await fetch('/community/post/<%= post._id %>/like', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            document.getElementById('like-count').textContent = data.likes;
+
+            if (data.liked) {
+              likeButton.classList.add('bg-neon-pink/20', 'text-neon-pink');
+              likeButton.classList.remove('bg-dark-200', 'text-gray-300');
+            } else {
+              likeButton.classList.remove('bg-neon-pink/20', 'text-neon-pink');
+              likeButton.classList.add('bg-dark-200', 'text-gray-300');
+            }
+          } else {
+            alert(data.message);
+          }
+        } catch (error) {
+          console.error('Error liking post:', error);
+        }
+      });
+    }
+
+    // Comment like buttons
+    const likeCommentButtons = document.querySelectorAll('.like-comment-button');
+    if (likeCommentButtons.length > 0) {
+      likeCommentButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+          const commentId = this.getAttribute('data-comment-id');
+
+          try {
+            const response = await fetch(`/community/post/<%= post._id %>/comment/${commentId}/like`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+              const likeCount = this.querySelector('.comment-like-count');
+              likeCount.textContent = data.likes;
+
+              if (data.liked) {
+                this.classList.add('text-neon-pink');
+                this.classList.remove('text-gray-500');
+              } else {
+                this.classList.remove('text-neon-pink');
+                this.classList.add('text-gray-500');
+              }
+            } else {
+              alert(data.message);
+            }
+          } catch (error) {
+            console.error('Error liking comment:', error);
+          }
+        });
+      });
+    }
+
+    // Share button functionality
+    const shareButton = document.getElementById('share-button');
+    const shareModal = document.getElementById('share-modal');
+    const closeShareModal = document.getElementById('close-share-modal');
+    const copyUrlButton = document.getElementById('copy-url');
+
+    if (shareButton && shareModal) {
+      shareButton.addEventListener('click', function() {
+        shareModal.classList.remove('hidden');
+      });
+
+      closeShareModal.addEventListener('click', function() {
+        shareModal.classList.add('hidden');
+      });
+
+      copyUrlButton.addEventListener('click', function() {
+        const shareUrl = document.getElementById('share-url');
+        shareUrl.select();
+        document.execCommand('copy');
+
+        // Show copied feedback
+        const originalText = copyUrlButton.innerHTML;
+        copyUrlButton.innerHTML = '<i class="fas fa-check"></i>';
+        setTimeout(() => {
+          copyUrlButton.innerHTML = originalText;
+        }, 2000);
+      });
+
+      // Close modal when clicking outside
+      shareModal.addEventListener('click', function(e) {
+        if (e.target === shareModal) {
+          shareModal.classList.add('hidden');
+        }
+      });
+    }
+
+    // Delete button functionality
+    const deleteButton = document.getElementById('delete-button');
+    const deleteModal = document.getElementById('delete-modal');
+    const closeDeleteModal = document.getElementById('close-delete-modal');
+    const cancelDelete = document.getElementById('cancel-delete');
+    const confirmDelete = document.getElementById('confirm-delete');
+
+    if (deleteButton && deleteModal) {
+      deleteButton.addEventListener('click', function() {
+        deleteModal.classList.remove('hidden');
+      });
+
+      closeDeleteModal.addEventListener('click', function() {
+        deleteModal.classList.add('hidden');
+      });
+
+      cancelDelete.addEventListener('click', function() {
+        deleteModal.classList.add('hidden');
+      });
+
+      confirmDelete.addEventListener('click', async function() {
+        try {
+          const response = await fetch('/community/post/<%= post._id %>/delete', {
+            method: 'POST', // Changed from DELETE to POST for better compatibility
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            window.location.href = '/community';
+          } else {
+            alert(data.message);
+          }
+        } catch (error) {
+          console.error('Error deleting post:', error);
+        }
+      });
+
+      // Close modal when clicking outside
+      deleteModal.addEventListener('click', function(e) {
+        if (e.target === deleteModal) {
+          deleteModal.classList.add('hidden');
+        }
+      });
+    }
+
+    // Comment form functionality
+    const commentForm = document.getElementById('comment-form');
+    if (commentForm) {
+      commentForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const commentText = document.getElementById('comment-text').value;
+
+        if (!commentText.trim()) {
+          return;
+        }
+
+        try {
+          const response = await fetch('/community/post/<%= post._id %>/comment', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ text: commentText })
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            // Clear the form
+            document.getElementById('comment-text').value = '';
+
+            // Add the new comment to the list
+            const commentsContainer = document.getElementById('comments-container');
+            const noCommentsMessage = document.getElementById('no-comments-message');
+
+            if (noCommentsMessage) {
+              noCommentsMessage.remove();
+              commentsContainer.innerHTML = '<div class="space-y-4"></div>';
+            }
+
+            const commentsList = commentsContainer.querySelector('.space-y-4');
+
+            const commentElement = document.createElement('div');
+            commentElement.className = 'bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 p-4';
+            commentElement.innerHTML = `
+              <div class="flex justify-between mb-2">
+                <div class="flex items-center">
+                  <div class="w-8 h-8 rounded-full bg-neon-purple/20 flex items-center justify-center mr-2">
+                    <i class="fas fa-user text-neon-purple"></i>
+                  </div>
+                  <span class="font-medium">${data.comment.user.name}</span>
+                </div>
+                <span class="text-xs text-gray-500">${data.comment.formattedDate}</span>
+              </div>
+              <p class="text-gray-300 mb-2">${data.comment.text}</p>
+              <div class="flex justify-end">
+                <button class="like-comment-button text-xs text-gray-500 hover:text-neon-pink transition-colors" data-comment-id="${data.comment._id}">
+                  <i class="fas fa-heart mr-1"></i> <span class="comment-like-count">0</span> likes
+                </button>
+              </div>
+            `;
+
+            commentsList.prepend(commentElement);
+
+            // Update comment count
+            const commentCount = document.getElementById('comment-count');
+            commentCount.textContent = parseInt(commentCount.textContent) + 1;
+
+            // Add event listener to the new like button
+            const newLikeButton = commentElement.querySelector('.like-comment-button');
+            newLikeButton.addEventListener('click', async function() {
+              const commentId = this.getAttribute('data-comment-id');
+
+              try {
+                const response = await fetch(`/community/post/<%= post._id %>/comment/${commentId}/like`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                  const likeCount = this.querySelector('.comment-like-count');
+                  likeCount.textContent = data.likes;
+
+                  if (data.liked) {
+                    this.classList.add('text-neon-pink');
+                    this.classList.remove('text-gray-500');
+                  } else {
+                    this.classList.remove('text-neon-pink');
+                    this.classList.add('text-gray-500');
+                  }
+                } else {
+                  alert(data.message);
+                }
+              } catch (error) {
+                console.error('Error liking comment:', error);
+              }
+            });
+          } else {
+            alert(data.message);
+          }
+        } catch (error) {
+          console.error('Error adding comment:', error);
+        }
+      });
+    }
+  });
+
+  // Helper function to format dates
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      return 'Recently';
+    }
+
+    const now = new Date();
+    const diffMs = now - date;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      if (diffHours === 0) {
+        const diffMinutes = Math.floor(diffMs / (1000 * 60));
+        return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
+      }
+      return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+    } else if (diffDays < 7) {
+      return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+    } else {
+      // Format as MM/DD/YYYY
+      return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+    }
+  }
+</script>
+
+<style>
+  /* Post content styling */
+  .post-content h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .post-content h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .post-content h3 {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-top: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .post-content p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+  }
+
+  .post-content ul, .post-content ol {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+  }
+
+  .post-content ul {
+    list-style-type: disc;
+  }
+
+  .post-content ol {
+    list-style-type: decimal;
+  }
+
+  .post-content li {
+    margin-bottom: 0.5rem;
+  }
+
+  .post-content a {
+    color: #8a2be2;
+    text-decoration: underline;
+  }
+
+  .post-content blockquote {
+    border-left: 4px solid #8a2be2;
+    padding-left: 1rem;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 1rem;
+    font-style: italic;
+    color: #d1d5db;
+  }
+
+  .post-content code {
+    background-color: #1f2937;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-family: monospace;
+  }
+
+  .post-content pre {
+    background-color: #1f2937;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+
+  .post-content pre code {
+    background-color: transparent;
+    padding: 0;
+  }
+
+  .post-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .post-content hr {
+    border: 0;
+    border-top: 1px solid #374151;
+    margin: 2rem 0;
+  }
+</style>

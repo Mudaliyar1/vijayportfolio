@@ -1,0 +1,176 @@
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <!-- Hero Section -->
+  <div class="text-center mb-8">
+    <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
+      Blog Search Results
+    </h1>
+    <p class="text-xl text-gray-300 mt-4 max-w-3xl mx-auto">
+      <% if (query) { %>
+        Search results for "<%= query %>"
+      <% } else { %>
+        Browse all blog posts
+      <% } %>
+    </p>
+  </div>
+  
+  <!-- Search Filters -->
+  <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 p-6 mb-10">
+    <form id="search-form" action="/blog/search" method="GET" class="space-y-4 md:space-y-0 md:flex md:items-end md:space-x-4">
+      <div class="flex-1">
+        <label for="query" class="block text-gray-300 mb-2">Search Term</label>
+        <input 
+          type="text" 
+          id="query" 
+          name="query" 
+          class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-blue"
+          placeholder="Search blogs..."
+          value="<%= query || '' %>"
+        >
+      </div>
+      
+      <div>
+        <label for="category" class="block text-gray-300 mb-2">Category</label>
+        <select 
+          id="category" 
+          name="category" 
+          class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-blue"
+        >
+          <option value="all" <%= !category || category === 'all' ? 'selected' : '' %>>All Categories</option>
+          <option value="AI Research" <%= category === 'AI Research' ? 'selected' : '' %>>AI Research</option>
+          <option value="Tech News" <%= category === 'Tech News' ? 'selected' : '' %>>Tech News</option>
+          <option value="Tutorial" <%= category === 'Tutorial' ? 'selected' : '' %>>Tutorial</option>
+          <option value="Opinion" <%= category === 'Opinion' ? 'selected' : '' %>>Opinion</option>
+          <option value="Case Study" <%= category === 'Case Study' ? 'selected' : '' %>>Case Study</option>
+          <option value="Other" <%= category === 'Other' ? 'selected' : '' %>>Other</option>
+        </select>
+      </div>
+      
+      <div>
+        <label for="sort" class="block text-gray-300 mb-2">Sort By</label>
+        <select 
+          id="sort" 
+          name="sort" 
+          class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-blue"
+        >
+          <option value="newest" <%= !sort || sort === 'newest' ? 'selected' : '' %>>Newest First</option>
+          <option value="oldest" <%= sort === 'oldest' ? 'selected' : '' %>>Oldest First</option>
+          <option value="popular" <%= sort === 'popular' ? 'selected' : '' %>>Most Popular</option>
+          <option value="likes" <%= sort === 'likes' ? 'selected' : '' %>>Most Liked</option>
+        </select>
+      </div>
+      
+      <div>
+        <button type="submit" class="w-full md:w-auto px-6 py-2 bg-neon-blue/20 text-neon-blue rounded-md hover:bg-neon-blue/30 transition-colors">
+          <i class="fas fa-search mr-2"></i> Search
+        </button>
+      </div>
+    </form>
+  </div>
+  
+  <!-- Search Results -->
+  <div id="search-results">
+    <% if (blogs && blogs.length > 0) { %>
+      <div class="mb-6 flex justify-between items-center">
+        <h2 class="text-2xl font-bold"><%= blogs.length %> Results</h2>
+        
+        <% if (typeof user !== 'undefined' && user) { %>
+        <a href="/blog/create" class="px-4 py-2 bg-gradient-to-r from-neon-blue to-neon-purple text-white rounded-md hover:opacity-90 transition-colors">
+          <i class="fas fa-plus mr-2"></i> Create Blog
+        </a>
+        <% } %>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <% blogs.forEach(blog => { %>
+          <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 overflow-hidden hover:border-neon-blue/30 transition-colors relative">
+            <div class="aspect-video bg-dark-200">
+              <% if (blog.image) { %>
+                <img src="<%= blog.image %>" alt="<%= blog.title %>" class="w-full h-full object-cover">
+              <% } else { %>
+                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-dark-200 to-dark-300">
+                  <i class="fas fa-newspaper text-4xl text-<%= blog.category === 'AI Research' ? 'neon-purple' : 'neon-blue' %>"></i>
+                </div>
+              <% } %>
+            </div>
+            <div class="p-4">
+              <div class="flex justify-between items-center mb-2">
+                <span class="inline-block px-2 py-1 bg-<%= blog.category === 'AI Research' ? 'neon-purple' : 'neon-blue' %>/20 text-<%= blog.category === 'AI Research' ? 'neon-purple' : 'neon-blue' %> text-xs rounded-full"><%= blog.category %></span>
+                <span class="text-xs text-gray-500"><%= blog.formattedDate %></span>
+              </div>
+              <h3 class="text-lg font-semibold mb-2"><%= blog.title %></h3>
+              <p class="text-gray-400 text-sm mb-3">
+                <%= blog.description %>
+              </p>
+              <div class="flex justify-between items-center text-xs text-gray-500">
+                <span class="flex items-center">
+                  <i class="fas fa-user mr-1"></i> <%= blog.author || blog.source %>
+                </span>
+                <div class="flex items-center space-x-3">
+                  <% if (blog.views) { %>
+                  <span class="flex items-center">
+                    <i class="fas fa-eye mr-1"></i> <%= blog.views %>
+                  </span>
+                  <% } %>
+                  <% if (blog.likes) { %>
+                  <span class="flex items-center">
+                    <i class="fas fa-heart mr-1"></i> <%= blog.likes %>
+                  </span>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+            <a href="<%= blog.link %>" <%= !blog.isUserBlog ? 'target="_blank"' : '' %> class="absolute inset-0" aria-label="Read <%= blog.title %>"></a>
+          </div>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div class="text-center py-16 bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800">
+        <i class="fas fa-search text-5xl text-gray-500 mb-4"></i>
+        <h2 class="text-2xl font-bold mb-2">No Results Found</h2>
+        <p class="text-gray-400 mb-6">Try adjusting your search criteria or browse all blogs.</p>
+        <a href="/blog" class="px-6 py-2 bg-neon-blue/20 text-neon-blue rounded-md hover:bg-neon-blue/30 transition-colors">
+          View All Blogs
+        </a>
+      </div>
+    <% } %>
+  </div>
+  
+  <!-- Pagination (if needed) -->
+  <% if (blogs && blogs.length > 0 && blogs.length >= 20) { %>
+  <div class="flex justify-center mt-8">
+    <div class="flex space-x-2">
+      <a href="#" class="w-10 h-10 flex items-center justify-center rounded-md bg-dark-200 text-gray-400 hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">
+        <i class="fas fa-chevron-left"></i>
+      </a>
+      <a href="#" class="w-10 h-10 flex items-center justify-center rounded-md bg-neon-blue/20 text-neon-blue">1</a>
+      <a href="#" class="w-10 h-10 flex items-center justify-center rounded-md bg-dark-200 text-white hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">2</a>
+      <a href="#" class="w-10 h-10 flex items-center justify-center rounded-md bg-dark-200 text-white hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">3</a>
+      <span class="w-10 h-10 flex items-center justify-center text-gray-400">...</span>
+      <a href="#" class="w-10 h-10 flex items-center justify-center rounded-md bg-dark-200 text-white hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">10</a>
+      <a href="#" class="w-10 h-10 flex items-center justify-center rounded-md bg-dark-200 text-gray-400 hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">
+        <i class="fas fa-chevron-right"></i>
+      </a>
+    </div>
+  </div>
+  <% } %>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Auto-submit form when category or sort changes
+    const categorySelect = document.getElementById('category');
+    const sortSelect = document.getElementById('sort');
+    
+    if (categorySelect) {
+      categorySelect.addEventListener('change', function() {
+        document.getElementById('search-form').submit();
+      });
+    }
+    
+    if (sortSelect) {
+      sortSelect.addEventListener('change', function() {
+        document.getElementById('search-form').submit();
+      });
+    }
+  });
+</script>

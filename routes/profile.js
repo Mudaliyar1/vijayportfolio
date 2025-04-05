@@ -8,7 +8,8 @@ const {
   updateProfile,
   updatePassword,
   updateProfilePicture,
-  removeProfilePicture
+  removeProfilePicture,
+  getUserContent
 } = require('../controllers/profileController');
 
 // Configure multer for file uploads
@@ -52,5 +53,8 @@ router.put('/picture', ensureAuthenticated, upload.single('profilePicture'), upd
 
 // Remove profile picture
 router.delete('/picture/remove', ensureAuthenticated, removeProfilePicture);
+
+// User content management (blogs and community posts)
+router.get('/content', ensureAuthenticated, getUserContent);
 
 module.exports = router;

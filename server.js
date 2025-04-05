@@ -86,7 +86,9 @@ app.use('/api/images', require('./routes/api-images'));
 app.use('/admin/images', require('./routes/admin-images'));
 app.use('/rate-limits', require('./routes/rate-limits'));
 app.use('/admin/rate-limits', require('./routes/admin-rate-limits'));
-app.use('/api/ai', require('./routes/ai-service')); // New AI service route
+app.use('/api/ai', require('./routes/ai-service')); // AI service route
+app.use('/blog', require('./routes/blog')); // Blog routes
+app.use('/community', require('./routes/community')); // Community routes
 
 // 404 handler
 app.use((req, res) => {

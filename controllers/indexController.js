@@ -39,5 +39,27 @@ module.exports = {
     res.render('analytics', {
       title: 'Platform Analytics - FTRAISE AI'
     });
+  },
+
+  // Render blog page
+  getBlogPage: async (req, res) => {
+    try {
+      // Import the blog controller and call its getAllBlogs method
+      const blogController = require('./blogController');
+      await blogController.getAllBlogs(req, res);
+    } catch (error) {
+      console.error('Error in getBlogPage:', error);
+      res.render('error', {
+        title: 'Error - FTRAISE AI',
+        message: 'An error occurred while loading the blog page.'
+      });
+    }
+  },
+
+  // Render community page
+  getCommunityPage: (req, res) => {
+    res.render('community', {
+      title: 'Community - FTRAISE AI'
+    });
   }
 };

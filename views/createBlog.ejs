@@ -1,0 +1,190 @@
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6 text-white">Create New Blog Post</h1>
+  
+  <% if (typeof error !== 'undefined') { %>
+  <div class="bg-red-500/20 text-red-400 p-4 rounded-md mb-6">
+    <%= error %>
+  </div>
+  <% } %>
+  
+  <form action="/blog/create" method="POST" class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 p-6">
+    <div class="mb-4">
+      <label for="title" class="block text-gray-300 mb-2">Title</label>
+      <input 
+        type="text" 
+        id="title" 
+        name="title" 
+        class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-blue"
+        required
+        value="<%= typeof formData !== 'undefined' ? formData.title : '' %>"
+      >
+    </div>
+    
+    <div class="mb-4">
+      <label for="summary" class="block text-gray-300 mb-2">Summary (max 200 characters)</label>
+      <textarea 
+        id="summary" 
+        name="summary" 
+        class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-blue h-20"
+        required
+        maxlength="200"
+      ><%= typeof formData !== 'undefined' ? formData.summary : '' %></textarea>
+      <div class="text-xs text-gray-500 mt-1">
+        <span id="summary-char-count">0</span>/200 characters
+      </div>
+    </div>
+    
+    <div class="mb-4">
+      <label for="category" class="block text-gray-300 mb-2">Category</label>
+      <select 
+        id="category" 
+        name="category" 
+        class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-blue"
+      >
+        <option value="AI Research" <%= typeof formData !== 'undefined' && formData.category === 'AI Research' ? 'selected' : '' %>>AI Research</option>
+        <option value="Tech News" <%= typeof formData !== 'undefined' && formData.category === 'Tech News' ? 'selected' : '' %>>Tech News</option>
+        <option value="Tutorial" <%= typeof formData !== 'undefined' && formData.category === 'Tutorial' ? 'selected' : '' %>>Tutorial</option>
+        <option value="Opinion" <%= typeof formData !== 'undefined' && formData.category === 'Opinion' ? 'selected' : '' %>>Opinion</option>
+        <option value="Case Study" <%= typeof formData !== 'undefined' && formData.category === 'Case Study' ? 'selected' : '' %>>Case Study</option>
+        <option value="Other" <%= typeof formData !== 'undefined' && formData.category === 'Other' ? 'selected' : '' %>>Other</option>
+      </select>
+    </div>
+    
+    <div class="mb-4">
+      <label for="tags" class="block text-gray-300 mb-2">Tags (comma separated)</label>
+      <input 
+        type="text" 
+        id="tags" 
+        name="tags" 
+        class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-blue"
+        placeholder="ai, machine learning, tutorial"
+        value="<%= typeof formData !== 'undefined' ? formData.tags : '' %>"
+      >
+    </div>
+    
+    <div class="mb-4">
+      <label for="featuredImage" class="block text-gray-300 mb-2">Featured Image URL (optional)</label>
+      <input 
+        type="url" 
+        id="featuredImage" 
+        name="featuredImage" 
+        class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-blue"
+        placeholder="https://example.com/image.jpg"
+        value="<%= typeof formData !== 'undefined' ? formData.featuredImage : '' %>"
+      >
+      <div class="text-xs text-gray-500 mt-1">
+        Enter a URL to an image that represents your blog post
+      </div>
+    </div>
+    
+    <div class="mb-6">
+      <label for="content" class="block text-gray-300 mb-2">Content</label>
+      <div class="border border-gray-700 rounded-md overflow-hidden">
+        <div class="bg-dark-300 px-4 py-2 flex border-b border-gray-700">
+          <button type="button" class="mr-3 text-gray-400 hover:text-white" onclick="formatText('bold')">
+            <i class="fas fa-bold"></i>
+          </button>
+          <button type="button" class="mr-3 text-gray-400 hover:text-white" onclick="formatText('italic')">
+            <i class="fas fa-italic"></i>
+          </button>
+          <button type="button" class="mr-3 text-gray-400 hover:text-white" onclick="formatText('heading')">
+            <i class="fas fa-heading"></i>
+          </button>
+          <button type="button" class="mr-3 text-gray-400 hover:text-white" onclick="formatText('link')">
+            <i class="fas fa-link"></i>
+          </button>
+          <button type="button" class="mr-3 text-gray-400 hover:text-white" onclick="formatText('list')">
+            <i class="fas fa-list-ul"></i>
+          </button>
+          <button type="button" class="mr-3 text-gray-400 hover:text-white" onclick="formatText('code')">
+            <i class="fas fa-code"></i>
+          </button>
+        </div>
+        <textarea 
+          id="content" 
+          name="content" 
+          class="w-full px-4 py-2 bg-dark-200 text-white focus:outline-none min-h-[300px]"
+          required
+        ><%= typeof formData !== 'undefined' ? formData.content : '' %></textarea>
+      </div>
+      <div class="text-xs text-gray-500 mt-1">
+        You can use Markdown formatting in your content
+      </div>
+    </div>
+    
+    <div class="flex justify-between">
+      <a href="/blog" class="px-6 py-2 bg-dark-300 text-gray-300 rounded-md hover:bg-dark-400 transition-colors">
+        Cancel
+      </a>
+      <button type="submit" class="px-6 py-2 bg-gradient-to-r from-neon-blue to-neon-purple text-white rounded-md hover:opacity-90 transition-colors">
+        Publish Blog Post
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Character counter for summary
+    const summaryField = document.getElementById('summary');
+    const charCount = document.getElementById('summary-char-count');
+    
+    function updateCharCount() {
+      charCount.textContent = summaryField.value.length;
+    }
+    
+    summaryField.addEventListener('input', updateCharCount);
+    updateCharCount(); // Initial count
+    
+    // Preview image when URL is entered
+    const imageUrlField = document.getElementById('featuredImage');
+    imageUrlField.addEventListener('blur', function() {
+      const url = this.value.trim();
+      if (url) {
+        // You could add image preview functionality here
+      }
+    });
+  });
+  
+  // Text formatting functions
+  function formatText(type) {
+    const contentField = document.getElementById('content');
+    const start = contentField.selectionStart;
+    const end = contentField.selectionEnd;
+    const selectedText = contentField.value.substring(start, end);
+    let formattedText = '';
+    
+    switch (type) {
+      case 'bold':
+        formattedText = `**${selectedText}**`;
+        break;
+      case 'italic':
+        formattedText = `*${selectedText}*`;
+        break;
+      case 'heading':
+        formattedText = `## ${selectedText}`;
+        break;
+      case 'link':
+        formattedText = `[${selectedText}](url)`;
+        break;
+      case 'list':
+        formattedText = `\n- ${selectedText}`;
+        break;
+      case 'code':
+        formattedText = `\`${selectedText}\``;
+        break;
+    }
+    
+    contentField.value = 
+      contentField.value.substring(0, start) + 
+      formattedText + 
+      contentField.value.substring(end);
+    
+    // Set focus back to the textarea
+    contentField.focus();
+    
+    // Set cursor position after the inserted text
+    const newCursorPos = start + formattedText.length;
+    contentField.setSelectionRange(newCursorPos, newCursorPos);
+  }
+</script>

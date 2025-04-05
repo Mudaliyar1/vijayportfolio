@@ -3,6 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const User = require('../models/User');
 const Chat = require('../models/Chat');
+const Blog = require('../models/Blog');
+const CommunityPost = require('../models/CommunityPost');
 
 module.exports = {
   // Render profile page
@@ -219,6 +221,35 @@ module.exports = {
     } catch (err) {
       console.error('Profile picture removal error:', err);
       req.flash('error_msg', 'An error occurred while removing your profile picture');
+      res.redirect('/profile');
+    }
+  },
+
+  // Get user content (blogs and community posts)
+  getUserContent: async (req, res) => {
+    try {
+      // Check if user is logged in
+      if (!req.user) {
+        return res.redirect('/login');
+      }
+
+      // Get user's blogs
+      const blogs = await Blog.find({ author: req.user._id })
+        .sort({ createdAt: -1 });
+
+      // Get user's community posts
+      const posts = await CommunityPost.find({ author: req.user._id })
+        .sort({ createdAt: -1 });
+
+      res.render('profile/content', {
+        title: 'My Content - FTRAISE AI',
+        user: req.user,
+        blogs,
+        posts
+      });
+    } catch (error) {
+      console.error('Error fetching user content:', error);
+      req.flash('error_msg', 'An error occurred while loading your content');
       res.redirect('/profile');
     }
   }

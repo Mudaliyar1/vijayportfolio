@@ -22,6 +22,7 @@
   "author": "ftraise59/vijay",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.8.4",
     "bcryptjs": "^2.4.3",
     "cohere-ai": "4.3.1",
     "connect-flash": "^0.1.1",
@@ -43,7 +44,8 @@
     "passport": "^0.6.0",
     "passport-local": "^1.0.0",
     "tailwindcss": "^3.3.3",
-    "useragent": "^2.3.0"
+    "useragent": "^2.3.0",
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

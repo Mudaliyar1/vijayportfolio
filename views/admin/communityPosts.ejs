@@ -1,0 +1,477 @@
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold text-white">Manage Community Posts</h1>
+    <a href="/admin" class="px-4 py-2 bg-dark-200 text-gray-300 rounded-md hover:bg-dark-300 transition-colors">
+      <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+    </a>
+  </div>
+  
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-dark-100/60 backdrop-blur-sm p-4 rounded-lg border border-neon-purple/30 text-center">
+      <div class="text-3xl font-bold text-neon-purple mb-1"><%= posts.length %></div>
+      <div class="text-sm text-gray-400">Total Posts</div>
+    </div>
+    <div class="bg-dark-100/60 backdrop-blur-sm p-4 rounded-lg border border-neon-green/30 text-center">
+      <div class="text-3xl font-bold text-neon-green mb-1"><%= posts.filter(post => post.status === 'active').length %></div>
+      <div class="text-sm text-gray-400">Active</div>
+    </div>
+    <div class="bg-dark-100/60 backdrop-blur-sm p-4 rounded-lg border border-yellow-500/30 text-center">
+      <div class="text-3xl font-bold text-yellow-500 mb-1"><%= posts.filter(post => post.status === 'hidden').length %></div>
+      <div class="text-sm text-gray-400">Hidden</div>
+    </div>
+    <div class="bg-dark-100/60 backdrop-blur-sm p-4 rounded-lg border border-red-500/30 text-center">
+      <div class="text-3xl font-bold text-red-500 mb-1"><%= posts.filter(post => post.status === 'deleted').length %></div>
+      <div class="text-sm text-gray-400">Deleted</div>
+    </div>
+  </div>
+  
+  <!-- Search and Filters -->
+  <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 p-4 mb-6">
+    <div class="flex flex-wrap gap-4">
+      <div class="flex-1 min-w-[200px]">
+        <input 
+          type="text" 
+          id="search-posts" 
+          class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-purple"
+          placeholder="Search posts..."
+        >
+      </div>
+      
+      <div>
+        <select 
+          id="filter-status" 
+          class="px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-purple"
+        >
+          <option value="all">All Status</option>
+          <option value="active">Active</option>
+          <option value="hidden">Hidden</option>
+          <option value="deleted">Deleted</option>
+        </select>
+      </div>
+      
+      <div>
+        <select 
+          id="filter-category" 
+          class="px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-purple"
+        >
+          <option value="all">All Categories</option>
+          <option value="Question">Question</option>
+          <option value="Discussion">Discussion</option>
+          <option value="Showcase">Showcase</option>
+          <option value="Feedback">Feedback</option>
+          <option value="Announcement">Announcement</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Posts Table -->
+  <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 overflow-hidden mb-8">
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-dark-200">
+            <th class="py-3 px-4 text-left">Title</th>
+            <th class="py-3 px-4 text-left">Author</th>
+            <th class="py-3 px-4 text-left">Category</th>
+            <th class="py-3 px-4 text-left">Status</th>
+            <th class="py-3 px-4 text-left">Date</th>
+            <th class="py-3 px-4 text-left">Activity</th>
+            <th class="py-3 px-4 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="posts-table-body">
+          <% if (posts.length === 0) { %>
+            <tr>
+              <td colspan="7" class="py-4 px-4 text-center text-gray-400">No posts found</td>
+            </tr>
+          <% } else { %>
+            <% posts.forEach(post => { %>
+              <tr class="border-t border-gray-800 hover:bg-dark-200/50 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="truncate max-w-xs">
+                    <a href="/community/post/<%= post._id %>" class="hover:text-neon-purple transition-colors"><%= post.title %></a>
+                  </div>
+                </td>
+                <td class="py-3 px-4"><%= post.author.name %></td>
+                <td class="py-3 px-4"><%= post.category %></td>
+                <td class="py-3 px-4">
+                  <% if (post.status === 'active') { %>
+                    <span class="px-2 py-1 bg-green-500/20 text-green-500 text-xs rounded-full">Active</span>
+                  <% } else if (post.status === 'hidden') { %>
+                    <span class="px-2 py-1 bg-yellow-500/20 text-yellow-500 text-xs rounded-full">Hidden</span>
+                  <% } else { %>
+                    <span class="px-2 py-1 bg-red-500/20 text-red-500 text-xs rounded-full">Deleted</span>
+                  <% } %>
+                </td>
+                <td class="py-3 px-4"><%= new Date(post.createdAt).toLocaleDateString() %></td>
+                <td class="py-3 px-4">
+                  <div class="flex space-x-3 text-xs">
+                    <span class="flex items-center text-gray-400">
+                      <i class="fas fa-eye mr-1"></i> <%= post.views %>
+                    </span>
+                    <span class="flex items-center text-gray-400">
+                      <i class="fas fa-heart mr-1"></i> <%= post.likes.length %>
+                    </span>
+                    <span class="flex items-center text-gray-400">
+                      <i class="fas fa-comment mr-1"></i> <%= post.comments.length %>
+                    </span>
+                  </div>
+                </td>
+                <td class="py-3 px-4">
+                  <div class="flex space-x-2">
+                    <a href="/community/post/<%= post._id %>" class="text-gray-400 hover:text-neon-purple transition-colors" title="View">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    <button 
+                      class="text-gray-400 hover:text-neon-green transition-colors status-toggle-btn" 
+                      data-post-id="<%= post._id %>"
+                      data-current-status="<%= post.status %>"
+                      title="Toggle Status"
+                    >
+                      <i class="fas fa-toggle-on"></i>
+                    </button>
+                    <button 
+                      class="text-gray-400 hover:text-red-500 transition-colors delete-post-btn" 
+                      data-post-id="<%= post._id %>"
+                      data-post-title="<%= post.title %>"
+                      title="Delete"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            <% }); %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Status Toggle Modal -->
+<div id="status-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-100 rounded-lg p-6 max-w-md w-full mx-4">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-xl font-bold">Change Post Status</h3>
+      <button id="close-status-modal" class="text-gray-400 hover:text-white">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <p class="text-gray-300 mb-4">Select the new status for this post:</p>
+    <div class="space-y-3 mb-6">
+      <label class="flex items-center cursor-pointer">
+        <input type="radio" name="post-status" value="active" class="sr-only">
+        <div class="w-5 h-5 border border-gray-500 rounded-full mr-3 flex items-center justify-center status-radio">
+          <div class="w-3 h-3 bg-neon-green rounded-full hidden"></div>
+        </div>
+        <span>Active (visible to all users)</span>
+      </label>
+      <label class="flex items-center cursor-pointer">
+        <input type="radio" name="post-status" value="hidden" class="sr-only">
+        <div class="w-5 h-5 border border-gray-500 rounded-full mr-3 flex items-center justify-center status-radio">
+          <div class="w-3 h-3 bg-neon-green rounded-full hidden"></div>
+        </div>
+        <span>Hidden (only visible to admins)</span>
+      </label>
+      <label class="flex items-center cursor-pointer">
+        <input type="radio" name="post-status" value="deleted" class="sr-only">
+        <div class="w-5 h-5 border border-gray-500 rounded-full mr-3 flex items-center justify-center status-radio">
+          <div class="w-3 h-3 bg-neon-green rounded-full hidden"></div>
+        </div>
+        <span>Deleted (marked for deletion)</span>
+      </label>
+    </div>
+    <div class="flex justify-end space-x-4">
+      <button id="cancel-status" class="px-4 py-2 bg-dark-300 text-gray-300 rounded-md hover:bg-dark-400 transition-colors">
+        Cancel
+      </button>
+      <button id="confirm-status" class="px-4 py-2 bg-neon-green text-white rounded-md hover:bg-neon-green/90 transition-colors">
+        Update Status
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-100 rounded-lg p-6 max-w-md w-full mx-4">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-xl font-bold">Delete Post</h3>
+      <button id="close-delete-modal" class="text-gray-400 hover:text-white">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <p class="text-gray-300 mb-2">Are you sure you want to permanently delete this post?</p>
+    <p class="text-gray-400 mb-6 text-sm" id="delete-post-title"></p>
+    <div class="flex justify-end space-x-4">
+      <button id="cancel-delete" class="px-4 py-2 bg-dark-300 text-gray-300 rounded-md hover:bg-dark-400 transition-colors">
+        Cancel
+      </button>
+      <button id="confirm-delete" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors">
+        Delete
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Search and filter functionality
+    const searchInput = document.getElementById('search-posts');
+    const statusFilter = document.getElementById('filter-status');
+    const categoryFilter = document.getElementById('filter-category');
+    const tableBody = document.getElementById('posts-table-body');
+    const tableRows = tableBody.querySelectorAll('tr');
+    
+    function filterTable() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const statusValue = statusFilter.value;
+      const categoryValue = categoryFilter.value;
+      
+      tableRows.forEach(row => {
+        const title = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+        const author = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        const category = row.querySelector('td:nth-child(3)').textContent;
+        const statusElement = row.querySelector('td:nth-child(4) span');
+        const status = statusElement ? statusElement.textContent.toLowerCase() : '';
+        
+        const matchesSearch = title.includes(searchTerm) || author.includes(searchTerm);
+        const matchesStatus = statusValue === 'all' || status.includes(statusValue.toLowerCase());
+        const matchesCategory = categoryValue === 'all' || category === categoryValue;
+        
+        if (matchesSearch && matchesStatus && matchesCategory) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+    
+    if (searchInput) {
+      searchInput.addEventListener('input', filterTable);
+    }
+    
+    if (statusFilter) {
+      statusFilter.addEventListener('change', filterTable);
+    }
+    
+    if (categoryFilter) {
+      categoryFilter.addEventListener('change', filterTable);
+    }
+    
+    // Status toggle functionality
+    const statusToggleButtons = document.querySelectorAll('.status-toggle-btn');
+    const statusModal = document.getElementById('status-modal');
+    const closeStatusModal = document.getElementById('close-status-modal');
+    const cancelStatus = document.getElementById('cancel-status');
+    const confirmStatus = document.getElementById('confirm-status');
+    const statusRadios = document.querySelectorAll('input[name="post-status"]');
+    
+    let postToUpdate = null;
+    let currentStatus = null;
+    
+    statusToggleButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        postToUpdate = this.dataset.postId;
+        currentStatus = this.dataset.currentStatus;
+        
+        // Set the current status in the modal
+        statusRadios.forEach(radio => {
+          if (radio.value === currentStatus) {
+            radio.checked = true;
+            radio.parentElement.querySelector('.status-radio div').classList.remove('hidden');
+          } else {
+            radio.checked = false;
+            radio.parentElement.querySelector('.status-radio div').classList.add('hidden');
+          }
+        });
+        
+        statusModal.classList.remove('hidden');
+      });
+    });
+    
+    // Handle status radio changes
+    statusRadios.forEach(radio => {
+      radio.addEventListener('change', function() {
+        // Hide all indicators
+        document.querySelectorAll('.status-radio div').forEach(indicator => {
+          indicator.classList.add('hidden');
+        });
+        
+        // Show the selected indicator
+        if (this.checked) {
+          this.parentElement.querySelector('.status-radio div').classList.remove('hidden');
+        }
+      });
+    });
+    
+    if (closeStatusModal) {
+      closeStatusModal.addEventListener('click', function() {
+        statusModal.classList.add('hidden');
+      });
+    }
+    
+    if (cancelStatus) {
+      cancelStatus.addEventListener('click', function() {
+        statusModal.classList.add('hidden');
+      });
+    }
+    
+    if (confirmStatus) {
+      confirmStatus.addEventListener('click', async function() {
+        if (!postToUpdate) return;
+        
+        // Get the selected status
+        const selectedStatus = document.querySelector('input[name="post-status"]:checked').value;
+        
+        // If status hasn't changed, just close the modal
+        if (selectedStatus === currentStatus) {
+          statusModal.classList.add('hidden');
+          return;
+        }
+        
+        try {
+          const response = await fetch(`/community/post/${postToUpdate}/status`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status: selectedStatus })
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            // Update the row in the table
+            const row = document.querySelector(`[data-post-id="${postToUpdate}"]`).closest('tr');
+            const statusCell = row.querySelector('td:nth-child(4)');
+            
+            // Update status badge
+            let statusBadge = '';
+            if (selectedStatus === 'active') {
+              statusBadge = '<span class="px-2 py-1 bg-green-500/20 text-green-500 text-xs rounded-full">Active</span>';
+            } else if (selectedStatus === 'hidden') {
+              statusBadge = '<span class="px-2 py-1 bg-yellow-500/20 text-yellow-500 text-xs rounded-full">Hidden</span>';
+            } else {
+              statusBadge = '<span class="px-2 py-1 bg-red-500/20 text-red-500 text-xs rounded-full">Deleted</span>';
+            }
+            
+            statusCell.innerHTML = statusBadge;
+            
+            // Update the button's data attribute
+            const button = document.querySelector(`[data-post-id="${postToUpdate}"]`);
+            button.dataset.currentStatus = selectedStatus;
+            
+            // Update stats
+            updateStats();
+            
+            // Close the modal
+            statusModal.classList.add('hidden');
+          } else {
+            alert(data.message);
+          }
+        } catch (error) {
+          console.error('Error updating post status:', error);
+          alert('An error occurred while updating the post status.');
+        }
+      });
+    }
+    
+    // Delete post functionality
+    const deleteButtons = document.querySelectorAll('.delete-post-btn');
+    const deleteModal = document.getElementById('delete-modal');
+    const closeDeleteModal = document.getElementById('close-delete-modal');
+    const cancelDelete = document.getElementById('cancel-delete');
+    const confirmDelete = document.getElementById('confirm-delete');
+    const deletePostTitle = document.getElementById('delete-post-title');
+    
+    let postToDelete = null;
+    
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        postToDelete = this.dataset.postId;
+        deletePostTitle.textContent = this.dataset.postTitle;
+        deleteModal.classList.remove('hidden');
+      });
+    });
+    
+    if (closeDeleteModal) {
+      closeDeleteModal.addEventListener('click', function() {
+        deleteModal.classList.add('hidden');
+      });
+    }
+    
+    if (cancelDelete) {
+      cancelDelete.addEventListener('click', function() {
+        deleteModal.classList.add('hidden');
+      });
+    }
+    
+    if (confirmDelete) {
+      confirmDelete.addEventListener('click', async function() {
+        if (!postToDelete) return;
+        
+        try {
+          const response = await fetch(`/community/post/${postToDelete}/delete`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            // Remove the row from the table
+            const row = document.querySelector(`[data-post-id="${postToDelete}"]`).closest('tr');
+            if (row) {
+              row.remove();
+            }
+            
+            // Update stats
+            updateStats();
+            
+            // Close the modal
+            deleteModal.classList.add('hidden');
+          } else {
+            alert(data.message);
+          }
+        } catch (error) {
+          console.error('Error deleting post:', error);
+          alert('An error occurred while deleting the post.');
+        }
+      });
+    }
+    
+    // Close modals when clicking outside
+    statusModal.addEventListener('click', function(e) {
+      if (e.target === statusModal) {
+        statusModal.classList.add('hidden');
+      }
+    });
+    
+    deleteModal.addEventListener('click', function(e) {
+      if (e.target === deleteModal) {
+        deleteModal.classList.add('hidden');
+      }
+    });
+    
+    // Function to update stats
+    function updateStats() {
+      const totalPosts = document.querySelectorAll('#posts-table-body tr').length;
+      const activePosts = document.querySelectorAll('#posts-table-body tr td:nth-child(4) span.text-green-500').length;
+      const hiddenPosts = document.querySelectorAll('#posts-table-body tr td:nth-child(4) span.text-yellow-500').length;
+      const deletedPosts = document.querySelectorAll('#posts-table-body tr td:nth-child(4) span.text-red-500').length;
+      
+      document.querySelector('.text-neon-purple').textContent = totalPosts;
+      document.querySelector('.text-neon-green').textContent = activePosts;
+      document.querySelector('.text-yellow-500').textContent = hiddenPosts;
+      document.querySelector('.text-red-500').textContent = deletedPosts;
+    }
+  });
+</script>

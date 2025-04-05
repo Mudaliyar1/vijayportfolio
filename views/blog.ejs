@@ -1,0 +1,252 @@
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <!-- Hero Section -->
+  <div class="text-center mb-8">
+    <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
+      AI Resources & Blog
+    </h1>
+    <p class="text-xl text-gray-300 mt-4 max-w-3xl mx-auto">
+      Explore the latest insights, tutorials, and news about artificial intelligence, machine learning, and FTRAISE AI features.
+    </p>
+  </div>
+
+  <% if (typeof error !== 'undefined') { %>
+  <!-- Error Message -->
+  <div class="bg-red-500/20 backdrop-blur-sm rounded-lg border border-red-500/30 p-6 mb-10 text-center">
+    <i class="fas fa-exclamation-triangle text-red-500 text-3xl mb-3"></i>
+    <h2 class="text-xl font-bold mb-2">Unable to Load Blog Content</h2>
+    <p class="text-gray-300">
+      <%= error %>
+    </p>
+  </div>
+  <% } else if (typeof featuredArticle !== 'undefined' && featuredArticle) { %>
+  <!-- Featured Article -->
+  <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-neon-blue/30 p-6 mb-10">
+    <div class="flex flex-col md:flex-row gap-6">
+      <div class="md:w-1/2">
+        <div class="aspect-video bg-dark-200 rounded-lg overflow-hidden">
+          <% if (featuredArticle.image) { %>
+          <img src="<%= featuredArticle.image %>" alt="<%= featuredArticle.title %>" class="w-full h-full object-cover">
+          <% } else { %>
+          <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-dark-200 to-dark-300">
+            <i class="fas fa-newspaper text-5xl text-neon-blue"></i>
+          </div>
+          <% } %>
+        </div>
+      </div>
+      <div class="md:w-1/2">
+        <span class="inline-block px-3 py-1 bg-neon-blue/20 text-neon-blue text-sm rounded-full mb-3">Featured</span>
+        <h2 class="text-2xl font-bold mb-3"><%= featuredArticle.title %></h2>
+        <p class="text-gray-300 mb-4">
+          <%= featuredArticle.description %>
+        </p>
+        <div class="flex items-center text-sm text-gray-400 mb-4">
+          <span class="flex items-center mr-4"><i class="fas fa-calendar mr-1"></i> <%= featuredArticle.formattedDate %></span>
+          <span class="flex items-center"><i class="fas fa-newspaper mr-1"></i> <%= featuredArticle.source %></span>
+        </div>
+        <a href="<%= featuredArticle.link %>" target="_blank" class="inline-block px-4 py-2 bg-neon-blue/20 text-neon-blue rounded-md hover:bg-neon-blue/30 transition-colors">
+          Read Article <i class="fas fa-arrow-right ml-1"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- Categories -->
+  <div class="flex flex-wrap gap-3 mb-8">
+    <a href="#" class="px-4 py-2 bg-dark-200 rounded-full text-white hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">All</a>
+    <a href="#" class="px-4 py-2 bg-dark-200 rounded-full text-white hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">Tutorials</a>
+    <a href="#" class="px-4 py-2 bg-dark-200 rounded-full text-white hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">AI News</a>
+    <a href="#" class="px-4 py-2 bg-dark-200 rounded-full text-white hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">Case Studies</a>
+    <a href="#" class="px-4 py-2 bg-dark-200 rounded-full text-white hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">Product Updates</a>
+  </div>
+
+  <!-- Articles Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+    <% if (typeof recentArticles !== 'undefined' && recentArticles && recentArticles.length > 0) { %>
+      <% recentArticles.forEach(article => { %>
+        <!-- Article -->
+        <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 overflow-hidden hover:border-neon-blue/30 transition-colors">
+          <div class="aspect-video bg-dark-200">
+            <% if (article.image) { %>
+              <img src="<%= article.image %>" alt="<%= article.title %>" class="w-full h-full object-cover">
+            <% } else { %>
+              <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-dark-200 to-dark-300">
+                <i class="fas fa-newspaper text-4xl text-<%= article.category === 'AI Research' ? 'neon-purple' : 'neon-blue' %>"></i>
+              </div>
+            <% } %>
+          </div>
+          <div class="p-4">
+            <span class="inline-block px-2 py-1 bg-<%= article.category === 'AI Research' ? 'neon-purple' : 'neon-blue' %>/20 text-<%= article.category === 'AI Research' ? 'neon-purple' : 'neon-blue' %> text-xs rounded-full mb-2"><%= article.category %></span>
+            <h3 class="text-lg font-semibold mb-2"><%= article.title %></h3>
+            <p class="text-gray-400 text-sm mb-3">
+              <%= article.description %>
+            </p>
+            <div class="flex items-center justify-between text-xs text-gray-500">
+              <span class="flex items-center"><i class="fas fa-calendar mr-1"></i> <%= article.formattedDate %></span>
+              <span class="flex items-center"><i class="fas fa-newspaper mr-1"></i> <%= article.source %></span>
+            </div>
+          </div>
+          <a href="<%= article.link %>" target="_blank" class="absolute inset-0" aria-label="Read <%= article.title %>"></a>
+        </div>
+      <% }); %>
+    <% } else { %>
+      <!-- Placeholder Articles -->
+      <% for (let i = 0; i < 6; i++) { %>
+        <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 overflow-hidden">
+          <div class="aspect-video bg-dark-200 flex items-center justify-center">
+            <i class="fas fa-spinner fa-spin text-3xl text-gray-600"></i>
+          </div>
+          <div class="p-4">
+            <div class="h-4 bg-dark-300 rounded w-1/4 mb-2"></div>
+            <div class="h-6 bg-dark-300 rounded w-3/4 mb-2"></div>
+            <div class="h-4 bg-dark-300 rounded w-full mb-3"></div>
+            <div class="flex justify-between">
+              <div class="h-3 bg-dark-300 rounded w-1/4"></div>
+              <div class="h-3 bg-dark-300 rounded w-1/4"></div>
+            </div>
+          </div>
+        </div>
+      <% } %>
+    <% } %>
+  </div>
+
+  <!-- Category Sections -->
+  <div class="mb-10">
+    <h2 class="text-2xl font-bold mb-6">AI Research Articles</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <% if (typeof aiResearchArticles !== 'undefined' && aiResearchArticles && aiResearchArticles.length > 0) { %>
+        <% aiResearchArticles.forEach(article => { %>
+          <!-- AI Research Article -->
+          <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 overflow-hidden hover:border-neon-purple/30 transition-colors relative">
+            <div class="aspect-video bg-dark-200">
+              <% if (article.image) { %>
+                <img src="<%= article.image %>" alt="<%= article.title %>" class="w-full h-full object-cover">
+              <% } else { %>
+                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-dark-200 to-dark-300">
+                  <i class="fas fa-microscope text-4xl text-neon-purple"></i>
+                </div>
+              <% } %>
+            </div>
+            <div class="p-4">
+              <span class="inline-block px-2 py-1 bg-neon-purple/20 text-neon-purple text-xs rounded-full mb-2">AI Research</span>
+              <h3 class="text-lg font-semibold mb-2"><%= article.title %></h3>
+              <p class="text-gray-400 text-sm mb-3">
+                <%= article.description %>
+              </p>
+              <div class="flex items-center justify-between text-xs text-gray-500">
+                <span class="flex items-center"><i class="fas fa-calendar mr-1"></i> <%= article.formattedDate %></span>
+                <span class="flex items-center"><i class="fas fa-newspaper mr-1"></i> <%= article.source %></span>
+              </div>
+            </div>
+            <a href="<%= article.link %>" target="_blank" class="absolute inset-0" aria-label="Read <%= article.title %>"></a>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <!-- Placeholder Articles -->
+        <% for (let i = 0; i < 3; i++) { %>
+          <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 overflow-hidden">
+            <div class="aspect-video bg-dark-200 flex items-center justify-center">
+              <i class="fas fa-spinner fa-spin text-3xl text-gray-600"></i>
+            </div>
+            <div class="p-4">
+              <div class="h-4 bg-dark-300 rounded w-1/4 mb-2"></div>
+              <div class="h-6 bg-dark-300 rounded w-3/4 mb-2"></div>
+              <div class="h-4 bg-dark-300 rounded w-full mb-3"></div>
+              <div class="flex justify-between">
+                <div class="h-3 bg-dark-300 rounded w-1/4"></div>
+                <div class="h-3 bg-dark-300 rounded w-1/4"></div>
+              </div>
+            </div>
+          </div>
+        <% } %>
+      <% } %>
+    </div>
+
+    <h2 class="text-2xl font-bold mb-6">Tech News</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <% if (typeof techNewsArticles !== 'undefined' && techNewsArticles && techNewsArticles.length > 0) { %>
+        <% techNewsArticles.forEach(article => { %>
+          <!-- Tech News Article -->
+          <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 overflow-hidden hover:border-neon-blue/30 transition-colors relative">
+            <div class="aspect-video bg-dark-200">
+              <% if (article.image) { %>
+                <img src="<%= article.image %>" alt="<%= article.title %>" class="w-full h-full object-cover">
+              <% } else { %>
+                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-dark-200 to-dark-300">
+                  <i class="fas fa-newspaper text-4xl text-neon-blue"></i>
+                </div>
+              <% } %>
+            </div>
+            <div class="p-4">
+              <span class="inline-block px-2 py-1 bg-neon-blue/20 text-neon-blue text-xs rounded-full mb-2">Tech News</span>
+              <h3 class="text-lg font-semibold mb-2"><%= article.title %></h3>
+              <p class="text-gray-400 text-sm mb-3">
+                <%= article.description %>
+              </p>
+              <div class="flex items-center justify-between text-xs text-gray-500">
+                <span class="flex items-center"><i class="fas fa-calendar mr-1"></i> <%= article.formattedDate %></span>
+                <span class="flex items-center"><i class="fas fa-newspaper mr-1"></i> <%= article.source %></span>
+              </div>
+            </div>
+            <a href="<%= article.link %>" target="_blank" class="absolute inset-0" aria-label="Read <%= article.title %>"></a>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <!-- Placeholder Articles -->
+        <% for (let i = 0; i < 3; i++) { %>
+          <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 overflow-hidden">
+            <div class="aspect-video bg-dark-200 flex items-center justify-center">
+              <i class="fas fa-spinner fa-spin text-3xl text-gray-600"></i>
+            </div>
+            <div class="p-4">
+              <div class="h-4 bg-dark-300 rounded w-1/4 mb-2"></div>
+              <div class="h-6 bg-dark-300 rounded w-3/4 mb-2"></div>
+              <div class="h-4 bg-dark-300 rounded w-full mb-3"></div>
+              <div class="flex justify-between">
+                <div class="h-3 bg-dark-300 rounded w-1/4"></div>
+                <div class="h-3 bg-dark-300 rounded w-1/4"></div>
+              </div>
+            </div>
+          </div>
+        <% } %>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Newsletter Signup -->
+  <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-neon-purple/30 p-6 mb-10">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="md:w-2/3">
+        <h3 class="text-xl font-bold mb-2">Stay Updated with AI Insights</h3>
+        <p class="text-gray-300">
+          Subscribe to our newsletter to receive the latest articles, tutorials, and updates about FTRAISE AI directly in your inbox.
+        </p>
+      </div>
+      <div class="md:w-1/3 w-full">
+        <div class="flex">
+          <input type="email" placeholder="Your email address" class="flex-1 px-4 py-2 bg-dark-300 border border-gray-700 rounded-l-md text-white focus:outline-none focus:border-neon-purple">
+          <button class="px-4 py-2 bg-neon-purple text-white rounded-r-md hover:bg-neon-purple/90 transition-colors">
+            Subscribe
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="flex justify-center mb-10">
+    <div class="flex space-x-2">
+      <a href="#" class="w-10 h-10 flex items-center justify-center rounded-md bg-dark-200 text-gray-400 hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">
+        <i class="fas fa-chevron-left"></i>
+      </a>
+      <a href="#" class="w-10 h-10 flex items-center justify-center rounded-md bg-neon-blue/20 text-neon-blue">1</a>
+      <a href="#" class="w-10 h-10 flex items-center justify-center rounded-md bg-dark-200 text-white hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">2</a>
+      <a href="#" class="w-10 h-10 flex items-center justify-center rounded-md bg-dark-200 text-white hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">3</a>
+      <span class="w-10 h-10 flex items-center justify-center text-gray-400">...</span>
+      <a href="#" class="w-10 h-10 flex items-center justify-center rounded-md bg-dark-200 text-white hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">10</a>
+      <a href="#" class="w-10 h-10 flex items-center justify-center rounded-md bg-dark-200 text-gray-400 hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">
+        <i class="fas fa-chevron-right"></i>
+      </a>
+    </div>
+  </div>
+</div>
