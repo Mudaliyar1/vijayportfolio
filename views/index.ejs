@@ -7,11 +7,11 @@
   </div>
 
   <p class="text-xl md:text-2xl text-gray-300 mb-4 max-w-2xl">
-    Experience the future of AI conversation with our cutting-edge chat interface
+    Experience the future of AI with our cutting-edge chat and image generation platform
   </p>
 
   <p class="text-lg text-gray-400 mb-8 max-w-3xl">
-    Powered by advanced language models, FTRAISE AI understands multiple languages, learns from interactions, and provides intelligent responses to your questions and requests.
+    Powered by advanced AI models, FTRAISE AI understands multiple languages, generates stunning images, learns from interactions, and provides intelligent responses to your questions and creative requests.
   </p>
 
   <div class="flex flex-col sm:flex-row gap-4 mb-12">
@@ -19,13 +19,17 @@
       <i class="fas fa-robot mr-2"></i>
       Start Chatting
     </a>
+    <a href="/images" class="px-8 py-3 rounded-md bg-gradient-to-r from-neon-purple to-neon-pink text-white font-medium hover:opacity-90 transition-opacity flex items-center justify-center">
+      <i class="fas fa-image mr-2"></i>
+      Generate Images
+    </a>
     <a href="/about" class="px-8 py-3 rounded-md border border-neon-blue text-white font-medium hover:bg-neon-blue/10 transition-colors flex items-center justify-center">
       <i class="fas fa-info-circle mr-2"></i>
       Learn More
     </a>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full mb-16">
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-5xl w-full mb-16">
     <div class="bg-dark-100 p-6 rounded-lg border border-gray-800 hover:border-neon-blue transition-colors group">
       <div class="w-12 h-12 rounded-full bg-neon-blue/20 flex items-center justify-center mb-4 group-hover:animate-pulse">
         <i class="fas fa-bolt text-neon-blue text-xl"></i>
@@ -42,12 +46,20 @@
       <p class="text-gray-400">Advanced AI that learns and adapts to provide better responses</p>
     </div>
 
+    <div class="bg-dark-100 p-6 rounded-lg border border-gray-800 hover:border-neon-pink transition-colors group">
+      <div class="w-12 h-12 rounded-full bg-neon-pink/20 flex items-center justify-center mb-4 group-hover:animate-pulse">
+        <i class="fas fa-image text-neon-pink text-xl"></i>
+      </div>
+      <h3 class="text-xl font-semibold mb-2">Creative</h3>
+      <p class="text-gray-400">Generate stunning AI images in various styles with simple text prompts</p>
+    </div>
+
     <div class="bg-dark-100 p-6 rounded-lg border border-gray-800 hover:border-neon-green transition-colors group">
       <div class="w-12 h-12 rounded-full bg-neon-green/20 flex items-center justify-center mb-4 group-hover:animate-pulse">
         <i class="fas fa-shield-alt text-neon-green text-xl"></i>
       </div>
       <h3 class="text-xl font-semibold mb-2">Secure</h3>
-      <p class="text-gray-400">Your conversations are private and protected with our secure platform</p>
+      <p class="text-gray-400">Your conversations and creations are private and protected with our secure platform</p>
     </div>
   </div>
 
@@ -93,6 +105,156 @@
         <div>
           <h3 class="text-lg font-semibold mb-2">Responsive Design</h3>
           <p class="text-gray-400">Enjoy a seamless experience across all your devices, from desktop to mobile, with our fully responsive interface.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Generation Showcase -->
+  <div class="w-full max-w-5xl mb-16">
+    <h2 class="text-3xl font-bold text-center mb-10 text-transparent bg-clip-text bg-gradient-to-r from-neon-purple to-neon-pink">AI Image Generation</h2>
+
+    <div class="bg-dark-100 p-6 rounded-lg border border-gray-800">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="flex flex-col justify-center">
+          <h3 class="text-xl font-medium mb-4 text-neon-pink">Transform Your Ideas Into Art</h3>
+          <p class="text-gray-300 mb-4">Our advanced AI can generate stunning images in various styles from simple text prompts.</p>
+
+          <div class="space-y-4">
+            <div class="flex items-center">
+              <div class="w-8 h-8 rounded-full bg-neon-blue/20 flex items-center justify-center mr-3">
+                <i class="fas fa-magic text-neon-blue"></i>
+              </div>
+              <p class="text-gray-300">Multiple artistic styles including Ghibli, Pixar, Anime, and more</p>
+            </div>
+
+            <div class="flex items-center">
+              <div class="w-8 h-8 rounded-full bg-neon-purple/20 flex items-center justify-center mr-3">
+                <i class="fas fa-upload text-neon-purple"></i>
+              </div>
+              <p class="text-gray-300">Upload your own images and transform them into new styles</p>
+            </div>
+
+            <div class="flex items-center">
+              <div class="w-8 h-8 rounded-full bg-neon-green/20 flex items-center justify-center mr-3">
+                <i class="fas fa-lightbulb text-neon-green"></i>
+              </div>
+              <p class="text-gray-300">Smart prompt enhancement for better results</p>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <a href="/images" class="px-6 py-2 rounded-md bg-gradient-to-r from-neon-purple to-neon-pink text-white font-medium hover:opacity-90 transition-opacity inline-flex items-center">
+              <i class="fas fa-palette mr-2"></i>
+              Try Image Generation
+            </a>
+          </div>
+        </div>
+
+        <div class="relative group">
+          <div class="grid grid-cols-2 gap-3">
+            <div class="rounded-lg shadow-lg overflow-hidden transform transition-transform group-hover:scale-105 hover:z-10 bg-dark-300 h-32 flex items-center justify-center">
+              <div class="text-center">
+                <i class="fas fa-paint-brush text-neon-blue text-2xl mb-2"></i>
+                <p class="text-sm text-gray-300">Ghibli Style</p>
+              </div>
+            </div>
+            <div class="rounded-lg shadow-lg overflow-hidden transform transition-transform group-hover:scale-105 hover:z-10 bg-dark-300 h-32 flex items-center justify-center">
+              <div class="text-center">
+                <i class="fas fa-city text-neon-purple text-2xl mb-2"></i>
+                <p class="text-sm text-gray-300">Cyberpunk Style</p>
+              </div>
+            </div>
+            <div class="rounded-lg shadow-lg overflow-hidden transform transition-transform group-hover:scale-105 hover:z-10 bg-dark-300 h-32 flex items-center justify-center">
+              <div class="text-center">
+                <i class="fas fa-user-astronaut text-neon-pink text-2xl mb-2"></i>
+                <p class="text-sm text-gray-300">Anime Style</p>
+              </div>
+            </div>
+            <div class="rounded-lg shadow-lg overflow-hidden transform transition-transform group-hover:scale-105 hover:z-10 bg-dark-300 h-32 flex items-center justify-center">
+              <div class="text-center">
+                <i class="fas fa-dragon text-neon-green text-2xl mb-2"></i>
+                <p class="text-sm text-gray-300">Fantasy Style</p>
+              </div>
+            </div>
+          </div>
+          <div class="absolute inset-0 bg-gradient-to-r from-neon-purple/30 to-neon-pink/30 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none shadow-lg shadow-neon-purple/20"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Features Showcase -->
+  <div class="w-full max-w-5xl mb-16">
+    <h2 class="text-3xl font-bold text-center mb-10 text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-green">Interactive Experience</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Interactive Card 1: Chat AI -->
+      <div class="bg-dark-100 rounded-lg overflow-hidden border border-gray-800 hover:border-neon-blue transition-all duration-300 group transform hover:-translate-y-1 hover:shadow-lg hover:shadow-neon-blue/20">
+        <div class="h-40 bg-gradient-to-br from-dark-200 to-dark-300 relative overflow-hidden">
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="w-16 h-16 rounded-full bg-neon-blue/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <i class="fas fa-robot text-neon-blue text-3xl"></i>
+            </div>
+          </div>
+          <div class="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-dark-100 to-transparent"></div>
+        </div>
+        <div class="p-5">
+          <h3 class="text-xl font-semibold mb-2 text-white group-hover:text-neon-blue transition-colors">Advanced Chat AI</h3>
+          <p class="text-gray-400 mb-4">Engage with our multilingual AI assistant that learns from your interactions and provides personalized responses.</p>
+          <div class="flex justify-between items-center">
+            <a href="/chat" class="text-neon-blue hover:text-white transition-colors inline-flex items-center">
+              <span>Try it now</span>
+              <i class="fas fa-arrow-right ml-2 transform group-hover:translate-x-1 transition-transform"></i>
+            </a>
+            <span class="text-xs text-gray-500">Multilingual</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Card 2: Image Generation -->
+      <div class="bg-dark-100 rounded-lg overflow-hidden border border-gray-800 hover:border-neon-purple transition-all duration-300 group transform hover:-translate-y-1 hover:shadow-lg hover:shadow-neon-purple/20">
+        <div class="h-40 bg-gradient-to-br from-dark-200 to-dark-300 relative overflow-hidden">
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="w-16 h-16 rounded-full bg-neon-purple/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <i class="fas fa-image text-neon-purple text-3xl"></i>
+            </div>
+          </div>
+          <div class="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-dark-100 to-transparent"></div>
+        </div>
+        <div class="p-5">
+          <h3 class="text-xl font-semibold mb-2 text-white group-hover:text-neon-purple transition-colors">AI Image Generation</h3>
+          <p class="text-gray-400 mb-4">Create stunning images in various styles using our advanced AI image generation technology.</p>
+          <div class="flex justify-between items-center">
+            <a href="/images" class="text-neon-purple hover:text-white transition-colors inline-flex items-center">
+              <span>Generate images</span>
+              <i class="fas fa-arrow-right ml-2 transform group-hover:translate-x-1 transition-transform"></i>
+            </a>
+            <span class="text-xs text-gray-500">Multiple styles</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Card 3: Smart Features -->
+      <div class="bg-dark-100 rounded-lg overflow-hidden border border-gray-800 hover:border-neon-green transition-all duration-300 group transform hover:-translate-y-1 hover:shadow-lg hover:shadow-neon-green/20">
+        <div class="h-40 bg-gradient-to-br from-dark-200 to-dark-300 relative overflow-hidden">
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="w-16 h-16 rounded-full bg-neon-green/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <i class="fas fa-brain text-neon-green text-3xl"></i>
+            </div>
+          </div>
+          <div class="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-dark-100 to-transparent"></div>
+        </div>
+        <div class="p-5">
+          <h3 class="text-xl font-semibold mb-2 text-white group-hover:text-neon-green transition-colors">Smart Features</h3>
+          <p class="text-gray-400 mb-4">Experience intelligent prompt enhancement, continuous learning, and personalized interactions.</p>
+          <div class="flex justify-between items-center">
+            <a href="/about" class="text-neon-green hover:text-white transition-colors inline-flex items-center">
+              <span>Learn more</span>
+              <i class="fas fa-arrow-right ml-2 transform group-hover:translate-x-1 transition-transform"></i>
+            </a>
+            <span class="text-xs text-gray-500">AI-powered</span>
+          </div>
         </div>
       </div>
     </div>

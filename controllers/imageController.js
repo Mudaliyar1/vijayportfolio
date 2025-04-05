@@ -1,10 +1,12 @@
 const fs = require('fs');
+const path = require('path');
 const User = require('../models/User');
 const Image = require('../models/Image');
 const { processRateLimit } = require('../middlewares/rateLimiter');
-const { enhancePrompt } = require('../utils/imagePromptEnhancer');
+const { enhanceImagePrompt } = require('../utils/coherePromptEnhancer');
+const { generateImage: generateHuggingFaceImage } = require('../utils/huggingFaceImageGenerator');
 
-// Advanced image search function using multiple APIs
+// Advanced image generation function using Hugging Face and multiple fallback APIs
 const generateImageFromPrompt = async (prompt, style, referenceImagePath = null) => {
   // Log the inputs for debugging
   console.log(`Searching for image with prompt: ${prompt}, style: ${style}`);
@@ -13,10 +15,10 @@ const generateImageFromPrompt = async (prompt, style, referenceImagePath = null)
   }
 
   try {
-    // Use the advanced prompt enhancer based on Cohere AI techniques
-    const enhancedPrompt = enhancePrompt(prompt, style, referenceImagePath !== null);
+    // Use the advanced Cohere AI prompt enhancer
+    const enhancedPrompt = await enhanceImagePrompt(prompt, style, referenceImagePath !== null);
 
-    // Skip the old prompt analysis since we're using the enhancePrompt utility
+    // Skip the old prompt analysis since we're using the enhanceImagePrompt utility
     /* const promptLower = prompt.toLowerCase();
 
     // Define subject categories with expanded keywords for better detection
@@ -184,8 +186,36 @@ const generateImageFromPrompt = async (prompt, style, referenceImagePath = null)
 
     console.log(`Enhanced prompt: ${enhancedPrompt}`);
 
-    // Try multiple image search APIs for best results
+    // Try multiple image generation and search APIs for best results
     let imageUrl = null;
+
+    // Try Hugging Face Stable Diffusion first for AI-generated images
+    try {
+      console.log('Generating image with Hugging Face Stable Diffusion...');
+
+      // Create a unique filename based on timestamp and a random string
+      const timestamp = Date.now();
+      const randomString = Math.random().toString(36).substring(2, 8);
+      const outputDir = path.join('public', 'uploads', 'images', 'generated');
+      const outputFilename = `huggingface_${timestamp}_${randomString}.png`;
+      const outputPath = path.join(outputDir, outputFilename);
+
+      // Make sure the output directory exists
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+
+      // Generate the image using Hugging Face
+      await generateHuggingFaceImage(enhancedPrompt, outputPath);
+
+      // Convert the local path to a URL
+      imageUrl = `/uploads/images/generated/${outputFilename}`;
+      console.log(`Generated image with Hugging Face: ${imageUrl}`);
+      return imageUrl;
+    } catch (huggingFaceError) {
+      console.error('Error with Hugging Face:', huggingFaceError);
+      console.log('Falling back to other image sources...');
+    }
 
     // Try Pexels API first (higher quality than Pixabay)
     try {
@@ -548,6 +578,28 @@ const generateImageFromPrompt = async (prompt, style, referenceImagePath = null)
 
 // Advanced image style transformation function
 const transformUploadedImage = async (originalImagePath, style) => {
+  // Check if originalImagePath is valid
+  if (!originalImagePath || typeof originalImagePath !== 'string') {
+    console.error('Invalid original image path:', originalImagePath);
+    throw new Error('Invalid original image path');
+  }
+
+  // Check if the path is a URL (for previously transformed images)
+  if (originalImagePath.startsWith('http')) {
+    console.log('Original image is already a URL, using it directly for style reference');
+  } else {
+    // For local files, check if the file exists
+    try {
+      const fullPath = path.join(__dirname, '..', originalImagePath.replace(/^\//, ''));
+      if (!fs.existsSync(fullPath)) {
+        console.error(`Original image file not found at path: ${fullPath}`);
+        throw new Error('Original image file not found');
+      }
+    } catch (error) {
+      console.error('Error checking original image file:', error);
+      // Continue anyway, as we'll use the style-based search terms
+    }
+  }
   try {
     console.log(`Finding styled image: ${originalImagePath} with style: ${style}`);
 
@@ -592,6 +644,12 @@ const transformUploadedImage = async (originalImagePath, style) => {
           'Authorization': '563492ad6f91700001000001f89d893f82d3415fb29c0f8c378be192' // Public demo key
         }
       });
+
+      // Check if response is OK before parsing JSON
+      if (!response.ok) {
+        console.log(`Pexels API error: ${response.status}`);
+        throw new Error(`Pexels API error: ${response.status}`);
+      }
 
       const data = await response.json();
 
@@ -687,6 +745,87 @@ const transformUploadedImage = async (originalImagePath, style) => {
 };
 
 module.exports = {
+  // Generate image from prompt
+  generateImageFromPrompt: async (req, res) => {
+    try {
+      // Get prompt and style from form data
+      const prompt = req.body.prompt;
+      const style = req.body.style;
+
+      // Validate input
+      if (!prompt) {
+        return res.status(400).json({
+          success: false,
+          message: 'Please provide a prompt for image generation'
+        });
+      }
+
+      // Process rate limit
+      const rateLimitResult = await processRateLimit(req);
+      if (!rateLimitResult.success) {
+        // If there's a reference image, delete it
+        if (req.file) {
+          fs.unlinkSync(req.file.path);
+        }
+
+        return res.status(429).json({
+          success: false,
+          message: rateLimitResult.message,
+          cooldown: rateLimitResult.cooldown
+        });
+      }
+
+      // Check if a reference image was uploaded
+      let referenceImagePath = null;
+      if (req.file) {
+        referenceImagePath = `/uploads/images/${req.file.filename}`;
+      }
+
+      // Generate image
+      const imagePath = await generateImageFromPrompt(prompt, style || 'generic', referenceImagePath);
+
+      // Log the image path for debugging
+      console.log(`Saving image with path: ${imagePath}`);
+
+      // Save image to database
+      const newImage = new Image({
+        userId: req.user ? req.user._id : null,
+        guestId: !req.user ? (req.cookies.guestId || req.ip) : null,
+        type: 'generated',
+        prompt,
+        style: style || 'generic',
+        referenceImagePath,
+        path: imagePath
+      });
+
+      await newImage.save();
+
+      // Return success response
+      return res.status(200).json({
+        success: true,
+        message: 'Image generated successfully',
+        image: {
+          id: newImage._id,
+          path: imagePath,
+          prompt,
+          style: style || 'generic'
+        }
+      });
+    } catch (error) {
+      console.error('Error generating image:', error);
+
+      // If there's a reference image, delete it
+      if (req.file) {
+        fs.unlinkSync(req.file.path);
+      }
+
+      return res.status(500).json({
+        success: false,
+        message: 'An error occurred while generating the image'
+      });
+    }
+  },
+
   // Render image generation page
   getImageGenerationPage: async (req, res) => {
     try {
@@ -919,12 +1058,27 @@ module.exports = {
 
       // Delete the uploaded file if it exists
       if (req.file) {
-        fs.unlinkSync(req.file.path);
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (unlinkError) {
+          console.error('Error deleting uploaded file:', unlinkError);
+        }
+      }
+
+      // Provide a more helpful error message
+      let errorMessage = 'An error occurred while uploading the image';
+
+      if (err.code === 'ENOENT') {
+        errorMessage = 'The upload directory does not exist. Please contact the administrator.';
+      } else if (err.code === 'EACCES') {
+        errorMessage = 'Permission denied when saving the image. Please contact the administrator.';
+      } else if (err.name === 'ValidationError') {
+        errorMessage = 'The image data is invalid. Please try a different image.';
       }
 
       res.status(500).json({
         success: false,
-        message: 'An error occurred while uploading the image'
+        message: errorMessage
       });
     }
   },
@@ -959,7 +1113,15 @@ module.exports = {
       if (!originalImage) {
         return res.status(404).json({
           success: false,
-          message: 'Image not found'
+          message: 'Image not found. Please upload the image again.'
+        });
+      }
+
+      // Check if the original image path exists
+      if (!originalImage.imagePath) {
+        return res.status(400).json({
+          success: false,
+          message: 'The original image is missing. Please upload the image again.'
         });
       }
 
@@ -1012,9 +1174,23 @@ module.exports = {
       });
     } catch (err) {
       console.error('Error transforming image:', err);
+
+      // Provide a more helpful error message
+      let errorMessage = 'An error occurred while transforming the image';
+
+      if (err.message === 'Invalid original image path') {
+        errorMessage = 'The original image could not be found. Please try uploading the image again.';
+      } else if (err.message === 'All image services failed') {
+        errorMessage = 'We could not connect to our image services. Please try again later.';
+      } else if (err.message && err.message.includes('Pixabay')) {
+        errorMessage = 'There was an issue with our image service. Please try a different style or try again later.';
+      } else if (err.message && err.message.includes('Unsplash')) {
+        errorMessage = 'There was an issue finding a suitable image. Please try a different style.';
+      }
+
       res.status(500).json({
         success: false,
-        message: 'An error occurred while transforming the image'
+        message: errorMessage
       });
     }
   },
@@ -1022,12 +1198,23 @@ module.exports = {
   // Get user's images
   getUserImages: async (req, res) => {
     try {
-      const userId = req.user._id;
+      const userId = req.user ? req.user._id : null;
+      const guestId = req.cookies.guestId || req.ip;
 
-      // Get user's images
-      const images = await Image.find({ userId })
-        .sort({ createdAt: -1 });
+      // Find images for this user/guest
+      const images = await Image.find(
+        userId ? { userId } : { guestId }
+      ).sort({ createdAt: -1 });
 
+      // Return JSON response for AJAX requests
+      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+        return res.json({
+          success: true,
+          images
+        });
+      }
+
+      // Render page for direct visits
       res.render('images/my-images', {
         title: 'My Images - FraiseAI',
         images,
@@ -1035,6 +1222,15 @@ module.exports = {
       });
     } catch (err) {
       console.error('Error getting user images:', err);
+
+      // Return JSON error for AJAX requests
+      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+        return res.status(500).json({
+          success: false,
+          message: 'An error occurred while loading your images'
+        });
+      }
+
       req.flash('error_msg', 'An error occurred while loading your images');
       res.redirect('/');
     }

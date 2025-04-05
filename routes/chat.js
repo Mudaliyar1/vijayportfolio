@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { 
-  getChatPage, 
-  processMessage, 
+const {
+  chatPage,
+  sendMessage,
   getChatHistory,
   getChat,
   deleteChat
@@ -10,10 +10,10 @@ const {
 const { userRateLimiter, guestRateLimiter } = require('../middlewares/rateLimiter');
 
 // Chat page
-router.get('/', getChatPage);
+router.get('/', chatPage);
 
 // Process message
-router.post('/process', userRateLimiter, guestRateLimiter, processMessage);
+router.post('/process', userRateLimiter, guestRateLimiter, sendMessage);
 
 // Get chat history
 router.get('/history', getChatHistory);

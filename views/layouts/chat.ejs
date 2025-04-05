@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Framer Motion -->
+  <script src="https://unpkg.com/framer-motion@10.15.1/dist/framer-motion.js"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/style.css">
+  <!-- Favicon -->
+  <link rel="icon" href="/images/favicon.ico">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            },
+            dark: {
+              100: '#1e1e2d',
+              200: '#1a1a27',
+              300: '#151521',
+              400: '#13131f',
+              500: '#0f0f1a',
+            },
+            'neon-blue': '#4f46e5',
+            'neon-purple': '#8b5cf6',
+            'neon-pink': '#ec4899',
+            'neon-green': '#10b981',
+            'neon-orange': '#f97316',
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-in-out',
+            'slide-in': 'slideIn 0.3s ease-in-out',
+            'slide-in-right': 'slideInRight 0.3s ease-in-out',
+            'slide-in-left': 'slideInLeft 0.3s ease-in-out',
+            'bounce-slow': 'bounce 3s infinite',
+            'pulse-slow': 'pulse 3s infinite',
+            'float': 'float 3s ease-in-out infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            slideIn: {
+              '0%': { transform: 'translateY(20px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' },
+            },
+            slideInRight: {
+              '0%': { transform: 'translateX(20px)', opacity: '0' },
+              '100%': { transform: 'translateX(0)', opacity: '1' },
+            },
+            slideInLeft: {
+              '0%': { transform: 'translateX(-20px)', opacity: '0' },
+              '100%': { transform: 'translateX(0)', opacity: '1' },
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' }
+            }
+          },
+          backdropBlur: {
+            xs: '2px',
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="dark bg-dark-300 text-gray-100 min-h-screen flex flex-col">
+  <%- include('../partials/navbar') %>
+  
+  <div class="container mx-auto px-4 py-6 flex-grow">
+    <%- include('../partials/messages') %>
+    <%- body %>
+  </div>
+  
+  <!-- No footer for chat layout -->
+  
+  <!-- Custom JS -->
+  <script src="/js/main.js"></script>
+</body>
+</html>

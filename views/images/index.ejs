@@ -356,16 +356,30 @@
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <p class="text-center text-gray-400 mb-2">Original</p>
-                  <img id="original-image" src="" alt="Original image" class="w-full h-auto rounded-lg">
+                  <div class="relative group">
+                    <img id="original-image" src="" alt="Original image" class="w-full h-auto rounded-lg">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
+                      <a id="view-original" href="#" target="_blank" class="text-white bg-neon-blue px-3 py-1.5 rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-eye mr-1"></i> View
+                      </a>
+                    </div>
+                  </div>
                 </div>
                 <div>
                   <p class="text-center text-gray-400 mb-2">Transformed</p>
-                  <img id="transformed-image" src="" alt="Transformed image" class="w-full h-auto rounded-lg">
+                  <div class="relative group">
+                    <img id="transformed-image" src="" alt="Transformed image" class="w-full h-auto rounded-lg">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
+                      <a id="view-transformed" href="#" target="_blank" class="text-white bg-neon-blue px-3 py-1.5 rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-eye mr-1"></i> View
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="mt-4 text-right">
-                <button id="download-transformed" class="text-gray-400 hover:text-white">
-                  <i class="fas fa-download"></i>
+              <div class="mt-4 flex justify-end space-x-3">
+                <button id="download-transformed" class="text-gray-400 hover:text-white flex items-center">
+                  <i class="fas fa-download mr-1"></i> Download
                 </button>
               </div>
             </div>
@@ -382,14 +396,77 @@
 
   <!-- My Images Tab Content -->
   <div id="content-my-images" class="tab-content hidden">
-    <div class="bg-dark-200 rounded-xl p-6 border border-gray-700">
-      <h2 class="text-xl font-semibold mb-4">My Images</h2>
+    <div class="bg-dark-200 rounded-xl p-6 border border-gray-700 mb-6">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+        <h2 class="text-xl font-semibold">My Images</h2>
 
+        <div class="flex flex-wrap gap-2 mt-3 md:mt-0">
+          <!-- Filter buttons -->
+          <div class="relative">
+            <button id="filter-dropdown-btn" class="bg-dark-300 hover:bg-dark-400 text-white py-2 px-4 rounded-lg flex items-center">
+              <i class="fas fa-filter mr-2"></i> Filter
+              <i class="fas fa-chevron-down ml-2"></i>
+            </button>
+            <div id="filter-dropdown" class="absolute right-0 mt-2 w-48 bg-dark-300 border border-gray-700 rounded-lg shadow-lg z-10 hidden">
+              <div class="p-3">
+                <div class="mb-2">
+                  <label class="inline-flex items-center">
+                    <input type="checkbox" id="filter-all" class="form-checkbox bg-dark-400 border-gray-600 rounded" checked>
+                    <span class="ml-2 text-white">All Images</span>
+                  </label>
+                </div>
+                <div class="mb-2">
+                  <label class="inline-flex items-center">
+                    <input type="checkbox" id="filter-uploaded" class="form-checkbox bg-dark-400 border-gray-600 rounded">
+                    <span class="ml-2 text-white">Uploaded</span>
+                  </label>
+                </div>
+                <div class="mb-2">
+                  <label class="inline-flex items-center">
+                    <input type="checkbox" id="filter-generated" class="form-checkbox bg-dark-400 border-gray-600 rounded">
+                    <span class="ml-2 text-white">AI Generated</span>
+                  </label>
+                </div>
+                <div class="mb-2">
+                  <label class="inline-flex items-center">
+                    <input type="checkbox" id="filter-transformed" class="form-checkbox bg-dark-400 border-gray-600 rounded">
+                    <span class="ml-2 text-white">Transformed</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Search input -->
+          <div class="relative">
+            <input type="text" id="image-search" placeholder="Search images..." class="bg-dark-300 border border-gray-700 rounded-lg py-2 pl-10 pr-4 text-white focus:outline-none focus:border-neon-blue transition-colors w-full md:w-auto">
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs for Uploaded and AI Generated -->
+      <div class="mb-4 border-b border-gray-700">
+        <div class="flex">
+          <button id="tab-all-images" class="py-2 px-4 text-white border-b-2 border-neon-blue font-medium">All Images</button>
+          <button id="tab-uploaded-images" class="py-2 px-4 text-gray-400 hover:text-white border-b-2 border-transparent">Uploaded</button>
+          <button id="tab-ai-images" class="py-2 px-4 text-gray-400 hover:text-white border-b-2 border-transparent">AI Generated</button>
+        </div>
+      </div>
+
+      <!-- Images container -->
       <div id="my-images-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <div class="text-center text-gray-500 py-8 col-span-full">
           <i class="fas fa-spinner fa-spin text-3xl mb-4"></i>
           <p>Loading your images...</p>
         </div>
+      </div>
+
+      <!-- Load more button -->
+      <div id="load-more-container" class="mt-6 text-center hidden">
+        <button id="load-more-btn" class="bg-dark-300 hover:bg-dark-400 text-white py-2 px-6 rounded-lg">
+          Load More
+        </button>
       </div>
     </div>
   </div>
@@ -1095,7 +1172,33 @@
         }
       } catch (err) {
         console.error('Error uploading image:', err);
-        alert('An error occurred while uploading the image. Please try again.');
+
+        // Create a more user-friendly error message
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'bg-red-900/30 border border-red-500/50 rounded-lg p-4 mt-4 text-center';
+        errorMessage.innerHTML = `
+          <i class="fas fa-exclamation-circle text-red-500 text-xl mb-2"></i>
+          <p class="text-white mb-2">An error occurred while uploading the image.</p>
+          <p class="text-gray-400 text-sm">Please check your internet connection and try again.</p>
+          <button class="mt-3 px-4 py-1 bg-red-500/30 hover:bg-red-500/50 rounded-lg text-white text-sm transition-colors">
+            Try Again
+          </button>
+        `;
+
+        // Add the error message to the form
+        uploadForm.appendChild(errorMessage);
+
+        // Add event listener to the try again button
+        errorMessage.querySelector('button').addEventListener('click', () => {
+          errorMessage.remove();
+        });
+
+        // Remove the error message after 10 seconds
+        setTimeout(() => {
+          if (errorMessage.parentNode) {
+            errorMessage.remove();
+          }
+        }, 10000);
       } finally {
         uploadButton.disabled = false;
         uploadButton.innerHTML = '<span>Upload Image</span><i class="fas fa-upload ml-2"></i>';
@@ -1141,15 +1244,82 @@
           transformLoading.classList.add('hidden');
           transformContent.classList.remove('hidden');
         } else if (!data.success) {
-          // Error
-          alert(data.message);
+          // Error - show a more user-friendly error message
           transformLoading.classList.add('hidden');
           transformContent.classList.remove('hidden');
+
+          // Create a custom error message with retry button
+          const errorMessage = document.createElement('div');
+          errorMessage.className = 'bg-red-900/30 border border-red-500/50 rounded-lg p-4 mt-4 text-center';
+          errorMessage.innerHTML = `
+            <i class="fas fa-exclamation-circle text-red-500 text-xl mb-2"></i>
+            <p class="text-white mb-2">${data.message || 'An error occurred while transforming the image'}</p>
+            <p class="text-gray-400 text-sm">Please try a different style or try again later.</p>
+            <button class="mt-3 px-4 py-1 bg-red-500/30 hover:bg-red-500/50 rounded-lg text-white text-sm transition-colors">
+              Try Again
+            </button>
+          `;
+
+          // Add the error message after the transform content
+          transformContent.parentNode.insertBefore(errorMessage, transformContent.nextSibling);
+
+          // Add event listener to the try again button
+          errorMessage.querySelector('button').addEventListener('click', () => {
+            errorMessage.remove();
+          });
+
+          // Remove the error message after 10 seconds
+          setTimeout(() => {
+            if (errorMessage.parentNode) {
+              errorMessage.remove();
+            }
+          }, 10000);
         } else {
           // Success
-          transformedImage.src = data.image.path;
+          // Set the image sources
+          const originalImage = document.getElementById('original-image');
+          const transformedImage = document.getElementById('transformed-image');
+          const viewOriginal = document.getElementById('view-original');
+          const viewTransformed = document.getElementById('view-transformed');
 
-          // Show result
+          // Set original image if available
+          if (data.originalImage && data.originalImage.path) {
+            // Add loading indicator inside the image container
+            const originalContainer = originalImage.parentNode;
+            const originalLoader = document.createElement('div');
+            originalLoader.className = 'absolute inset-0 flex items-center justify-center bg-dark-300/70';
+            originalLoader.innerHTML = '<div class="w-8 h-8 border-2 border-neon-blue/30 border-t-neon-blue rounded-full animate-spin"></div>';
+            originalContainer.appendChild(originalLoader);
+
+            // Set up onload event to remove loader when image is loaded
+            originalImage.onload = function() {
+              if (originalLoader.parentNode) {
+                originalLoader.parentNode.removeChild(originalLoader);
+              }
+            };
+
+            originalImage.src = data.originalImage.path;
+            viewOriginal.href = data.originalImage.path;
+          }
+
+          // Set transformed image with loading indicator
+          const transformedContainer = transformedImage.parentNode;
+          const transformedLoader = document.createElement('div');
+          transformedLoader.className = 'absolute inset-0 flex items-center justify-center bg-dark-300/70';
+          transformedLoader.innerHTML = '<div class="w-8 h-8 border-2 border-neon-blue/30 border-t-neon-blue rounded-full animate-spin"></div>';
+          transformedContainer.appendChild(transformedLoader);
+
+          // Set up onload event to remove loader when image is loaded
+          transformedImage.onload = function() {
+            if (transformedLoader.parentNode) {
+              transformedLoader.parentNode.removeChild(transformedLoader);
+            }
+          };
+
+          transformedImage.src = data.image.path;
+          viewTransformed.href = data.image.path;
+
+          // Hide main loading and show result
           transformLoading.classList.add('hidden');
           transformContent.classList.remove('hidden');
           transformResult.classList.remove('hidden');
@@ -1161,17 +1331,62 @@
         }
       } catch (err) {
         console.error('Error transforming image:', err);
-        alert('An error occurred while transforming the image. Please try again.');
+
+        // Hide loading state
         transformLoading.classList.add('hidden');
         transformContent.classList.remove('hidden');
+
+        // Create a more user-friendly error message
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'bg-red-900/30 border border-red-500/50 rounded-lg p-4 mt-4 text-center';
+        errorMessage.innerHTML = `
+          <i class="fas fa-exclamation-circle text-red-500 text-xl mb-2"></i>
+          <p class="text-white mb-2">An error occurred while transforming the image.</p>
+          <p class="text-gray-400 text-sm">Please try a different style or try again later.</p>
+          <button class="mt-3 px-4 py-1 bg-red-500/30 hover:bg-red-500/50 rounded-lg text-white text-sm transition-colors">
+            Dismiss
+          </button>
+        `;
+
+        // Add the error message after the transform content
+        transformContent.parentNode.insertBefore(errorMessage, transformContent.nextSibling);
+
+        // Add event listener to the dismiss button
+        errorMessage.querySelector('button').addEventListener('click', () => {
+          errorMessage.remove();
+        });
+
+        // Remove the error message after 10 seconds
+        setTimeout(() => {
+          if (errorMessage.parentNode) {
+            errorMessage.remove();
+          }
+        }, 10000);
       } finally {
         transformButton.disabled = false;
       }
     });
 
-    // Load my images
+    // Global variables for image filtering and pagination
+    let allImages = [];
+    let filteredImages = [];
+    let currentPage = 1;
+    let imagesPerPage = 12;
+    let currentFilter = 'all';
+    let searchQuery = '';
+
+    // Load my images with filtering and pagination
     async function loadMyImages() {
       const myImagesContainer = document.getElementById('my-images-container');
+      const loadMoreContainer = document.getElementById('load-more-container');
+
+      // Show loading state
+      myImagesContainer.innerHTML = `
+        <div class="text-center text-gray-500 py-8 col-span-full">
+          <i class="fas fa-spinner fa-spin text-3xl mb-4"></i>
+          <p>Loading your images...</p>
+        </div>
+      `;
 
       try {
         const response = await fetch('/images/my-images/data');
@@ -1184,76 +1399,27 @@
               <p>${data.message}</p>
             </div>
           `;
+          loadMoreContainer.classList.add('hidden');
           return;
         }
 
-        if (data.images.length === 0) {
+        // Store all images globally
+        allImages = data.images;
+
+        if (allImages.length === 0) {
           myImagesContainer.innerHTML = `
             <div class="text-center text-gray-500 py-8 col-span-full">
               <i class="fas fa-image text-3xl mb-4"></i>
               <p>You haven't created any images yet</p>
             </div>
           `;
+          loadMoreContainer.classList.add('hidden');
           return;
         }
 
-        // Render images
-        myImagesContainer.innerHTML = data.images.map(image => {
-          let imageDisplay = '';
+        // Apply initial filtering
+        applyFilters();
 
-          if (image.type === 'generated' && image.referenceImagePath) {
-            // Show split view for images with references
-            imageDisplay = `
-              <div class="relative">
-                <div class="absolute inset-0 flex">
-                  <div class="w-1/2 h-48 overflow-hidden">
-                    <img src="${image.referenceImagePath}" alt="Reference" class="w-full h-full object-cover opacity-80">
-                    <div class="absolute top-2 left-2 bg-dark-300/80 backdrop-blur-sm text-xs px-2 py-1 rounded-full text-gray-300">Ref</div>
-                  </div>
-                  <div class="w-1/2 h-48 overflow-hidden">
-                    <img src="${image.path}" alt="Generated" class="w-full h-full object-cover">
-                  </div>
-                </div>
-                <img src="${image.path}" alt="Image" class="w-full h-48 object-cover opacity-0"> <!-- Invisible placeholder for height -->
-              </div>
-            `;
-          } else {
-            // Regular image display
-            imageDisplay = `<img src="${image.path}" alt="Image" class="w-full h-48 object-cover">`;
-          }
-
-          return `
-            <div class="bg-dark-300 rounded-lg overflow-hidden">
-              ${imageDisplay}
-              <div class="p-3">
-                <div class="flex justify-between items-center">
-                  <span class="text-xs text-gray-400">${new Date(image.createdAt).toLocaleDateString()}</span>
-                  <span class="inline-block bg-dark-400 text-neon-blue text-xs px-2 py-0.5 rounded-full">
-                    ${image.type.charAt(0).toUpperCase() + image.type.slice(1)}
-                    ${image.referenceImagePath ? '<i class="fas fa-images ml-1 text-xs"></i>' : ''}
-                  </span>
-                </div>
-                ${image.prompt ? `<p class="text-sm text-gray-300 mt-2 truncate">${image.prompt}</p>` : ''}
-                <div class="mt-3 flex justify-between">
-                  <button class="text-red-400 hover:text-red-300 delete-image-btn" data-id="${image._id}">
-                    <i class="fas fa-trash-alt"></i>
-                  </button>
-                  <button class="text-gray-400 hover:text-white" onclick="downloadImage('${image.path}', 'fraiseai-${image.type}-${Date.now()}.jpg')">
-                    <i class="fas fa-download"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          `;
-        }).join('');
-
-        // Add event listeners to delete buttons
-        document.querySelectorAll('.delete-image-btn').forEach(button => {
-          button.addEventListener('click', () => {
-            const imageId = button.dataset.id;
-            showDeleteImageModal(imageId);
-          });
-        });
       } catch (err) {
         console.error('Error loading images:', err);
         myImagesContainer.innerHTML = `
@@ -1262,7 +1428,150 @@
             <p>An error occurred while loading your images</p>
           </div>
         `;
+        loadMoreContainer.classList.add('hidden');
       }
+    }
+
+    // Apply filters and render images
+    function applyFilters() {
+      const myImagesContainer = document.getElementById('my-images-container');
+      const loadMoreContainer = document.getElementById('load-more-container');
+
+      // Filter images based on current filter and search query
+      filteredImages = allImages.filter(image => {
+        // Filter by type
+        if (currentFilter !== 'all' && image.type !== currentFilter) {
+          return false;
+        }
+
+        // Filter by search query
+        if (searchQuery && searchQuery.length > 0) {
+          const query = searchQuery.toLowerCase();
+          const prompt = (image.prompt || '').toLowerCase();
+          const type = (image.type || '').toLowerCase();
+          const style = (image.style || '').toLowerCase();
+
+          return prompt.includes(query) || type.includes(query) || style.includes(query);
+        }
+
+        return true;
+      });
+
+      // Check if we have any images after filtering
+      if (filteredImages.length === 0) {
+        myImagesContainer.innerHTML = `
+          <div class="text-center text-gray-500 py-8 col-span-full">
+            <i class="fas fa-search text-3xl mb-4"></i>
+            <p>No images match your filters</p>
+          </div>
+        `;
+        loadMoreContainer.classList.add('hidden');
+        return;
+      }
+
+      // Calculate pagination
+      const totalPages = Math.ceil(filteredImages.length / imagesPerPage);
+      const startIndex = (currentPage - 1) * imagesPerPage;
+      const endIndex = Math.min(startIndex + imagesPerPage, filteredImages.length);
+      const currentImages = filteredImages.slice(startIndex, endIndex);
+
+      // Render images
+      myImagesContainer.innerHTML = currentImages.map(image => {
+        let imageDisplay = '';
+        let imageType = '';
+
+        // Determine image type label
+        if (image.type === 'uploaded') {
+          imageType = 'Uploaded';
+        } else if (image.type === 'generated') {
+          imageType = image.style ? `AI ${image.style}` : 'AI Generated';
+        } else if (image.type === 'transformed') {
+          imageType = `Transformed ${image.style || ''}`;
+        }
+
+        if (image.type === 'generated' && image.referenceImagePath) {
+          // Show split view for images with references
+          imageDisplay = `
+            <div class="relative group">
+              <div class="absolute inset-0 flex">
+                <div class="w-1/2 h-48 overflow-hidden">
+                  <div class="absolute inset-0 flex items-center justify-center bg-dark-300/70 ref-loader">
+                    <div class="w-6 h-6 border-2 border-neon-blue/30 border-t-neon-blue rounded-full animate-spin"></div>
+                  </div>
+                  <img src="${image.referenceImagePath}" alt="Reference" class="w-full h-full object-cover opacity-80" onload="this.parentNode.querySelector('.ref-loader').style.display='none'">
+                  <div class="absolute top-2 left-2 bg-dark-300/80 backdrop-blur-sm text-xs px-2 py-1 rounded-full text-gray-300">Ref</div>
+                </div>
+                <div class="w-1/2 h-48 overflow-hidden">
+                  <div class="absolute inset-0 flex items-center justify-center bg-dark-300/70 gen-loader">
+                    <div class="w-6 h-6 border-2 border-neon-blue/30 border-t-neon-blue rounded-full animate-spin"></div>
+                  </div>
+                  <img src="${image.path}" alt="Generated" class="w-full h-full object-cover" onload="this.parentNode.querySelector('.gen-loader').style.display='none'">
+                </div>
+              </div>
+              <img src="${image.path}" alt="Image" class="w-full h-48 object-cover opacity-0"> <!-- Invisible placeholder for height -->
+              <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <a href="${image.path}" target="_blank" class="text-white bg-neon-blue px-3 py-1.5 rounded-lg hover:bg-blue-600 transition-colors">
+                  <i class="fas fa-eye mr-1"></i> View
+                </a>
+              </div>
+            </div>
+          `;
+        } else {
+          // Regular image display with view button on hover and loading indicator
+          imageDisplay = `
+            <div class="relative group">
+              <div class="absolute inset-0 flex items-center justify-center bg-dark-300/70 img-loader">
+                <div class="w-8 h-8 border-2 border-neon-blue/30 border-t-neon-blue rounded-full animate-spin"></div>
+              </div>
+              <img src="${image.path}" alt="Image" class="w-full h-48 object-cover" onload="this.parentNode.querySelector('.img-loader').style.display='none'">
+              <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <a href="${image.path}" target="_blank" class="text-white bg-neon-blue px-3 py-1.5 rounded-lg hover:bg-blue-600 transition-colors">
+                  <i class="fas fa-eye mr-1"></i> View
+                </a>
+              </div>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="bg-dark-300 rounded-lg overflow-hidden image-card" data-type="${image.type}">
+            ${imageDisplay}
+            <div class="p-3">
+              <div class="flex justify-between items-center">
+                <span class="text-xs text-gray-400">${new Date(image.createdAt).toLocaleDateString()}</span>
+                <span class="inline-block bg-dark-400 text-neon-blue text-xs px-2 py-0.5 rounded-full">
+                  ${imageType}
+                  ${image.referenceImagePath ? '<i class="fas fa-images ml-1 text-xs"></i>' : ''}
+                </span>
+              </div>
+              ${image.prompt ? `<p class="text-sm text-gray-300 mt-2 truncate" title="${image.prompt}">${image.prompt}</p>` : ''}
+              <div class="mt-3 flex justify-between">
+                <button class="text-red-400 hover:text-red-300 delete-image-btn" data-id="${image._id}">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+                <button class="text-gray-400 hover:text-white" onclick="downloadImage('${image.path}', 'fraiseai-${image.type}-${Date.now()}.jpg')">
+                  <i class="fas fa-download"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Show/hide load more button
+      if (endIndex < filteredImages.length) {
+        loadMoreContainer.classList.remove('hidden');
+      } else {
+        loadMoreContainer.classList.add('hidden');
+      }
+
+      // Add event listeners to delete buttons
+      document.querySelectorAll('.delete-image-btn').forEach(button => {
+        button.addEventListener('click', () => {
+          const imageId = button.dataset.id;
+          showDeleteImageModal(imageId);
+        });
+      });
     }
 
     // Delete image modal
@@ -1652,6 +1961,234 @@
     }
     // If client-side generation failed, the form will submit normally
   });
+
+  // Initialize the page
+  document.addEventListener('DOMContentLoaded', function() {
+    // Set up tab switching
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        // Remove active class from all buttons
+        tabButtons.forEach(btn => {
+          btn.classList.remove('active', 'text-neon-blue', 'border-neon-blue');
+          btn.classList.add('text-gray-400', 'border-transparent');
+        });
+
+        // Add active class to clicked button
+        button.classList.add('active', 'text-neon-blue', 'border-neon-blue');
+        button.classList.remove('text-gray-400', 'border-transparent');
+
+        // Hide all tab contents
+        tabContents.forEach(content => {
+          content.classList.add('hidden');
+        });
+
+        // Show the corresponding tab content
+        const tabId = button.id.replace('tab-', 'content-');
+        document.getElementById(tabId).classList.remove('hidden');
+
+        // Update URL hash
+        window.location.hash = button.id.replace('tab-', '');
+
+        // Load images if on the My Images tab
+        if (button.id === 'tab-my-images') {
+          loadMyImages();
+          setupImageFilters();
+        }
+      });
+    });
+
+    // Check URL hash on page load
+    const hash = window.location.hash.replace('#', '');
+    if (hash) {
+      const tabButton = document.getElementById(`tab-${hash}`);
+      if (tabButton) {
+        tabButton.click();
+      }
+    }
+
+    // Load images if on the My Images tab
+    if (window.location.hash === '#my-images') {
+      loadMyImages();
+      setupImageFilters();
+    }
+  });
+
+  // Set up image filters and tabs
+  function setupImageFilters() {
+    // Filter dropdown toggle
+    const filterDropdownBtn = document.getElementById('filter-dropdown-btn');
+    const filterDropdown = document.getElementById('filter-dropdown');
+
+    if (filterDropdownBtn) {
+      filterDropdownBtn.addEventListener('click', () => {
+        filterDropdown.classList.toggle('hidden');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (event) => {
+        if (!filterDropdownBtn.contains(event.target) && !filterDropdown.contains(event.target)) {
+          filterDropdown.classList.add('hidden');
+        }
+      });
+    }
+
+    // Filter checkboxes
+    const filterAll = document.getElementById('filter-all');
+    const filterUploaded = document.getElementById('filter-uploaded');
+    const filterGenerated = document.getElementById('filter-generated');
+    const filterTransformed = document.getElementById('filter-transformed');
+
+    if (filterAll) {
+      filterAll.addEventListener('change', () => {
+        if (filterAll.checked) {
+          filterUploaded.checked = false;
+          filterGenerated.checked = false;
+          filterTransformed.checked = false;
+          currentFilter = 'all';
+          currentPage = 1;
+          applyFilters();
+        }
+      });
+    }
+
+    if (filterUploaded) {
+      filterUploaded.addEventListener('change', () => {
+        if (filterUploaded.checked) {
+          filterAll.checked = false;
+          filterGenerated.checked = false;
+          filterTransformed.checked = false;
+          currentFilter = 'uploaded';
+          currentPage = 1;
+          applyFilters();
+        } else if (!filterGenerated.checked && !filterTransformed.checked) {
+          filterAll.checked = true;
+          currentFilter = 'all';
+          currentPage = 1;
+          applyFilters();
+        }
+      });
+    }
+
+    if (filterGenerated) {
+      filterGenerated.addEventListener('change', () => {
+        if (filterGenerated.checked) {
+          filterAll.checked = false;
+          filterUploaded.checked = false;
+          filterTransformed.checked = false;
+          currentFilter = 'generated';
+          currentPage = 1;
+          applyFilters();
+        } else if (!filterUploaded.checked && !filterTransformed.checked) {
+          filterAll.checked = true;
+          currentFilter = 'all';
+          currentPage = 1;
+          applyFilters();
+        }
+      });
+    }
+
+    if (filterTransformed) {
+      filterTransformed.addEventListener('change', () => {
+        if (filterTransformed.checked) {
+          filterAll.checked = false;
+          filterUploaded.checked = false;
+          filterGenerated.checked = false;
+          currentFilter = 'transformed';
+          currentPage = 1;
+          applyFilters();
+        } else if (!filterUploaded.checked && !filterGenerated.checked) {
+          filterAll.checked = true;
+          currentFilter = 'all';
+          currentPage = 1;
+          applyFilters();
+        }
+      });
+    }
+
+    // Search input
+    const imageSearch = document.getElementById('image-search');
+    if (imageSearch) {
+      imageSearch.addEventListener('input', () => {
+        searchQuery = imageSearch.value.trim();
+        currentPage = 1;
+        applyFilters();
+      });
+    }
+
+    // Image type tabs
+    const tabAllImages = document.getElementById('tab-all-images');
+    const tabUploadedImages = document.getElementById('tab-uploaded-images');
+    const tabAiImages = document.getElementById('tab-ai-images');
+
+    if (tabAllImages) {
+      tabAllImages.addEventListener('click', () => {
+        tabAllImages.classList.add('text-white', 'border-neon-blue');
+        tabAllImages.classList.remove('text-gray-400', 'border-transparent');
+        tabUploadedImages.classList.add('text-gray-400', 'border-transparent');
+        tabUploadedImages.classList.remove('text-white', 'border-neon-blue');
+        tabAiImages.classList.add('text-gray-400', 'border-transparent');
+        tabAiImages.classList.remove('text-white', 'border-neon-blue');
+
+        currentFilter = 'all';
+        currentPage = 1;
+        filterAll.checked = true;
+        filterUploaded.checked = false;
+        filterGenerated.checked = false;
+        filterTransformed.checked = false;
+        applyFilters();
+      });
+    }
+
+    if (tabUploadedImages) {
+      tabUploadedImages.addEventListener('click', () => {
+        tabUploadedImages.classList.add('text-white', 'border-neon-blue');
+        tabUploadedImages.classList.remove('text-gray-400', 'border-transparent');
+        tabAllImages.classList.add('text-gray-400', 'border-transparent');
+        tabAllImages.classList.remove('text-white', 'border-neon-blue');
+        tabAiImages.classList.add('text-gray-400', 'border-transparent');
+        tabAiImages.classList.remove('text-white', 'border-neon-blue');
+
+        currentFilter = 'uploaded';
+        currentPage = 1;
+        filterAll.checked = false;
+        filterUploaded.checked = true;
+        filterGenerated.checked = false;
+        filterTransformed.checked = false;
+        applyFilters();
+      });
+    }
+
+    if (tabAiImages) {
+      tabAiImages.addEventListener('click', () => {
+        tabAiImages.classList.add('text-white', 'border-neon-blue');
+        tabAiImages.classList.remove('text-gray-400', 'border-transparent');
+        tabAllImages.classList.add('text-gray-400', 'border-transparent');
+        tabAllImages.classList.remove('text-white', 'border-neon-blue');
+        tabUploadedImages.classList.add('text-gray-400', 'border-transparent');
+        tabUploadedImages.classList.remove('text-white', 'border-neon-blue');
+
+        currentFilter = 'generated';
+        currentPage = 1;
+        filterAll.checked = false;
+        filterUploaded.checked = false;
+        filterGenerated.checked = true;
+        filterTransformed.checked = false;
+        applyFilters();
+      });
+    }
+
+    // Load more button
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    if (loadMoreBtn) {
+      loadMoreBtn.addEventListener('click', () => {
+        currentPage++;
+        applyFilters();
+      });
+    }
+  }
 </script>
 
 <style>

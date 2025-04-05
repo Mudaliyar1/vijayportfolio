@@ -100,18 +100,53 @@
     }
   }
 
-  /* Fix for chat container height */
+  /* Fix for chat container height and width */
   @media (max-width: 768px) {
     #chat-messages {
       height: calc(100vh - 14rem);
       max-height: calc(100vh - 14rem);
     }
+
+    .chat-container {
+      width: 100%;
+    }
   }
 
-  @media (min-width: 769px) {
+  @media (min-width: 769px) and (max-width: 1279px) {
     #chat-messages {
       height: calc(100vh - 16rem);
       max-height: calc(100vh - 16rem);
+    }
+
+    .chat-container {
+      width: 85%;
+      margin: 0 auto;
+    }
+  }
+
+  @media (min-width: 1280px) and (max-width: 1919px) {
+    #chat-messages {
+      height: calc(100vh - 16rem);
+      max-height: calc(100vh - 16rem);
+    }
+
+    .chat-container {
+      width: 75%;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+  }
+
+  @media (min-width: 1920px) {
+    #chat-messages {
+      height: calc(100vh - 16rem);
+      max-height: calc(100vh - 16rem);
+    }
+
+    .chat-container {
+      width: 65%;
+      max-width: 1600px;
+      margin: 0 auto;
     }
   }
 
@@ -174,7 +209,7 @@
 </style>
 
 <div class="flex h-[calc(100vh-5rem)] sm:h-[calc(100vh-8rem)] md:h-[calc(100vh-10rem)] flex-col md:flex-row w-full max-w-full overflow-hidden justify-center">
-  <div class="w-full max-w-5xl flex flex-col md:flex-row h-full">
+  <div class="chat-container w-full flex flex-col md:flex-row h-full">
   <!-- Chat History Sidebar (Hidden by default) -->
   <div id="history-sidebar" class="hidden md:w-80 bg-dark-200 border-r border-gray-800 flex flex-col h-full transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out absolute md:relative z-10 w-[85%] md:w-80 max-w-[320px]">
     <div class="p-4 border-b border-gray-800 flex justify-between items-center">
@@ -262,41 +297,72 @@
       </div>
     </div>
 
+    <!-- Auto Suggestions -->
+    <div id="auto-suggestions" class="px-2 sm:px-4 pb-2 hidden">
+      <div class="flex flex-wrap gap-2">
+        <button class="suggestion-btn bg-dark-100 hover:bg-dark-300 text-gray-300 hover:text-white px-3 py-1.5 rounded-full text-sm transition-colors border border-gray-700 hover:border-gray-500">
+          <i class="fas fa-lightbulb text-yellow-500 mr-1.5"></i> What can you help me with?
+        </button>
+        <button class="suggestion-btn bg-dark-100 hover:bg-dark-300 text-gray-300 hover:text-white px-3 py-1.5 rounded-full text-sm transition-colors border border-gray-700 hover:border-gray-500">
+          <i class="fas fa-code text-blue-500 mr-1.5"></i> Write a Python function to sort a list
+        </button>
+        <button class="suggestion-btn bg-dark-100 hover:bg-dark-300 text-gray-300 hover:text-white px-3 py-1.5 rounded-full text-sm transition-colors border border-gray-700 hover:border-gray-500">
+          <i class="fas fa-newspaper text-green-500 mr-1.5"></i> What are the latest tech trends?
+        </button>
+        <button class="suggestion-btn bg-dark-100 hover:bg-dark-300 text-gray-300 hover:text-white px-3 py-1.5 rounded-full text-sm transition-colors border border-gray-700 hover:border-gray-500">
+          <i class="fas fa-brain text-purple-500 mr-1.5"></i> Explain quantum computing
+        </button>
+      </div>
+    </div>
+
     <!-- Chat Input -->
     <div class="border-t border-gray-800 p-2 sm:p-4 bg-dark-200 sticky bottom-0 z-10">
-      <form id="chat-form" class="flex items-center">
-        <div class="relative flex-grow">
-          <textarea
-            id="message-input"
-            class="w-full bg-dark-100 border border-gray-700 rounded-lg py-3 px-4 pr-10 text-white focus:outline-none focus:border-neon-blue transition-colors resize-none"
-            placeholder="Type your message here..."
-            rows="1"
-          ></textarea>
-          <div id="ai-thinking" class="hidden absolute right-3 top-1/2 transform -translate-y-1/2">
-            <div class="flex space-x-1">
-              <div class="w-2 h-2 bg-neon-blue rounded-full animate-pulse"></div>
-              <div class="w-2 h-2 bg-neon-blue rounded-full animate-pulse delay-75"></div>
-              <div class="w-2 h-2 bg-neon-blue rounded-full animate-pulse delay-150"></div>
+      <form id="chat-form" class="flex flex-col">
+        <!-- Improve Prompt Button -->
+        <div id="improve-prompt-container" class="hidden mb-2 text-right">
+          <button
+            type="button"
+            id="improve-prompt-btn"
+            class="text-xs bg-dark-300 hover:bg-dark-400 text-neon-blue hover:text-white px-3 py-1 rounded-md inline-flex items-center transition-colors"
+          >
+            <i class="fas fa-magic mr-1.5"></i> Improve Prompt
+          </button>
+        </div>
+
+        <div class="flex items-center">
+          <div class="relative flex-grow">
+            <textarea
+              id="message-input"
+              class="w-full bg-dark-100 border border-gray-700 rounded-lg py-3 px-4 pr-10 text-white focus:outline-none focus:border-neon-blue transition-colors resize-none"
+              placeholder="Type your message here..."
+              rows="1"
+            ></textarea>
+            <div id="ai-thinking" class="hidden absolute right-3 top-1/2 transform -translate-y-1/2">
+              <div class="flex space-x-1">
+                <div class="w-2 h-2 bg-neon-blue rounded-full animate-pulse"></div>
+                <div class="w-2 h-2 bg-neon-blue rounded-full animate-pulse delay-75"></div>
+                <div class="w-2 h-2 bg-neon-blue rounded-full animate-pulse delay-150"></div>
+              </div>
             </div>
           </div>
-        </div>
-        <!-- Send/Stop Button with two distinct states -->
-        <button
-          type="submit"
-          id="send-button"
-          class="ml-2 bg-gradient-to-r from-neon-blue to-neon-purple text-white px-4 py-3 rounded-lg hover:opacity-90 transition-all duration-300 flex items-center justify-center"
-          style="min-width: 50px;"
-        >
-          <!-- Send State -->
-          <div id="send-state" class="flex items-center justify-center">
-            <i class="fas fa-paper-plane text-lg"></i>
-          </div>
+          <!-- Send/Stop Button with two distinct states -->
+          <button
+            type="submit"
+            id="send-button"
+            class="ml-2 bg-gradient-to-r from-neon-blue to-neon-purple text-white px-4 py-3 rounded-lg hover:opacity-90 transition-all duration-300 flex items-center justify-center"
+            style="min-width: 50px;"
+          >
+            <!-- Send State -->
+            <div id="send-state" class="flex items-center justify-center">
+              <i class="fas fa-paper-plane text-lg"></i>
+            </div>
 
-          <!-- Stop State (when AI is thinking) -->
-          <div id="stop-state" class="hidden flex items-center justify-center">
-            <i class="fas fa-stop text-lg"></i>
-          </div>
-        </button>
+            <!-- Stop State (when AI is thinking) -->
+            <div id="stop-state" class="hidden flex items-center justify-center">
+              <i class="fas fa-stop text-lg"></i>
+            </div>
+          </button>
+        </div>
       </form>
     </div>
   </div>
@@ -337,6 +403,26 @@
 
   .animate-bounce {
     animation: bounceDot 1.4s infinite ease-in-out both;
+  }
+
+  /* Fade in animation */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out forwards;
+  }
+
+  /* Fade out animation */
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
+  .animate-fade-out {
+    animation: fadeOut 0.3s ease-in-out forwards;
   }
 
   /* Message bubble styling */
@@ -757,9 +843,9 @@
 
     if (role === 'user') {
       // User message - right side
-      messageDiv.className = 'flex items-start mb-4 animate-fade-in justify-end';
+      messageDiv.className = 'flex items-start mb-4 animate-fade-in justify-end pr-4';
       messageDiv.innerHTML = `
-        <div class="bg-dark-200 rounded-lg p-3 sm:p-4 max-w-[75%] sm:max-w-3xl">
+        <div class="bg-dark-200 rounded-lg p-3 sm:p-4 max-w-[70%] sm:max-w-2xl">
           <div class="flex justify-between items-start mb-1">
             <span class="text-gray-500 text-xs">${timestamp}</span>
             <span class="font-medium text-neon-green ml-2">You</span>
@@ -772,13 +858,13 @@
       `;
     } else if (role === 'thinking') {
       // AI thinking message - left side with special styling
-      messageDiv.className = 'flex items-start mb-4 animate-fade-in';
+      messageDiv.className = 'flex items-start mb-4 animate-fade-in pl-4';
       messageDiv.id = 'ai-thinking-message';
       messageDiv.innerHTML = `
         <div class="w-8 h-8 rounded-full bg-gradient-to-r from-neon-blue to-neon-purple flex items-center justify-center mr-3 flex-shrink-0">
           <i class="fas fa-robot text-white text-sm"></i>
         </div>
-        <div class="bg-dark-300 rounded-lg p-3 sm:p-4 max-w-[75%] sm:max-w-3xl border border-neon-blue/30">
+        <div class="bg-dark-300 rounded-lg p-3 sm:p-4 max-w-[70%] sm:max-w-2xl border border-neon-blue/30">
           <div class="text-gray-300 flex items-center">
             <span>AI is thinking</span>
             <div class="flex space-x-1 ml-2">
@@ -791,17 +877,23 @@
       `;
     } else {
       // AI message - left side
-      messageDiv.className = 'flex items-start mb-4 animate-fade-in';
+      messageDiv.className = 'flex items-start mb-4 animate-fade-in pl-4';
+      const messageId = 'msg-' + Math.random().toString(36).substring(2, 9);
       messageDiv.innerHTML = `
         <div class="w-8 h-8 rounded-full bg-gradient-to-r from-neon-blue to-neon-purple flex items-center justify-center mr-3 flex-shrink-0">
           <i class="fas fa-robot text-white text-sm"></i>
         </div>
-        <div class="bg-dark-100 rounded-lg p-3 sm:p-4 max-w-[75%] sm:max-w-3xl">
+        <div class="bg-dark-100 rounded-lg p-3 sm:p-4 max-w-[70%] sm:max-w-2xl">
           <div class="flex justify-between items-start mb-1">
             <span class="font-medium text-neon-blue">FTRAISE AI</span>
             <span class="text-gray-500 text-xs ml-2">${timestamp}</span>
           </div>
-          <div class="text-white">${formatMessage(content)}</div>
+          <div class="text-white" id="${messageId}">${formatMessage(content)}</div>
+          <div class="mt-2 flex items-center justify-end space-x-2">
+            <button class="reply-btn text-xs text-gray-400 hover:text-neon-blue transition-colors flex items-center" data-message-id="${messageId}" data-message-content="${encodeURIComponent(content)}">
+              <i class="fas fa-reply mr-1"></i> Reply
+            </button>
+          </div>
         </div>
       `;
     }
@@ -1093,12 +1185,413 @@
 
   chatObserver.observe(chatMessages, { childList: true, subtree: true });
 
+  // Dynamic suggestions based on trending topics
+  const trendingSuggestions = [
+    { icon: 'lightbulb', color: 'yellow', text: 'What can you help me with?' },
+    { icon: 'code', color: 'blue', text: 'Write a Python function to sort a list' },
+    { icon: 'newspaper', color: 'green', text: 'What are the latest tech trends?' },
+    { icon: 'brain', color: 'purple', text: 'Explain quantum computing' },
+    { icon: 'robot', color: 'cyan', text: 'How does AI work?' },
+    { icon: 'mobile-alt', color: 'red', text: 'Compare iOS and Android' },
+    { icon: 'chart-line', color: 'orange', text: 'Explain blockchain technology' },
+    { icon: 'microchip', color: 'pink', text: 'What is machine learning?' },
+    { icon: 'globe', color: 'teal', text: 'Best programming languages to learn' },
+    { icon: 'shield-alt', color: 'indigo', text: 'How to secure a website?' }
+  ];
+
+  // Function to update suggestions
+  function updateSuggestions() {
+    const suggestionsContainer = document.getElementById('auto-suggestions');
+    const suggestionsWrapper = suggestionsContainer.querySelector('div');
+
+    // Clear existing suggestions
+    suggestionsWrapper.innerHTML = '';
+
+    // Get 4 random suggestions
+    const randomSuggestions = [];
+    const suggestionsCopy = [...trendingSuggestions];
+
+    for (let i = 0; i < 4; i++) {
+      if (suggestionsCopy.length === 0) break;
+      const randomIndex = Math.floor(Math.random() * suggestionsCopy.length);
+      randomSuggestions.push(suggestionsCopy[randomIndex]);
+      suggestionsCopy.splice(randomIndex, 1);
+    }
+
+    // Add suggestions to the container
+    randomSuggestions.forEach(suggestion => {
+      const button = document.createElement('button');
+      button.className = 'suggestion-btn bg-dark-100 hover:bg-dark-300 text-gray-300 hover:text-white px-3 py-1.5 rounded-full text-sm transition-colors border border-gray-700 hover:border-gray-500';
+      button.innerHTML = `<i class="fas fa-${suggestion.icon} text-${suggestion.color}-500 mr-1.5"></i> ${suggestion.text}`;
+
+      button.addEventListener('click', () => {
+        messageInput.value = suggestion.text;
+        suggestionsContainer.classList.add('hidden');
+        messageInput.focus();
+        // Show improve prompt button
+        document.getElementById('improve-prompt-container').classList.remove('hidden');
+      });
+
+      suggestionsWrapper.appendChild(button);
+    });
+
+    // Show suggestions
+    suggestionsContainer.classList.remove('hidden');
+  }
+
+  // Improve prompt functionality
+  document.getElementById('improve-prompt-btn').addEventListener('click', function() {
+    const currentPrompt = messageInput.value.trim();
+
+    if (currentPrompt) {
+      // Show thinking state
+      this.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5"></i> Improving...';
+      this.disabled = true;
+
+      // Simulate AI improving the prompt (in a real app, this would call an API)
+      setTimeout(() => {
+        // First correct spelling
+        const correctedPrompt = correctSpelling(currentPrompt);
+
+        // Then get fully improved prompt based on the corrected prompt
+        const improvedPrompt = improvePrompt(correctedPrompt);
+
+        // Check if spelling was corrected
+        const hasSpellingCorrections = correctedPrompt !== currentPrompt;
+
+        // Log for debugging
+        console.log('Original prompt:', currentPrompt);
+        console.log('Corrected prompt:', correctedPrompt);
+        console.log('Improved prompt:', improvedPrompt);
+        console.log('Has spelling corrections:', hasSpellingCorrections);
+
+        // Update input with improved prompt
+        messageInput.value = improvedPrompt;
+        messageInput.focus();
+
+        // Show a notification if spelling was corrected
+        if (hasSpellingCorrections) {
+          // Create notification element
+          const notification = document.createElement('div');
+          notification.className = 'text-xs text-green-400 mt-1 mb-2 animate-fade-in';
+          notification.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Spelling corrected';
+
+          // Insert notification before the input
+          const inputContainer = messageInput.parentNode;
+          inputContainer.parentNode.insertBefore(notification, inputContainer);
+
+          // Remove notification after 3 seconds
+          setTimeout(() => {
+            notification.classList.add('animate-fade-out');
+            setTimeout(() => notification.remove(), 500);
+          }, 3000);
+        }
+
+        // Reset button
+        this.innerHTML = '<i class="fas fa-magic mr-1.5"></i> Improve Prompt';
+        this.disabled = false;
+      }, 1000);
+    }
+  });
+
+  // Function to improve a prompt with spelling correction and detailed enhancement
+  function improvePrompt(prompt) {
+    // Note: spelling correction is now done separately before calling this function
+    // This function focuses on enhancing the already spell-corrected prompt
+
+    // Start with the provided prompt (which should already be spell-corrected)
+    let improved = prompt;
+
+    // Add specificity based on prompt type
+    if (improved.match(/\b(how|what|why|when|where|who|which)\b/i)) {
+      // Question-type prompts
+      if (!improved.includes('detail')) {
+        improved += ' in detail';
+      }
+      if (!improved.includes('example')) {
+        improved += ' with specific examples';
+      }
+    }
+
+    // Add clarity for code requests
+    if (improved.match(/\b(code|function|program|script|algorithm|develop|create)\b/i)) {
+      improved = improved.replace(/\bwrite\b/i, 'Write a well-commented');
+      if (!improved.match(/\b(step by step|detailed|explanation)\b/i)) {
+        improved += ' with step-by-step explanation and best practices';
+      }
+      if (!improved.match(/\b(example|sample)\b/i)) {
+        improved += ' including practical examples';
+      }
+    }
+
+    // Add detail for explanations
+    if (improved.match(/\b(explain|describe|elaborate|clarify|what is|definition)\b/i)) {
+      improved = improved.replace(/\bexplain\b/i, 'explain in simple terms');
+      if (!improved.match(/\b(beginner|simple|basic)\b/i)) {
+        improved += ' for a beginner';
+      }
+      if (!improved.match(/\b(analogy|comparison)\b/i)) {
+        improved += ' using analogies where helpful';
+      }
+    }
+
+    // Add detail for comparison requests
+    if (improved.match(/\b(compare|versus|vs|difference|similarities|better)\b/i)) {
+      if (!improved.match(/\b(pros|cons|advantages|disadvantages)\b/i)) {
+        improved += ' including pros and cons of each';
+      }
+      if (!improved.match(/\b(table|chart)\b/i)) {
+        improved += ' with a comparison table';
+      }
+    }
+
+    // Add detail for creative requests
+    if (improved.match(/\b(story|poem|song|creative|write|generate)\b/i)) {
+      if (!improved.match(/\b(style|tone|mood)\b/i)) {
+        improved += ' with an engaging style';
+      }
+      if (!improved.match(/\b(character|setting|plot)\b/i) && improved.includes('story')) {
+        improved += ' with well-developed characters and setting';
+      }
+    }
+
+    return improved;
+  }
+
+  // Function to correct common spelling mistakes
+  function correctSpelling(text) {
+    // Log the original text for debugging
+    console.log('Original text before correction:', text);
+
+    // Common spelling mistakes dictionary
+    const spellingCorrections = {
+      // Common typos
+      'teh': 'the',
+      'recieve': 'receive',
+      'wierd': 'weird',
+      'thier': 'their',
+      'alot': 'a lot',
+      'definately': 'definitely',
+      'seperate': 'separate',
+      'occured': 'occurred',
+      'untill': 'until',
+      'begining': 'beginning',
+      'beleive': 'believe',
+      'accomodate': 'accommodate',
+      'accross': 'across',
+      'apparant': 'apparent',
+      'arguement': 'argument',
+      'basicly': 'basically',
+      'beautifull': 'beautiful',
+      'definatly': 'definitely',
+      'enviroment': 'environment',
+      'existance': 'existence',
+      'freind': 'friend',
+      'goverment': 'government',
+      'gaurd': 'guard',
+      'happend': 'happened',
+      'immediatly': 'immediately',
+      'independant': 'independent',
+      'intresting': 'interesting',
+      'knowlege': 'knowledge',
+      'neccessary': 'necessary',
+      'occassion': 'occasion',
+      'occuring': 'occurring',
+      'posession': 'possession',
+      'potatos': 'potatoes',
+      'recieve': 'receive',
+      'refering': 'referring',
+      'remeber': 'remember',
+      'seperate': 'separate',
+      'similer': 'similar',
+      'speach': 'speech',
+      'succesful': 'successful',
+      'tomatos': 'tomatoes',
+      'tommorrow': 'tomorrow',
+      'truely': 'truly',
+      'untill': 'until',
+      'wether': 'whether',
+      'writting': 'writing',
+      'wich': 'which',
+      'withh': 'with',
+      'whith': 'with',
+      'wnat': 'want',
+      'wrok': 'work',
+      'becuase': 'because',
+      'beacuse': 'because',
+      'becasue': 'because',
+      'becouse': 'because',
+      'peopel': 'people',
+      'peaple': 'people',
+      'insted': 'instead',
+      'diffrent': 'different',
+      'differnt': 'different',
+      'probly': 'probably',
+      'probbably': 'probably',
+      'prolly': 'probably',
+      'informtion': 'information',
+      'infomation': 'information',
+      'accordng': 'according',
+      'accordin': 'according',
+      'acording': 'according',
+      'speeling': 'spelling',
+      'speling': 'spelling',
+      'amke': 'make',
+      'mak': 'make',
+      'th': 'the',
+      'inprove': 'improve',
+      'improvment': 'improvement',
+      'improvemnt': 'improvement',
+      'detaild': 'detailed',
+      'detaled': 'detailed',
+
+      // Common words with typos
+      'pleese': 'please',
+      'plese': 'please',
+      'plz': 'please',
+      'pls': 'please',
+      'thankyou': 'thank you',
+      'thanx': 'thanks',
+      'thx': 'thanks',
+      'dont': 'don\'t',
+      'cant': 'can\'t',
+      'wont': 'won\'t',
+      'didnt': 'didn\'t',
+      'isnt': 'isn\'t',
+      'wasnt': 'wasn\'t',
+      'werent': 'weren\'t',
+      'havent': 'haven\'t',
+      'hasnt': 'hasn\'t',
+      'hadnt': 'hadn\'t',
+      'couldnt': 'couldn\'t',
+      'shouldnt': 'shouldn\'t',
+      'wouldnt': 'wouldn\'t',
+      'arent': 'aren\'t',
+      'youre': 'you\'re',
+      'theyre': 'they\'re',
+      'im': 'I\'m',
+      'ive': 'I\'ve',
+      'id': 'I\'d',
+      'ill': 'I\'ll',
+      'youve': 'you\'ve',
+      'youll': 'you\'ll',
+      'youre': 'you\'re',
+      'theyll': 'they\'ll',
+      'theyve': 'they\'ve',
+      'weve': 'we\'ve',
+      'were': 'we\'re',
+      'hes': 'he\'s',
+      'shes': 'she\'s',
+      'its': 'it\'s',
+      'thats': 'that\'s',
+      'whats': 'what\'s',
+      'whos': 'who\'s',
+      'wheres': 'where\'s',
+      'hows': 'how\'s',
+      'whens': 'when\'s',
+      'whys': 'why\'s',
+
+      // Specific to the user's example
+      'brn': 'button',
+      'didnt': 'didn\'t',
+      'rgiht': 'right',
+      'worng': 'wrong',
+      'entere': 'entered',
+      'wanst': 'wants',
+      'converst': 'convert',
+      'convert': 'convert',
+      'works': 'words'
+    };
+
+    // Split text into words, preserving punctuation
+    // This regex splits on whitespace but keeps punctuation attached to words
+    let words = text.split(/\s+/);
+    console.log('Words after splitting:', words);
+
+    // Correct each word if it's in our dictionary
+    words = words.map(word => {
+      // Remove punctuation for dictionary lookup
+      const punctuationMatch = word.match(/([^\w]*)([\w']+)([^\w]*)/);
+      if (!punctuationMatch) return word; // Not a word with possible punctuation
+
+      const [, leadingPunct, bareWord, trailingPunct] = punctuationMatch;
+
+      // Check for the word in lowercase in our dictionary
+      const lowerWord = bareWord.toLowerCase();
+      console.log(`Checking word: '${bareWord}' (lowercase: '${lowerWord}')`);
+
+      if (spellingCorrections[lowerWord]) {
+        console.log(`Found correction for '${lowerWord}': '${spellingCorrections[lowerWord]}'`);
+        let corrected;
+
+        // Preserve capitalization if the first letter was capitalized
+        if (bareWord[0] === bareWord[0].toUpperCase()) {
+          corrected = spellingCorrections[lowerWord].charAt(0).toUpperCase() +
+                     spellingCorrections[lowerWord].slice(1);
+        } else {
+          corrected = spellingCorrections[lowerWord];
+        }
+
+        // Reattach punctuation
+        return leadingPunct + corrected + trailingPunct;
+      }
+
+      return word; // Return original if no correction found
+    });
+
+    // Join words back into text
+    const result = words.join(' ');
+    console.log('Text after correction:', result);
+    return result;
+  }
+
+  // Show/hide improve prompt button based on input
+  messageInput.addEventListener('input', function() {
+    const improvePromptContainer = document.getElementById('improve-prompt-container');
+    if (this.value.trim()) {
+      improvePromptContainer.classList.remove('hidden');
+    } else {
+      improvePromptContainer.classList.add('hidden');
+    }
+  });
+
+  // Add event listener for reply buttons
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('.reply-btn')) {
+      const button = e.target.closest('.reply-btn');
+      const messageId = button.dataset.messageId;
+      const messageContent = decodeURIComponent(button.dataset.messageContent);
+
+      // Create a quoted version of the message (first 100 characters)
+      const quotedText = messageContent.length > 100
+        ? messageContent.substring(0, 100) + '...'
+        : messageContent;
+
+      // Set the input value with the quoted text
+      messageInput.value = `Regarding: "${quotedText}"
+
+`;
+
+      // Focus the input and move cursor to the end
+      messageInput.focus();
+      messageInput.setSelectionRange(messageInput.value.length, messageInput.value.length);
+
+      // Show the improve prompt button
+      document.getElementById('improve-prompt-container').classList.remove('hidden');
+
+      // Scroll to the input
+      messageInput.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+
   // Load chat history on page load
   window.addEventListener('DOMContentLoaded', () => {
     // Auto-focus input
     messageInput.focus();
     // Setup any existing copy buttons
     setupCopyCodeButtons();
+    // Show initial suggestions
+    updateSuggestions();
   });
 </script>
 
