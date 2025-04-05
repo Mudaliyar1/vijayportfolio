@@ -1481,78 +1481,73 @@
           }, 20000); // 20 second timeout (increased for better results)
         });
 
-        // Try a more reliable approach using Lexica API
+        // Use our secure server-side proxy for AI image generation
         try {
           if (progressStatus) {
             progressStatus.textContent = 'Searching AI image databases...';
           }
 
-          // First try Lexica API which has a database of AI-generated images
-          const lexicaResponse = await fetch(`https://lexica.art/api/v1/search?q=${encodeURIComponent(enhancedPrompt)}`);
+          // First try searching for existing AI-generated images
+          const searchResponse = await fetch(`/api/ai/search?query=${encodeURIComponent(enhancedPrompt)}`);
 
-          if (lexicaResponse.ok) {
-            const data = await lexicaResponse.json();
+          if (searchResponse.ok) {
+            const data = await searchResponse.json();
 
-            if (data.images && data.images.length > 0) {
+            if (data.success && data.results && data.results.length > 0) {
               // Get a random image from the top results
-              const randomIndex = Math.floor(Math.random() * Math.min(5, data.images.length));
-              const imageUrl = data.images[randomIndex].src;
+              const randomIndex = Math.floor(Math.random() * data.results.length);
+              const imageUrl = data.results[randomIndex].url;
 
               if (progressStatus) {
                 progressStatus.textContent = 'Found perfect AI-generated image!';
               }
 
-              console.log('Found AI-generated image from Lexica:', imageUrl);
+              console.log('Found AI-generated image from database:', imageUrl);
               return imageUrl;
             }
           }
-        } catch (lexicaError) {
-          console.error('Error with Lexica API:', lexicaError);
+        } catch (searchError) {
+          console.error('Error searching AI images:', searchError);
+          // Continue to generation if search fails
         }
 
-        // Try Hugging Face Inference API with a more reliable model
+        // If search fails, try generating a new image using our secure server proxy
         try {
           if (progressStatus) {
-            progressStatus.textContent = 'Using AI image generation...';
+            progressStatus.textContent = 'Generating AI image...';
           }
 
-          // Use a more reliable model - RunwayML Stable Diffusion v1.5
-          const fetchPromise = fetch('https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5', {
+          // Use our secure server-side proxy for AI image generation
+          const generateResponse = await fetch('/api/ai/generate-image', {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
-              // Using a public API key - this has rate limits but works for demos
-              'Authorization': 'Bearer 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'
+              'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              inputs: enhancedPrompt,
-              parameters: {
-                guidance_scale: 7.5,
-                num_inference_steps: 25 // Reduced for faster generation
-              }
+              prompt: enhancedPrompt,
+              model: 'runwayml/stable-diffusion-v1-5' // Specify which model to use
             })
           });
 
-          // Race between the fetch and the timeout
-          const response = await Promise.race([fetchPromise, timeoutPromise]);
-
           // Check if we got a successful response
-          if (response.ok) {
-            // Get the image as a blob
-            const blob = await response.blob();
+          if (generateResponse.ok) {
+            const data = await generateResponse.json();
 
-            // Convert blob to data URL
-            const reader = new FileReader();
-            const dataUrl = await new Promise((resolve, reject) => {
-              reader.onloadend = () => resolve(reader.result);
-              reader.onerror = reject;
-              reader.readAsDataURL(blob);
-            });
+            if (data.success && data.image) {
+              if (progressStatus) {
+                progressStatus.textContent = 'AI image generated successfully!';
+              }
 
-            return dataUrl;
+              console.log('Generated AI image successfully');
+              return data.image; // This is already a data URL
+            } else {
+              throw new Error(data.message || 'Failed to generate image');
+            }
+          } else {
+            throw new Error(`Server returned status: ${generateResponse.status}`);
           }
-        } catch (huggingFaceError) {
-          console.error('Error with Hugging Face:', huggingFaceError);
+        } catch (generationError) {
+          console.error('Error generating AI image:', generationError);
         }
 
         // Try using a public AI image search API

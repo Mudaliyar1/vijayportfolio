@@ -86,6 +86,7 @@ app.use('/api/images', require('./routes/api-images'));
 app.use('/admin/images', require('./routes/admin-images'));
 app.use('/rate-limits', require('./routes/rate-limits'));
 app.use('/admin/rate-limits', require('./routes/admin-rate-limits'));
+app.use('/api/ai', require('./routes/ai-proxy')); // New AI proxy route
 
 // 404 handler
 app.use((req, res) => {

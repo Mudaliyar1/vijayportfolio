@@ -12,20 +12,26 @@ const generateImageFromPrompt = async (prompt, style, referenceImagePath = null)
   }
 
   try {
-    // Advanced AI-based prompt enhancement system
-    // This system uses techniques similar to those used by ChatGPT and other AI systems
-    // to create highly detailed and effective prompts for image generation
+    // Advanced AI-based prompt enhancement system based on Cohere AI techniques
+    // This system implements the detailed prompt engineering approach described in the user's request
+    // It analyzes the prompt, identifies subjects, and creates a highly detailed prompt for image generation
+
+    console.log('🔍 Step 1: Understanding the user prompt');
 
     // First, analyze the prompt to identify key subjects and themes
     const promptLower = prompt.toLowerCase();
+
+    // Define subject categories with expanded keywords for better detection
     const subjects = {
-      animals: ['dog', 'cat', 'bird', 'fish', 'horse', 'lion', 'tiger', 'elephant', 'wolf', 'fox', 'bear', 'rabbit'],
-      nature: ['mountain', 'forest', 'river', 'ocean', 'beach', 'sky', 'sunset', 'landscape', 'tree', 'flower', 'garden'],
-      people: ['person', 'man', 'woman', 'child', 'girl', 'boy', 'people', 'face', 'portrait'],
-      urban: ['city', 'building', 'street', 'architecture', 'skyline', 'urban', 'house', 'interior'],
-      fantasy: ['dragon', 'wizard', 'magic', 'castle', 'fantasy', 'mythical', 'creature', 'fairy', 'elf'],
-      scifi: ['robot', 'spaceship', 'alien', 'futuristic', 'space', 'planet', 'galaxy', 'cyberpunk', 'tech'],
-      abstract: ['abstract', 'pattern', 'geometric', 'colorful', 'minimalist', 'surreal', 'dream']
+      animals: ['dog', 'puppy', 'cat', 'kitten', 'bird', 'fish', 'horse', 'lion', 'tiger', 'elephant', 'wolf', 'fox', 'bear', 'rabbit', 'pet', 'animal', 'wildlife', 'creature'],
+      nature: ['mountain', 'forest', 'river', 'ocean', 'beach', 'sky', 'sunset', 'sunrise', 'landscape', 'tree', 'flower', 'garden', 'waterfall', 'lake', 'sea', 'desert', 'jungle', 'woods', 'nature', 'outdoor'],
+      people: ['person', 'man', 'woman', 'child', 'girl', 'boy', 'people', 'face', 'portrait', 'human', 'family', 'baby', 'teenager', 'adult', 'elderly', 'crowd'],
+      urban: ['city', 'building', 'street', 'architecture', 'skyline', 'urban', 'house', 'interior', 'room', 'office', 'apartment', 'downtown', 'skyscraper', 'bridge', 'road', 'highway'],
+      fantasy: ['dragon', 'wizard', 'magic', 'castle', 'fantasy', 'mythical', 'creature', 'fairy', 'elf', 'unicorn', 'magical', 'enchanted', 'spell', 'sorcery', 'mystical', 'legendary'],
+      scifi: ['robot', 'spaceship', 'alien', 'futuristic', 'space', 'planet', 'galaxy', 'cyberpunk', 'tech', 'technology', 'future', 'sci-fi', 'spacecraft', 'cyborg', 'android', 'hologram'],
+      abstract: ['abstract', 'pattern', 'geometric', 'colorful', 'minimalist', 'surreal', 'dream', 'conceptual', 'artistic', 'modern', 'contemporary', 'digital', 'design', 'creative'],
+      food: ['food', 'meal', 'dish', 'cuisine', 'restaurant', 'cooking', 'baking', 'dessert', 'fruit', 'vegetable', 'meat', 'breakfast', 'lunch', 'dinner', 'snack', 'cake', 'pizza'],
+      vehicle: ['car', 'vehicle', 'motorcycle', 'bike', 'bicycle', 'truck', 'bus', 'train', 'plane', 'aircraft', 'boat', 'ship', 'submarine', 'rocket', 'spaceship', 'helicopter']
     };
 
     // Identify the main subject category
@@ -44,18 +50,51 @@ const generateImageFromPrompt = async (prompt, style, referenceImagePath = null)
       if (subjectFound) break;
     }
 
+    // Identify style preferences
+    const styles = {
+      'ghibli': ['ghibli', 'miyazaki', 'totoro', 'spirited away', 'howl', 'mononoke'],
+      'pixar': ['pixar', 'disney', '3d animation', 'toy story', 'incredibles', 'up', 'finding nemo'],
+      'anime': ['anime', 'manga', 'japanese animation', 'cartoon', 'animated'],
+      'cyberpunk': ['cyberpunk', 'neon', 'blade runner', 'dystopian', 'cyber', 'tech noir'],
+      'fantasy': ['fantasy', 'magical', 'medieval', 'mystical', 'enchanted', 'fairy tale'],
+      'trending': ['trending', 'popular', 'viral', 'artstation', 'deviantart', 'contemporary'],
+      'futuristic': ['futuristic', 'future', 'advanced', 'sci-fi', 'technology', 'tomorrow'],
+      'realistic': ['realistic', 'photorealistic', 'real', 'photograph', 'lifelike', 'hyperrealistic'],
+      'abstract': ['abstract', 'surreal', 'conceptual', 'non-representational', 'expressionist'],
+      'vintage': ['vintage', 'retro', 'old', 'classic', 'nostalgic', 'antique', 'old-fashioned']
+    };
+
+    // Detect style preferences in the prompt
+    let promptStyle = style.toLowerCase(); // Default to the provided style
+
+    // Check if the prompt contains any style keywords
+    for (const [styleName, keywords] of Object.entries(styles)) {
+      for (const keyword of keywords) {
+        if (promptLower.includes(keyword)) {
+          console.log(`Detected style preference in prompt: ${styleName} (keyword: ${keyword})`);
+          promptStyle = styleName; // Override with detected style
+          break;
+        }
+      }
+      if (promptStyle !== style.toLowerCase()) break; // Stop if we found a style
+    }
+
+    console.log('🎨 Step 2: Constructing enhanced prompt');
+
     // Create a base enhanced prompt with subject-specific enhancements
     let enhancedPrompt = prompt;
 
-    // Add subject-specific enhancements
+    // Add subject-specific enhancements based on Cohere AI techniques
     const subjectEnhancements = {
-      animals: 'detailed fur texture, natural habitat, realistic anatomy, professional wildlife photography, high detail',
-      nature: 'beautiful lighting, atmospheric, detailed textures, professional landscape photography, high resolution',
-      people: 'detailed features, expressive, professional portrait, perfect lighting, high detail, photorealistic',
-      urban: 'architectural details, perfect perspective, professional photography, dramatic lighting, high detail',
-      fantasy: 'detailed fantasy art, magical atmosphere, dramatic lighting, highly detailed, concept art, digital painting',
-      scifi: 'futuristic details, advanced technology, dramatic lighting, highly detailed, concept art, digital painting',
-      abstract: 'vibrant colors, perfect composition, artistic, creative, professional art, high detail'
+      animals: 'detailed fur texture, natural habitat, realistic anatomy, professional wildlife photography, high detail, perfect lighting, expressive eyes, dynamic pose',
+      nature: 'beautiful lighting, atmospheric, detailed textures, professional landscape photography, high resolution, golden hour, dramatic sky, perfect composition, depth of field',
+      people: 'detailed features, expressive, professional portrait, perfect lighting, high detail, photorealistic, emotional expression, natural pose, studio quality',
+      urban: 'architectural details, perfect perspective, professional photography, dramatic lighting, high detail, urban exploration, city life, street photography',
+      fantasy: 'detailed fantasy art, magical atmosphere, dramatic lighting, highly detailed, concept art, digital painting, epic scene, mystical elements, fantasy illustration',
+      scifi: 'futuristic details, advanced technology, dramatic lighting, highly detailed, concept art, digital painting, sci-fi environment, holographic elements, cinematic',
+      abstract: 'vibrant colors, perfect composition, artistic, creative, professional art, high detail, modern design, contemporary art, expressive',
+      food: 'appetizing, delicious, food photography, professional lighting, high detail, culinary art, gourmet, fresh ingredients, perfect composition',
+      vehicle: 'detailed engineering, perfect lighting, showroom quality, professional automotive photography, reflective surfaces, dramatic angle, motion blur'
     };
 
     // Add subject enhancements if a category was detected
@@ -63,35 +102,81 @@ const generateImageFromPrompt = async (prompt, style, referenceImagePath = null)
       enhancedPrompt = `${prompt}, ${subjectEnhancements[mainCategory]}`;
     }
 
-    // Now add style-specific modifiers to further enhance results
-    switch(style.toLowerCase()) {
-      case 'ghibli':
-        enhancedPrompt = `${enhancedPrompt}, Studio Ghibli style, anime, Hayao Miyazaki, fantasy landscape, colorful, dreamy, detailed illustration, artistic, hand-drawn animation, whimsical, charming characters, soft lighting, pastel colors, magical atmosphere`;
-        break;
-      case 'pixar':
-        enhancedPrompt = `${enhancedPrompt}, Pixar animation style, 3D rendered, character design, vibrant colors, high detail, cinematic lighting, Disney Pixar, expressive characters, emotional storytelling, perfect rendering, subsurface scattering, ambient occlusion, global illumination`;
-        break;
-      case 'anime':
-        enhancedPrompt = `${enhancedPrompt}, anime style, manga illustration, detailed, vibrant colors, Japanese animation, anime art, character design, clean lines, expressive eyes, dynamic poses, cel shading, beautiful backgrounds, professional anime artwork`;
-        break;
-      case 'cyberpunk':
-        enhancedPrompt = `${enhancedPrompt}, cyberpunk style, neon lights, futuristic city, dark atmosphere, rain, high tech, low life, detailed, Blade Runner, cybernetic enhancements, holographic displays, dystopian future, urban decay, digital artifacts, lens flares, reflective surfaces`;
-        break;
-      case 'fantasy':
-        enhancedPrompt = `${enhancedPrompt}, fantasy art, magical, medieval, detailed landscape, mystical atmosphere, dramatic lighting, high quality, fantasy illustration, epic scene, magical effects, detailed textures, professional fantasy concept art, dramatic composition`;
-        break;
-      case 'trending':
-        enhancedPrompt = `${enhancedPrompt}, trending on artstation, highly detailed, professional photography, sharp focus, dramatic lighting, artistic, popular, award-winning, viral, perfect composition, masterpiece, trending digital art, photorealistic, 8k resolution`;
-        break;
-      case 'futuristic':
-        enhancedPrompt = `${enhancedPrompt}, futuristic, sci-fi, advanced technology, sleek design, holographic elements, glowing lights, future concept art, clean aesthetic, high-tech materials, innovative architecture, utopian society, cutting-edge technology, perfect lighting`;
-        break;
-      default:
-        enhancedPrompt = `${enhancedPrompt}, high quality, detailed, professional, artistic, beautiful image, perfect lighting, masterpiece, trending, award-winning photography, sharp focus`;
+    console.log('📷 Step 3: Adding style-specific enhancements');
+
+    // Now add style-specific modifiers based on Cohere AI techniques
+    // These are carefully crafted to match the style descriptions in the prompt
+    const styleEnhancements = {
+      'ghibli': 'Studio Ghibli style, anime, Hayao Miyazaki, fantasy landscape, colorful, dreamy, detailed illustration, artistic, hand-drawn animation, whimsical, charming characters, soft lighting, pastel colors, magical atmosphere, peaceful scenery, slightly exaggerated features',
+
+      'pixar': 'Pixar animation style, 3D rendered, character design, vibrant colors, high detail, cinematic lighting, Disney Pixar, expressive characters, emotional storytelling, perfect rendering, subsurface scattering, ambient occlusion, global illumination, heartwarming, family-friendly',
+
+      'anime': 'anime style, manga illustration, detailed, vibrant colors, Japanese animation, anime art, character design, clean lines, expressive eyes, dynamic poses, cel shading, beautiful backgrounds, professional anime artwork, distinctive art style, emotional expression',
+
+      'cyberpunk': 'cyberpunk style, neon lights, futuristic city, dark atmosphere, rain, high tech, low life, detailed, Blade Runner, cybernetic enhancements, holographic displays, dystopian future, urban decay, digital artifacts, lens flares, reflective surfaces, gritty realism',
+
+      'fantasy': 'fantasy art, magical, medieval, detailed landscape, mystical atmosphere, dramatic lighting, high quality, fantasy illustration, epic scene, magical effects, detailed textures, professional fantasy concept art, dramatic composition, otherworldly, enchanted',
+
+      'trending': 'trending on artstation, highly detailed, professional photography, sharp focus, dramatic lighting, artistic, popular, award-winning, viral, perfect composition, masterpiece, trending digital art, photorealistic, 8k resolution, contemporary, modern aesthetic',
+
+      'futuristic': 'futuristic, sci-fi, advanced technology, sleek design, holographic elements, glowing lights, future concept art, clean aesthetic, high-tech materials, innovative architecture, utopian society, cutting-edge technology, perfect lighting, minimalist, sophisticated',
+
+      'realistic': 'photorealistic, hyperdetailed, 8k resolution, professional photography, perfect lighting, sharp focus, high detail, realistic textures, natural colors, studio quality, DSLR, award-winning photography, lifelike, authentic, true-to-life representation',
+
+      'abstract': 'abstract art, non-representational, vibrant colors, geometric shapes, modern art, contemporary design, artistic expression, creative composition, minimalist elements, bold colors, conceptual, expressive brushstrokes, digital art, avant-garde, museum quality',
+
+      'vintage': 'vintage aesthetic, retro style, nostalgic, film grain, muted colors, classic composition, old-fashioned, antique feel, historical, timeless quality, analog photography, aged texture, sepia tones, traditional techniques, period-accurate details'
+    };
+
+    // Get the appropriate style enhancement based on the detected or specified style
+    const styleModifier = styleEnhancements[promptStyle] || styleEnhancements['realistic'];
+
+    // Add the style enhancement to the prompt
+    enhancedPrompt = `${enhancedPrompt}, ${styleModifier}`;
+
+    console.log('💡 Step 4: Adding final quality enhancements');
+
+    // Add camera and composition details based on Cohere AI approach
+    const cameraDetails = [
+      'perfect composition',
+      'masterful photography',
+      'professional lighting',
+      'high resolution',
+      '8k quality',
+      'sharp focus',
+      'detailed textures',
+      'dramatic lighting',
+      'cinematic',
+      'award-winning'
+    ];
+
+    // Add 2-3 random camera details for variety
+    const selectedCameraDetails = [];
+    for (let i = 0; i < 3; i++) {
+      const randomIndex = Math.floor(Math.random() * cameraDetails.length);
+      selectedCameraDetails.push(cameraDetails[randomIndex]);
+      // Remove the selected detail to avoid duplicates
+      cameraDetails.splice(randomIndex, 1);
+      if (cameraDetails.length === 0) break;
     }
 
+    // Add the camera details to the prompt
+    enhancedPrompt = `${enhancedPrompt}, ${selectedCameraDetails.join(', ')}`;
+
     // Add universal quality enhancers
-    enhancedPrompt += ', 4k resolution, highly detailed, professional quality, perfect composition, masterpiece';
+    enhancedPrompt += ', highly detailed, professional quality, masterpiece';
+
+    // Log the final prompt construction steps
+    console.log(`Original prompt: "${prompt}"`);
+    console.log(`Detected subject: ${mainCategory}`);
+    console.log(`Detected/selected style: ${promptStyle}`);
+    console.log(`Added camera details: ${selectedCameraDetails.join(', ')}`);
+
+    // Limit prompt length to avoid API issues
+    if (enhancedPrompt.length > 500) {
+      console.log(`Prompt too long (${enhancedPrompt.length} chars), truncating to 500 chars`);
+      enhancedPrompt = enhancedPrompt.substring(0, 500);
+    }
 
     // Limit prompt length to avoid API issues
     if (enhancedPrompt.length > 500) {
