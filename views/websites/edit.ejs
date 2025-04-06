@@ -1,0 +1,105 @@
+<div class="container mx-auto px-4 py-8 max-w-4xl bg-gray-900">
+  <h1 class="text-3xl font-bold text-center mb-8 text-white">Edit Website</h1>
+
+  <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8 text-black">
+    <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white">
+      <h2 class="text-2xl font-bold">Website Settings</h2>
+    </div>
+
+    <div class="p-6">
+      <form action="/dashboard/websites/<%= website._id %>/edit" method="POST">
+        <div class="mb-6">
+          <label for="title" class="block text-gray-700 font-semibold mb-2">Website Title</label>
+          <input type="text" id="title" name="title" required
+                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 value="<%= website.title %>">
+        </div>
+
+        <div class="mb-6">
+          <label for="description" class="block text-gray-700 font-semibold mb-2">Website Description</label>
+          <textarea id="description" name="description" rows="3" required
+                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"><%= website.description %></textarea>
+        </div>
+
+        <div class="mb-6">
+          <label for="businessType" class="block text-gray-700 font-semibold mb-2">Business Type</label>
+          <select id="businessType" name="businessType" required
+                  class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">Select a business type</option>
+            <option value="Restaurant" <%= website.businessType === 'Restaurant' ? 'selected' : '' %>>Restaurant</option>
+            <option value="Retail Store" <%= website.businessType === 'Retail Store' ? 'selected' : '' %>>Retail Store</option>
+            <option value="Professional Services" <%= website.businessType === 'Professional Services' ? 'selected' : '' %>>Professional Services</option>
+            <option value="Healthcare" <%= website.businessType === 'Healthcare' ? 'selected' : '' %>>Healthcare</option>
+            <option value="Education" <%= website.businessType === 'Education' ? 'selected' : '' %>>Education</option>
+            <option value="Technology" <%= website.businessType === 'Technology' ? 'selected' : '' %>>Technology</option>
+            <option value="Real Estate" <%= website.businessType === 'Real Estate' ? 'selected' : '' %>>Real Estate</option>
+            <option value="Fitness" <%= website.businessType === 'Fitness' ? 'selected' : '' %>>Fitness</option>
+            <option value="Beauty" <%= website.businessType === 'Beauty' ? 'selected' : '' %>>Beauty</option>
+            <option value="Art & Design" <%= website.businessType === 'Art & Design' ? 'selected' : '' %>>Art & Design</option>
+            <option value="Travel" <%= website.businessType === 'Travel' ? 'selected' : '' %>>Travel</option>
+            <option value="Other" <%= website.businessType === 'Other' ? 'selected' : '' %>>Other</option>
+          </select>
+        </div>
+
+        <div class="mb-6">
+          <label for="theme" class="block text-gray-700 font-semibold mb-2">Theme</label>
+          <select id="theme" name="theme"
+                  class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="default" <%= website.theme === 'default' ? 'selected' : '' %>>Default</option>
+            <option value="modern" <%= website.theme === 'modern' ? 'selected' : '' %>>Modern</option>
+            <option value="minimal" <%= website.theme === 'minimal' ? 'selected' : '' %>>Minimal</option>
+            <option value="bold" <%= website.theme === 'bold' ? 'selected' : '' %>>Bold</option>
+          </select>
+        </div>
+
+        <div class="mb-6">
+          <label for="colorScheme" class="block text-gray-700 font-semibold mb-2">Color Scheme</label>
+          <div class="grid grid-cols-3 md:grid-cols-6 gap-4">
+            <div class="color-option">
+              <input type="radio" id="blue" name="colorScheme" value="blue" <%= website.colorScheme === 'blue' ? 'checked' : '' %> class="hidden peer">
+              <label for="blue" class="block h-10 w-full bg-blue-500 rounded-lg cursor-pointer peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-blue-500"></label>
+              <p class="text-center text-sm mt-1">Blue</p>
+            </div>
+            <div class="color-option">
+              <input type="radio" id="green" name="colorScheme" value="green" <%= website.colorScheme === 'green' ? 'checked' : '' %> class="hidden peer">
+              <label for="green" class="block h-10 w-full bg-green-500 rounded-lg cursor-pointer peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-green-500"></label>
+              <p class="text-center text-sm mt-1">Green</p>
+            </div>
+            <div class="color-option">
+              <input type="radio" id="purple" name="colorScheme" value="purple" <%= website.colorScheme === 'purple' ? 'checked' : '' %> class="hidden peer">
+              <label for="purple" class="block h-10 w-full bg-purple-500 rounded-lg cursor-pointer peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-purple-500"></label>
+              <p class="text-center text-sm mt-1">Purple</p>
+            </div>
+            <div class="color-option">
+              <input type="radio" id="red" name="colorScheme" value="red" <%= website.colorScheme === 'red' ? 'checked' : '' %> class="hidden peer">
+              <label for="red" class="block h-10 w-full bg-red-500 rounded-lg cursor-pointer peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-red-500"></label>
+              <p class="text-center text-sm mt-1">Red</p>
+            </div>
+            <div class="color-option">
+              <input type="radio" id="orange" name="colorScheme" value="orange" <%= website.colorScheme === 'orange' ? 'checked' : '' %> class="hidden peer">
+              <label for="orange" class="block h-10 w-full bg-orange-500 rounded-lg cursor-pointer peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-orange-500"></label>
+              <p class="text-center text-sm mt-1">Orange</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <label class="flex items-center">
+            <input type="checkbox" name="isPublished" <%= website.isPublished ? 'checked' : '' %> class="h-5 w-5 text-blue-600">
+            <span class="ml-2 text-gray-700">Publish Website</span>
+          </label>
+          <p class="text-gray-500 text-sm mt-1">When published, your website will be accessible to the public.</p>
+        </div>
+
+        <div class="flex justify-between">
+          <a href="/dashboard/websites/<%= website._id %>" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition-colors duration-300">
+            Cancel
+          </a>
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors duration-300">
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

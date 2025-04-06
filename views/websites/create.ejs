@@ -1,0 +1,152 @@
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+  <h1 class="text-3xl font-bold text-center mb-8">Create Your Website</h1>
+
+  <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+    <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white">
+      <% if (hasActivePackage) { %>
+        <h2 class="text-2xl font-bold">Your Package: <%= package.name %></h2>
+        <p class="mt-2">You can create up to <%= user.maxWebsites %> websites with this package.</p>
+      <% } else { %>
+        <h2 class="text-2xl font-bold">Create Your Website</h2>
+        <p class="mt-2">Fill out the form below and select a package to create your website.</p>
+      <% } %>
+    </div>
+
+    <div class="p-6">
+      <form action="/create-website" method="POST">
+        <div class="mb-6">
+          <label for="title" class="block text-gray-700 font-semibold mb-2">Website Title</label>
+          <input type="text" id="title" name="title" required
+                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 placeholder="My Business Website">
+          <p class="text-gray-500 text-sm mt-1">This will be the main title of your website.</p>
+        </div>
+
+        <div class="mb-6">
+          <label for="description" class="block text-gray-700 font-semibold mb-2">Website Description</label>
+          <textarea id="description" name="description" rows="3" required
+                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="A brief description of your business or website"></textarea>
+          <p class="text-gray-500 text-sm mt-1">This helps our AI generate relevant content for your website.</p>
+        </div>
+
+        <div class="mb-6">
+          <label for="businessType" class="block text-gray-700 font-semibold mb-2">Business Type</label>
+          <select id="businessType" name="businessType" required
+                  class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">Select a business type</option>
+            <option value="Restaurant">Restaurant</option>
+            <option value="Retail Store">Retail Store</option>
+            <option value="Professional Services">Professional Services</option>
+            <option value="Healthcare">Healthcare</option>
+            <option value="Education">Education</option>
+            <option value="Technology">Technology</option>
+            <option value="Real Estate">Real Estate</option>
+            <option value="Fitness">Fitness</option>
+            <option value="Beauty">Beauty</option>
+            <option value="Art & Design">Art & Design</option>
+            <option value="Travel">Travel</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="mb-6">
+          <label for="theme" class="block text-gray-700 font-semibold mb-2">Theme</label>
+          <select id="theme" name="theme"
+                  class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="default">Default</option>
+            <option value="modern">Modern</option>
+            <option value="minimal">Minimal</option>
+            <option value="bold">Bold</option>
+          </select>
+        </div>
+
+        <div class="mb-8">
+          <label for="colorScheme" class="block text-gray-700 font-semibold mb-2">Color Scheme</label>
+          <div class="grid grid-cols-3 md:grid-cols-6 gap-4">
+            <div class="color-option">
+              <input type="radio" id="blue" name="colorScheme" value="blue" checked class="hidden peer">
+              <label for="blue" class="block h-10 w-full bg-blue-500 rounded-lg cursor-pointer peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-blue-500"></label>
+              <p class="text-center text-sm mt-1">Blue</p>
+            </div>
+            <div class="color-option">
+              <input type="radio" id="green" name="colorScheme" value="green" class="hidden peer">
+              <label for="green" class="block h-10 w-full bg-green-500 rounded-lg cursor-pointer peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-green-500"></label>
+              <p class="text-center text-sm mt-1">Green</p>
+            </div>
+            <div class="color-option">
+              <input type="radio" id="purple" name="colorScheme" value="purple" class="hidden peer">
+              <label for="purple" class="block h-10 w-full bg-purple-500 rounded-lg cursor-pointer peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-purple-500"></label>
+              <p class="text-center text-sm mt-1">Purple</p>
+            </div>
+            <div class="color-option">
+              <input type="radio" id="red" name="colorScheme" value="red" class="hidden peer">
+              <label for="red" class="block h-10 w-full bg-red-500 rounded-lg cursor-pointer peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-red-500"></label>
+              <p class="text-center text-sm mt-1">Red</p>
+            </div>
+            <div class="color-option">
+              <input type="radio" id="orange" name="colorScheme" value="orange" class="hidden peer">
+              <label for="orange" class="block h-10 w-full bg-orange-500 rounded-lg cursor-pointer peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-orange-500"></label>
+              <p class="text-center text-sm mt-1">Orange</p>
+            </div>
+          </div>
+        </div>
+
+        <% if (!hasActivePackage) { %>
+        <div class="mb-8">
+          <h3 class="text-xl font-semibold mb-4">Select a Package</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <% packages.forEach(pkg => { %>
+              <div class="border rounded-lg overflow-hidden hover:shadow-md transition-shadow <%= pkg.isFree ? 'border-green-500' : '' %>">
+                <div class="bg-gradient-to-r <%= pkg.isFree ? 'from-green-500 to-green-600' : 'from-blue-500 to-indigo-600' %> p-4 text-white">
+                  <h4 class="text-lg font-bold"><%= pkg.name %></h4>
+                  <% if (pkg.isFree) { %>
+                    <p class="text-xl font-bold">FREE</p>
+                  <% } else { %>
+                    <p class="text-xl font-bold">₹<%= pkg.price %></p>
+                  <% } %>
+                </div>
+                <div class="p-4">
+                  <p class="text-sm mb-2"><%= pkg.description %></p>
+                  <p class="text-sm mb-3">Up to <%= pkg.maxPages %> pages</p>
+                  <label class="flex items-center">
+                    <input type="radio" name="packageId" value="<%= pkg._id %>" required class="h-4 w-4 text-blue-600">
+                    <span class="ml-2">Select</span>
+                  </label>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+          <p class="text-gray-500 text-sm mt-2">You'll be redirected to payment after creating your website for paid packages. Free packages will be activated immediately.</p>
+        </div>
+        <% } %>
+
+        <div class="text-center">
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300">
+            Generate Website
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="bg-gray-100 rounded-lg p-6">
+    <h3 class="text-xl font-bold mb-4">How It Works</h3>
+    <ol class="list-decimal list-inside space-y-3 text-gray-700">
+      <% if (hasActivePackage) { %>
+        <li>Fill out the form with your website details</li>
+        <li>Our AI will generate a complete website based on your inputs</li>
+        <li>Review and customize your website content</li>
+        <li>Publish your website when you're ready</li>
+        <p class="mt-4 text-gray-600">Your website will include up to <%= package.maxPages %> pages based on your package.</p>
+      <% } else { %>
+        <li>Fill out the form with your website details</li>
+        <li>Select a package that fits your needs</li>
+        <li>Complete the payment process</li>
+        <li>Our AI will generate your website based on your inputs</li>
+        <li>Review, customize, and publish your website</li>
+        <p class="mt-4 text-gray-600">The number of pages and features will depend on the package you select.</p>
+      <% } %>
+    </ol>
+  </div>
+</div>

@@ -16,7 +16,12 @@ const {
   getMemoryManagement,
   viewMemory,
   deleteMemory,
-  deleteInteraction
+  deleteInteraction,
+  getPackageManagement,
+  createPackage,
+  updatePackage,
+  deletePackage,
+  toggleFreePackage
 } = require('../controllers/adminController');
 
 const {
@@ -81,5 +86,12 @@ router.delete('/maintenance/attempts/:id', deleteLoginAttempt);
 router.delete('/maintenance/attempts', clearLoginAttempts);
 router.delete('/maintenance/history/:id', deleteMaintenanceHistory);
 router.delete('/maintenance/history/bulk-delete', bulkDeleteMaintenanceHistory);
+
+// Package management
+router.get('/packages', getPackageManagement);
+router.post('/packages', createPackage);
+router.put('/packages/:id', updatePackage);
+router.delete('/packages/:id', deletePackage);
+router.post('/packages/:id/toggle-free', toggleFreePackage);
 
 module.exports = router;

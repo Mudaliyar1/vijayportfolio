@@ -1,0 +1,114 @@
+<div class="container mx-auto px-4 py-8 max-w-4xl bg-gray-900">
+  <h1 class="text-3xl font-bold text-center mb-8 text-white">Complete Your Purchase</h1>
+
+  <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8 text-black">
+    <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white">
+      <h2 class="text-2xl font-bold">Order Summary</h2>
+    </div>
+
+    <div class="p-6">
+      <div class="flex justify-between mb-4 pb-4 border-b">
+        <span class="font-semibold">Package:</span>
+        <span><%= package.name %></span>
+      </div>
+
+      <div class="flex justify-between mb-4 pb-4 border-b">
+        <span class="font-semibold">Description:</span>
+        <span><%= package.description %></span>
+      </div>
+
+      <div class="flex justify-between mb-4 pb-4 border-b">
+        <span class="font-semibold">Pages:</span>
+        <span>Up to <%= package.maxPages %> pages</span>
+      </div>
+
+      <div class="flex justify-between mb-4 pb-4 border-b">
+        <span class="font-semibold">Amount:</span>
+        <span class="text-xl font-bold">₹<%= package.price %></span>
+      </div>
+
+      <div class="flex justify-between mb-4 pb-4 border-b">
+        <span class="font-semibold">Order ID:</span>
+        <span class="text-sm font-mono"><%= order.id %></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-lg overflow-hidden text-black">
+    <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white">
+      <h2 class="text-2xl font-bold">Payment Details</h2>
+    </div>
+
+    <div class="p-6">
+      <p class="mb-6 text-gray-800">Please complete your payment using Razorpay's secure payment gateway.</p>
+
+      <button id="rzp-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded text-center transition-colors duration-300">
+        Pay Now
+      </button>
+
+      <div class="mt-6 pt-4 border-t border-gray-200 text-center text-sm text-gray-500">
+        <p class="mb-2">By proceeding with the payment, you agree to our</p>
+        <div class="flex flex-wrap justify-center gap-2">
+          <a href="/policies/terms" target="_blank" class="text-blue-600 hover:underline">Terms & Conditions</a>
+          <span>•</span>
+          <a href="/policies/refund" target="_blank" class="text-blue-600 hover:underline">Cancellation & Refund</a>
+          <span>•</span>
+          <a href="/policies/shipping" target="_blank" class="text-blue-600 hover:underline">Shipping Policy</a>
+          <span>•</span>
+          <a href="/policies/privacy" target="_blank" class="text-blue-600 hover:underline">Privacy Policy</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  const options = {
+    key: "<%= razorpayKeyId %>",
+    amount: "<%= order.amount %>",
+    currency: "<%= order.currency %>",
+    name: "FTRAISE AI",
+    description: "<%= package.name %> Package",
+    image: "/images/logo.png",
+    order_id: "<%= order.id %>",
+    handler: function (response) {
+      // Submit the form with payment details
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/payment/verify';
+
+      const fields = {
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_signature: response.razorpay_signature,
+        websiteId: '<%= typeof websiteId !== "undefined" ? websiteId : "" %>'
+      };
+
+      for (const key in fields) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = fields[key];
+        form.appendChild(input);
+      }
+
+      document.body.appendChild(form);
+      form.submit();
+    },
+    prefill: {
+      name: "<%= user.name %>",
+      email: "<%= user.email %>"
+    },
+    theme: {
+      color: "#3B82F6"
+    }
+  };
+
+  const rzp = new Razorpay(options);
+
+  document.getElementById('rzp-button').onclick = function(e) {
+    rzp.open();
+    e.preventDefault();
+  }
+</script>

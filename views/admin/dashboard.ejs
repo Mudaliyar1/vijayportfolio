@@ -56,6 +56,42 @@
       </div>
     </div>
 
+    <!-- Website Builder Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-blue transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Total Websites</h3>
+          <div class="w-10 h-10 rounded-full bg-neon-blue/20 flex items-center justify-center">
+            <i class="fas fa-globe text-neon-blue"></i>
+          </div>
+        </div>
+        <p class="text-3xl font-bold"><%= typeof websiteCount !== 'undefined' ? websiteCount : 0 %></p>
+        <a href="/admin/websites" class="text-sm text-neon-blue hover:underline mt-2 inline-block">View All Websites</a>
+      </div>
+
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-purple transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Active Packages</h3>
+          <div class="w-10 h-10 rounded-full bg-neon-purple/20 flex items-center justify-center">
+            <i class="fas fa-box text-neon-purple"></i>
+          </div>
+        </div>
+        <p class="text-3xl font-bold"><%= typeof packageCount !== 'undefined' ? packageCount : 0 %></p>
+        <a href="/admin/packages" class="text-sm text-neon-purple hover:underline mt-2 inline-block">Manage Packages</a>
+      </div>
+
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-green transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Total Payments</h3>
+          <div class="w-10 h-10 rounded-full bg-neon-green/20 flex items-center justify-center">
+            <i class="fas fa-credit-card text-neon-green"></i>
+          </div>
+        </div>
+        <p class="text-3xl font-bold"><%= typeof paymentCount !== 'undefined' ? paymentCount : 0 %></p>
+        <a href="/admin/payments" class="text-sm text-neon-green hover:underline mt-2 inline-block">View Payments</a>
+      </div>
+    </div>
+
     <!-- Content Management -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
       <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-pink transition-colors">
@@ -94,6 +130,9 @@
         </div>
       </div>
     </div>
+
+    <!-- Include Recent Websites Section -->
+    <%- include('./dashboard-websites') %>
 
     <!-- Recent Users -->
     <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 mb-8">

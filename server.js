@@ -91,6 +91,17 @@ app.use('/blog', require('./routes/blog')); // Blog routes
 app.use('/community', require('./routes/community')); // Community routes
 // Social routes removed as requested
 
+// Website builder routes
+app.use('/', require('./routes/website-builder'));
+app.use('/', require('./routes/packages'));
+app.use('/', require('./routes/payments'));
+app.use('/admin', require('./routes/admin-websites'));
+app.use('/admin', require('./routes/admin-packages'));
+app.use('/admin', require('./routes/admin-payments'));
+
+// Policy pages routes
+app.use('/policies', require('./routes/policies'));
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).render('404', { title: '404 - Page Not Found' });

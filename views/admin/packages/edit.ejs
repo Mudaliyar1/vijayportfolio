@@ -1,0 +1,114 @@
+<div class="container mx-auto px-4 py-8 max-w-4xl bg-gray-900">
+  <h1 class="text-3xl font-bold text-center mb-8 text-white">Edit Package: <%= package.name %></h1>
+
+  <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+    <div class="bg-gradient-to-r from-purple-500 to-indigo-600 p-6 text-white">
+      <h2 class="text-2xl font-bold">Package Details</h2>
+    </div>
+
+    <div class="p-6">
+      <form action="/admin/packages/edit/<%= package._id %>" method="POST">
+        <div class="mb-6">
+          <label for="name" class="block text-gray-700 font-semibold mb-2">Package Name</label>
+          <input type="text" id="name" name="name" required
+                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"
+                 value="<%= package.name %>">
+        </div>
+
+        <div class="mb-6">
+          <label for="price" class="block text-gray-700 font-semibold mb-2">Price (₹)</label>
+          <input type="number" id="price" name="price" required min="0"
+                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"
+                 value="<%= package.price %>">
+        </div>
+
+        <div class="mb-6">
+          <label for="description" class="block text-gray-700 font-semibold mb-2">Description</label>
+          <textarea id="description" name="description" rows="3" required
+                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"><%= package.description %></textarea>
+        </div>
+
+        <div class="mb-6">
+          <label for="features" class="block text-gray-700 font-semibold mb-2">Features (comma-separated)</label>
+          <textarea id="features" name="features" rows="3" required
+                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"><%= package.features.join(', ') %></textarea>
+          <p class="text-gray-500 text-sm mt-1">Enter features separated by commas</p>
+        </div>
+
+        <div class="mb-6">
+          <label for="maxPages" class="block text-gray-700 font-semibold mb-2">Maximum Pages</label>
+          <input type="number" id="maxPages" name="maxPages" required min="1"
+                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"
+                 value="<%= package.maxPages %>">
+        </div>
+
+        <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="flex items-center">
+              <input type="checkbox" name="allowBlog" <%= package.allowBlog ? 'checked' : '' %> class="h-5 w-5 text-blue-600">
+              <span class="ml-2 text-gray-700">Allow Blog</span>
+            </label>
+          </div>
+
+          <div>
+            <label class="flex items-center">
+              <input type="checkbox" name="allowGallery" <%= package.allowGallery ? 'checked' : '' %> class="h-5 w-5 text-blue-600">
+              <span class="ml-2 text-gray-700">Allow Gallery</span>
+            </label>
+          </div>
+
+          <div>
+            <label class="flex items-center">
+              <input type="checkbox" name="allowContact" <%= package.allowContact ? 'checked' : '' %> class="h-5 w-5 text-blue-600">
+              <span class="ml-2 text-gray-700">Allow Contact Form</span>
+            </label>
+          </div>
+
+          <div>
+            <label class="flex items-center">
+              <input type="checkbox" name="allowTestimonials" <%= package.allowTestimonials ? 'checked' : '' %> class="h-5 w-5 text-blue-600">
+              <span class="ml-2 text-gray-700">Allow Testimonials</span>
+            </label>
+          </div>
+
+          <div>
+            <label class="flex items-center">
+              <input type="checkbox" name="allowEcommerce" <%= package.allowEcommerce ? 'checked' : '' %> class="h-5 w-5 text-blue-600">
+              <span class="ml-2 text-gray-700">Allow E-commerce</span>
+            </label>
+          </div>
+
+          <div>
+            <label class="flex items-center">
+              <input type="checkbox" name="allowAiContent" <%= package.allowAiContent ? 'checked' : '' %> class="h-5 w-5 text-blue-600">
+              <span class="ml-2 text-gray-700">Allow AI Content</span>
+            </label>
+          </div>
+
+          <div>
+            <label class="flex items-center">
+              <input type="checkbox" name="allowCustomLayout" <%= package.allowCustomLayout ? 'checked' : '' %> class="h-5 w-5 text-blue-600">
+              <span class="ml-2 text-gray-700">Allow Custom Layout</span>
+            </label>
+          </div>
+
+          <div>
+            <label class="flex items-center">
+              <input type="checkbox" name="active" <%= package.active ? 'checked' : '' %> class="h-5 w-5 text-blue-600">
+              <span class="ml-2 text-gray-700">Active</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="flex justify-between">
+          <a href="/admin/packages" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition-colors duration-300">
+            Cancel
+          </a>
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors duration-300">
+            Update Package
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

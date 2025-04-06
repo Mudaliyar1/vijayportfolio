@@ -80,6 +80,31 @@ if (typeof path === 'undefined') {
       </ul>
     </div>
 
+    <!-- Website Builder Section -->
+    <div class="mb-6">
+      <h3 class="text-xs uppercase text-gray-400 font-semibold px-4 mb-3 flex items-center"><span class="w-1 h-4 bg-neon-blue rounded-full mr-2"></span>Website Builder</h3>
+      <ul class="space-y-1">
+        <li>
+          <a href="/admin/websites" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/websites' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-globe w-5"></i>
+            <span class="ml-3">Websites</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/packages" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/packages' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-box w-5"></i>
+            <span class="ml-3">Packages</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/payments" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/payments' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-credit-card w-5"></i>
+            <span class="ml-3">Payments</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
     <!-- System Section -->
     <div class="mb-6">
       <h3 class="text-xs uppercase text-gray-400 font-semibold px-4 mb-3 flex items-center"><span class="w-1 h-4 bg-neon-green rounded-full mr-2"></span>System</h3>
@@ -214,6 +239,24 @@ if (typeof path === 'undefined') {
             <i class="fas fa-tachometer-alt w-5"></i>
             <span class="ml-3">Rate Limits</span>
             <span id="mobile-pending-requests-badge" class="ml-auto bg-neon-blue text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/websites" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/websites' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-globe w-5"></i>
+            <span class="ml-3">Websites</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/packages" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/packages' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-box w-5"></i>
+            <span class="ml-3">Packages</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/payments" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/payments' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-credit-card w-5"></i>
+            <span class="ml-3">Payments</span>
           </a>
         </li>
       </ul>

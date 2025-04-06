@@ -1,0 +1,306 @@
+<div class="container mx-auto px-4 py-8 max-w-5xl bg-gray-900">
+  <h1 class="text-3xl font-bold text-center mb-8 text-white">Edit Page: <%= page.title %></h1>
+
+  <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8 text-black">
+    <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white">
+      <h2 class="text-2xl font-bold">Page Content</h2>
+      <p class="mt-1 opacity-90">Drag and drop elements to build your page</p>
+    </div>
+
+    <div class="p-6">
+      <% if(typeof messages !== 'undefined' && messages.success_msg) { %>
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded" role="alert">
+          <div class="flex">
+            <div class="py-1"><i class="fas fa-check-circle text-green-500 mr-3"></i></div>
+            <div>
+              <p><%= messages.success_msg %></p>
+            </div>
+          </div>
+        </div>
+      <% } %>
+
+      <% if(typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded" role="alert">
+          <div class="flex">
+            <div class="py-1"><i class="fas fa-check-circle text-green-500 mr-3"></i></div>
+            <div>
+              <p><%= success_msg %></p>
+            </div>
+          </div>
+        </div>
+      <% } %>
+
+      <% if(typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded" role="alert">
+          <div class="flex">
+            <div class="py-1"><i class="fas fa-exclamation-circle text-red-500 mr-3"></i></div>
+            <div>
+              <p><%= error_msg %></p>
+            </div>
+          </div>
+        </div>
+      <% } %>
+
+      <form action="/dashboard/websites/<%= website._id %>/pages/<%= page._id %>/edit" method="POST" id="page-edit-form" onsubmit="return validateFormSubmission(event);">
+        <div class="mb-6">
+          <label for="title" class="block text-gray-700 font-semibold mb-2">Page Title</label>
+          <input type="text" id="title" name="title" required
+                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 value="<%= page.title %>" <%= page.isHomepage ? 'readonly' : '' %>
+                 onfocus="disableFormSubmission()" onblur="enableFormSubmission()">
+          <% if (page.isHomepage) { %>
+            <p class="text-gray-500 text-sm mt-1">The homepage title cannot be changed.</p>
+          <% } %>
+        </div>
+
+        <!-- Hidden textarea to store the HTML content -->
+        <textarea id="content" name="content" style="display: none;"><%= page.content %></textarea>
+
+        <!-- Page Builder Container -->
+        <div class="page-builder-container mb-6">
+          <!-- Sidebar Container -->
+          <div id="sidebar-container"></div>
+
+          <!-- Builder Container -->
+          <div id="page-builder"></div>
+        </div>
+
+        <!-- Mobile Hamburger Menu - Hidden now, using sidebar-toggle instead -->
+        <button type="button" id="hamburger-menu" class="hamburger-menu" style="display: none;">
+          <i class="fas fa-bars"></i>
+          <span>Elements</span>
+        </button>
+
+        <!-- Toggle Full Width Button is now in the Page Content header -->
+
+        <!-- Sidebar Overlay for Mobile -->
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+        <div class="flex justify-between">
+          <a href="/dashboard/websites/<%= website._id %>" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition-colors duration-300">
+            Cancel
+          </a>
+          <div>
+            <button type="button" id="preview-button" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition-colors duration-300 mr-2">
+              <i class="fas fa-eye mr-1"></i> Preview
+            </button>
+            <button type="button" id="save-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors duration-300 mr-2">
+              <i class="fas fa-save mr-1"></i> Save & Continue
+            </button>
+            <button type="submit" id="save-exit-button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors duration-300" onclick="window.isDeliberateSubmission = true;">
+              <i class="fas fa-check mr-1"></i> Save & Exit
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg p-6 text-black shadow-lg border border-gray-200">
+    <h3 class="text-xl font-bold mb-4 text-gray-800">WordPress-like Drag & Drop Builder</h3>
+    <p class="text-gray-600 mb-4">Build your page without writing any code - just like WordPress!</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+        <h4 class="font-semibold mb-2 text-blue-700 flex items-center">
+          <i class="fas fa-info-circle mr-2"></i> Basic Usage
+        </h4>
+        <ul class="space-y-2 text-sm text-gray-700">
+          <li class="flex items-start">
+            <i class="fas fa-arrow-right text-blue-500 mt-1 mr-2"></i>
+            <span>Drag elements from the sidebar to your page</span>
+          </li>
+          <li class="flex items-start">
+            <i class="fas fa-arrow-right text-blue-500 mt-1 mr-2"></i>
+            <span>Click on any text to edit it directly</span>
+          </li>
+          <li class="flex items-start">
+            <i class="fas fa-arrow-right text-blue-500 mt-1 mr-2"></i>
+            <span>Use the element controls to move, edit, duplicate, or delete blocks</span>
+          </li>
+          <li class="flex items-start">
+            <i class="fas fa-arrow-right text-blue-500 mt-1 mr-2"></i>
+            <span>Click Preview to see how your page will look</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+        <h4 class="font-semibold mb-2 text-green-700 flex items-center">
+          <i class="fas fa-lightbulb mr-2"></i> Pro Tips
+        </h4>
+        <ul class="space-y-2 text-sm text-gray-700">
+          <li class="flex items-start">
+            <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+            <span>Use the search box to quickly find elements</span>
+          </li>
+          <li class="flex items-start">
+            <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+            <span>Arrange elements in the order you want them to appear</span>
+          </li>
+          <li class="flex items-start">
+            <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+            <span>Use columns to create multi-column layouts</span>
+          </li>
+          <li class="flex items-start">
+            <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+            <span>On mobile, use the hamburger menu to access elements</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-100 text-sm text-yellow-800">
+      <p class="flex items-center">
+        <i class="fas fa-star mr-2 text-yellow-500"></i>
+        <strong>Remember:</strong> All changes are saved when you click the "Save Changes" button.
+      </p>
+    </div>
+  </div>
+
+
+</div>
+
+<script src="/js/page-builder.js"></script>
+<script>
+  // Validate form submission to prevent accidental submissions
+  function validateFormSubmission(event) {
+    // Check if this is a deliberate submission from a button
+    if (!window.isDeliberateSubmission) {
+      console.log('Preventing accidental form submission');
+      event.preventDefault();
+      return false;
+    }
+    return true;
+  }
+
+  // Disable form submission when editing fields
+  function disableFormSubmission() {
+    const form = document.getElementById('page-edit-form');
+    if (form) {
+      window.originalOnSubmit = form.onsubmit;
+      form.onsubmit = (e) => {
+        e.preventDefault();
+        return false;
+      };
+    }
+  }
+
+  // Re-enable form submission when done editing
+  function enableFormSubmission() {
+    const form = document.getElementById('page-edit-form');
+    if (form && window.originalOnSubmit) {
+      form.onsubmit = window.originalOnSubmit;
+    }
+  }
+
+  // Add FTRAISE EDITOR functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    // The toggle fullwidth button is now handled in page-builder.js
+    // No need for additional JavaScript here
+
+    // Check if we're returning from a save operation
+    if (localStorage.getItem('pageBuilderSaving') === 'true') {
+      // Clear the flag
+      localStorage.removeItem('pageBuilderSaving');
+
+      // Show a temporary success message if there's no server-side message
+      if (!document.querySelector('.bg-green-100')) {
+        const successMessage = document.createElement('div');
+        successMessage.className = 'bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded temp-success-message';
+        successMessage.innerHTML = `
+          <div class="flex">
+            <div class="py-1"><i class="fas fa-check-circle text-green-500 mr-3"></i></div>
+            <div>
+              <p>Changes saved successfully!</p>
+            </div>
+          </div>
+        `;
+
+        // Insert at the top of the form container
+        const formContainer = document.querySelector('.p-6');
+        formContainer.insertBefore(successMessage, formContainer.firstChild);
+
+        // Remove the message after 5 seconds
+        setTimeout(() => {
+          successMessage.style.opacity = '0';
+          successMessage.style.transition = 'opacity 0.5s ease';
+          setTimeout(() => {
+            if (successMessage.parentNode) {
+              successMessage.parentNode.removeChild(successMessage);
+            }
+          }, 500);
+        }, 5000);
+      }
+
+      // Restore the save button
+      const saveButton = document.getElementById('save-button');
+      if (saveButton) {
+        saveButton.innerHTML = '<i class="fas fa-save mr-1"></i> Save & Continue';
+        saveButton.disabled = false;
+      }
+    }
+    const hamburgerMenu = document.getElementById('hamburger-menu');
+    const sidebar = document.querySelector('.builder-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    if (hamburgerMenu && sidebar && overlay) {
+      // Improved hamburger menu functionality
+      hamburgerMenu.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+        hamburgerMenu.classList.toggle('active');
+
+        // Change icon based on state
+        const icon = hamburgerMenu.querySelector('i');
+        if (sidebar.classList.contains('active')) {
+          icon.classList.remove('fa-bars');
+          icon.classList.add('fa-times');
+          hamburgerMenu.querySelector('span').textContent = 'Close';
+
+          // Add animation to show sidebar is active
+          hamburgerMenu.classList.add('pulse-animation');
+          setTimeout(() => {
+            hamburgerMenu.classList.remove('pulse-animation');
+          }, 1000);
+        } else {
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
+          hamburgerMenu.querySelector('span').textContent = 'Elements';
+        }
+      });
+
+      overlay.addEventListener('click', () => {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+        hamburgerMenu.classList.remove('active');
+
+        // Reset icon
+        const icon = hamburgerMenu.querySelector('i');
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+        hamburgerMenu.querySelector('span').textContent = 'Elements';
+      });
+
+      // Add tooltip to explain drag and drop
+      const blockItems = document.querySelectorAll('.block-item');
+      blockItems.forEach(item => {
+        item.setAttribute('title', 'Drag this element to the canvas');
+      });
+
+      // Add pulse animation class
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes pulse-animation {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.1); }
+          100% { transform: scale(1); }
+        }
+        .pulse-animation {
+          animation: pulse-animation 0.5s ease-in-out;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  });
+</script>

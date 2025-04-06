@@ -1,0 +1,141 @@
+<div class="container mx-auto px-4 py-8 max-w-5xl bg-gray-900">
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold text-white"><%= website.title %></h1>
+
+    <div class="flex space-x-3">
+      <% if (website.isPublished) { %>
+        <a href="/user-site/<%= website.user.username %>/<%= website.slug %>" target="_blank" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors duration-300 flex items-center">
+          <span>View Live</span>
+          <svg class="h-4 w-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+          </svg>
+        </a>
+      <% } %>
+
+      <form action="/admin/websites/<%= website._id %>/toggle-status" method="POST">
+        <button type="submit" class="<%= website.isPublished ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-blue-600 hover:bg-blue-700' %> text-white font-bold py-2 px-4 rounded transition-colors duration-300">
+          <%= website.isPublished ? 'Unpublish' : 'Publish' %>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8 text-black">
+    <div class="bg-gradient-to-r from-purple-500 to-indigo-600 p-6 text-white">
+      <h2 class="text-2xl font-bold">Website Details</h2>
+    </div>
+
+    <div class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-700 mb-2">Basic Information</h3>
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <div class="mb-3">
+              <span class="block text-sm text-gray-500">Title</span>
+              <span class="font-medium"><%= website.title %></span>
+            </div>
+            <div class="mb-3">
+              <span class="block text-sm text-gray-500">Description</span>
+              <span class="font-medium"><%= website.description %></span>
+            </div>
+            <div class="mb-3">
+              <span class="block text-sm text-gray-500">Business Type</span>
+              <span class="font-medium"><%= website.businessType %></span>
+            </div>
+            <div class="mb-3">
+              <span class="block text-sm text-gray-500">Created On</span>
+              <span class="font-medium"><%= new Date(website.createdAt).toLocaleDateString() %></span>
+            </div>
+            <div class="mb-3">
+              <span class="block text-sm text-gray-500">Last Updated</span>
+              <span class="font-medium"><%= new Date(website.updatedAt).toLocaleDateString() %></span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-semibold text-gray-700 mb-2">User & Package</h3>
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <div class="mb-3">
+              <span class="block text-sm text-gray-500">User</span>
+              <span class="font-medium"><%= website.user.username %> (<%= website.user.email %>)</span>
+            </div>
+            <div class="mb-3">
+              <span class="block text-sm text-gray-500">Package</span>
+              <span class="font-medium"><%= website.package.name %> (₹<%= website.package.price %>)</span>
+            </div>
+            <div class="mb-3">
+              <span class="block text-sm text-gray-500">Status</span>
+              <span class="inline-block px-2 py-1 text-xs rounded-full <%= website.isPublished ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800' %>">
+                <%= website.isPublished ? 'Published' : 'Draft' %>
+              </span>
+            </div>
+            <div class="mb-3">
+              <span class="block text-sm text-gray-500">URL</span>
+              <% if (website.isPublished) { %>
+                <a href="/user-site/<%= website.user.username %>/<%= website.slug %>" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium">
+                  /user-site/<%= website.user.username %>/<%= website.slug %>
+                </a>
+              <% } else { %>
+                <span class="text-gray-400">Not published yet</span>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8 text-black">
+    <div class="bg-gradient-to-r from-purple-500 to-indigo-600 p-6 text-white">
+      <h2 class="text-2xl font-bold">Pages</h2>
+    </div>
+
+    <div class="p-6">
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white">
+          <thead>
+            <tr class="bg-gray-100 text-gray-700">
+              <th class="py-3 px-4 text-left">Title</th>
+              <th class="py-3 px-4 text-left">Slug</th>
+              <th class="py-3 px-4 text-left">Type</th>
+              <th class="py-3 px-4 text-left">Order</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <% website.pages.sort((a, b) => a.order - b.order).forEach(page => { %>
+              <tr class="hover:bg-gray-50">
+                <td class="py-3 px-4"><%= page.title %></td>
+                <td class="py-3 px-4"><%= page.slug %></td>
+                <td class="py-3 px-4">
+                  <% if (page.isHomepage) { %>
+                    <span class="inline-block px-2 py-1 text-xs rounded-full bg-blue-200 text-blue-800">
+                      Homepage
+                    </span>
+                  <% } else { %>
+                    <span class="inline-block px-2 py-1 text-xs rounded-full bg-gray-200 text-gray-800">
+                      Regular
+                    </span>
+                  <% } %>
+                </td>
+                <td class="py-3 px-4"><%= page.order %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex justify-between items-center">
+    <a href="/admin/websites" class="text-blue-600 hover:text-blue-800">
+      &larr; Back to Websites
+    </a>
+
+    <form action="/admin/websites/<%= website._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Are you sure you want to delete this website? This action cannot be undone.');">
+      <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-colors duration-300">
+        Delete Website
+      </button>
+    </form>
+  </div>
+</div>

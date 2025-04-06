@@ -1,0 +1,145 @@
+<div class="container mx-auto px-4 py-8 bg-gray-900">
+  <h1 class="text-3xl font-bold text-center mb-8 text-white">Choose Your Website Package</h1>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-black">
+    <% packages.forEach(package => { %>
+      <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white">
+          <h2 class="text-2xl font-bold"><%= package.name %></h2>
+          <p class="text-3xl font-bold mt-2">₹<%= package.price %></p>
+        </div>
+
+        <div class="p-6">
+          <p class="text-gray-800 mb-4"><%= package.description %></p>
+
+          <ul class="space-y-2 mb-6">
+            <% package.features.forEach(feature => { %>
+              <li class="flex items-start">
+                <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <%= feature %>
+              </li>
+            <% }); %>
+
+            <li class="flex items-start">
+              <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Up to <%= package.maxPages %> pages
+            </li>
+
+            <% if (package.allowBlog) { %>
+              <li class="flex items-start">
+                <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Blog functionality
+              </li>
+            <% } %>
+
+            <% if (package.allowGallery) { %>
+              <li class="flex items-start">
+                <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Gallery/Portfolio
+              </li>
+            <% } %>
+
+            <% if (package.allowContact) { %>
+              <li class="flex items-start">
+                <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Contact form
+              </li>
+            <% } %>
+
+            <% if (package.allowTestimonials) { %>
+              <li class="flex items-start">
+                <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Testimonials section
+              </li>
+            <% } %>
+
+            <% if (package.allowEcommerce) { %>
+              <li class="flex items-start">
+                <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                E-commerce functionality
+              </li>
+            <% } %>
+
+            <% if (package.allowAiContent) { %>
+              <li class="flex items-start">
+                <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                AI-generated content
+              </li>
+            <% } %>
+
+            <% if (package.allowCustomLayout) { %>
+              <li class="flex items-start">
+                <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Custom layout options
+              </li>
+            <% } %>
+          </ul>
+
+          <% if (user) { %>
+            <a href="/create-website?packageId=<%= package._id %>" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center transition-colors duration-300">
+              Select Package & Build Website
+            </a>
+          <% } else { %>
+            <a href="/users/login" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center transition-colors duration-300">
+              Login to Build Website
+            </a>
+          <% } %>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+
+  <div class="mt-12 bg-gray-100 rounded-lg p-6 max-w-3xl mx-auto">
+    <h2 class="text-2xl font-bold mb-4">Why Choose Our Website Builder?</h2>
+    <ul class="space-y-3">
+      <li class="flex items-start">
+        <svg class="h-6 w-6 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+        <span>AI-powered website generation in minutes</span>
+      </li>
+      <li class="flex items-start">
+        <svg class="h-6 w-6 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+        <span>Responsive design that works on all devices</span>
+      </li>
+      <li class="flex items-start">
+        <svg class="h-6 w-6 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+        <span>Easy-to-use dashboard for managing your website</span>
+      </li>
+      <li class="flex items-start">
+        <svg class="h-6 w-6 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+        <span>Secure hosting included with all packages</span>
+      </li>
+      <li class="flex items-start">
+        <svg class="h-6 w-6 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+        <span>24/7 customer support</span>
+      </li>
+    </ul>
+  </div>
+</div>

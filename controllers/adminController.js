@@ -6,6 +6,7 @@ const GuestUser = require('../models/GuestUser');
 const Memory = require('../models/Memory');
 const Review = require('../models/Review');
 const Image = require('../models/Image');
+const Package = require('../models/Package');
 
 module.exports = {
   // Render admin dashboard
@@ -16,6 +17,15 @@ module.exports = {
       const chatCount = await Chat.countDocuments();
       const guestCount = await GuestUser.countDocuments();
       const imageCount = await Image.countDocuments();
+
+      // Get website builder counts
+      const Website = require('../models/Website');
+      const Package = require('../models/Package');
+      const Payment = require('../models/Payment');
+
+      const websiteCount = await Website.countDocuments();
+      const packageCount = await Package.countDocuments({ active: true });
+      const paymentCount = await Payment.countDocuments();
 
       // Get recent users
       const recentUsers = await User.find()
@@ -28,14 +38,25 @@ module.exports = {
         .limit(5)
         .populate('userId', 'username');
 
+      // Get recent websites
+      const recentWebsites = await Website.find()
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .populate('user', 'username')
+        .populate('package', 'name');
+
       res.render('admin/dashboard', {
         title: 'Admin Dashboard - FTRAISE AI',
         userCount,
         chatCount,
         guestCount,
         imageCount,
+        websiteCount,
+        packageCount,
+        paymentCount,
         recentUsers,
         recentChats,
+        recentWebsites,
         path: '/admin',
         layout: 'layouts/no-footer'
       });
@@ -521,6 +542,136 @@ module.exports = {
       console.error(err);
       req.flash('error_msg', 'An error occurred while deleting the interaction');
       res.redirect('/admin/memories');
+    }
+  },
+
+  // Package Management
+  getPackageManagement: async (req, res) => {
+    try {
+      const packages = await Package.find().sort({ price: 1 });
+
+      res.render('admin/packages', {
+        title: 'Package Management - Admin',
+        packages,
+        user: req.user,
+        path: '/admin/packages',
+        layout: 'layouts/no-footer'
+      });
+    } catch (err) {
+      console.error('Error getting packages:', err);
+      req.flash('error_msg', 'Failed to load packages');
+      res.redirect('/admin');
+    }
+  },
+
+  createPackage: async (req, res) => {
+    try {
+      const { name, price, description, maxPages, features, isFree } = req.body;
+
+      // Convert features string to array
+      const featuresArray = features.split('\n').filter(feature => feature.trim() !== '');
+
+      // Create new package
+      const newPackage = new Package({
+        name,
+        price,
+        description,
+        maxPages,
+        features: featuresArray,
+        isFree: isFree === 'on',
+        allowBlog: req.body.allowBlog === 'on',
+        allowGallery: req.body.allowGallery === 'on',
+        allowContact: req.body.allowContact === 'on',
+        allowTestimonials: req.body.allowTestimonials === 'on',
+        allowEcommerce: req.body.allowEcommerce === 'on',
+        allowAiContent: req.body.allowAiContent === 'on',
+        allowCustomLayout: req.body.allowCustomLayout === 'on'
+      });
+
+      await newPackage.save();
+
+      req.flash('success_msg', 'Package created successfully');
+      res.redirect('/admin/packages');
+    } catch (err) {
+      console.error('Error creating package:', err);
+      req.flash('error_msg', 'Failed to create package');
+      res.redirect('/admin/packages');
+    }
+  },
+
+  updatePackage: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, price, description, maxPages, features, isFree } = req.body;
+
+      // Convert features string to array
+      const featuresArray = features.split('\n').filter(feature => feature.trim() !== '');
+
+      // Update package
+      await Package.findByIdAndUpdate(id, {
+        name,
+        price,
+        description,
+        maxPages,
+        features: featuresArray,
+        isFree: isFree === 'on',
+        allowBlog: req.body.allowBlog === 'on',
+        allowGallery: req.body.allowGallery === 'on',
+        allowContact: req.body.allowContact === 'on',
+        allowTestimonials: req.body.allowTestimonials === 'on',
+        allowEcommerce: req.body.allowEcommerce === 'on',
+        allowAiContent: req.body.allowAiContent === 'on',
+        allowCustomLayout: req.body.allowCustomLayout === 'on'
+      });
+
+      req.flash('success_msg', 'Package updated successfully');
+      res.redirect('/admin/packages');
+    } catch (err) {
+      console.error('Error updating package:', err);
+      req.flash('error_msg', 'Failed to update package');
+      res.redirect('/admin/packages');
+    }
+  },
+
+  deletePackage: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      await Package.findByIdAndDelete(id);
+
+      req.flash('success_msg', 'Package deleted successfully');
+      res.redirect('/admin/packages');
+    } catch (err) {
+      console.error('Error deleting package:', err);
+      req.flash('error_msg', 'Failed to delete package');
+      res.redirect('/admin/packages');
+    }
+  },
+
+  toggleFreePackage: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      // Find the package
+      const package = await Package.findById(id);
+
+      if (!package) {
+        req.flash('error_msg', 'Package not found');
+        return res.redirect('/admin/packages');
+      }
+
+      // Toggle the isFree flag
+      package.isFree = !package.isFree;
+
+      // Save the updated package
+      await package.save();
+
+      req.flash('success_msg', `Package is now ${package.isFree ? 'free' : 'paid'}`);
+      res.redirect('/admin/packages');
+    } catch (err) {
+      console.error('Error toggling free package:', err);
+      req.flash('error_msg', 'Failed to toggle free package');
+      res.redirect('/admin/packages');
     }
   }
 };
