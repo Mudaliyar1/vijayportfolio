@@ -89,6 +89,7 @@ app.use('/admin/rate-limits', require('./routes/admin-rate-limits'));
 app.use('/api/ai', require('./routes/ai-service')); // AI service route
 app.use('/blog', require('./routes/blog')); // Blog routes
 app.use('/community', require('./routes/community')); // Community routes
+// Social routes removed as requested
 
 // 404 handler
 app.use((req, res) => {

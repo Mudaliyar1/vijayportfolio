@@ -1,0 +1,186 @@
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold text-white">Search Community</h1>
+    <a href="/community" class="px-4 py-2 bg-dark-200 text-gray-300 rounded-md hover:bg-dark-300 transition-colors">
+      <i class="fas fa-arrow-left mr-2"></i> Back to Community
+    </a>
+  </div>
+
+  <!-- Search Form -->
+  <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 p-6 mb-8">
+    <form action="/community/search" method="GET" class="space-y-4">
+      <div>
+        <label for="query" class="block text-gray-300 mb-2">Search Term</label>
+        <input
+          type="text"
+          id="query"
+          name="query"
+          class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-purple"
+          placeholder="Search by title, content, or tags..."
+          value="<%= query || '' %>"
+          required
+        >
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label for="category" class="block text-gray-300 mb-2">Category</label>
+          <select
+            id="category"
+            name="category"
+            class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-purple"
+          >
+            <option value="all" <%= category === 'all' ? 'selected' : '' %>>All Categories</option>
+            <option value="Question" <%= category === 'Question' ? 'selected' : '' %>>Questions</option>
+            <option value="Discussion" <%= category === 'Discussion' ? 'selected' : '' %>>Discussions</option>
+            <option value="Showcase" <%= category === 'Showcase' ? 'selected' : '' %>>Showcases</option>
+            <option value="Feedback" <%= category === 'Feedback' ? 'selected' : '' %>>Feedback</option>
+            <option value="Announcement" <%= category === 'Announcement' ? 'selected' : '' %>>Announcements</option>
+            <option value="Other" <%= category === 'Other' ? 'selected' : '' %>>Other</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="sort" class="block text-gray-300 mb-2">Sort By</label>
+          <select
+            id="sort"
+            name="sort"
+            class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-purple"
+          >
+            <option value="newest" <%= sort === 'newest' ? 'selected' : '' %>>Newest First</option>
+            <option value="oldest" <%= sort === 'oldest' ? 'selected' : '' %>>Oldest First</option>
+            <option value="popular" <%= sort === 'popular' ? 'selected' : '' %>>Most Popular</option>
+            <option value="mostLiked" <%= sort === 'mostLiked' ? 'selected' : '' %>>Most Liked</option>
+            <option value="mostCommented" <%= sort === 'mostCommented' ? 'selected' : '' %>>Most Commented</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="author" class="block text-gray-300 mb-2">Author</label>
+          <input
+            type="text"
+            id="author"
+            name="author"
+            class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-purple"
+            placeholder="Search by author name..."
+            value="<%= typeof author !== 'undefined' ? author : '' %>"
+          >
+        </div>
+      </div>
+
+      <div class="flex justify-end">
+        <button type="submit" class="px-6 py-2 bg-gradient-to-r from-neon-purple to-neon-pink text-white rounded-md hover:opacity-90 transition-colors">
+          <i class="fas fa-search mr-2"></i> Search
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Search Results -->
+  <div class="mb-8">
+    <% if (typeof results !== 'undefined' && results) { %>
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold">
+          <% if (results.length === 0) { %>
+            No Results Found
+          <% } else { %>
+            <%= results.length %> Results Found
+          <% } %>
+        </h2>
+        <% if (results.length > 0) { %>
+          <span class="text-gray-400">Showing <%= results.length %> results</span>
+        <% } %>
+      </div>
+
+      <% if (results.length === 0) { %>
+        <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 p-8 text-center">
+          <i class="fas fa-search text-4xl text-gray-500 mb-4"></i>
+          <h3 class="text-xl font-semibold mb-2">No Results Found</h3>
+          <p class="text-gray-400 mb-6">
+            We couldn't find any posts matching your search criteria. Try adjusting your search terms or filters.
+          </p>
+          <a href="/community" class="px-6 py-2 bg-dark-200 text-gray-300 rounded-md hover:bg-dark-300 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Community
+          </a>
+        </div>
+      <% } else { %>
+        <div class="space-y-4">
+          <% results.forEach(post => { %>
+            <!-- Community Post -->
+            <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 p-4 hover:border-neon-purple/30 transition-colors">
+              <div class="flex items-start gap-4">
+                <div class="hidden sm:block">
+                  <div class="w-12 h-12 rounded-full bg-neon-purple/20 flex items-center justify-center">
+                    <i class="fas fa-user text-neon-purple"></i>
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <div class="flex flex-wrap justify-between items-start gap-2 mb-2">
+                    <h3 class="text-lg font-semibold hover:text-neon-purple transition-colors">
+                      <a href="/community/post/<%= post._id %>"><%= post.title %></a>
+                    </h3>
+                    <div class="flex items-center space-x-2">
+                      <% if (post.views > 50 || (post.likes && post.likes.length > 10)) { %>
+                        <span class="px-2 py-1 bg-neon-purple/20 text-neon-purple text-xs rounded-full">Hot Topic</span>
+                      <% } %>
+                      <span class="px-2 py-1 bg-dark-200 text-gray-300 text-xs rounded-full"><%= post.category %></span>
+                    </div>
+                  </div>
+                  <p class="text-gray-300 mb-3">
+                    <%= post.content.length > 200 ? post.content.substring(0, 200) + '...' : post.content %>
+                  </p>
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex items-center text-sm text-gray-400">
+                      <span class="flex items-center mr-4"><i class="fas fa-user mr-1"></i> <%= post.author.name %></span>
+                      <span class="flex items-center mr-4"><i class="fas fa-clock mr-1"></i> <%= formatDate(post.createdAt) %></span>
+                      <span class="flex items-center"><i class="fas fa-comment mr-1"></i> <%= post.comments.length %> replies</span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                      <span class="flex items-center text-gray-400">
+                        <i class="fas fa-thumbs-up mr-1"></i> <%= post.likes ? post.likes.length : 0 %>
+                      </span>
+                      <a href="/community/post/<%= post._id %>" class="flex items-center text-gray-400 hover:text-neon-purple transition-colors">
+                        <i class="fas fa-eye mr-1"></i> View
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } %>
+    <% } %>
+  </div>
+</div>
+
+<script>
+  // Helper function to format dates
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      return 'Recently';
+    }
+
+    const now = new Date();
+    const diffMs = now - date;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      if (diffHours === 0) {
+        const diffMinutes = Math.floor(diffMs / (1000 * 60));
+        return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
+      }
+      return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+    } else if (diffDays < 7) {
+      return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+    } else {
+      // Format as MM/DD/YYYY
+      return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+    }
+  }
+</script>

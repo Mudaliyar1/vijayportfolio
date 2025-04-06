@@ -402,14 +402,10 @@ FTRAISE AI:`;
               // Check if this is a rate limit error (429)
               if (response && response.statusCode === 429) {
                 // Custom error message for rate limit
-                const instagramUrl = process.env.INSTAGRAM_URL || 'https://www.instagram.com/ft_raise_59';
-                const githubUrl = process.env.GITHUB_URL || 'https://github.com/Mudaliyar1';
-                const emailAddress = process.env.EMAIL_ADDRESS || 'vijaymudaliyar224@gmail.com';
-
-                aiResponse = "⚠️ The AI service has reached its rate limit. Please contact admin (Vijay) for assistance:\n\n" +
-                          `- Instagram: [@ft_raise_59](${instagramUrl})\n` +
-                          `- GitHub: [Mudaliyar1](${githubUrl})\n` +
-                          `- Email: [${emailAddress}](mailto:${emailAddress})`;
+                aiResponse = "⚠️ The AI service is taking too long to respond. Please try again later or contact admin (Vijay):\n\n" +
+                          "- Instagram: [@ft_raise_59](https://www.instagram.com/ft_raise_59)\n" +
+                          "- GitHub: [Mudaliyar1](https://github.com/Mudaliyar1)\n" +
+                          "- Email: vijaymudaliyar224@gmail.com";
               } else {
                 // Fallback response with a friendly message
                 aiResponse = "I'm here to help! What would you like to know or discuss today?";
@@ -426,14 +422,10 @@ FTRAISE AI:`;
           // Check for rate limit error (429) first
           if (response.statusCode === 429) {
             // Custom error message for rate limit
-            const instagramUrl = process.env.INSTAGRAM_URL || 'https://www.instagram.com/ft_raise_59';
-            const githubUrl = process.env.GITHUB_URL || 'https://github.com/Mudaliyar1';
-            const emailAddress = process.env.EMAIL_ADDRESS || 'vijaymudaliyar224@gmail.com';
-
-            aiResponse = "⚠️ The AI service has reached its rate limit. Please contact admin (Vijay) for assistance:\n\n" +
-                      `- Instagram: [@ft_raise_59](${instagramUrl})\n` +
-                      `- GitHub: [Mudaliyar1](${githubUrl})\n` +
-                      `- Email: [${emailAddress}](mailto:${emailAddress})`;
+            aiResponse = "⚠️ The AI service is taking too long to respond. Please try again later or contact admin (Vijay):\n\n" +
+                      "- Instagram: [@ft_raise_59](https://www.instagram.com/ft_raise_59)\n" +
+                      "- GitHub: [Mudaliyar1](https://github.com/Mudaliyar1)\n" +
+                      "- Email: vijaymudaliyar224@gmail.com";
 
             console.log('Rate limit exceeded (429). Using custom error message.');
           }
@@ -607,9 +599,8 @@ const getChat = async (req, res) => {
     // Find chat
     const chat = await Chat.findById(chatId);
 
-    // Check if chat exists and belongs to the user
-    if (!chat || (chat.userId && chat.userId.toString() !== (userId?.toString() || '')) ||
-        (!chat.userId && chat.guestId !== guestId)) {
+    // Check if chat exists
+    if (!chat) {
       return res.status(404).json({
         success: false,
         message: 'Chat not found'
@@ -639,9 +630,8 @@ const deleteChat = async (req, res) => {
     // Find chat
     const chat = await Chat.findById(chatId);
 
-    // Check if chat exists and belongs to the user
-    if (!chat || (chat.userId && chat.userId.toString() !== (userId?.toString() || '')) ||
-        (!chat.userId && chat.guestId !== guestId)) {
+    // Check if chat exists
+    if (!chat) {
       return res.status(404).json({
         success: false,
         message: 'Chat not found'

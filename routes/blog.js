@@ -17,6 +17,7 @@ router.delete('/:id/delete', isAuthenticated, blogController.deleteBlog);
 router.post('/:id/delete', isAuthenticated, blogController.deleteBlog); // Add POST method for compatibility
 router.post('/:id/like', isAuthenticated, blogController.likeBlog);
 router.post('/:id/comment', isAuthenticated, blogController.addComment);
+router.post('/:id/status', isAdmin, blogController.updateBlogStatus);
 
 // Admin routes
 router.get('/admin/manage', isAdmin, blogController.adminGetAllBlogs);

@@ -1,0 +1,183 @@
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6 text-white">Edit Community Post</h1>
+  
+  <% if (typeof error !== 'undefined') { %>
+  <div class="bg-red-500/20 text-red-400 p-4 rounded-md mb-6">
+    <%= error %>
+  </div>
+  <% } %>
+  
+  <form action="/community/edit/<%= post._id %>" method="POST" class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 p-6">
+    <div class="mb-4">
+      <label for="title" class="block text-gray-300 mb-2">Title</label>
+      <input 
+        type="text" 
+        id="title" 
+        name="title" 
+        class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-purple"
+        required
+        value="<%= post.title %>"
+      >
+    </div>
+    
+    <div class="mb-4">
+      <label for="category" class="block text-gray-300 mb-2">Category</label>
+      <select 
+        id="category" 
+        name="category" 
+        class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-purple"
+      >
+        <option value="Question" <%= post.category === 'Question' ? 'selected' : '' %>>Question</option>
+        <option value="Discussion" <%= post.category === 'Discussion' ? 'selected' : '' %>>Discussion</option>
+        <option value="Showcase" <%= post.category === 'Showcase' ? 'selected' : '' %>>Showcase</option>
+        <option value="Feedback" <%= post.category === 'Feedback' ? 'selected' : '' %>>Feedback</option>
+        <option value="Announcement" <%= post.category === 'Announcement' ? 'selected' : '' %>>Announcement</option>
+        <option value="Other" <%= post.category === 'Other' ? 'selected' : '' %>>Other</option>
+      </select>
+    </div>
+    
+    <div class="mb-4">
+      <label for="tags" class="block text-gray-300 mb-2">Tags (comma separated)</label>
+      <input 
+        type="text" 
+        id="tags" 
+        name="tags" 
+        class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-purple"
+        placeholder="ai, help, discussion"
+        value="<%= post.tags.join(', ') %>"
+      >
+    </div>
+    
+    <div class="mb-4">
+      <label for="media" class="block text-gray-300 mb-2">Media URLs (comma separated, optional)</label>
+      <input 
+        type="text" 
+        id="media" 
+        name="media" 
+        class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-purple"
+        placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
+        value="<%= post.media.join(', ') %>"
+      >
+      <div class="text-xs text-gray-500 mt-1">
+        Enter URLs to images or videos you want to include in your post
+      </div>
+    </div>
+    
+    <div class="mb-4">
+      <label for="status" class="block text-gray-300 mb-2">Status</label>
+      <select 
+        id="status" 
+        name="status" 
+        class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-purple"
+      >
+        <option value="active" <%= post.status === 'active' ? 'selected' : '' %>>Active (visible to all)</option>
+        <option value="hidden" <%= post.status === 'hidden' ? 'selected' : '' %>>Hidden (only visible to you)</option>
+      </select>
+    </div>
+    
+    <div class="mb-6">
+      <label for="content" class="block text-gray-300 mb-2">Content</label>
+      <div class="border border-gray-700 rounded-md overflow-hidden">
+        <div class="bg-dark-300 px-4 py-2 flex border-b border-gray-700">
+          <button type="button" class="mr-3 text-gray-400 hover:text-white" onclick="formatText('bold')">
+            <i class="fas fa-bold"></i>
+          </button>
+          <button type="button" class="mr-3 text-gray-400 hover:text-white" onclick="formatText('italic')">
+            <i class="fas fa-italic"></i>
+          </button>
+          <button type="button" class="mr-3 text-gray-400 hover:text-white" onclick="formatText('heading')">
+            <i class="fas fa-heading"></i>
+          </button>
+          <button type="button" class="mr-3 text-gray-400 hover:text-white" onclick="formatText('link')">
+            <i class="fas fa-link"></i>
+          </button>
+          <button type="button" class="mr-3 text-gray-400 hover:text-white" onclick="formatText('list')">
+            <i class="fas fa-list-ul"></i>
+          </button>
+          <button type="button" class="mr-3 text-gray-400 hover:text-white" onclick="formatText('code')">
+            <i class="fas fa-code"></i>
+          </button>
+          <button type="button" class="mr-3 text-gray-400 hover:text-white" onclick="formatText('quote')">
+            <i class="fas fa-quote-right"></i>
+          </button>
+        </div>
+        <textarea 
+          id="content" 
+          name="content" 
+          class="w-full px-4 py-2 bg-dark-200 text-white focus:outline-none min-h-[300px]"
+          required
+        ><%= post.content %></textarea>
+      </div>
+      <div class="text-xs text-gray-500 mt-1">
+        You can use Markdown formatting in your content
+      </div>
+    </div>
+    
+    <div class="flex justify-between">
+      <a href="/community/post/<%= post._id %>" class="px-6 py-2 bg-dark-300 text-gray-300 rounded-md hover:bg-dark-400 transition-colors">
+        Cancel
+      </a>
+      <button type="submit" class="px-6 py-2 bg-gradient-to-r from-neon-purple to-neon-pink text-white rounded-md hover:opacity-90 transition-colors">
+        Update Post
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Preview media when URL is entered
+    const mediaUrlField = document.getElementById('media');
+    mediaUrlField.addEventListener('blur', function() {
+      const urls = this.value.trim();
+      if (urls) {
+        // You could add media preview functionality here
+      }
+    });
+  });
+  
+  // Text formatting functions
+  function formatText(type) {
+    const contentField = document.getElementById('content');
+    const start = contentField.selectionStart;
+    const end = contentField.selectionEnd;
+    const selectedText = contentField.value.substring(start, end);
+    let formattedText = '';
+    
+    switch (type) {
+      case 'bold':
+        formattedText = `**${selectedText}**`;
+        break;
+      case 'italic':
+        formattedText = `*${selectedText}*`;
+        break;
+      case 'heading':
+        formattedText = `## ${selectedText}`;
+        break;
+      case 'link':
+        formattedText = `[${selectedText}](url)`;
+        break;
+      case 'list':
+        formattedText = `\n- ${selectedText}`;
+        break;
+      case 'code':
+        formattedText = `\`${selectedText}\``;
+        break;
+      case 'quote':
+        formattedText = `\n> ${selectedText}`;
+        break;
+    }
+    
+    contentField.value = 
+      contentField.value.substring(0, start) + 
+      formattedText + 
+      contentField.value.substring(end);
+    
+    // Set focus back to the textarea
+    contentField.focus();
+    
+    // Set cursor position after the inserted text
+    const newCursorPos = start + formattedText.length;
+    contentField.setSelectionRange(newCursorPos, newCursorPos);
+  }
+</script>

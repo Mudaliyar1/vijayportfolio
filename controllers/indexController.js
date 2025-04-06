@@ -57,9 +57,24 @@ module.exports = {
   },
 
   // Render community page
-  getCommunityPage: (req, res) => {
-    res.render('community', {
-      title: 'Community - FTRAISE AI'
-    });
+  getCommunityPage: async (req, res) => {
+    try {
+      // Import the community controller and call its getAllPosts method
+      const communityController = require('./communityController');
+
+      // Set default query parameters if not provided
+      req.query = req.query || {};
+      if (!req.query.sort) req.query.sort = 'newest';
+      if (!req.query.category) req.query.category = 'all';
+
+      // Call the getAllPosts method directly
+      await communityController.getAllPosts(req, res);
+    } catch (error) {
+      console.error('Error in getCommunityPage:', error);
+      res.render('error', {
+        title: 'Error - FTRAISE AI',
+        message: 'An error occurred while loading the community page.'
+      });
+    }
   }
 };

@@ -1,6 +1,7 @@
 const Blog = require('../models/Blog');
 const User = require('../models/User');
 const blogService = require('../services/blogService');
+const { formatDate } = require('../utils/dateFormatter');
 
 /**
  * Blog Controller
@@ -10,8 +11,33 @@ const blogController = {
   // Get all blogs (both user-created and external)
   getAllBlogs: async (req, res) => {
     try {
+      // Get category filter from query params
+      const { category } = req.query;
+      console.log('Category filter:', category);
+
+      // Build query for user blogs
+      let query = { status: 'published' };
+
+      // Apply category filter if provided
+      if (category && category !== 'All') {
+        // Map UI categories to database categories
+        if (category === 'Tutorials') {
+          query.category = 'Tutorial';
+        } else if (category === 'AI News') {
+          query.category = { $in: ['AI News', 'AI Research'] };
+        } else if (category === 'Case Studies') {
+          query.category = 'Case Study';
+        } else if (category === 'Product Updates') {
+          query.category = 'Product Update';
+        } else {
+          query.category = category;
+        }
+      }
+
+      console.log('User blogs query:', JSON.stringify(query));
+
       // Get user-created blogs
-      const userBlogs = await Blog.find({ status: 'published' })
+      const userBlogs = await Blog.find(query)
         .sort({ createdAt: -1 })
         .populate('author', 'name email')
         .limit(20); // Increased limit to show more user blogs
@@ -32,10 +58,42 @@ const blogController = {
       }));
 
       // Get external blogs
-      const featuredArticle = await blogService.getFeaturedArticle();
-      const recentArticles = await blogService.getRecentArticles(6);
-      const aiResearchArticles = await blogService.getArticlesByCategory('AI Research', 3);
-      const techNewsArticles = await blogService.getArticlesByCategory('Tech News', 3);
+      let featuredArticle, recentArticles, aiResearchArticles, techNewsArticles;
+
+      // Filter external articles by category
+      if (category && category !== 'All') {
+        // Map our UI categories to the blog service categories
+        let serviceCategory;
+
+        if (category === 'Tutorials') {
+          serviceCategory = 'Tutorial';
+        } else if (category === 'AI News') {
+          serviceCategory = 'AI Research';
+        } else if (category === 'Case Studies') {
+          serviceCategory = 'Case Study';
+        } else if (category === 'Product Updates') {
+          serviceCategory = 'Tech News';
+        } else {
+          serviceCategory = category;
+        }
+
+        console.log('Mapped category:', serviceCategory);
+
+        // Get articles by the mapped category
+        const categoryArticles = await blogService.getArticlesByCategory(serviceCategory, 10);
+
+        // Use these articles for all sections
+        featuredArticle = categoryArticles.length > 0 ? categoryArticles[0] : null;
+        recentArticles = categoryArticles.slice(1, 7);
+        aiResearchArticles = [];
+        techNewsArticles = [];
+      } else {
+        // Get all categories if no filter
+        featuredArticle = await blogService.getFeaturedArticle();
+        recentArticles = await blogService.getRecentArticles(6);
+        aiResearchArticles = await blogService.getArticlesByCategory('AI Research', 3);
+        techNewsArticles = await blogService.getArticlesByCategory('Tech News', 3);
+      }
 
       // Format dates for external articles
       if (featuredArticle) {
@@ -68,7 +126,8 @@ const blogController = {
         recentArticles: combinedRecentArticles,
         aiResearchArticles,
         techNewsArticles,
-        userBlogs: formattedUserBlogs
+        userBlogs: formattedUserBlogs,
+        selectedCategory: category || 'All'
       });
     } catch (error) {
       console.error('Error fetching blogs:', error);
@@ -309,8 +368,9 @@ const blogController = {
       const result = await Blog.findByIdAndDelete(req.params.id);
       console.log('Delete result:', result ? 'Success' : 'Failed');
 
-      // If request is AJAX, return JSON
-      if (req.xhr || req.headers.accept.includes('application/json')) {
+      // If request is AJAX or fetch API, return JSON
+      if (req.xhr || req.headers['content-type'] === 'application/json' ||
+          (req.headers.accept && req.headers.accept.includes('application/json'))) {
         return res.json({ success: true, message: 'Blog deleted successfully' });
       }
 
@@ -319,16 +379,15 @@ const blogController = {
     } catch (error) {
       console.error('Error deleting blog:', error);
 
-      // If request is AJAX, return JSON
-      if (req.xhr || req.headers.accept.includes('application/json')) {
+      // If request is AJAX or fetch API, return JSON
+      if (req.xhr || req.headers['content-type'] === 'application/json' ||
+          (req.headers.accept && req.headers.accept.includes('application/json'))) {
         return res.status(500).json({ success: false, message: 'An error occurred while deleting the blog post' });
       }
 
-      // Otherwise render error page
-      res.status(500).render('error', {
-        title: 'Error - FTRAISE AI',
-        message: 'An error occurred while deleting the blog post.'
-      });
+      // Otherwise render error page or redirect with flash message
+      req.flash('error_msg', 'An error occurred while deleting the blog post');
+      return res.redirect('/blog');
     }
   },
 
@@ -354,6 +413,43 @@ const blogController = {
     } catch (error) {
       console.error('Error liking blog:', error);
       res.status(500).json({ success: false, message: 'An error occurred while liking the blog post' });
+    }
+  },
+
+  // Update blog status (admin only)
+  updateBlogStatus: async (req, res) => {
+    try {
+      // Check if user is admin
+      if (!req.user || req.user.role !== 'admin') {
+        return res.status(403).json({ success: false, message: 'Only admins can update blog status' });
+      }
+
+      const { status } = req.body;
+
+      if (!status || !['published', 'draft', 'archived'].includes(status)) {
+        return res.status(400).json({ success: false, message: 'Invalid status value' });
+      }
+
+      console.log(`Updating blog ${req.params.id} status to ${status}`);
+
+      const blog = await Blog.findById(req.params.id);
+
+      if (!blog) {
+        return res.status(404).json({ success: false, message: 'Blog not found' });
+      }
+
+      // Update status
+      blog.status = status;
+      await blog.save();
+
+      return res.json({
+        success: true,
+        message: 'Blog status updated successfully',
+        status: status
+      });
+    } catch (error) {
+      console.error('Error updating blog status:', error);
+      return res.status(500).json({ success: false, message: 'An error occurred while updating the blog status' });
     }
   },
 
@@ -517,33 +613,5 @@ const blogController = {
     }
   }
 };
-
-// Helper function to format dates
-function formatDate(dateString) {
-  const date = new Date(dateString);
-
-  // Check if date is valid
-  if (isNaN(date.getTime())) {
-    return 'Recently';
-  }
-
-  const now = new Date();
-  const diffMs = now - date;
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) {
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    if (diffHours === 0) {
-      const diffMinutes = Math.floor(diffMs / (1000 * 60));
-      return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
-    }
-    return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
-  } else if (diffDays < 7) {
-    return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
-  } else {
-    // Format as MM/DD/YYYY
-    return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
-  }
-}
 
 module.exports = blogController;

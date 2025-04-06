@@ -18,6 +18,7 @@ router.post('/post/:id/delete', isAuthenticated, communityController.deletePost)
 router.post('/post/:id/like', isAuthenticated, communityController.likePost);
 router.post('/post/:id/comment', isAuthenticated, communityController.addComment);
 router.post('/post/:id/comment/:commentId/like', isAuthenticated, communityController.likeComment);
+router.post('/post/:id/status', isAdmin, communityController.updatePostStatus);
 
 // Admin routes
 router.get('/admin/manage', isAdmin, communityController.adminGetAllPosts);

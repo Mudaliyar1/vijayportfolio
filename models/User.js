@@ -62,7 +62,23 @@ const UserSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
-  }
+  },
+  // User profile fields
+  name: {
+    type: String,
+    default: function() {
+      return this.username;
+    }
+  },
+  bio: {
+    type: String,
+    default: ''
+  },
+  website: {
+    type: String,
+    default: ''
+  },
+  // Social media links removed as requested
 });
 
 module.exports = mongoose.model('User', UserSchema);

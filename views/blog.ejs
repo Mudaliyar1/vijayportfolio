@@ -53,11 +53,11 @@
 
   <!-- Categories -->
   <div class="flex flex-wrap gap-3 mb-8">
-    <a href="#" class="px-4 py-2 bg-dark-200 rounded-full text-white hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">All</a>
-    <a href="#" class="px-4 py-2 bg-dark-200 rounded-full text-white hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">Tutorials</a>
-    <a href="#" class="px-4 py-2 bg-dark-200 rounded-full text-white hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">AI News</a>
-    <a href="#" class="px-4 py-2 bg-dark-200 rounded-full text-white hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">Case Studies</a>
-    <a href="#" class="px-4 py-2 bg-dark-200 rounded-full text-white hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">Product Updates</a>
+    <a href="/blog?category=All" class="px-4 py-2 <%= typeof selectedCategory === 'undefined' || selectedCategory === 'All' ? 'bg-neon-blue/20 text-neon-blue' : 'bg-dark-200 text-white' %> rounded-full hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">All</a>
+    <a href="/blog?category=Tutorials" class="px-4 py-2 <%= selectedCategory === 'Tutorials' ? 'bg-neon-blue/20 text-neon-blue' : 'bg-dark-200 text-white' %> rounded-full hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">Tutorials</a>
+    <a href="/blog?category=AI News" class="px-4 py-2 <%= selectedCategory === 'AI News' ? 'bg-neon-blue/20 text-neon-blue' : 'bg-dark-200 text-white' %> rounded-full hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">AI News</a>
+    <a href="/blog?category=Case Studies" class="px-4 py-2 <%= selectedCategory === 'Case Studies' ? 'bg-neon-blue/20 text-neon-blue' : 'bg-dark-200 text-white' %> rounded-full hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">Case Studies</a>
+    <a href="/blog?category=Product Updates" class="px-4 py-2 <%= selectedCategory === 'Product Updates' ? 'bg-neon-blue/20 text-neon-blue' : 'bg-dark-200 text-white' %> rounded-full hover:bg-neon-blue/20 hover:text-neon-blue transition-colors">Product Updates</a>
   </div>
 
   <!-- Articles Grid -->

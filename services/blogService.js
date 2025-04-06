@@ -71,16 +71,16 @@ class BlogService {
         logo: 'https://miro.medium.com/1*UdxHVJTEUmJTWgT3SfErtw.png'
       }
     ];
-    
+
     // Cache for storing fetched articles
     this.cache = {
       articles: [],
       lastUpdated: null,
-      // Cache expiration time in milliseconds (15 minutes for development, would be longer in production)
-      expirationTime: 15 * 60 * 1000
+      // Cache expiration time in milliseconds (1 minute for development, would be longer in production)
+      expirationTime: 1 * 60 * 1000
     };
   }
-  
+
   /**
    * Fetch articles from all sources
    */
@@ -90,17 +90,17 @@ class BlogService {
       console.log('Using cached articles, last updated:', this.cache.lastUpdated);
       return this.cache.articles;
     }
-    
+
     console.log('Fetching fresh articles from sources...');
-    
+
     try {
       // Array to store all fetched articles
       let allArticles = [];
-      
+
       // Fetch from each source with Promise.allSettled to handle failures gracefully
       const fetchPromises = this.sources.map(source => this.fetchFromSource(source));
       const results = await Promise.allSettled(fetchPromises);
-      
+
       // Process results
       results.forEach((result, index) => {
         if (result.status === 'fulfilled') {
@@ -112,25 +112,25 @@ class BlogService {
           console.error(`Error fetching from ${sourceName}:`, result.reason.message);
         }
       });
-      
+
       // Sort articles by date (newest first)
       allArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-      
+
       // Filter out articles older than 7 days to keep content fresh
       const oneWeekAgo = new Date();
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-      
+
       allArticles = allArticles.filter(article => {
         const pubDate = new Date(article.pubDate);
         return !isNaN(pubDate.getTime()) && pubDate > oneWeekAgo;
       });
-      
+
       console.log(`Total articles after filtering: ${allArticles.length}`);
-      
+
       // Update cache
       this.cache.articles = allArticles;
       this.cache.lastUpdated = new Date();
-      
+
       return allArticles;
     } catch (error) {
       console.error('Error fetching articles:', error);
@@ -138,7 +138,7 @@ class BlogService {
       return this.cache.articles || [];
     }
   }
-  
+
   /**
    * Fetch articles from a specific source
    */
@@ -150,24 +150,24 @@ class BlogService {
         },
         timeout: 10000 // 10 seconds timeout
       });
-      
+
       // Parse XML to JSON
       const result = await parser.parseStringPromise(response.data);
-      
+
       // Process the feed based on its format (RSS or Atom)
       let articles = [];
-      
+
       if (result.rss) {
         // RSS format
         if (!result.rss.channel || !result.rss.channel.item) {
           console.warn(`Invalid RSS format from ${source.name}`);
           return [];
         }
-        
-        const items = Array.isArray(result.rss.channel.item) 
-          ? result.rss.channel.item 
+
+        const items = Array.isArray(result.rss.channel.item)
+          ? result.rss.channel.item
           : [result.rss.channel.item];
-        
+
         articles = items.filter(item => item).map(item => ({
           title: item.title || 'Untitled',
           link: item.link || '',
@@ -185,11 +185,11 @@ class BlogService {
           console.warn(`Invalid Atom format from ${source.name}`);
           return [];
         }
-        
-        const entries = Array.isArray(result.feed.entry) 
-          ? result.feed.entry 
+
+        const entries = Array.isArray(result.feed.entry)
+          ? result.feed.entry
           : [result.feed.entry];
-        
+
         articles = entries.filter(entry => entry).map(entry => {
           // Handle different link formats in Atom feeds
           let link = '';
@@ -203,7 +203,7 @@ class BlogService {
               link = entry.link.href;
             }
           }
-          
+
           return {
             title: entry.title ? (typeof entry.title === 'string' ? entry.title : entry.title._) : 'Untitled',
             link: link,
@@ -220,7 +220,7 @@ class BlogService {
         console.warn(`Unknown feed format from ${source.name}`);
         return [];
       }
-      
+
       // Filter out articles without required fields
       return articles.filter(article => article.title && article.link);
     } catch (error) {
@@ -228,127 +228,128 @@ class BlogService {
       return [];
     }
   }
-  
+
   /**
    * Clean HTML description
    */
   cleanDescription(description) {
     if (!description) return '';
-    
+
     // Convert to string if it's an object
     if (typeof description === 'object') {
       description = description._ || '';
     }
-    
+
     // Remove HTML tags
     let cleanText = description.replace(/<\/?[^>]+(>|$)/g, ' ');
-    
+
     // Remove extra whitespace
     cleanText = cleanText.replace(/\s+/g, ' ').trim();
-    
+
     // Limit to 200 characters
-    return cleanText.length > 200 
-      ? cleanText.substring(0, 200) + '...' 
+    return cleanText.length > 200
+      ? cleanText.substring(0, 200) + '...'
       : cleanText;
   }
-  
+
   /**
    * Extract image URL from content
    */
   extractImageFromContent(content) {
-    if (!content) return null;
-    
+    if (!content) return 'https://picsum.photos/800/400?random=' + Math.floor(Math.random() * 1000);
+
     // Convert to string if it's an object
     if (typeof content === 'object') {
       content = content._ || '';
     }
-    
+
     // Try to find image tag
     const imgMatch = content.match(/<img[^>]+src=['\"]([^'\"]+)['\"]|<img[^>]+src=([^\\s>]+)/i);
     if (imgMatch && (imgMatch[1] || imgMatch[2])) {
       return imgMatch[1] || imgMatch[2];
     }
-    
+
     // Try to find media:content tag (common in RSS feeds)
     const mediaMatch = content.match(/<media:content[^>]+url=['\"]([^'\"]+)['\"]|<media:content[^>]+url=([^\\s>]+)/i);
     if (mediaMatch && (mediaMatch[1] || mediaMatch[2])) {
       return mediaMatch[1] || mediaMatch[2];
     }
-    
+
     // Try to find enclosure tag (common in RSS feeds)
     const enclosureMatch = content.match(/<enclosure[^>]+url=['\"]([^'\"]+)['\"]|<enclosure[^>]+url=([^\\s>]+)/i);
     if (enclosureMatch && (enclosureMatch[1] || enclosureMatch[2])) {
       return enclosureMatch[1] || enclosureMatch[2];
     }
-    
+
     // Try to find any URL that looks like an image
     const urlMatch = content.match(/https?:\/\/[^\s'"]+\.(jpg|jpeg|png|gif|webp)(\?[^\s'"]*)?/i);
     if (urlMatch) {
       return urlMatch[0];
     }
-    
-    return null;
+
+    // If no image found, return a random image
+    return 'https://picsum.photos/800/400?random=' + Math.floor(Math.random() * 1000);
   }
-  
+
   /**
    * Check if cache is valid
    */
   isCacheValid() {
     if (!this.cache.lastUpdated) return false;
-    
+
     const now = new Date();
     const elapsed = now - this.cache.lastUpdated;
-    
+
     return elapsed < this.cache.expirationTime && this.cache.articles.length > 0;
   }
-  
+
   /**
    * Get featured article
    */
   async getFeaturedArticle() {
     const articles = await this.fetchArticles();
-    
+
     // Return the newest article as featured
     return articles[0] || null;
   }
-  
+
   /**
    * Get recent articles
    */
   async getRecentArticles(count = 6) {
     const articles = await this.fetchArticles();
-    
+
     // Skip the first one (featured) and return the next 'count' articles
     return articles.slice(1, count + 1);
   }
-  
+
   /**
    * Get articles by category
    */
   async getArticlesByCategory(category, count = 10) {
     const articles = await this.fetchArticles();
-    
+
     // Filter articles by category and return the specified count
     return articles
       .filter(article => article.category === category)
       .slice(0, count);
   }
-  
+
   /**
    * Format publication date
    */
   formatDate(dateString) {
     const date = new Date(dateString);
-    
+
     // Check if date is valid
     if (isNaN(date.getTime())) {
       return 'Recently';
     }
-    
+
     const now = new Date();
     const diffMs = now - date;
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) {
       const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
       if (diffHours === 0) {

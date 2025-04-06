@@ -1,5 +1,6 @@
 const CommunityPost = require('../models/CommunityPost');
 const User = require('../models/User');
+const { formatDate } = require('../utils/dateFormatter');
 
 /**
  * Community Controller
@@ -11,6 +12,8 @@ const communityController = {
     try {
       const { category, sort, filter } = req.query;
 
+      console.log('Community posts request:', { category, sort, filter });
+
       // Build query
       const query = { status: 'active' };
 
@@ -21,40 +24,111 @@ const communityController = {
       // Build sort options
       let sortOptions = {};
 
-      if (sort === 'newest') {
-        sortOptions = { createdAt: -1 };
+      if (sort === 'popular') {
+        sortOptions = { views: -1 };
+        console.log('Sorting by popularity (views)');
       } else if (sort === 'oldest') {
         sortOptions = { createdAt: 1 };
-      } else if (sort === 'popular') {
-        sortOptions = { views: -1 };
+        console.log('Sorting by oldest');
       } else if (sort === 'mostLiked') {
-        sortOptions = { 'likes.length': -1 };
+        // Use aggregation for accurate sorting by array length
+        console.log('Sorting by most liked');
       } else if (sort === 'mostCommented') {
-        sortOptions = { 'comments.length': -1 };
+        // Use aggregation for accurate sorting by array length
+        console.log('Sorting by most commented');
       } else {
         // Default sort by newest
         sortOptions = { createdAt: -1 };
+        console.log('Sorting by newest (default)');
       }
 
-      // Get posts
-      const posts = await CommunityPost.find(query)
-        .sort(sortOptions)
-        .populate('author', 'name email')
-        .limit(30); // Increased limit to show more community posts
+      console.log('Query:', JSON.stringify(query));
+      console.log('Sort options:', JSON.stringify(sortOptions));
+
+      try {
+        // Get posts
+        let posts;
+
+        if (sort === 'mostLiked') {
+          // Use aggregation for likes count sorting
+          posts = await CommunityPost.aggregate([
+            { $match: query },
+            { $addFields: { likesCount: { $size: { $ifNull: ['$likes', []] } } } },
+            { $sort: { likesCount: -1 } },
+            { $limit: 30 }
+          ]);
+
+          // Manually populate author
+          const authorIds = posts.map(post => post.author);
+          const authors = await User.find({ _id: { $in: authorIds } }, 'name email');
+          const authorsMap = authors.reduce((map, author) => {
+            map[author._id.toString()] = author;
+            return map;
+          }, {});
+
+          posts = posts.map(post => {
+            post.author = authorsMap[post.author.toString()] || { name: 'Unknown User', email: '' };
+            return post;
+          });
+        } else if (sort === 'mostCommented') {
+          // Use aggregation for comments count sorting
+          posts = await CommunityPost.aggregate([
+            { $match: query },
+            { $addFields: { commentsCount: { $size: { $ifNull: ['$comments', []] } } } },
+            { $sort: { commentsCount: -1 } },
+            { $limit: 30 }
+          ]);
+
+          // Manually populate author
+          const authorIds = posts.map(post => post.author);
+          const authors = await User.find({ _id: { $in: authorIds } }, 'name email');
+          const authorsMap = authors.reduce((map, author) => {
+            map[author._id.toString()] = author;
+            return map;
+          }, {});
+
+          posts = posts.map(post => {
+            post.author = authorsMap[post.author.toString()] || { name: 'Unknown User', email: '' };
+            return post;
+          });
+        } else {
+          // Regular query with sort
+          posts = await CommunityPost.find(query)
+            .sort(sortOptions)
+            .populate('author', 'name email')
+            .limit(30);
+        }
+
+        console.log(`Found ${posts.length} community posts`);
+
+        // Ensure posts is always an array
+        if (!Array.isArray(posts)) {
+          posts = [];
+        }
+      } catch (innerError) {
+        console.error('Error fetching community posts:', innerError);
+        posts = [];
+      }
 
       // Get trending tags
-      const trendingTags = await CommunityPost.aggregate([
-        { $match: { status: 'active' } },
-        { $unwind: '$tags' },
-        { $group: { _id: '$tags', count: { $sum: 1 } } },
-        { $sort: { count: -1 } },
-        { $limit: 10 }
-      ]);
+      let trendingTags = [];
+      try {
+        trendingTags = await CommunityPost.aggregate([
+          { $match: { status: 'active' } },
+          { $unwind: '$tags' },
+          { $group: { _id: '$tags', count: { $sum: 1 } } },
+          { $sort: { count: -1 } },
+          { $limit: 10 }
+        ]);
+      } catch (tagsError) {
+        console.error('Error fetching trending tags:', tagsError);
+      }
 
+      const postsToRender = posts || [];
       res.render('community', {
         title: 'Community - FTRAISE AI',
-        posts,
-        trendingTags,
+        posts: postsToRender,
+        trendingTags: trendingTags || [],
         category: category || 'all',
         sort: sort || 'newest',
         filter: filter || 'all'
@@ -63,6 +137,11 @@ const communityController = {
       console.error('Error fetching community posts:', error);
       res.render('community', {
         title: 'Community - FTRAISE AI',
+        posts: [],
+        trendingTags: [],
+        category: 'all',
+        sort: 'newest',
+        filter: 'all',
         error: 'Unable to fetch community posts. Please try again later.'
       });
     }
@@ -316,8 +395,9 @@ const communityController = {
 
       console.log('Delete result:', result ? 'Success' : 'Failed');
 
-      // If request is AJAX, return JSON
-      if (req.xhr || req.headers.accept.includes('application/json')) {
+      // If request is AJAX or fetch API, return JSON
+      if (req.xhr || req.headers['content-type'] === 'application/json' ||
+          (req.headers.accept && req.headers.accept.includes('application/json'))) {
         return res.json({ success: true, message: 'Post deleted successfully' });
       }
 
@@ -326,16 +406,15 @@ const communityController = {
     } catch (error) {
       console.error('Error deleting community post:', error);
 
-      // If request is AJAX, return JSON
-      if (req.xhr || req.headers.accept.includes('application/json')) {
+      // If request is AJAX or fetch API, return JSON
+      if (req.xhr || req.headers['content-type'] === 'application/json' ||
+          (req.headers.accept && req.headers.accept.includes('application/json'))) {
         return res.status(500).json({ success: false, message: 'An error occurred while deleting the post' });
       }
 
-      // Otherwise render error page
-      res.status(500).render('error', {
-        title: 'Error - FTRAISE AI',
-        message: 'An error occurred while deleting the community post.'
-      });
+      // Otherwise redirect with flash message
+      req.flash('error_msg', 'An error occurred while deleting the community post');
+      return res.redirect('/community');
     }
   },
 
@@ -426,6 +505,43 @@ const communityController = {
     }
   },
 
+  // Update post status (admin only)
+  updatePostStatus: async (req, res) => {
+    try {
+      // Check if user is admin
+      if (!req.user || req.user.role !== 'admin') {
+        return res.status(403).json({ success: false, message: 'Only admins can update post status' });
+      }
+
+      const { status } = req.body;
+
+      if (!status || !['active', 'hidden', 'deleted'].includes(status)) {
+        return res.status(400).json({ success: false, message: 'Invalid status value' });
+      }
+
+      console.log(`Updating post ${req.params.id} status to ${status}`);
+
+      const post = await CommunityPost.findById(req.params.id);
+
+      if (!post) {
+        return res.status(404).json({ success: false, message: 'Post not found' });
+      }
+
+      // Update status
+      post.status = status;
+      await post.save();
+
+      return res.json({
+        success: true,
+        message: 'Post status updated successfully',
+        status: status
+      });
+    } catch (error) {
+      console.error('Error updating post status:', error);
+      return res.status(500).json({ success: false, message: 'An error occurred while updating the post status' });
+    }
+  },
+
   // Like a comment
   likeComment: async (req, res) => {
     try {
@@ -476,7 +592,7 @@ const communityController = {
   // Search community posts
   searchPosts: async (req, res) => {
     try {
-      const { query, category, sort } = req.query;
+      const { query, category, sort, author } = req.query;
 
       // Build search criteria
       const searchCriteria = { status: 'active' };
@@ -548,7 +664,8 @@ const communityController = {
         trendingTags,
         query,
         category: category || 'all',
-        sort: sort || 'newest'
+        sort: sort || 'newest',
+        author: author || ''
       });
     } catch (error) {
       console.error('Error searching community posts:', error);
@@ -591,33 +708,5 @@ const communityController = {
     }
   }
 };
-
-// Helper function to format dates
-function formatDate(dateString) {
-  const date = new Date(dateString);
-
-  // Check if date is valid
-  if (isNaN(date.getTime())) {
-    return 'Recently';
-  }
-
-  const now = new Date();
-  const diffMs = now - date;
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) {
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    if (diffHours === 0) {
-      const diffMinutes = Math.floor(diffMs / (1000 * 60));
-      return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
-    }
-    return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
-  } else if (diffDays < 7) {
-    return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
-  } else {
-    // Format as MM/DD/YYYY
-    return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
-  }
-}
 
 module.exports = communityController;

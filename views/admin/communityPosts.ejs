@@ -6,7 +6,7 @@
       <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
     </a>
   </div>
-  
+
   <!-- Stats Cards -->
   <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
     <div class="bg-dark-100/60 backdrop-blur-sm p-4 rounded-lg border border-neon-purple/30 text-center">
@@ -26,22 +26,22 @@
       <div class="text-sm text-gray-400">Deleted</div>
     </div>
   </div>
-  
+
   <!-- Search and Filters -->
   <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 p-4 mb-6">
     <div class="flex flex-wrap gap-4">
       <div class="flex-1 min-w-[200px]">
-        <input 
-          type="text" 
-          id="search-posts" 
+        <input
+          type="text"
+          id="search-posts"
           class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-purple"
           placeholder="Search posts..."
         >
       </div>
-      
+
       <div>
-        <select 
-          id="filter-status" 
+        <select
+          id="filter-status"
           class="px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-purple"
         >
           <option value="all">All Status</option>
@@ -50,10 +50,10 @@
           <option value="deleted">Deleted</option>
         </select>
       </div>
-      
+
       <div>
-        <select 
-          id="filter-category" 
+        <select
+          id="filter-category"
           class="px-4 py-2 bg-dark-200 border border-gray-700 rounded-md text-white focus:outline-none focus:border-neon-purple"
         >
           <option value="all">All Categories</option>
@@ -67,7 +67,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Posts Table -->
   <div class="bg-dark-100/60 backdrop-blur-sm rounded-lg border border-gray-800 overflow-hidden mb-8">
     <div class="overflow-x-auto">
@@ -126,16 +126,16 @@
                     <a href="/community/post/<%= post._id %>" class="text-gray-400 hover:text-neon-purple transition-colors" title="View">
                       <i class="fas fa-eye"></i>
                     </a>
-                    <button 
-                      class="text-gray-400 hover:text-neon-green transition-colors status-toggle-btn" 
+                    <button
+                      class="text-gray-400 hover:text-neon-green transition-colors status-toggle-btn"
                       data-post-id="<%= post._id %>"
                       data-current-status="<%= post.status %>"
                       title="Toggle Status"
                     >
                       <i class="fas fa-toggle-on"></i>
                     </button>
-                    <button 
-                      class="text-gray-400 hover:text-red-500 transition-colors delete-post-btn" 
+                    <button
+                      class="text-gray-400 hover:text-red-500 transition-colors delete-post-btn"
                       data-post-id="<%= post._id %>"
                       data-post-title="<%= post.title %>"
                       title="Delete"
@@ -227,23 +227,23 @@
     const categoryFilter = document.getElementById('filter-category');
     const tableBody = document.getElementById('posts-table-body');
     const tableRows = tableBody.querySelectorAll('tr');
-    
+
     function filterTable() {
       const searchTerm = searchInput.value.toLowerCase();
       const statusValue = statusFilter.value;
       const categoryValue = categoryFilter.value;
-      
+
       tableRows.forEach(row => {
         const title = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
         const author = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
         const category = row.querySelector('td:nth-child(3)').textContent;
         const statusElement = row.querySelector('td:nth-child(4) span');
         const status = statusElement ? statusElement.textContent.toLowerCase() : '';
-        
+
         const matchesSearch = title.includes(searchTerm) || author.includes(searchTerm);
         const matchesStatus = statusValue === 'all' || status.includes(statusValue.toLowerCase());
         const matchesCategory = categoryValue === 'all' || category === categoryValue;
-        
+
         if (matchesSearch && matchesStatus && matchesCategory) {
           row.style.display = '';
         } else {
@@ -251,19 +251,19 @@
         }
       });
     }
-    
+
     if (searchInput) {
       searchInput.addEventListener('input', filterTable);
     }
-    
+
     if (statusFilter) {
       statusFilter.addEventListener('change', filterTable);
     }
-    
+
     if (categoryFilter) {
       categoryFilter.addEventListener('change', filterTable);
     }
-    
+
     // Status toggle functionality
     const statusToggleButtons = document.querySelectorAll('.status-toggle-btn');
     const statusModal = document.getElementById('status-modal');
@@ -271,15 +271,15 @@
     const cancelStatus = document.getElementById('cancel-status');
     const confirmStatus = document.getElementById('confirm-status');
     const statusRadios = document.querySelectorAll('input[name="post-status"]');
-    
+
     let postToUpdate = null;
     let currentStatus = null;
-    
+
     statusToggleButtons.forEach(button => {
       button.addEventListener('click', function() {
         postToUpdate = this.dataset.postId;
         currentStatus = this.dataset.currentStatus;
-        
+
         // Set the current status in the modal
         statusRadios.forEach(radio => {
           if (radio.value === currentStatus) {
@@ -290,11 +290,11 @@
             radio.parentElement.querySelector('.status-radio div').classList.add('hidden');
           }
         });
-        
+
         statusModal.classList.remove('hidden');
       });
     });
-    
+
     // Handle status radio changes
     statusRadios.forEach(radio => {
       radio.addEventListener('change', function() {
@@ -302,40 +302,41 @@
         document.querySelectorAll('.status-radio div').forEach(indicator => {
           indicator.classList.add('hidden');
         });
-        
+
         // Show the selected indicator
         if (this.checked) {
           this.parentElement.querySelector('.status-radio div').classList.remove('hidden');
         }
       });
     });
-    
+
     if (closeStatusModal) {
       closeStatusModal.addEventListener('click', function() {
         statusModal.classList.add('hidden');
       });
     }
-    
+
     if (cancelStatus) {
       cancelStatus.addEventListener('click', function() {
         statusModal.classList.add('hidden');
       });
     }
-    
+
     if (confirmStatus) {
       confirmStatus.addEventListener('click', async function() {
         if (!postToUpdate) return;
-        
+
         // Get the selected status
         const selectedStatus = document.querySelector('input[name="post-status"]:checked').value;
-        
+
         // If status hasn't changed, just close the modal
         if (selectedStatus === currentStatus) {
           statusModal.classList.add('hidden');
           return;
         }
-        
+
         try {
+          console.log(`Updating post ${postToUpdate} status to ${selectedStatus}`);
           const response = await fetch(`/community/post/${postToUpdate}/status`, {
             method: 'POST',
             headers: {
@@ -343,14 +344,14 @@
             },
             body: JSON.stringify({ status: selectedStatus })
           });
-          
+
           const data = await response.json();
-          
+
           if (data.success) {
             // Update the row in the table
             const row = document.querySelector(`[data-post-id="${postToUpdate}"]`).closest('tr');
             const statusCell = row.querySelector('td:nth-child(4)');
-            
+
             // Update status badge
             let statusBadge = '';
             if (selectedStatus === 'active') {
@@ -360,16 +361,16 @@
             } else {
               statusBadge = '<span class="px-2 py-1 bg-red-500/20 text-red-500 text-xs rounded-full">Deleted</span>';
             }
-            
+
             statusCell.innerHTML = statusBadge;
-            
+
             // Update the button's data attribute
             const button = document.querySelector(`[data-post-id="${postToUpdate}"]`);
             button.dataset.currentStatus = selectedStatus;
-            
+
             // Update stats
             updateStats();
-            
+
             // Close the modal
             statusModal.classList.add('hidden');
           } else {
@@ -381,7 +382,7 @@
         }
       });
     }
-    
+
     // Delete post functionality
     const deleteButtons = document.querySelectorAll('.delete-post-btn');
     const deleteModal = document.getElementById('delete-modal');
@@ -389,9 +390,9 @@
     const cancelDelete = document.getElementById('cancel-delete');
     const confirmDelete = document.getElementById('confirm-delete');
     const deletePostTitle = document.getElementById('delete-post-title');
-    
+
     let postToDelete = null;
-    
+
     deleteButtons.forEach(button => {
       button.addEventListener('click', function() {
         postToDelete = this.dataset.postId;
@@ -399,23 +400,23 @@
         deleteModal.classList.remove('hidden');
       });
     });
-    
+
     if (closeDeleteModal) {
       closeDeleteModal.addEventListener('click', function() {
         deleteModal.classList.add('hidden');
       });
     }
-    
+
     if (cancelDelete) {
       cancelDelete.addEventListener('click', function() {
         deleteModal.classList.add('hidden');
       });
     }
-    
+
     if (confirmDelete) {
       confirmDelete.addEventListener('click', async function() {
         if (!postToDelete) return;
-        
+
         try {
           const response = await fetch(`/community/post/${postToDelete}/delete`, {
             method: 'DELETE',
@@ -423,19 +424,19 @@
               'Content-Type': 'application/json'
             }
           });
-          
+
           const data = await response.json();
-          
+
           if (data.success) {
             // Remove the row from the table
             const row = document.querySelector(`[data-post-id="${postToDelete}"]`).closest('tr');
             if (row) {
               row.remove();
             }
-            
+
             // Update stats
             updateStats();
-            
+
             // Close the modal
             deleteModal.classList.add('hidden');
           } else {
@@ -447,27 +448,27 @@
         }
       });
     }
-    
+
     // Close modals when clicking outside
     statusModal.addEventListener('click', function(e) {
       if (e.target === statusModal) {
         statusModal.classList.add('hidden');
       }
     });
-    
+
     deleteModal.addEventListener('click', function(e) {
       if (e.target === deleteModal) {
         deleteModal.classList.add('hidden');
       }
     });
-    
+
     // Function to update stats
     function updateStats() {
       const totalPosts = document.querySelectorAll('#posts-table-body tr').length;
       const activePosts = document.querySelectorAll('#posts-table-body tr td:nth-child(4) span.text-green-500').length;
       const hiddenPosts = document.querySelectorAll('#posts-table-body tr td:nth-child(4) span.text-yellow-500').length;
       const deletedPosts = document.querySelectorAll('#posts-table-body tr td:nth-child(4) span.text-red-500').length;
-      
+
       document.querySelector('.text-neon-purple').textContent = totalPosts;
       document.querySelector('.text-neon-green').textContent = activePosts;
       document.querySelector('.text-yellow-500').textContent = hiddenPosts;

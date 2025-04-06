@@ -222,5 +222,9 @@ module.exports = {
       req.flash('error_msg', 'An error occurred while deleting your account');
       res.redirect('/profile');
     }
-  }
+  },
+
+  // Search users feature removed as requested
+
+  // Social features removed as requested
 };
