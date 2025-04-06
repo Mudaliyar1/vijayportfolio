@@ -4,75 +4,114 @@ if (typeof path === 'undefined') {
   path = '/admin';
 }
 %>
-<div class="w-64 bg-dark-200 border-r border-gray-800 min-h-screen hidden md:block">
-  <div class="p-4 border-b border-gray-800">
+<div class="w-64 bg-dark-200 border-r border-gray-800 min-h-screen hidden md:block shadow-xl">
+  <div class="p-6 border-b border-gray-800 bg-gradient-to-r from-dark-100 to-dark-200">
     <a href="/" class="flex items-center">
       <span class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple">FTRAISE AI</span>
     </a>
-    <p class="text-gray-500 text-sm mt-1">Admin Panel</p>
+    <div class="flex items-center mt-2">
+      <span class="w-2 h-2 bg-neon-green rounded-full mr-2 animate-pulse"></span>
+      <p class="text-gray-400 text-sm font-medium">Admin Panel</p>
+    </div>
   </div>
 
-  <nav class="p-4">
-    <ul class="space-y-2">
-      <li>
-        <a href="/admin" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
-          <i class="fas fa-tachometer-alt w-5"></i>
-          <span class="ml-3">Dashboard</span>
-        </a>
-      </li>
-      <li>
-        <a href="/admin/users" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/users' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
-          <i class="fas fa-users w-5"></i>
-          <span class="ml-3">User Management</span>
-        </a>
-      </li>
-      <li>
-        <a href="/admin/chats" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/chats' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
-          <i class="fas fa-comments w-5"></i>
-          <span class="ml-3">Chat Management</span>
-        </a>
-      </li>
-      <li>
-        <a href="/admin/guests" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/guests' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
-          <i class="fas fa-user-secret w-5"></i>
-          <span class="ml-3">Guest Management</span>
-        </a>
-      </li>
-      <li>
-        <a href="/admin/memories" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/memories' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
-          <i class="fas fa-brain w-5"></i>
-          <span class="ml-3">AI Memory</span>
-        </a>
-      </li>
-      <li>
-        <a href="/admin/reviews" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/reviews' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
-          <i class="fas fa-star w-5"></i>
-          <span class="ml-3">Reviews</span>
-        </a>
-      </li>
-      <li>
-        <a href="/admin/maintenance" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/maintenance' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
-          <i class="fas fa-tools w-5"></i>
-          <span class="ml-3">Maintenance</span>
-        </a>
-      </li>
-      <li>
-        <a href="/admin/images" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/images' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
-          <i class="fas fa-images w-5"></i>
-          <span class="ml-3">Image Management</span>
-        </a>
-      </li>
-      <li>
-        <a href="/admin/rate-limits" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/rate-limits' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
-          <i class="fas fa-tachometer-alt w-5"></i>
-          <span class="ml-3">Rate Limits</span>
-          <span id="pending-requests-badge" class="ml-auto bg-neon-blue text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
-        </a>
-      </li>
-    </ul>
+  <nav class="p-4 pb-32">
+    <!-- Dashboard Section -->
+    <div class="mb-6">
+      <h3 class="text-xs uppercase text-gray-400 font-semibold px-4 mb-3 flex items-center"><span class="w-1 h-4 bg-neon-blue rounded-full mr-2"></span>Main</h3>
+      <ul class="space-y-1">
+        <li>
+          <a href="/admin" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin' ? 'bg-gradient-to-r from-neon-blue/20 to-neon-blue/10 text-white border-l-2 border-neon-blue' : 'text-gray-400 hover:bg-dark-100 hover:text-white hover:border-l-2 hover:border-neon-blue/50' %> transition-all duration-200">
+            <i class="fas fa-tachometer-alt w-5"></i>
+            <span class="ml-3">Dashboard</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- User Management Section -->
+    <div class="mb-6">
+      <h3 class="text-xs uppercase text-gray-400 font-semibold px-4 mb-3 flex items-center"><span class="w-1 h-4 bg-neon-purple rounded-full mr-2"></span>Users</h3>
+      <ul class="space-y-1">
+        <li>
+          <a href="/admin/users" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/users' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-users w-5"></i>
+            <span class="ml-3">User Management</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/guests" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/guests' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-user-secret w-5"></i>
+            <span class="ml-3">Guest Management</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/rate-limits" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/rate-limits' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-tachometer-alt w-5"></i>
+            <span class="ml-3">Rate Limits</span>
+            <span id="pending-requests-badge" class="ml-auto bg-neon-blue text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Content Management Section -->
+    <div class="mb-6">
+      <h3 class="text-xs uppercase text-gray-400 font-semibold px-4 mb-3 flex items-center"><span class="w-1 h-4 bg-neon-pink rounded-full mr-2"></span>Content</h3>
+      <ul class="space-y-1">
+        <li>
+          <a href="/admin/chats" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/chats' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-comments w-5"></i>
+            <span class="ml-3">Chat Management</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/images" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/images' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-images w-5"></i>
+            <span class="ml-3">Image Management</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/memories" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/memories' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-brain w-5"></i>
+            <span class="ml-3">AI Memory</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- System Section -->
+    <div class="mb-6">
+      <h3 class="text-xs uppercase text-gray-400 font-semibold px-4 mb-3 flex items-center"><span class="w-1 h-4 bg-neon-green rounded-full mr-2"></span>System</h3>
+      <ul class="space-y-1">
+        <li>
+          <a href="/admin/reviews" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/reviews' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-star w-5"></i>
+            <span class="ml-3">Reviews</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/maintenance" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/maintenance' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-tools w-5"></i>
+            <span class="ml-3">Maintenance</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Empty Section for Future Additions -->
+    <div class="mb-6">
+      <h3 class="text-xs uppercase text-gray-400 font-semibold px-4 mb-3 flex items-center"><span class="w-1 h-4 bg-gray-500 rounded-full mr-2"></span>Extensions</h3>
+      <ul class="space-y-1">
+        <li class="px-4 py-2 text-gray-500 text-sm italic">
+          <i class="fas fa-puzzle-piece w-5"></i>
+          <span class="ml-3">Future modules</span>
+        </li>
+      </ul>
+    </div>
   </nav>
 
-  <div class="absolute bottom-0 w-64 p-4 border-t border-gray-800">
+  <div class="fixed bottom-0 w-64 p-4 border-t border-gray-800 bg-dark-200">
     <div class="flex items-center">
       <img src="<%= user.profilePicture %>" alt="<%= user.username %>" class="w-8 h-8 rounded-full mr-3">
       <div>

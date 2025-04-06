@@ -951,6 +951,17 @@
               const rateLimitMessage = document.querySelector('.bg-blue-600\\/10');
               if (rateLimitMessage && rateLimitMessage.classList.contains('hidden')) {
                 rateLimitMessage.classList.remove('hidden');
+
+                // Update the message to indicate this is for image generation
+                const messageTitle = rateLimitMessage.querySelector('.font-medium');
+                if (messageTitle) {
+                  messageTitle.textContent = 'Image Generation Rate Limit';
+                }
+
+                const messageText = rateLimitMessage.querySelector('p.text-sm');
+                if (messageText) {
+                  messageText.textContent = `You've reached your limit of ${data.currentLimit || 1} image generation requests in 2 minutes. Please wait for the cooldown to end.`;
+                }
               }
             }
           }

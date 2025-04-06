@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const Chat = require('../models/Chat');
 const GuestUser = require('../models/GuestUser');
@@ -374,14 +375,32 @@ module.exports = {
     try {
       const chatId = req.params.id;
 
+      // Validate ObjectId
+      if (!mongoose.Types.ObjectId.isValid(chatId)) {
+        req.flash('error_msg', 'Invalid chat ID format');
+        return res.redirect('/admin/chats');
+      }
+
+      // Find the chat first to make sure it exists
+      const chat = await Chat.findById(chatId);
+
+      if (!chat) {
+        req.flash('error_msg', 'Chat not found');
+        return res.redirect('/admin/chats');
+      }
+
+      // Delete the chat
       await Chat.findByIdAndDelete(chatId);
 
+      // Clear the success message
       req.flash('success_msg', 'Chat deleted successfully');
-      res.redirect('/admin/chats');
+
+      // Redirect back to the chat management page
+      return res.redirect('/admin/chats');
     } catch (err) {
-      console.error(err);
+      console.error('Error deleting chat:', err);
       req.flash('error_msg', 'An error occurred while deleting the chat');
-      res.redirect('/admin/chats');
+      return res.redirect('/admin/chats');
     }
   },
 

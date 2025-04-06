@@ -1,10 +1,14 @@
 const mongoose = require('mongoose');
 
 const GuestUserSchema = new mongoose.Schema({
-  ipAddress: {
+  guestId: {
     type: String,
     required: true,
     unique: true
+  },
+  ipAddress: {
+    type: String,
+    required: true
   },
   requestsCount: {
     type: Number,

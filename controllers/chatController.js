@@ -1,4 +1,5 @@
 const cohere = require('cohere-ai');
+const mongoose = require('mongoose');
 const Chat = require('../models/Chat');
 const User = require('../models/User');
 const GuestUser = require('../models/GuestUser');
@@ -183,6 +184,7 @@ const sendMessage = async (req, res) => {
       if (!memory) {
         memory = new Memory({
           userId,
+          context: 'General conversation',
           languagePreferences: {
             primary: 'english',
             secondary: null
@@ -202,6 +204,7 @@ const sendMessage = async (req, res) => {
       if (!memory) {
         memory = new Memory({
           guestId,
+          context: 'Guest conversation',
           languagePreferences: {
             primary: 'english',
             secondary: null
@@ -402,10 +405,12 @@ FTRAISE AI:`;
               // Check if this is a rate limit error (429)
               if (response && response.statusCode === 429) {
                 // Custom error message for rate limit
-                aiResponse = "⚠️ The AI service is taking too long to respond. Please try again later or contact admin (Vijay):\n\n" +
-                          "- Instagram: [@ft_raise_59](https://www.instagram.com/ft_raise_59)\n" +
-                          "- GitHub: [Mudaliyar1](https://github.com/Mudaliyar1)\n" +
-                          "- Email: vijaymudaliyar224@gmail.com";
+                aiResponse = "⚠️ The AI service is taking too long to respond. Please try again later or contact admin.\n\n" +
+                          "<div class='flex space-x-2 mt-2'>" +
+                          "<a href='https://www.instagram.com/ft_raise_59' target='_blank' class='px-2 py-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded text-white text-xs'>@ft_raise_59</a>" +
+                          "<a href='https://github.com/Mudaliyar1' target='_blank' class='px-2 py-1 bg-gray-700 rounded text-white text-xs'>Mudaliyar1</a>" +
+                          "<span class='px-2 py-1 bg-gray-700 rounded text-white text-xs'>vijaymudaliyar224@gmail.com</span>" +
+                          "</div>";
               } else {
                 // Fallback response with a friendly message
                 aiResponse = "I'm here to help! What would you like to know or discuss today?";
@@ -422,10 +427,12 @@ FTRAISE AI:`;
           // Check for rate limit error (429) first
           if (response.statusCode === 429) {
             // Custom error message for rate limit
-            aiResponse = "⚠️ The AI service is taking too long to respond. Please try again later or contact admin (Vijay):\n\n" +
-                      "- Instagram: [@ft_raise_59](https://www.instagram.com/ft_raise_59)\n" +
-                      "- GitHub: [Mudaliyar1](https://github.com/Mudaliyar1)\n" +
-                      "- Email: vijaymudaliyar224@gmail.com";
+            aiResponse = "⚠️ The AI service is taking too long to respond. Please try again later or contact admin.\n\n" +
+                      "<div class='flex space-x-2 mt-2'>" +
+                      "<a href='https://www.instagram.com/ft_raise_59' target='_blank' class='px-2 py-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded text-white text-xs'>@ft_raise_59</a>" +
+                      "<a href='https://github.com/Mudaliyar1' target='_blank' class='px-2 py-1 bg-gray-700 rounded text-white text-xs'>Mudaliyar1</a>" +
+                      "<span class='px-2 py-1 bg-gray-700 rounded text-white text-xs'>vijaymudaliyar224@gmail.com</span>" +
+                      "</div>";
 
             console.log('Rate limit exceeded (429). Using custom error message.');
           }
@@ -546,6 +553,21 @@ FTRAISE AI:`;
     // Save chat
     await chat.save();
 
+    // We don't need to update the request count here as it's already done in the rate limiter middleware
+    // This prevents double-counting of requests
+
+    // Calculate remaining requests
+    let updatedRemaining = 0;
+    let updatedLimit = 8; // Default limit
+
+    if (userId) {
+      const user = await User.findById(userId);
+      if (user) {
+        updatedLimit = user.chatRateLimit || 8;
+        updatedRemaining = Math.max(0, updatedLimit - user.requestsInWindow);
+      }
+    }
+
     // Return success response
     return res.status(200).json({
       success: true,
@@ -553,8 +575,8 @@ FTRAISE AI:`;
       response: processedResponse,
       chatId: chat._id,
       isRateLimited: false,
-      remaining: req.session.rateLimit ? req.session.rateLimit.remaining : remaining,
-      currentLimit
+      remaining: updatedRemaining,
+      currentLimit: updatedLimit
     });
   } catch (error) {
     console.error('Error sending message:', error);
@@ -592,9 +614,17 @@ const getChatHistory = async (req, res) => {
 // Get specific chat
 const getChat = async (req, res) => {
   try {
-    const { chatId } = req.params;
+    const { id: chatId } = req.params;
     const userId = req.user ? req.user._id : null;
     const guestId = req.cookies.guestId || req.ip;
+
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(chatId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid chat ID format'
+      });
+    }
 
     // Find chat
     const chat = await Chat.findById(chatId);
@@ -623,9 +653,17 @@ const getChat = async (req, res) => {
 // Delete chat
 const deleteChat = async (req, res) => {
   try {
-    const { chatId } = req.params;
+    const { id: chatId } = req.params;
     const userId = req.user ? req.user._id : null;
     const guestId = req.cookies.guestId || req.ip;
+
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(chatId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid chat ID format'
+      });
+    }
 
     // Find chat
     const chat = await Chat.findById(chatId);

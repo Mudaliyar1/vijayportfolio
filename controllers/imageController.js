@@ -760,7 +760,7 @@ module.exports = {
         });
       }
 
-      // Process rate limit
+      // Process image rate limit (separate from chat rate limit)
       const rateLimitResult = await processRateLimit(req);
       if (!rateLimitResult.success) {
         // If there's a reference image, delete it
@@ -771,7 +771,9 @@ module.exports = {
         return res.status(429).json({
           success: false,
           message: rateLimitResult.message,
-          cooldown: rateLimitResult.cooldown
+          cooldown: rateLimitResult.cooldownEndTime,
+          isRateLimited: true,
+          isImageRateLimit: true // Flag to indicate this is an image rate limit, not chat
         });
       }
 
@@ -1018,7 +1020,7 @@ module.exports = {
         });
       }
 
-      // Process rate limit
+      // Process image rate limit (separate from chat rate limit)
       const rateLimitResult = await processRateLimit(req);
       if (!rateLimitResult.success) {
         // Delete the uploaded file
@@ -1028,6 +1030,7 @@ module.exports = {
           success: false,
           message: rateLimitResult.message,
           isRateLimited: true,
+          isImageRateLimit: true, // Flag to indicate this is an image rate limit, not chat
           isGuest: rateLimitResult.isGuest,
           cooldownEndTime: rateLimitResult.cooldownEndTime
         });
@@ -1103,6 +1106,7 @@ module.exports = {
           success: false,
           message: rateLimitResult.message,
           isRateLimited: true,
+          isImageRateLimit: true, // Flag to indicate this is an image rate limit, not chat
           isGuest: rateLimitResult.isGuest,
           cooldownEndTime: rateLimitResult.cooldownEndTime
         });

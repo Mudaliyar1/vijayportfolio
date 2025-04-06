@@ -7,7 +7,7 @@ module.exports = {
     try {
       // Get user
       const user = await User.findById(req.user._id);
-      
+
       res.render('rate-limits/request', {
         title: 'Request Rate Limit Increase - FTRAISE AI',
         user,
@@ -19,12 +19,12 @@ module.exports = {
       res.redirect('/');
     }
   },
-  
+
   // Submit rate limit request
   submitRequest: async (req, res) => {
     try {
       const { requestType, requestedLimit, reason } = req.body;
-      
+
       // Validate input
       if (!requestType || !['chat', 'image'].includes(requestType)) {
         return res.status(400).json({
@@ -32,39 +32,39 @@ module.exports = {
           message: 'Invalid request type. Must be "chat" or "image".'
         });
       }
-      
+
       if (!requestedLimit || isNaN(requestedLimit) || requestedLimit < 1) {
         return res.status(400).json({
           success: false,
           message: 'Invalid requested limit. Must be a positive number.'
         });
       }
-      
+
       if (!reason || reason.trim().length < 10) {
         return res.status(400).json({
           success: false,
           message: 'Please provide a reason for your request (minimum 10 characters).'
         });
       }
-      
+
       // Check if user already has a pending request for this type
       const existingRequest = await RateLimitRequest.findOne({
         userId: req.user._id,
         requestType,
         status: 'pending'
       });
-      
+
       if (existingRequest) {
         return res.status(400).json({
           success: false,
           message: `You already have a pending ${requestType} rate limit request.`
         });
       }
-      
+
       // Get current limit
       const user = await User.findById(req.user._id);
       const currentLimit = requestType === 'chat' ? user.chatRateLimit : user.imageRateLimit;
-      
+
       // Don't allow requests for lower limits
       if (requestedLimit <= currentLimit) {
         return res.status(400).json({
@@ -72,7 +72,7 @@ module.exports = {
           message: `Requested limit must be higher than your current limit of ${currentLimit}.`
         });
       }
-      
+
       // Create new request
       const newRequest = new RateLimitRequest({
         userId: req.user._id,
@@ -81,9 +81,9 @@ module.exports = {
         requestedLimit,
         reason
       });
-      
+
       await newRequest.save();
-      
+
       res.json({
         success: true,
         message: 'Your rate limit increase request has been submitted and is pending review.',
@@ -97,14 +97,14 @@ module.exports = {
       });
     }
   },
-  
+
   // Get user's rate limit requests
   getUserRequests: async (req, res) => {
     try {
       const requests = await RateLimitRequest.find({
         userId: req.user._id
       }).sort({ createdAt: -1 });
-      
+
       res.json({
         success: true,
         requests
@@ -114,6 +114,53 @@ module.exports = {
       res.status(500).json({
         success: false,
         message: 'An error occurred while getting your requests'
+      });
+    }
+  },
+
+  // Delete a rate limit request
+  deleteRequest: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      // Find the request
+      const request = await RateLimitRequest.findById(id);
+
+      // Check if request exists and belongs to the user
+      if (!request) {
+        return res.status(404).json({
+          success: false,
+          message: 'Request not found'
+        });
+      }
+
+      if (request.userId.toString() !== req.user._id.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: 'You are not authorized to delete this request'
+        });
+      }
+
+      // Only allow deletion of rejected requests
+      if (request.status === 'pending') {
+        return res.status(400).json({
+          success: false,
+          message: 'Cannot delete a pending request'
+        });
+      }
+
+      // Delete the request
+      await RateLimitRequest.findByIdAndDelete(id);
+
+      res.json({
+        success: true,
+        message: 'Request deleted successfully'
+      });
+    } catch (err) {
+      console.error('Error deleting rate limit request:', err);
+      res.status(500).json({
+        success: false,
+        message: 'An error occurred while deleting the request'
       });
     }
   }

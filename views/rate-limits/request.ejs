@@ -12,7 +12,7 @@
   <!-- Current Limits -->
   <div class="bg-dark-200 rounded-xl p-6 border border-gray-700 mb-8">
     <h2 class="text-xl font-semibold mb-4">Your Current Limits</h2>
-    
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div class="bg-dark-300 rounded-lg p-4 border border-gray-700">
         <div class="flex items-center justify-between mb-3">
@@ -26,7 +26,7 @@
         </div>
         <p class="text-gray-400 text-sm">Requests per 3 minutes</p>
       </div>
-      
+
       <div class="bg-dark-300 rounded-lg p-4 border border-gray-700">
         <div class="flex items-center justify-between mb-3">
           <div class="flex items-center">
@@ -45,13 +45,13 @@
   <!-- Request Form -->
   <div class="bg-dark-200 rounded-xl p-6 border border-gray-700 mb-8">
     <h2 class="text-xl font-semibold mb-4">Submit Request</h2>
-    
+
     <form id="rate-limit-form" class="space-y-4">
       <div>
         <label for="request-type" class="block text-gray-300 mb-2">Request Type</label>
-        <select 
-          id="request-type" 
-          name="requestType" 
+        <select
+          id="request-type"
+          name="requestType"
           class="w-full bg-dark-300 border border-gray-700 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
           required
         >
@@ -60,36 +60,36 @@
           <option value="image">Image Generation Limit</option>
         </select>
       </div>
-      
+
       <div>
         <label for="requested-limit" class="block text-gray-300 mb-2">Requested Limit</label>
-        <input 
-          type="number" 
-          id="requested-limit" 
-          name="requestedLimit" 
-          min="1" 
+        <input
+          type="number"
+          id="requested-limit"
+          name="requestedLimit"
+          min="1"
           class="w-full bg-dark-300 border border-gray-700 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
           required
         >
         <p class="text-gray-400 text-xs mt-1">Must be higher than your current limit</p>
       </div>
-      
+
       <div>
         <label for="reason" class="block text-gray-300 mb-2">Reason for Request</label>
-        <textarea 
-          id="reason" 
-          name="reason" 
-          rows="4" 
+        <textarea
+          id="reason"
+          name="reason"
+          rows="4"
           class="w-full bg-dark-300 border border-gray-700 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors resize-none"
           placeholder="Please explain why you need an increased rate limit..."
           required
           minlength="10"
         ></textarea>
       </div>
-      
+
       <div class="text-right">
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           id="submit-button"
           class="bg-gradient-to-r from-neon-blue to-neon-purple text-white py-2 px-6 rounded-lg font-medium hover:opacity-90 transition-opacity"
         >
@@ -102,7 +102,7 @@
   <!-- Pending Requests -->
   <div id="pending-requests-container" class="bg-dark-200 rounded-xl p-6 border border-gray-700 mb-8 hidden">
     <h2 class="text-xl font-semibold mb-4">Your Pending Requests</h2>
-    
+
     <div id="pending-requests" class="space-y-4">
       <!-- Pending requests will be loaded here -->
     </div>
@@ -110,10 +110,72 @@
 
   <!-- Request History -->
   <div id="request-history-container" class="bg-dark-200 rounded-xl p-6 border border-gray-700 hidden">
-    <h2 class="text-xl font-semibold mb-4">Request History</h2>
-    
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-semibold">Request History</h2>
+      <div class="text-sm text-gray-400" id="history-count"></div>
+    </div>
+
+    <!-- Advanced Filter Section -->
+    <div class="mb-6 bg-dark-300 p-4 rounded-lg border border-gray-700">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="text-md font-medium flex items-center">
+          <i class="fas fa-filter mr-2 text-neon-blue"></i> Advanced Filters
+        </h3>
+        <button
+          type="button"
+          id="clear-filters"
+          class="text-xs bg-dark-400 hover:bg-dark-500 text-gray-400 hover:text-white px-3 py-1 rounded-md inline-flex items-center transition-colors"
+          onclick="clearFilters()"
+        >
+          <i class="fas fa-times mr-1.5"></i> Clear Filters
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Filter by Type -->
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">Request Type</label>
+          <select id="filter-type" class="w-full bg-dark-400 border border-gray-700 rounded-md py-2 px-3 text-sm text-white focus:outline-none focus:border-neon-blue transition-colors">
+            <option value="all">All Types</option>
+            <option value="chat">Chat Rate Limit</option>
+            <option value="image">Image Rate Limit</option>
+          </select>
+        </div>
+
+        <!-- Filter by Status -->
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">Status</label>
+          <select id="filter-status" class="w-full bg-dark-400 border border-gray-700 rounded-md py-2 px-3 text-sm text-white focus:outline-none focus:border-neon-blue transition-colors">
+            <option value="all">All Statuses</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+
+        <!-- Search by Text -->
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">Search</label>
+          <div class="relative">
+            <input
+              type="text"
+              id="filter-search"
+              placeholder="Search in notes..."
+              class="w-full bg-dark-400 border border-gray-700 rounded-md py-2 pl-9 pr-3 text-sm text-white focus:outline-none focus:border-neon-blue transition-colors"
+            >
+            <i class="fas fa-search absolute left-3 top-2.5 text-gray-500"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div id="request-history" class="space-y-4">
       <!-- Request history will be loaded here -->
+    </div>
+
+    <!-- No Results Message -->
+    <div id="no-results" class="hidden text-center py-8">
+      <i class="fas fa-search text-3xl text-gray-600 mb-3"></i>
+      <p class="text-gray-400">No matching requests found</p>
     </div>
   </div>
 </div>
@@ -125,15 +187,15 @@
     const requestTypeSelect = document.getElementById('request-type');
     const requestedLimitInput = document.getElementById('requested-limit');
     const submitButton = document.getElementById('submit-button');
-    
+
     // Load user's current limits
     const chatLimit = <%= user.chatRateLimit %>;
     const imageLimit = <%= user.imageRateLimit %>;
-    
+
     // Update min value based on selected request type
     requestTypeSelect.addEventListener('change', () => {
       const type = requestTypeSelect.value;
-      
+
       if (type === 'chat') {
         requestedLimitInput.min = chatLimit + 1;
         requestedLimitInput.value = chatLimit + 1;
@@ -145,45 +207,45 @@
         requestedLimitInput.value = '';
       }
     });
-    
+
     // Form submission
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
+
       const requestType = requestTypeSelect.value;
       const requestedLimit = parseInt(requestedLimitInput.value);
       const reason = document.getElementById('reason').value;
-      
+
       // Validate input
       if (!requestType) {
         alert('Please select a request type');
         return;
       }
-      
+
       if (!requestedLimit || isNaN(requestedLimit)) {
         alert('Please enter a valid requested limit');
         return;
       }
-      
+
       if (requestType === 'chat' && requestedLimit <= chatLimit) {
         alert(`Requested limit must be higher than your current chat limit (${chatLimit})`);
         return;
       }
-      
+
       if (requestType === 'image' && requestedLimit <= imageLimit) {
         alert(`Requested limit must be higher than your current image limit (${imageLimit})`);
         return;
       }
-      
+
       if (!reason || reason.trim().length < 10) {
         alert('Please provide a reason for your request (minimum 10 characters)');
         return;
       }
-      
+
       // Disable submit button
       submitButton.disabled = true;
       submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Submitting...';
-      
+
       try {
         const response = await fetch('/rate-limits/request', {
           method: 'POST',
@@ -196,9 +258,9 @@
             reason
           })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
           alert('Your request has been submitted successfully');
           form.reset();
@@ -214,21 +276,27 @@
         submitButton.innerHTML = 'Submit Request';
       }
     });
-    
+
+    // Store all requests for filtering
+    let allHistoryRequests = [];
+
     // Load user's requests
     async function loadRequests() {
       try {
         const response = await fetch('/rate-limits/my-requests');
         const data = await response.json();
-        
+
         if (data.success) {
           const pendingRequests = data.requests.filter(req => req.status === 'pending');
-          const historyRequests = data.requests.filter(req => req.status !== 'pending');
-          
+          allHistoryRequests = data.requests.filter(req => req.status !== 'pending');
+
+          // Update history count
+          document.getElementById('history-count').textContent = `${allHistoryRequests.length} request(s)`;
+
           // Pending requests
           const pendingContainer = document.getElementById('pending-requests-container');
           const pendingList = document.getElementById('pending-requests');
-          
+
           if (pendingRequests.length > 0) {
             pendingContainer.classList.remove('hidden');
             pendingList.innerHTML = pendingRequests.map(req => `
@@ -262,14 +330,54 @@
           } else {
             pendingContainer.classList.add('hidden');
           }
-          
-          // Request history
-          const historyContainer = document.getElementById('request-history-container');
-          const historyList = document.getElementById('request-history');
-          
-          if (historyRequests.length > 0) {
-            historyContainer.classList.remove('hidden');
-            historyList.innerHTML = historyRequests.map(req => `
+
+          // Apply initial filters
+          applyFilters();
+        }
+      } catch (err) {
+        console.error('Error loading requests:', err);
+      }
+    }
+
+    // Function to apply filters and update the UI
+    function applyFilters() {
+      const typeFilter = document.getElementById('filter-type').value;
+      const statusFilter = document.getElementById('filter-status').value;
+      const searchFilter = document.getElementById('filter-search').value.toLowerCase();
+
+      // Filter the requests
+      const filteredRequests = allHistoryRequests.filter(req => {
+        // Type filter
+        if (typeFilter !== 'all' && req.requestType !== typeFilter) {
+          return false;
+        }
+
+        // Status filter
+        if (statusFilter !== 'all' && req.status !== statusFilter) {
+          return false;
+        }
+
+        // Search filter (check in admin notes if they exist)
+        if (searchFilter && (!req.adminNotes || !req.adminNotes.toLowerCase().includes(searchFilter)) &&
+            (!req.reason || !req.reason.toLowerCase().includes(searchFilter))) {
+          return false;
+        }
+
+        return true;
+      });
+
+      // Update the UI
+      const historyContainer = document.getElementById('request-history-container');
+      const historyList = document.getElementById('request-history');
+      const noResults = document.getElementById('no-results');
+
+      if (allHistoryRequests.length > 0) {
+        historyContainer.classList.remove('hidden');
+
+        if (filteredRequests.length > 0) {
+          historyList.classList.remove('hidden');
+          noResults.classList.add('hidden');
+          historyList.innerHTML = filteredRequests.map(req => `
               <div class="bg-dark-300 rounded-lg p-4 border border-gray-700">
                 <div class="flex justify-between items-start mb-3">
                   <div>
@@ -278,9 +386,16 @@
                     </span>
                     <p class="text-sm text-gray-400">Requested on ${new Date(req.createdAt).toLocaleDateString()}</p>
                   </div>
-                  <span class="inline-block ${req.status === 'approved' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'} text-xs px-2 py-1 rounded-full">
-                    <i class="fas fa-${req.status === 'approved' ? 'check' : 'times'} mr-1"></i> ${req.status === 'approved' ? 'Approved' : 'Rejected'}
-                  </span>
+                  <div class="flex items-center space-x-2">
+                    <span class="inline-block ${req.status === 'approved' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'} text-xs px-2 py-1 rounded-full">
+                      <i class="fas fa-${req.status === 'approved' ? 'check' : 'times'} mr-1"></i> ${req.status === 'approved' ? 'Approved' : 'Rejected'}
+                    </span>
+                    ${req.status !== 'pending' ? `
+                      <button class="delete-request-btn bg-red-500/10 hover:bg-red-500/20 text-red-500 text-xs p-1 rounded" data-id="${req._id}" title="Delete request">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    ` : ''}
+                  </div>
                 </div>
                 <div class="flex items-center justify-between mb-3">
                   <div>
@@ -303,15 +418,73 @@
                 ` : ''}
               </div>
             `).join('');
-          } else {
-            historyContainer.classList.add('hidden');
+        } else {
+          // No results after filtering
+          historyList.classList.add('hidden');
+          noResults.classList.remove('hidden');
+        }
+      } else {
+        historyContainer.classList.add('hidden');
+      }
+
+      // Update filtered count
+      document.getElementById('history-count').textContent = `${filteredRequests.length} of ${allHistoryRequests.length} request(s)`;
+    }
+
+    // Add event listeners for filters
+    document.getElementById('filter-type').addEventListener('change', applyFilters);
+    document.getElementById('filter-status').addEventListener('change', applyFilters);
+
+    // Add debounced search for text input
+    const searchInput = document.getElementById('filter-search');
+    let searchTimeout;
+
+    searchInput.addEventListener('input', function() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(applyFilters, 300); // 300ms debounce
+    });
+
+    // Add clear filters button functionality
+    function clearFilters() {
+      document.getElementById('filter-type').value = 'all';
+      document.getElementById('filter-status').value = 'all';
+      document.getElementById('filter-search').value = '';
+      applyFilters();
+    }
+
+    // Handle delete request button clicks
+    document.addEventListener('click', async function(e) {
+      if (e.target.closest('.delete-request-btn')) {
+        const button = e.target.closest('.delete-request-btn');
+        const requestId = button.dataset.id;
+
+        if (confirm('Are you sure you want to delete this request history?')) {
+          try {
+            const response = await fetch(`/rate-limits/request/${requestId}`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+              // Show success message
+              alert('Request deleted successfully');
+              // Reload requests
+              loadRequests();
+            } else {
+              alert(data.message || 'An error occurred while deleting the request');
+            }
+          } catch (err) {
+            console.error('Error deleting request:', err);
+            alert('An error occurred while deleting the request');
           }
         }
-      } catch (err) {
-        console.error('Error loading requests:', err);
       }
-    }
-    
+    });
+
     // Load requests on page load
     loadRequests();
   });

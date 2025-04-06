@@ -4,7 +4,8 @@ const { ensureAuthenticated } = require('../middlewares/auth');
 const {
   getRequestPage,
   submitRequest,
-  getUserRequests
+  getUserRequests,
+  deleteRequest
 } = require('../controllers/rateLimitController');
 
 // Apply authentication middleware to all routes
@@ -18,5 +19,8 @@ router.post('/request', submitRequest);
 
 // Get user's rate limit requests
 router.get('/my-requests', getUserRequests);
+
+// Delete a rate limit request
+router.delete('/request/:id', deleteRequest);
 
 module.exports = router;

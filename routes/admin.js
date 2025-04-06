@@ -54,6 +54,7 @@ router.delete('/users/:id', deleteUser);
 router.get('/chats', getChatManagement);
 router.get('/chats/:id', viewChat);
 router.delete('/chats/:id', deleteChat);
+router.post('/chats/:id/delete', deleteChat); // Alternative route for form submissions
 
 // Guest management
 router.get('/guests', getGuestManagement);

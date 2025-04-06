@@ -25,6 +25,8 @@ module.exports = {
         }
 
         // Check if user has exceeded their custom limit
+        console.log(`User ${user.username} image limit: ${user.imageRateLimit}, current: ${user.imageRequestsInWindow}`);
+
         if (user.imageRequestsInWindow >= user.imageRateLimit) {
           const timeElapsed = now - user.imageWindowStartTime;
           const timeRemaining = windowDuration - timeElapsed;
@@ -56,7 +58,9 @@ module.exports = {
 
         // Always set the window start time when a request is made
         // This ensures the timer starts correctly
-        user.imageWindowStartTime = now;
+        user.imageWindowStartTime = user.imageWindowStartTime || now;
+
+        console.log(`User ${user.username} image request: ${user.imageRequestsInWindow}/${user.imageRateLimit} in current window`);
 
         await user.save();
 
@@ -118,6 +122,8 @@ module.exports = {
       // Get the user's custom chat rate limit (default is 8)
       const chatLimit = user.chatRateLimit || 8;
 
+      console.log(`User ${user.username} chat limit: ${chatLimit}, current: ${user.requestsInWindow}`);
+
       // Check if user has exceeded their custom limit
       if (user.requestsInWindow >= chatLimit) {
         const timeElapsed = now - user.windowStartTime;
@@ -146,7 +152,10 @@ module.exports = {
       user.requestsInWindow += 1;
       user.requestsCount += 1;
       user.lastRequestTime = now;
+      user.windowStartTime = user.windowStartTime || now; // Ensure window start time is set
       await user.save();
+
+      console.log(`User ${user.username} chat request: ${user.requestsInWindow}/${user.chatRateLimit} in current window`);
 
       // Add rate limit info to request object
       req.rateLimit = {
@@ -170,12 +179,21 @@ module.exports = {
     }
 
     try {
-      const ipAddress = req.ip || req.connection.remoteAddress;
-      let guestUser = await GuestUser.findOne({ ipAddress });
+      // Use a unique guest ID from cookie instead of IP address
+      let guestId = req.cookies.guestId;
+
+      // If no guestId cookie exists, create one
+      if (!guestId) {
+        guestId = 'guest_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        res.cookie('guestId', guestId, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true }); // 30 days
+      }
+
+      let guestUser = await GuestUser.findOne({ guestId });
 
       if (!guestUser) {
         guestUser = new GuestUser({
-          ipAddress,
+          guestId,
+          ipAddress: req.ip || req.connection.remoteAddress, // Still store IP for reference
           requestsCount: 0,
           lastRequestTime: null
         });

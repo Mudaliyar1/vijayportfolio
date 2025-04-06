@@ -798,11 +798,22 @@
         // Scroll to bottom
         chatMessages.scrollTop = chatMessages.scrollHeight;
       } else {
-        alert('Failed to load chat: ' + data.message);
+        console.error('Failed to load chat:', data.message);
+        // Show a more user-friendly error message
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'bg-red-500/20 text-white p-4 rounded-lg mb-4 text-center';
+        errorMessage.innerHTML = `<p>Failed to load chat. Please try again or start a new chat.</p>`;
+        chatMessages.innerHTML = '';
+        chatMessages.appendChild(errorMessage);
       }
     } catch (err) {
       console.error('Error loading chat:', err);
-      alert('An error occurred while loading the chat');
+      // Show a more user-friendly error message
+      const errorMessage = document.createElement('div');
+      errorMessage.className = 'bg-red-500/20 text-white p-4 rounded-lg mb-4 text-center';
+      errorMessage.innerHTML = `<p>An error occurred while loading the chat. Please try again or start a new chat.</p>`;
+      chatMessages.innerHTML = '';
+      chatMessages.appendChild(errorMessage);
     }
   }
 
@@ -828,11 +839,50 @@
         // Reload chat history
         loadChatHistory();
       } else {
-        alert('Failed to delete chat: ' + data.message);
+        console.error('Failed to delete chat:', data.message);
+        // Show a more user-friendly error message in a toast or notification
+        const notification = document.createElement('div');
+        notification.className = 'fixed bottom-4 right-4 bg-red-500/90 text-white p-4 rounded-lg shadow-lg z-50';
+        notification.innerHTML = `
+          <div class="flex items-center">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <p>Failed to delete chat. Please try again.</p>
+          </div>
+          <button class="absolute top-1 right-1 text-white hover:text-gray-200" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+          </button>
+        `;
+        document.body.appendChild(notification);
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+          if (notification.parentElement) {
+            notification.remove();
+          }
+        }, 5000);
       }
     } catch (err) {
       console.error('Error deleting chat:', err);
-      alert('An error occurred while deleting the chat');
+      // Show a more user-friendly error message in a toast or notification
+      const notification = document.createElement('div');
+      notification.className = 'fixed bottom-4 right-4 bg-red-500/90 text-white p-4 rounded-lg shadow-lg z-50';
+      notification.innerHTML = `
+        <div class="flex items-center">
+          <i class="fas fa-exclamation-circle mr-2"></i>
+          <p>An error occurred while deleting the chat. Please try again.</p>
+        </div>
+        <button class="absolute top-1 right-1 text-white hover:text-gray-200" onclick="this.parentElement.remove()">
+          <i class="fas fa-times"></i>
+        </button>
+      `;
+      document.body.appendChild(notification);
+
+      // Auto-remove after 5 seconds
+      setTimeout(() => {
+        if (notification.parentElement) {
+          notification.remove();
+        }
+      }, 5000);
     }
   }
 
@@ -1021,13 +1071,13 @@
         addMessageToUI('assistant', data.response);
 
         // Update requests count and limit
-        if (data.rateLimit) {
-          requestsCount.textContent = data.rateLimit.remaining;
+        if (requestsCount) {
+          requestsCount.textContent = data.remaining !== undefined ? data.remaining : requestsCount.textContent;
 
           // Update the max limit if it changed
           const rateLimitMax = document.getElementById('rate-limit-max');
-          if (rateLimitMax && data.rateLimit.limit) {
-            rateLimitMax.textContent = data.rateLimit.limit;
+          if (rateLimitMax && data.currentLimit) {
+            rateLimitMax.textContent = data.currentLimit;
           }
         }
       } else if (data.isRateLimited) {
@@ -1059,9 +1109,9 @@
           <div class="p-3 bg-blue-600/10 border border-blue-600/30 rounded-lg mb-2 cooldown-box">
             <div class="flex items-center mb-1">
               <i class="fas fa-hourglass-half text-blue-500 mr-2 animate-pulse"></i>
-              <span class="font-medium text-blue-500">Rate Limit</span>
+              <span class="font-medium text-blue-500">Chat Rate Limit</span>
             </div>
-            <p class="text-sm">You've reached your limit of ${data.currentLimit} requests in 3 minutes. Please wait for the cooldown to end.</p>
+            <p class="text-sm">You've reached your limit of ${data.currentLimit} chat requests in 3 minutes. Please wait for the cooldown to end.</p>
 
             <div class="mt-2 p-1.5 bg-dark-300 rounded-lg flex items-center justify-center text-sm">
               <i class="fas fa-clock text-blue-500 mr-1"></i>

@@ -29,7 +29,8 @@ const MemorySchema = new mongoose.Schema({
   },
   context: {
     type: String,
-    required: true
+    required: true,
+    default: 'General conversation'
   },
   interactions: [{
     query: {
