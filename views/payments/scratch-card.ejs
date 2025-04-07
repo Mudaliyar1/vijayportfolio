@@ -1,0 +1,521 @@
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+  <div class="text-center mb-8">
+    <h1 class="text-3xl font-bold text-white mb-2">You've Got a Discount!</h1>
+    <p class="text-gray-300 text-lg">Scratch the card below to reveal your discount before payment</p>
+  </div>
+
+  <div class="bg-dark-100 rounded-lg shadow-lg overflow-hidden mb-8 border border-gray-800">
+    <div class="bg-gradient-to-r from-purple-500 to-indigo-600 p-6 text-white">
+      <h2 class="text-2xl font-bold text-center">Scratch & Save</h2>
+    </div>
+
+    <div class="p-6">
+      <div class="flex flex-col items-center">
+        <div class="mb-6 text-center">
+          <h3 class="text-xl font-semibold text-white mb-2">Package: <%= package.name %></h3>
+          <p class="text-gray-400">Original Price: <span class="line-through">₹<%= package.price %></span></p>
+        </div>
+
+        <!-- Scratch Card Container -->
+        <div class="relative w-full max-w-md mx-auto mb-8" id="scratch-container">
+          <!-- Discount Amount (Hidden initially) -->
+          <div id="discount-reveal" class="absolute inset-0 flex items-center justify-center bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-10 z-0">
+            <div class="text-center">
+              <p class="text-white text-lg mb-2">Your Discount:</p>
+              <p class="text-5xl font-bold text-white mb-4 opacity-0" id="discount-text">₹<span id="discount-amount"><%= discountAmount %></span></p>
+              <p class="text-white text-lg opacity-0" id="final-price-text">New Price: ₹<span id="final-price"><%= finalPrice %></span></p>
+            </div>
+          </div>
+
+          <!-- Scratch Card Overlay -->
+          <canvas id="scratch-card" class="w-full rounded-lg shadow-xl z-10"
+                  style="cursor: pointer; touch-action: none; height: 300px; background-size: cover; -webkit-tap-highlight-color: transparent;">
+          </canvas>
+
+          <!-- Mobile-friendly message -->
+          <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center pointer-events-none z-20 md:hidden">
+            <div class="bg-black bg-opacity-50 text-white px-4 py-2 rounded-lg text-sm">
+              <i class="fas fa-hand-pointer mr-1"></i> Scratch here!
+            </div>
+          </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="text-center mb-4 text-gray-300">
+          <p class="mb-2"><i class="fas fa-hand-pointer mr-2"></i> Scratch the card by dragging your finger or mouse across it</p>
+          <p id="scratch-progress" class="text-sm text-gray-400">0% scratched</p>
+        </div>
+
+        <!-- Skip Button -->
+        <div class="text-center mb-8">
+          <button id="skip-button" class="text-blue-400 hover:text-blue-300 transition-colors text-sm underline">
+            <i class="fas fa-forward mr-1"></i> Skip Scratching
+          </button>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 w-full max-w-md mx-auto">
+          <a href="/dashboard/websites/<%= websiteId %>" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg text-center transition-colors">
+            Cancel
+          </a>
+          <form id="payment-form" action="/payment/apply-discount" method="POST" class="w-full sm:w-auto flex-grow">
+            <input type="hidden" name="packageId" value="<%= package._id %>">
+            <input type="hidden" name="websiteId" value="<%= websiteId %>">
+            <input type="hidden" name="discountAmount" value="<%= discountAmount %>">
+            <input type="hidden" name="finalPrice" value="<%= finalPrice %>">
+            <input type="hidden" name="isPackageUpdate" value="<%= isPackageUpdate %>">
+            <input type="hidden" name="scratchComplete" id="scratch-complete-input" value="false">
+            <button type="submit" id="proceed-btn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition-all opacity-50 cursor-not-allowed" disabled>
+              <span id="button-text-before">Proceed to Payment (Scratch to reveal price)</span>
+              <span id="button-text-after" class="hidden">Proceed to Payment (₹<span id="button-price"><%= finalPrice %></span>)</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('scratch-card');
+    const ctx = canvas.getContext('2d');
+    const scratchComplete = document.getElementById('scratch-complete-input');
+    const proceedBtn = document.getElementById('proceed-btn');
+    const progressText = document.getElementById('scratch-progress');
+
+    // Set canvas dimensions to match its display size
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      drawScratchCard();
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Draw the scratch card overlay
+    function drawScratchCard() {
+      // Create gradient background
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, '#1e293b');
+      gradient.addColorStop(1, '#0f172a');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Add decorative pattern
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+      for (let i = 0; i < 20; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const size = Math.random() * 40 + 20;
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Add sparkles
+      for (let i = 0; i < 30; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const size = Math.random() * 3 + 1;
+        ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.3 + 0.1})`;
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Add a decorative border
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+      ctx.lineWidth = 10;
+      ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+
+      // Add inner border
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+
+      // Add text with shadow
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+      ctx.shadowBlur = 10;
+      ctx.font = 'bold 28px Poppins, Arial';
+      ctx.fillStyle = '#f3f4f6';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Scratch Here!', canvas.width / 2, canvas.height / 2 - 20);
+
+      ctx.font = '18px Poppins, Arial';
+      ctx.fillText('to reveal your discount', canvas.width / 2, canvas.height / 2 + 20);
+
+      // Add scratch icon with glow
+      ctx.shadowColor = 'rgba(79, 70, 229, 0.8)';
+      ctx.shadowBlur = 15;
+      ctx.font = '40px FontAwesome';
+      ctx.fillStyle = '#f3f4f6';
+      ctx.fillText('\uf5ae', canvas.width / 2, canvas.height / 2 - 80); // Hand with finger extended icon
+
+      // Add coin icon
+      ctx.font = '30px FontAwesome';
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillText('\uf51e', canvas.width / 2, canvas.height / 2 + 70); // Coin icon
+
+      // Reset shadow
+      ctx.shadowBlur = 0;
+    }
+
+    // Variables for scratch tracking
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+    let scratchedPixels = 0;
+    let totalPixels = canvas.width * canvas.height;
+
+    // Event listeners for mouse/touch
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('touchend', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+
+    // Add touch-action: none to the canvas element to prevent scrolling on touch devices
+    canvas.style.touchAction = 'none';
+
+    // Add a message for mobile users
+    if ('ontouchstart' in window) {
+      const mobileMsg = document.createElement('p');
+      mobileMsg.className = 'text-xs text-blue-400 mt-1';
+      mobileMsg.innerHTML = '<i class="fas fa-info-circle mr-1"></i> Tip: Press and drag your finger across the card to scratch';
+      document.querySelector('#scratch-progress').parentNode.appendChild(mobileMsg);
+    }
+
+    // Skip button functionality
+    document.getElementById('skip-button').addEventListener('click', function() {
+      revealCard();
+      this.disabled = true;
+      this.classList.add('opacity-50', 'cursor-not-allowed');
+      this.innerHTML = '<i class="fas fa-check mr-1"></i> Scratching skipped';
+
+      // Also update the button text to show the final price
+      document.getElementById('button-text-before').classList.add('hidden');
+      document.getElementById('button-text-after').classList.remove('hidden');
+    });
+
+    function startDrawing(e) {
+      isDrawing = true;
+      [lastX, lastY] = [e.offsetX, e.offsetY];
+    }
+
+    function handleTouchStart(e) {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
+      isDrawing = true;
+      [lastX, lastY] = [x, y];
+
+      // Immediately draw a dot at the touch point
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.lineWidth = 50; // Increased line width for better touch experience
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.arc(x, y, 25, 0, Math.PI * 2); // Larger initial dot
+      ctx.fill();
+
+      // Calculate scratched area after initial touch
+      updateScratchPercentage();
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+
+      let x, y;
+
+      // Handle both mouse and touch events
+      if (e.type === 'touchmove') {
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        x = touch.clientX - rect.left;
+        y = touch.clientY - rect.top;
+      } else {
+        x = e.offsetX;
+        y = e.offsetY;
+      }
+
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.lineWidth = 50; // Increased line width for better touch experience
+      ctx.lineCap = 'round';
+
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+
+      // Add a circle at the current position for better scratch coverage
+      ctx.beginPath();
+      ctx.arc(x, y, 25, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Update scratch percentage
+      updateScratchPercentage();
+
+      [lastX, lastY] = [x, y];
+    }
+
+    // Function to calculate and update scratch percentage
+    function updateScratchPercentage() {
+      // Calculate scratched area
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      let transparent = 0;
+      for (let i = 3; i < imageData.data.length; i += 4) {
+        if (imageData.data[i] === 0) transparent++;
+      }
+
+      scratchedPixels = transparent;
+      const scratchPercentage = Math.min(100, Math.floor((scratchedPixels / totalPixels) * 100));
+      progressText.textContent = `${scratchPercentage}% scratched`;
+
+      // If 50% scratched (reduced from 70%), reveal the entire card
+      if (scratchPercentage >= 50 && scratchComplete.value === 'false') {
+        revealCard();
+      }
+    }
+
+    function handleTouchMove(e) {
+      e.preventDefault();
+
+      // For better touch experience, handle multi-touch
+      if (e.touches.length > 1) {
+        // If using multiple fingers, scratch a larger area
+        const touch1 = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        const x1 = touch1.clientX - rect.left;
+        const y1 = touch1.clientY - rect.top;
+
+        // Draw a larger circle for multi-touch
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.beginPath();
+        ctx.arc(x1, y1, 60, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Update scratch percentage
+        updateScratchPercentage();
+      } else {
+        // Single touch - normal drawing
+        draw(e);
+      }
+    }
+
+    function stopDrawing() {
+      isDrawing = false;
+    }
+
+    function revealCard() {
+      // Set scratch as complete first to prevent multiple calls
+      scratchComplete.value = 'true';
+
+      // Clear the entire canvas with a fade effect
+      let alpha = 1.0;
+      const fadeInterval = setInterval(() => {
+        alpha -= 0.1;
+        if (alpha <= 0) {
+          clearInterval(fadeInterval);
+          // Final clear to ensure everything is revealed
+          ctx.globalCompositeOperation = 'destination-out';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          // Make canvas non-interactive after reveal
+          canvas.style.pointerEvents = 'none';
+        } else {
+          // Gradually reveal more of the card
+          ctx.globalCompositeOperation = 'destination-out';
+          ctx.globalAlpha = 0.2; // Reveal in small increments
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.globalAlpha = 1.0;
+        }
+      }, 50);
+
+      // Show the discount amount with animation
+      const discountText = document.getElementById('discount-text');
+      const finalPriceText = document.getElementById('final-price-text');
+      const buttonTextBefore = document.getElementById('button-text-before');
+      const buttonTextAfter = document.getElementById('button-text-after');
+
+      // Fade in the discount amount with enhanced animation
+      discountText.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      finalPriceText.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+
+      // Add scale animation
+      setTimeout(() => {
+        discountText.classList.remove('opacity-0');
+        discountText.style.transform = 'scale(1.2)';
+
+        setTimeout(() => {
+          discountText.style.transform = 'scale(1)';
+
+          setTimeout(() => {
+            finalPriceText.classList.remove('opacity-0');
+            finalPriceText.style.transform = 'scale(1.1)';
+
+            setTimeout(() => {
+              finalPriceText.style.transform = 'scale(1)';
+
+              // Update the button text to show the final price
+              buttonTextBefore.classList.add('hidden');
+              buttonTextAfter.classList.remove('hidden');
+
+              // Play confetti animation after showing the discount
+              setTimeout(() => {
+                playConfetti();
+              }, 200);
+            }, 200);
+          }, 300);
+        }, 300);
+      }, 300);
+
+      // Enable the proceed button with animation
+      setTimeout(() => {
+        proceedBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        proceedBtn.classList.add('shadow-glow-purple');
+        proceedBtn.classList.add('animate-pulse');
+        proceedBtn.disabled = false;
+
+        // Stop pulsing after a few seconds
+        setTimeout(() => {
+          proceedBtn.classList.remove('animate-pulse');
+        }, 3000);
+      }, 1000);
+
+      // Mark as complete
+      scratchComplete.value = 'true';
+      progressText.textContent = '100% scratched - Discount applied!';
+      progressText.classList.add('text-green-400');
+    }
+
+    function playConfetti() {
+      // Enhanced confetti animation
+      const confettiCount = 200;
+      const container = document.getElementById('scratch-container');
+
+      // Play a celebration sound
+      const audio = new Audio();
+      audio.src = 'data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBQbHVzIMKpIE5DSCBTb2Z0d2FyZQBUSVQyAAAABgAAAzIyMzUAVFNTRQAAAA8AAANMYXZmNTcuODMuMTAwAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuMTAwVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsRbAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQMSkAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
+      audio.volume = 0.3;
+      audio.play();
+
+      // Create different types of confetti
+      for (let i = 0; i < confettiCount; i++) {
+        const confetti = document.createElement('div');
+
+        // Randomly choose between circle, square, or star shape
+        const shapeType = Math.floor(Math.random() * 3);
+        let className = 'absolute';
+
+        if (shapeType === 0) {
+          // Circle
+          className += ' rounded-full';
+          confetti.style.width = `${Math.random() * 8 + 5}px`;
+          confetti.style.height = confetti.style.width;
+        } else if (shapeType === 1) {
+          // Square
+          confetti.style.width = `${Math.random() * 8 + 5}px`;
+          confetti.style.height = confetti.style.width;
+          confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+        } else {
+          // Star (using a special character)
+          className += ' flex items-center justify-center text-xl';
+          confetti.innerHTML = '★';
+          confetti.style.fontSize = `${Math.random() * 12 + 10}px`;
+        }
+
+        confetti.className = className;
+
+        // Random position around the scratch card
+        const left = Math.random() * 100;
+        const top = Math.random() * 100;
+
+        // Random color with gradient effect
+        const hue = Math.floor(Math.random() * 360);
+        confetti.style.backgroundColor = shapeType === 2 ? 'transparent' : `hsl(${hue}, 100%, 50%)`;
+        confetti.style.color = shapeType === 2 ? `hsl(${hue}, 100%, 75%)` : 'transparent';
+
+        // Add some shine
+        confetti.style.boxShadow = `0 0 ${Math.random() * 5 + 2}px rgba(255, 255, 255, 0.3)`;
+
+        confetti.style.left = `${left}%`;
+        confetti.style.top = `${top}%`;
+        confetti.style.opacity = '0';
+        confetti.style.zIndex = '20';
+
+        // More varied animations
+        const duration = Math.random() * 2.5 + 1;
+        const delay = Math.random() * 0.5;
+        confetti.style.animation = `confetti ${duration}s ease ${delay}s forwards`;
+
+        container.appendChild(confetti);
+
+        // Remove after animation
+        setTimeout(() => {
+          confetti.remove();
+        }, (duration + delay) * 1000 + 500);
+      }
+
+      // Add a congratulations message that fades in
+      const congrats = document.createElement('div');
+      congrats.className = 'absolute inset-0 flex items-center justify-center z-30 pointer-events-none';
+      congrats.innerHTML = `<div class="text-4xl font-bold text-white text-center" style="text-shadow: 0 0 10px rgba(0,0,0,0.5); opacity: 0; transform: scale(0.5); animation: congrats 1s ease 0.5s forwards;">Congratulations!<br><span class="text-2xl">You saved ₹${document.getElementById('discount-amount').textContent}!</span></div>`;
+      container.appendChild(congrats);
+
+      // Remove after animation
+      setTimeout(() => {
+        congrats.remove();
+      }, 4000);
+    }
+
+    // Add animation keyframes
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes confetti {
+        0% {
+          transform: translateY(0) rotate(0);
+          opacity: 1;
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(${Math.random() > 0.5 ? '-' : ''}${Math.random() * 100 + 50}px) rotate(${Math.random() * 360}deg);
+          opacity: 0;
+        }
+      }
+
+      @keyframes congrats {
+        0% {
+          opacity: 0;
+          transform: scale(0.5);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.1);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .shadow-glow-purple {
+        box-shadow: 0 0 15px rgba(124, 58, 237, 0.5);
+        transition: all 0.3s ease;
+      }
+
+      .shadow-glow-purple:hover {
+        box-shadow: 0 0 20px rgba(124, 58, 237, 0.7);
+      }
+    `;
+    document.head.appendChild(style);
+  });
+</script>

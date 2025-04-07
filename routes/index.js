@@ -27,4 +27,16 @@ router.get('/blog', getBlogPage);
 // Community page route
 router.get('/community', getCommunityPage);
 
+// Database error page route
+router.get('/db-error', (req, res) => {
+  res.render('db-error', {
+    title: 'Database Connection Error',
+    user: null,
+    success_msg: '',
+    error_msg: '',
+    error: '',
+    errors: []
+  });
+});
+
 module.exports = router;

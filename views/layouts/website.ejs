@@ -160,16 +160,17 @@
       }
     <% } %>
   </style>
+  <% if (typeof style !== 'undefined') { %><%- style %><% } %>
 </head>
 <body>
   <header class="bg-white shadow-md">
     <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
-      <a href="/user-site/<%= website.user %>/<%= website.slug %>" class="text-xl font-bold text-gray-800">
+      <a href="<%= baseUrl %>" class="text-xl font-bold text-gray-800">
         <%= website.title %>
       </a>
       <div class="flex space-x-4">
         <% pages.forEach(page => { %>
-          <a href="/user-site/<%= website.user %>/<%= website.slug %>/<%= page.slug %>" 
+          <a href="<%= page.url %>"
              class="<%= page.slug === 'home' ? 'text-primary-600' : 'text-gray-600 hover:text-primary-600' %>">
             <%= page.title %>
           </a>
@@ -188,5 +189,45 @@
       <p class="mt-2 text-sm">Created with FTRAISE AI Website Builder</p>
     </div>
   </footer>
+  <script>
+    // Fix internal links to stay within the user's website
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get the base URL for this website
+      const baseUrl = '<%= baseUrl %>';
+
+      // Find all links in the page content
+      const links = document.querySelectorAll('a');
+
+      links.forEach(link => {
+        const href = link.getAttribute('href');
+
+        // Skip links that already have the correct format
+        if (href && href.startsWith('/user-site/')) {
+          return;
+        }
+
+        // Skip external links (those starting with http:// or https://)
+        if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+          return;
+        }
+
+        // Skip anchor links (those starting with #)
+        if (href && href.startsWith('#')) {
+          return;
+        }
+
+        // Fix internal links
+        if (href && !href.startsWith('/')) {
+          // Relative link without leading slash
+          link.setAttribute('href', `${baseUrl}/${href}`);
+        } else if (href && href.startsWith('/')) {
+          // Absolute link with leading slash
+          // Remove the leading slash and add the base URL
+          link.setAttribute('href', `${baseUrl}${href}`);
+        }
+      });
+    });
+  </script>
+  <% if (typeof script !== 'undefined') { %><%- script %><% } %>
 </body>
 </html>

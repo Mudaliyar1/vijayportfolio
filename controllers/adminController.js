@@ -7,6 +7,7 @@ const Memory = require('../models/Memory');
 const Review = require('../models/Review');
 const Image = require('../models/Image');
 const Package = require('../models/Package');
+const Website = require('../models/Website');
 
 module.exports = {
   // Render admin dashboard
@@ -548,11 +549,18 @@ module.exports = {
   // Package Management
   getPackageManagement: async (req, res) => {
     try {
+      // Get all packages, including deleted ones but mark them differently
       const packages = await Package.find().sort({ price: 1 });
+
+      // Separate active and deleted packages
+      const activePackages = packages.filter(pkg => !pkg.isDeleted);
+      const deletedPackages = packages.filter(pkg => pkg.isDeleted);
 
       res.render('admin/packages', {
         title: 'Package Management - Admin',
-        packages,
+        packages: activePackages,
+        deletedPackages,
+        showDeleted: req.query.showDeleted === 'true',
         user: req.user,
         path: '/admin/packages',
         layout: 'layouts/no-footer'
@@ -564,12 +572,75 @@ module.exports = {
     }
   },
 
+  // Create Package Page
+  getCreatePackage: (req, res) => {
+    res.render('admin/packages/create', {
+      title: 'Create Package - Admin',
+      user: req.user,
+      path: '/admin/packages',
+      layout: 'layouts/no-footer'
+    });
+  },
+
+  // Edit Package Page
+  getEditPackage: async (req, res) => {
+    try {
+      const package = await Package.findById(req.params.id);
+      if (!package) {
+        req.flash('error_msg', 'Package not found');
+        return res.redirect('/admin/packages');
+      }
+
+      res.render('admin/packages/edit', {
+        title: 'Edit Package - Admin',
+        package,
+        user: req.user,
+        path: '/admin/packages',
+        layout: 'layouts/no-footer'
+      });
+    } catch (err) {
+      console.error('Error getting package:', err);
+      req.flash('error_msg', 'Failed to load package');
+      res.redirect('/admin/packages');
+    }
+  },
+
+  // View Package Page
+  getViewPackage: async (req, res) => {
+    try {
+      const package = await Package.findById(req.params.id);
+      if (!package) {
+        req.flash('error_msg', 'Package not found');
+        return res.redirect('/admin/packages');
+      }
+
+      res.render('admin/packages/view', {
+        title: 'View Package - Admin',
+        package,
+        user: req.user,
+        path: '/admin/packages',
+        layout: 'layouts/no-footer'
+      });
+    } catch (err) {
+      console.error('Error getting package:', err);
+      req.flash('error_msg', 'Failed to load package');
+      res.redirect('/admin/packages');
+    }
+  },
+
   createPackage: async (req, res) => {
     try {
       const { name, price, description, maxPages, features, isFree } = req.body;
 
       // Convert features string to array
       const featuresArray = features.split('\n').filter(feature => feature.trim() !== '');
+
+      // Log the isFree value from the form
+      console.log('Creating package with isFree:', isFree);
+
+      // Explicitly set isFree as a boolean
+      const isFreeBoolean = isFree === 'on' ? true : false;
+      console.log('isFree as boolean:', isFreeBoolean);
 
       // Create new package
       const newPackage = new Package({
@@ -578,7 +649,7 @@ module.exports = {
         description,
         maxPages,
         features: featuresArray,
-        isFree: isFree === 'on',
+        isFree: isFreeBoolean,
         allowBlog: req.body.allowBlog === 'on',
         allowGallery: req.body.allowGallery === 'on',
         allowContact: req.body.allowContact === 'on',
@@ -595,7 +666,7 @@ module.exports = {
     } catch (err) {
       console.error('Error creating package:', err);
       req.flash('error_msg', 'Failed to create package');
-      res.redirect('/admin/packages');
+      res.redirect('/admin/packages/create');
     }
   },
 
@@ -607,6 +678,17 @@ module.exports = {
       // Convert features string to array
       const featuresArray = features.split('\n').filter(feature => feature.trim() !== '');
 
+      // Log the isFree value from the form
+      console.log('Updating package with isFree:', isFree);
+
+      // Explicitly set isFree as a boolean
+      const isFreeBoolean = isFree === 'on' ? true : false;
+      console.log('isFree as boolean:', isFreeBoolean);
+
+      // Get the old package to check if maxPages has changed
+      const oldPackage = await Package.findById(id);
+      const oldMaxPages = oldPackage.maxPages;
+
       // Update package
       await Package.findByIdAndUpdate(id, {
         name,
@@ -614,7 +696,7 @@ module.exports = {
         description,
         maxPages,
         features: featuresArray,
-        isFree: isFree === 'on',
+        isFree: isFreeBoolean,
         allowBlog: req.body.allowBlog === 'on',
         allowGallery: req.body.allowGallery === 'on',
         allowContact: req.body.allowContact === 'on',
@@ -624,12 +706,57 @@ module.exports = {
         allowCustomLayout: req.body.allowCustomLayout === 'on'
       });
 
+      // If maxPages has decreased, update all websites using this package
+      if (parseInt(maxPages) < oldMaxPages) {
+        console.log(`Package ${name} maxPages decreased from ${oldMaxPages} to ${maxPages}. Updating websites...`);
+
+        // Find all websites using this package
+        const websites = await Website.find({ package: id });
+
+        // Update each website
+        for (const website of websites) {
+          // If website has more pages than the new limit, remove excess pages
+          if (website.pages.length > maxPages) {
+            console.log(`Website ${website.title} has ${website.pages.length} pages, reducing to ${maxPages}`);
+
+            // Sort pages by order
+            website.pages.sort((a, b) => a.order - b.order);
+
+            // Keep only the first maxPages pages (including homepage)
+            const homePage = website.pages.find(page => page.isHomepage);
+            const regularPages = website.pages.filter(page => !page.isHomepage);
+
+            // Ensure homepage is kept
+            let newPages = [];
+            if (homePage) {
+              newPages.push(homePage);
+            }
+
+            // Add regular pages up to the limit
+            const remainingSlots = maxPages - newPages.length;
+            newPages = newPages.concat(regularPages.slice(0, remainingSlots));
+
+            // Update the website
+            website.pages = newPages;
+
+            // Reorder pages
+            website.pages.sort((a, b) => a.order - b.order);
+            website.pages.forEach((page, index) => {
+              page.order = index;
+            });
+
+            await website.save();
+            console.log(`Website ${website.title} updated to ${website.pages.length} pages`);
+          }
+        }
+      }
+
       req.flash('success_msg', 'Package updated successfully');
       res.redirect('/admin/packages');
     } catch (err) {
       console.error('Error updating package:', err);
       req.flash('error_msg', 'Failed to update package');
-      res.redirect('/admin/packages');
+      res.redirect('/admin/packages/edit/' + req.params.id);
     }
   },
 
@@ -637,13 +764,113 @@ module.exports = {
     try {
       const { id } = req.params;
 
-      await Package.findByIdAndDelete(id);
+      // Import Website model
+      const Website = require('../models/Website');
 
-      req.flash('success_msg', 'Package deleted successfully');
+      // Instead of preventing deletion, we'll handle users with this package
+      const usersWithPackage = await User.find({ activePackage: id });
+      const websitesWithPackage = await Website.find({ package: id });
+
+      // Mark the package as inactive instead of deleting it
+      await Package.findByIdAndUpdate(id, {
+        active: false,
+        isDeleted: true,
+        deletedAt: new Date()
+      });
+
+      // Update users who have this package
+      if (usersWithPackage.length > 0) {
+        // Notify users that their package has been discontinued
+        for (const user of usersWithPackage) {
+          // Create a notification for the user
+          // This is where you would add code to notify users if you have a notification system
+
+          // Reset user's package to null
+          user.activePackage = null;
+          user.packageExpiryDate = null;
+          await user.save();
+        }
+
+        console.log(`Updated ${usersWithPackage.length} users who had this package`);
+      }
+
+      // Mark websites with this package as needing package update
+      if (websitesWithPackage.length > 0) {
+        for (const website of websitesWithPackage) {
+          website.needsPackageUpdate = true;
+          website.isPublished = false; // Unpublish websites with deleted package
+          await website.save();
+        }
+
+        console.log(`Updated ${websitesWithPackage.length} websites that used this package`);
+      }
+
+      req.flash('success_msg', `Package marked as inactive and ${usersWithPackage.length} users were updated`);
       res.redirect('/admin/packages');
     } catch (err) {
       console.error('Error deleting package:', err);
       req.flash('error_msg', 'Failed to delete package');
+      res.redirect('/admin/packages');
+    }
+  },
+
+  // Bulk delete packages
+  bulkDeletePackages: async (req, res) => {
+    try {
+      const { packageIds } = req.body;
+
+      if (!packageIds || !Array.isArray(packageIds) || packageIds.length === 0) {
+        req.flash('error_msg', 'No packages selected for deletion');
+        return res.redirect('/admin/packages');
+      }
+
+      // Import Website model
+      const Website = require('../models/Website');
+
+      // Find users with these packages
+      const usersWithPackages = await User.find({ activePackage: { $in: packageIds } });
+
+      // Find websites with these packages
+      const websitesWithPackages = await Website.find({ package: { $in: packageIds } });
+
+      // Mark packages as inactive instead of deleting them
+      const result = await Package.updateMany(
+        { _id: { $in: packageIds } },
+        {
+          active: false,
+          isDeleted: true,
+          deletedAt: new Date()
+        }
+      );
+
+      // Update users who have these packages
+      let updatedUserCount = 0;
+      if (usersWithPackages.length > 0) {
+        for (const user of usersWithPackages) {
+          // Reset user's package to null
+          user.activePackage = null;
+          user.packageExpiryDate = null;
+          await user.save();
+          updatedUserCount++;
+        }
+      }
+
+      // Mark websites with these packages as needing package update
+      let updatedWebsiteCount = 0;
+      if (websitesWithPackages.length > 0) {
+        for (const website of websitesWithPackages) {
+          website.needsPackageUpdate = true;
+          website.isPublished = false; // Unpublish websites with deleted packages
+          await website.save();
+          updatedWebsiteCount++;
+        }
+      }
+
+      req.flash('success_msg', `${result.modifiedCount} packages marked as inactive. Updated ${updatedUserCount} users and ${updatedWebsiteCount} websites.`);
+      res.redirect('/admin/packages');
+    } catch (err) {
+      console.error('Error bulk deleting packages:', err);
+      req.flash('error_msg', 'An error occurred while deleting the packages');
       res.redirect('/admin/packages');
     }
   },
@@ -660,8 +887,12 @@ module.exports = {
         return res.redirect('/admin/packages');
       }
 
-      // Toggle the isFree flag
-      package.isFree = !package.isFree;
+      console.log('Before toggle - Package isFree:', package.isFree, 'Type:', typeof package.isFree);
+
+      // Toggle the isFree flag - ensure it's a boolean
+      package.isFree = package.isFree === true ? false : true;
+
+      console.log('After toggle - Package isFree:', package.isFree, 'Type:', typeof package.isFree);
 
       // Save the updated package
       await package.save();

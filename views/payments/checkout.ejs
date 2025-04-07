@@ -22,10 +22,27 @@
         <span>Up to <%= package.maxPages %> pages</span>
       </div>
 
+      <% if (typeof originalPrice !== 'undefined' && typeof discountAmount !== 'undefined' && discountAmount > 0) { %>
+      <div class="flex justify-between mb-4 pb-4 border-b bg-green-50 p-3 rounded">
+        <span class="font-semibold">Original Price:</span>
+        <span class="line-through text-gray-500">₹<%= originalPrice %></span>
+      </div>
+
+      <div class="flex justify-between mb-4 pb-4 border-b bg-green-50 p-3 rounded">
+        <span class="font-semibold text-green-600">Discount Applied:</span>
+        <span class="text-green-600 font-bold">- ₹<%= discountAmount %></span>
+      </div>
+
+      <div class="flex justify-between mb-4 pb-4 border-b bg-green-100 p-3 rounded">
+        <span class="font-semibold">Final Amount:</span>
+        <span class="text-xl font-bold text-green-700">₹<%= finalPrice %></span>
+      </div>
+      <% } else { %>
       <div class="flex justify-between mb-4 pb-4 border-b">
         <span class="font-semibold">Amount:</span>
         <span class="text-xl font-bold">₹<%= package.price %></span>
       </div>
+      <% } %>
 
       <div class="flex justify-between mb-4 pb-4 border-b">
         <span class="font-semibold">Order ID:</span>
@@ -82,7 +99,8 @@
         razorpay_payment_id: response.razorpay_payment_id,
         razorpay_order_id: response.razorpay_order_id,
         razorpay_signature: response.razorpay_signature,
-        websiteId: '<%= typeof websiteId !== "undefined" ? websiteId : "" %>'
+        websiteId: '<%= typeof websiteId !== "undefined" ? websiteId : "" %>',
+        isPackageUpdate: '<%= typeof isPackageUpdate !== "undefined" ? isPackageUpdate : "false" %>'
       };
 
       for (const key in fields) {

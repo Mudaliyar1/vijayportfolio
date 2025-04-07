@@ -24,11 +24,21 @@ router.post('/dashboard/websites/:id/edit', isAuthenticated, websiteController.u
 // Publish website
 router.post('/dashboard/websites/:id/publish', isAuthenticated, websiteController.publishWebsite);
 
+// Preview website
+router.get('/dashboard/websites/:id/preview', isAuthenticated, websiteController.previewWebsite);
+
 // Edit page form
 router.get('/dashboard/websites/:websiteId/pages/:pageId/edit', isAuthenticated, websiteController.getEditPageForm);
 
 // Update page
 router.post('/dashboard/websites/:websiteId/pages/:pageId/edit', isAuthenticated, websiteController.updatePage);
+
+// Delete page
+router.delete('/dashboard/websites/:websiteId/pages/:pageId', isAuthenticated, websiteController.deletePage);
+
+// Add new page
+router.get('/dashboard/websites/:websiteId/pages/add', isAuthenticated, websiteController.getAddPageForm);
+router.post('/dashboard/websites/:websiteId/pages/add', isAuthenticated, websiteController.addPage);
 
 // Delete website
 router.delete('/dashboard/websites/:id', isAuthenticated, websiteController.deleteWebsite);
@@ -36,5 +46,11 @@ router.delete('/dashboard/websites/:id', isAuthenticated, websiteController.dele
 // View public website
 router.get('/user-site/:username/:websiteSlug', websiteController.viewPublicWebsite);
 router.get('/user-site/:username/:websiteSlug/:pageSlug', websiteController.viewPublicWebsite);
+
+// Select package page
+router.get('/dashboard/websites/:id/select-package', isAuthenticated, websiteController.getSelectPackagePage);
+
+// Update website package
+router.post('/dashboard/websites/:id/update-package', isAuthenticated, websiteController.updateWebsitePackage);
 
 module.exports = router;

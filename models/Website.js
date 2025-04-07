@@ -59,6 +59,14 @@ const WebsiteSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  needsPackageUpdate: {
+    type: Boolean,
+    default: false
+  },
+  packageDeletedAt: {
+    type: Date,
+    default: null
+  },
   customDomain: {
     type: String,
     default: null

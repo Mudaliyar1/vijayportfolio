@@ -2,17 +2,13 @@
   <div class="flex justify-between items-center mb-8">
     <h1 class="text-3xl font-bold text-white">My Websites</h1>
 
-    <% if (user.activePackage && user.websiteCount < user.maxWebsites) { %>
+    <% if (user.activePackage) { %>
       <a href="/create-website" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors duration-300">
         Create New Website
       </a>
-    <% } else if (!user.activePackage) { %>
+    <% } else { %>
       <a href="/buy-package" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors duration-300">
         Buy a Package
-      </a>
-    <% } else { %>
-      <a href="/buy-package" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded transition-colors duration-300">
-        Upgrade Package
       </a>
     <% } %>
   </div>
@@ -23,7 +19,7 @@
         <div>
           <h2 class="text-xl font-bold text-gray-800">Current Package: <%= package.name %></h2>
           <p class="text-gray-600 mt-1">
-            <%= user.websiteCount %> of <%= user.maxWebsites %> websites created
+            <%= user.websiteCount %> websites created
             <% if (user.packageExpiryDate) { %>
               • Expires on <%= new Date(user.packageExpiryDate).toLocaleDateString() %>
             <% } %>
@@ -77,13 +73,26 @@
                 Manage Website
               </a>
 
-              <% if (website.isPublished) { %>
+              <%
+                // Check if the website has a deleted package
+                const hasDeletedPackage = website.needsPackageUpdate ||
+                                         (website.package && website.package.isDeleted) ||
+                                         !website.package;
+
+                // Only show the View Live link if the website is published AND doesn't have a deleted package
+                if (website.isPublished && !hasDeletedPackage) {
+              %>
                 <a href="/user-site/<%= user.username %>/<%= website.slug %>" target="_blank" class="text-green-600 hover:text-green-800 flex items-center">
                   <span>View Live</span>
                   <svg class="h-4 w-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                   </svg>
                 </a>
+              <% } else if (hasDeletedPackage && website.isPublished) { %>
+                <span class="text-red-500 text-sm flex items-center">
+                  <i class="fas fa-exclamation-circle mr-1"></i>
+                  Package discontinued
+                </span>
               <% } %>
             </div>
           </div>

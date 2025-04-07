@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* Base styles for user websites */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+    }
+
+    .preview-banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background-color: rgba(79, 70, 229, 0.9);
+      color: white;
+      text-align: center;
+      padding: 0.5rem;
+      z-index: 1000;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    .preview-banner button {
+      margin-left: 1rem;
+      background-color: white;
+      color: #4f46e5;
+      border: none;
+      padding: 0.25rem 0.75rem;
+      border-radius: 0.25rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .preview-banner button:hover {
+      background-color: #f0f0f0;
+    }
+
+    /* Adjust body padding when preview banner is shown */
+    body.has-preview-banner {
+      padding-top: 2.5rem;
+    }
+  </style>
+  <% if (typeof style !== 'undefined') { %><%- style %><% } %>
+</head>
+<body class="<%= isPreview ? 'has-preview-banner' : '' %>">
+  <%- body %>
+  <% if (typeof script !== 'undefined') { %><%- script %><% } %>
+</body>
+</html>

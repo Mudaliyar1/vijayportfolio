@@ -9,4 +9,10 @@ router.get('/payments', isAuthenticated, isAdmin, paymentController.adminGetAllP
 // Get payment details
 router.get('/payments/:id', isAuthenticated, isAdmin, paymentController.adminGetPaymentDetails);
 
+// Download payment receipt
+router.get('/payments/:id/download', isAuthenticated, isAdmin, paymentController.adminDownloadReceipt);
+
+// Bulk delete payments
+router.post('/payments/bulk-delete', isAuthenticated, isAdmin, paymentController.adminBulkDeletePayments);
+
 module.exports = router;

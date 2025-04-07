@@ -32,8 +32,18 @@
               <td class="py-3 px-4 text-sm text-gray-400"><%= new Date(website.createdAt).toLocaleDateString() %></td>
               <td class="py-3 px-4">
                 <a href="/admin/websites/<%= website._id %>" class="text-neon-blue hover:underline mr-2">View</a>
-                <% if (website.isPublished) { %>
+                <%
+                  // Check if the website has a deleted package
+                  const hasDeletedPackage = website.needsPackageUpdate ||
+                                          (website.package && website.package.isDeleted) ||
+                                          !website.package;
+
+                  // Only show the Live link if the website is published AND doesn't have a deleted package
+                  if (website.isPublished && !hasDeletedPackage) {
+                %>
                   <a href="/user-site/<%= website.user ? website.user.username : '' %>/<%= website.slug %>" target="_blank" class="text-neon-green hover:underline">Live</a>
+                <% } else if (hasDeletedPackage && website.isPublished) { %>
+                  <span class="text-red-500 text-xs">Package discontinued</span>
                 <% } %>
               </td>
             </tr>

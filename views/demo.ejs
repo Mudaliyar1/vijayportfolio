@@ -17,10 +17,13 @@
     <button class="px-4 py-2 rounded-md bg-neon-purple/20 border border-neon-purple/30 text-white hover:bg-neon-purple/30 transition-colors demo-nav-btn" data-target="image-demo">
       <i class="fas fa-image mr-2"></i>Image Generation
     </button>
+    <button class="px-4 py-2 rounded-md bg-neon-green/20 border border-neon-green/30 text-white hover:bg-neon-green/30 transition-colors demo-nav-btn" data-target="website-demo">
+      <i class="fas fa-globe mr-2"></i>Website Builder
+    </button>
     <button class="px-4 py-2 rounded-md bg-neon-pink/20 border border-neon-pink/30 text-white hover:bg-neon-pink/30 transition-colors demo-nav-btn" data-target="profile-demo">
       <i class="fas fa-user-circle mr-2"></i>Profile Features
     </button>
-    <button class="px-4 py-2 rounded-md bg-neon-green/20 border border-neon-green/30 text-white hover:bg-neon-green/30 transition-colors demo-nav-btn" data-target="features-demo">
+    <button class="px-4 py-2 rounded-md bg-neon-orange/20 border border-neon-orange/30 text-white hover:bg-neon-orange/30 transition-colors demo-nav-btn" data-target="features-demo">
       <i class="fas fa-star mr-2"></i>Other Features
     </button>
   </div>
@@ -268,6 +271,546 @@
           </div>
           <h3 class="text-center font-medium mb-2">Prompt Enhancement</h3>
           <p class="text-gray-400 text-sm text-center">Our AI automatically improves your prompts to generate more detailed and accurate images.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Website Builder Demo Section -->
+    <div class="demo-section hidden" id="website-demo">
+      <div class="bg-dark-100/80 backdrop-blur-sm rounded-lg border border-neon-green/30 p-4 mb-6">
+        <h2 class="text-2xl font-semibold mb-4 text-neon-green">Website Builder</h2>
+        <p class="text-gray-300 mb-6">
+          Create professional websites in minutes with our AI-powered website builder. Choose from various packages, customize your content, and publish your site with just a few clicks.
+        </p>
+
+        <!-- Demo Steps -->
+        <div class="demo-steps mb-4">
+          <div class="demo-step">
+            <h3 class="text-base font-medium mb-1">Select a Package</h3>
+            <p class="text-gray-400 text-sm">Choose from our free and paid packages with different features and page limits.</p>
+          </div>
+          <div class="demo-step">
+            <h3 class="text-base font-medium mb-1">Create Your Website</h3>
+            <p class="text-gray-400 text-sm">Fill in your website details and let our AI generate the initial content.</p>
+          </div>
+          <div class="demo-step">
+            <h3 class="text-base font-medium mb-1">Customize with Drag & Drop</h3>
+            <p class="text-gray-400 text-sm">Use our intuitive drag-and-drop editor to customize your website's layout and content.</p>
+          </div>
+          <div class="demo-step">
+            <h3 class="text-base font-medium mb-1">Publish Your Website</h3>
+            <p class="text-gray-400 text-sm">Publish your website instantly with free packages or after payment for premium packages.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Website Builder Demo Interface -->
+      <div class="website-demo-container mb-6">
+        <div class="website-demo-header p-3 flex items-center justify-between bg-gradient-to-r from-neon-green/20 to-neon-blue/20 rounded-t-lg border-t border-l border-r border-neon-green/30">
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-neon-green to-neon-blue flex items-center justify-center mr-3">
+              <i class="fas fa-globe text-white"></i>
+            </div>
+            <div>
+              <h3 class="font-medium">FTRAISE Website Builder</h3>
+              <p class="text-xs text-gray-400">Demo Mode</p>
+            </div>
+          </div>
+          <div class="flex space-x-2">
+            <div class="w-3 h-3 rounded-full bg-neon-green"></div>
+            <div class="w-3 h-3 rounded-full bg-neon-blue"></div>
+            <div class="w-3 h-3 rounded-full bg-neon-purple"></div>
+          </div>
+        </div>
+
+        <!-- Website Builder Demo Carousel -->
+        <div class="website-demo-carousel border-l border-r border-b border-neon-green/30 rounded-b-lg overflow-hidden">
+          <div class="website-demo-slides relative">
+            <!-- Slide 1: Package Selection -->
+            <div class="website-demo-slide active" id="slide-package">
+              <div class="p-6 bg-dark-200">
+                <h3 class="text-xl font-semibold mb-4 text-white">Step 1: Choose Your Package</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <!-- Free Package -->
+                  <div class="bg-dark-300 border border-green-500 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300">
+                    <div class="p-4">
+                      <div class="flex justify-between items-start">
+                        <h4 class="text-lg font-semibold text-white">Basic Package</h4>
+                        <span class="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">Free</span>
+                      </div>
+                      <p class="text-sm text-gray-300 mt-2">Perfect for personal websites and small projects</p>
+                      <div class="mt-3">
+                        <span class="text-xs text-gray-300">Features:</span>
+                        <ul class="list-disc list-inside text-xs text-gray-300">
+                          <li>Up to 5 pages</li>
+                          <li>Basic customization</li>
+                          <li>Mobile responsive</li>
+                        </ul>
+                      </div>
+                    </div>
+                    <div class="p-3 border-t border-green-500/20 flex bg-dark-400">
+                      <label class="flex items-center w-full cursor-pointer">
+                        <input type="radio" name="demo-package" value="free" class="mr-2 text-green-500" checked>
+                        <span class="text-sm text-white">Select this package</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Premium Package -->
+                  <div class="bg-dark-300 border border-blue-500 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300">
+                    <div class="p-4">
+                      <div class="flex justify-between items-start">
+                        <h4 class="text-lg font-semibold text-white">Premium Package</h4>
+                        <span class="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full">₹999</span>
+                      </div>
+                      <p class="text-sm text-gray-300 mt-2">Ideal for businesses and professional websites</p>
+                      <div class="mt-3">
+                        <span class="text-xs text-gray-300">Features:</span>
+                        <ul class="list-disc list-inside text-xs text-gray-300">
+                          <li>Up to 10 pages</li>
+                          <li>Advanced customization</li>
+                          <li>SEO optimization</li>
+                          <li>Premium support</li>
+                        </ul>
+                      </div>
+                    </div>
+                    <div class="p-3 border-t border-blue-500/20 flex bg-dark-400">
+                      <label class="flex items-center w-full cursor-pointer">
+                        <input type="radio" name="demo-package" value="premium" class="mr-2 text-blue-500">
+                        <span class="text-sm text-white">Select this package</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="text-center">
+                  <button class="demo-next-btn px-6 py-2 bg-gradient-to-r from-neon-green to-neon-blue text-white rounded-lg hover:opacity-90 transition-all">
+                    Continue <i class="fas fa-arrow-right ml-2"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Slide 2: Website Details -->
+            <div class="website-demo-slide" id="slide-details">
+              <div class="p-6 bg-dark-200">
+                <h3 class="text-xl font-semibold mb-4 text-white">Step 2: Enter Website Details</h3>
+
+                <div class="mb-4">
+                  <label class="block text-white font-semibold mb-2">Website Title</label>
+                  <input type="text" class="w-full px-4 py-2 bg-dark-300 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-neon-blue" value="My Business Website">
+                  <p class="text-gray-400 text-sm mt-1">This will be the main title of your website.</p>
+                </div>
+
+                <div class="mb-4">
+                  <label class="block text-white font-semibold mb-2">Website Description</label>
+                  <textarea class="w-full px-4 py-2 bg-dark-300 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-neon-blue" rows="3">A professional business website offering quality services to our customers.</textarea>
+                  <p class="text-gray-400 text-sm mt-1">This helps our AI generate relevant content for your website.</p>
+                </div>
+
+                <div class="mb-4">
+                  <label class="block text-white font-semibold mb-2">Business Type</label>
+                  <select class="w-full px-4 py-2 bg-dark-300 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-neon-blue">
+                    <option class="bg-dark-300 text-white">Professional Services</option>
+                    <option class="bg-dark-300 text-white">Restaurant</option>
+                    <option class="bg-dark-300 text-white">Retail Store</option>
+                    <option class="bg-dark-300 text-white">Technology</option>
+                    <option class="bg-dark-300 text-white">Education</option>
+                  </select>
+                </div>
+
+                <div class="flex justify-between mt-6">
+                  <button class="demo-prev-btn px-6 py-2 bg-dark-300 text-white rounded-lg hover:bg-dark-400 transition-all">
+                    <i class="fas fa-arrow-left mr-2"></i> Back
+                  </button>
+                  <button class="demo-next-btn px-6 py-2 bg-gradient-to-r from-neon-green to-neon-blue text-white rounded-lg hover:opacity-90 transition-all">
+                    Generate Website <i class="fas fa-arrow-right ml-2"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Slide 3: Drag & Drop Editor -->
+            <div class="website-demo-slide" id="slide-editor">
+              <div class="p-6 bg-dark-200">
+                <h3 class="text-xl font-semibold mb-4 text-white">Step 3: Customize Your Website</h3>
+
+                <div class="flex flex-col md:flex-row gap-4">
+                  <!-- Left Sidebar: Elements -->
+                  <div class="w-full md:w-64 bg-dark-300 p-3 rounded-lg border border-gray-700">
+                    <h4 class="font-medium text-white mb-3">Elements</h4>
+
+                    <div class="space-y-2">
+                      <div class="p-2 bg-dark-400 rounded border border-gray-600 cursor-move hover:border-neon-green transition-colors">
+                        <div class="flex items-center">
+                          <i class="fas fa-heading text-neon-green mr-2"></i>
+                          <span class="text-sm text-white">Heading</span>
+                        </div>
+                      </div>
+
+                      <div class="p-2 bg-dark-400 rounded border border-gray-600 cursor-move hover:border-neon-green transition-colors">
+                        <div class="flex items-center">
+                          <i class="fas fa-paragraph text-neon-blue mr-2"></i>
+                          <span class="text-sm text-white">Paragraph</span>
+                        </div>
+                      </div>
+
+                      <div class="p-2 bg-dark-400 rounded border border-gray-600 cursor-move hover:border-neon-green transition-colors">
+                        <div class="flex items-center">
+                          <i class="fas fa-image text-neon-purple mr-2"></i>
+                          <span class="text-sm text-white">Image</span>
+                        </div>
+                      </div>
+
+                      <div class="p-2 bg-dark-400 rounded border border-gray-600 cursor-move hover:border-neon-green transition-colors">
+                        <div class="flex items-center">
+                          <i class="fas fa-button text-neon-pink mr-2"></i>
+                          <span class="text-sm text-white">Button</span>
+                        </div>
+                      </div>
+
+                      <div class="p-2 bg-dark-400 rounded border border-gray-600 cursor-move hover:border-neon-green transition-colors">
+                        <div class="flex items-center">
+                          <i class="fas fa-columns text-neon-orange mr-2"></i>
+                          <span class="text-sm text-white">Columns</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Main Editor Area -->
+                  <div class="flex-grow">
+                    <div class="bg-white rounded-lg overflow-hidden border border-gray-300 h-64 relative">
+                      <!-- Preview of the website being edited -->
+                      <div class="p-4">
+                        <h1 class="text-2xl font-bold text-gray-800 mb-4">My Business Website</h1>
+                        <p class="text-gray-600 mb-4">A professional business website offering quality services to our customers.</p>
+
+                        <div class="flex space-x-4 mb-4">
+                          <a href="#" class="text-blue-600 hover:underline">Home</a>
+                          <a href="#" class="text-blue-600 hover:underline">About</a>
+                          <a href="#" class="text-blue-600 hover:underline">Services</a>
+                          <a href="#" class="text-blue-600 hover:underline">Contact</a>
+                        </div>
+
+                        <!-- Draggable elements with handles -->
+                        <div class="draggable-element border-2 border-dashed border-neon-green p-3 relative mb-4 bg-white">
+                          <div class="element-handle absolute -top-3 -right-3 bg-neon-green text-white rounded-full w-6 h-6 flex items-center justify-center cursor-move">
+                            <i class="fas fa-arrows-alt text-xs"></i>
+                          </div>
+                          <div class="element-actions absolute -top-3 -left-3 flex space-x-1">
+                            <div class="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center cursor-pointer element-delete">
+                              <i class="fas fa-times text-xs"></i>
+                            </div>
+                            <div class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center cursor-pointer element-edit">
+                              <i class="fas fa-pen text-xs"></i>
+                            </div>
+                          </div>
+                          <h2 class="text-xl font-semibold text-gray-800">Welcome to Our Website</h2>
+                        </div>
+
+                        <div class="draggable-element border-2 border-dashed border-neon-blue p-3 relative mb-4 bg-white">
+                          <div class="element-handle absolute -top-3 -right-3 bg-neon-blue text-white rounded-full w-6 h-6 flex items-center justify-center cursor-move">
+                            <i class="fas fa-arrows-alt text-xs"></i>
+                          </div>
+                          <div class="element-actions absolute -top-3 -left-3 flex space-x-1">
+                            <div class="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center cursor-pointer element-delete">
+                              <i class="fas fa-times text-xs"></i>
+                            </div>
+                            <div class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center cursor-pointer element-edit">
+                              <i class="fas fa-pen text-xs"></i>
+                            </div>
+                          </div>
+                          <p class="text-gray-600">We provide exceptional services tailored to your needs. Our team of experts is dedicated to delivering the best solutions for your business.</p>
+                        </div>
+
+                        <p class="text-gray-600">We provide exceptional services tailored to your needs.</p>
+                      </div>
+
+                      <!-- Semi-transparent overlay with interactive message -->
+                      <div class="absolute inset-0 bg-dark-100/50 flex items-center justify-center editor-overlay">
+                        <div class="text-center p-4 bg-dark-100/90 rounded-lg border border-neon-green/30 max-w-xs">
+                          <p class="text-white mb-2"><i class="fas fa-hand-pointer text-neon-green mr-2"></i>Try Drag & Drop</p>
+                          <p class="text-sm text-gray-300 mb-3">Click and drag elements to rearrange them in this interactive demo.</p>
+                          <button class="px-4 py-2 bg-neon-green/20 hover:bg-neon-green/30 text-white rounded-md border border-neon-green/30 text-sm start-drag-demo">
+                            Start Demo <i class="fas fa-play ml-1"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="mt-4 flex justify-between">
+                      <div>
+                        <button class="px-3 py-1 bg-dark-300 text-white rounded hover:bg-dark-400 transition-colors text-sm">
+                          <i class="fas fa-desktop mr-1"></i> Desktop
+                        </button>
+                        <button class="px-3 py-1 bg-dark-300 text-white rounded hover:bg-dark-400 transition-colors text-sm ml-2">
+                          <i class="fas fa-mobile-alt mr-1"></i> Mobile
+                        </button>
+                      </div>
+
+                      <button class="px-3 py-1 bg-dark-300 text-white rounded hover:bg-dark-400 transition-colors text-sm">
+                        <i class="fas fa-save mr-1"></i> Save
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex justify-between mt-6">
+                  <button class="demo-prev-btn px-6 py-2 bg-dark-300 text-white rounded-lg hover:bg-dark-400 transition-all">
+                    <i class="fas fa-arrow-left mr-2"></i> Back
+                  </button>
+                  <button class="demo-next-btn px-6 py-2 bg-gradient-to-r from-neon-green to-neon-blue text-white rounded-lg hover:opacity-90 transition-all">
+                    Continue to Publish <i class="fas fa-arrow-right ml-2"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Slide 4: Publishing -->
+            <div class="website-demo-slide" id="slide-publish">
+              <div class="p-6 bg-dark-200">
+                <h3 class="text-xl font-semibold mb-4 text-white">Step 4: Publish Your Website</h3>
+
+                <div class="mb-6">
+                  <div class="bg-dark-300 rounded-lg p-4 border border-gray-700">
+                    <h4 class="font-medium text-white mb-2">Website Summary</h4>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <p class="text-sm text-gray-400">Title: <span class="text-white">My Business Website</span></p>
+                        <p class="text-sm text-gray-400">Type: <span class="text-white">Professional Services</span></p>
+                        <p class="text-sm text-gray-400">Package: <span class="text-white" id="demo-selected-package">Basic Package (Free)</span></p>
+                      </div>
+                      <div>
+                        <p class="text-sm text-gray-400">Pages: <span class="text-white">5 pages</span></p>
+                        <p class="text-sm text-gray-400">Status: <span class="text-yellow-400">Ready to publish</span></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Free Package Publishing -->
+                <div class="free-publish-option">
+                  <div class="bg-green-900/20 border border-green-500/30 rounded-lg p-4 mb-4">
+                    <div class="flex items-start">
+                      <div class="flex-shrink-0 mt-1">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                      </div>
+                      <div class="ml-3">
+                        <h3 class="text-green-400 font-medium">Free Package Selected</h3>
+                        <p class="text-sm text-gray-300 mt-1">Your website is ready to be published immediately at no cost.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="text-center">
+                    <button class="px-8 py-3 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg hover:opacity-90 transition-all">
+                      <i class="fas fa-globe mr-2"></i> Publish Website Now
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Paid Package Publishing (initially hidden) -->
+                <div class="paid-publish-option hidden">
+                  <div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4 mb-4">
+                    <div class="flex items-start">
+                      <div class="flex-shrink-0 mt-1">
+                        <i class="fas fa-info-circle text-blue-500"></i>
+                      </div>
+                      <div class="ml-3">
+                        <h3 class="text-blue-400 font-medium">Premium Package Selected</h3>
+                        <p class="text-sm text-gray-300 mt-1">Complete the payment process to publish your premium website.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Scratch Card Demo -->
+                  <div class="bg-dark-300 rounded-lg p-4 mb-4 border border-gray-700">
+                    <h4 class="font-medium text-white mb-3 text-center">Scratch & Save</h4>
+                    <p class="text-sm text-gray-300 mb-4 text-center">Scratch the card below to reveal your discount!</p>
+
+                    <div class="relative mx-auto w-full max-w-md h-40 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg overflow-hidden scratch-card-container">
+                      <!-- Scratch card canvas -->
+                      <canvas id="scratch-card-demo" class="absolute inset-0 w-full h-full z-10 cursor-pointer"></canvas>
+
+                      <!-- Scratch overlay instructions -->
+                      <div class="absolute inset-0 bg-gray-800 flex items-center justify-center scratch-overlay">
+                        <div class="text-center">
+                          <p class="text-white mb-2"><i class="fas fa-hand-pointer text-yellow-400 mr-2"></i>Scratch Here</p>
+                          <p class="text-sm text-gray-300">Click and drag to scratch and reveal your discount</p>
+                        </div>
+                      </div>
+
+                      <!-- Revealed content -->
+                      <div class="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-500" id="demo-discount-reveal">
+                        <div class="text-center">
+                          <div class="mb-2 text-yellow-300"><i class="fas fa-gift text-3xl"></i></div>
+                          <p class="text-white text-lg mb-1">Congratulations!</p>
+                          <p class="text-white text-3xl font-bold mb-2">₹150 OFF</p>
+                          <p class="text-white text-sm">Your discounted price: ₹849</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="flex justify-between items-center mt-2">
+                      <div class="bg-dark-400 px-3 py-1 rounded-full text-xs text-gray-300">
+                        <span id="scratch-progress">0%</span> scratched
+                      </div>
+                      <button id="skip-scratch-btn" class="text-xs text-blue-400 hover:text-blue-300 transition-colors">
+                        <i class="fas fa-forward mr-1"></i> Skip Scratching
+                      </button>
+                    </div>
+
+                    <div class="mt-4 text-center">
+                      <button id="razorpay-demo-btn" class="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:opacity-90 transition-all">
+                        <i class="fas fa-credit-card mr-2"></i> Proceed to Payment
+                      </button>
+                    </div>
+
+                    <!-- Razorpay Payment Demo Modal -->
+                    <div id="razorpay-demo-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center">
+                      <div class="bg-white rounded-lg shadow-xl overflow-hidden max-w-md w-full mx-4">
+                        <!-- Razorpay Header -->
+                        <div class="bg-blue-600 p-4 flex items-center justify-between">
+                          <div class="flex items-center">
+                            <img src="https://razorpay.com/assets/razorpay-logo-white.svg" alt="Razorpay" class="h-6">
+                          </div>
+                          <button id="razorpay-close" class="text-white hover:text-gray-200">
+                            <i class="fas fa-times"></i>
+                          </button>
+                        </div>
+
+                        <!-- Razorpay Content -->
+                        <div class="p-6">
+                          <h3 class="text-lg font-medium text-gray-900 mb-4">Complete Your Payment</h3>
+
+                          <div class="mb-4">
+                            <div class="flex justify-between text-sm mb-1">
+                              <span class="text-gray-700 font-medium">Amount</span>
+                              <span class="font-medium text-gray-900">₹849.00</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                              <span class="text-gray-700 font-medium">Order ID</span>
+                              <span class="font-mono text-xs text-gray-800">order_demo123456789</span>
+                            </div>
+                          </div>
+
+                          <div class="border-t border-gray-200 pt-4 mb-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-3">Payment Methods</h4>
+
+                            <div class="space-y-2">
+                              <div class="border border-gray-300 rounded p-3 flex items-center cursor-pointer hover:bg-gray-50 payment-method-option active">
+                                <input type="radio" name="payment-method" checked class="mr-3">
+                                <div>
+                                  <div class="flex items-center">
+                                    <i class="fas fa-credit-card text-blue-600 mr-2"></i>
+                                    <span class="font-medium text-gray-800">Card</span>
+                                  </div>
+                                  <p class="text-xs text-gray-600 mt-1">Credit & Debit Cards</p>
+                                </div>
+                              </div>
+
+                              <div class="border border-gray-300 rounded p-3 flex items-center cursor-pointer hover:bg-gray-50 payment-method-option">
+                                <input type="radio" name="payment-method" class="mr-3">
+                                <div>
+                                  <div class="flex items-center">
+                                    <i class="fas fa-university text-blue-600 mr-2"></i>
+                                    <span class="font-medium text-gray-800">NetBanking</span>
+                                  </div>
+                                  <p class="text-xs text-gray-600 mt-1">All Indian banks</p>
+                                </div>
+                              </div>
+
+                              <div class="border border-gray-300 rounded p-3 flex items-center cursor-pointer hover:bg-gray-50 payment-method-option">
+                                <input type="radio" name="payment-method" class="mr-3">
+                                <div>
+                                  <div class="flex items-center">
+                                    <i class="fas fa-wallet text-blue-600 mr-2"></i>
+                                    <span class="font-medium text-gray-800">Wallet</span>
+                                  </div>
+                                  <p class="text-xs text-gray-600 mt-1">Paytm, PhonePe, Amazon Pay</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="border-t border-gray-200 pt-4">
+                            <button id="razorpay-pay-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded transition-colors">
+                              Pay ₹849.00
+                            </button>
+                            <p class="text-xs text-gray-600 text-center mt-3">
+                              By proceeding, you agree to Razorpay's <a href="#" class="text-blue-600 hover:underline font-medium">Terms</a> and <a href="#" class="text-blue-600 hover:underline font-medium">Privacy Policy</a>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Payment Success Modal -->
+                    <div id="payment-success-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center">
+                      <div class="bg-white rounded-lg shadow-xl overflow-hidden max-w-md w-full mx-4 p-6 text-center">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <i class="fas fa-check-circle text-3xl text-green-500"></i>
+                        </div>
+                        <h3 class="text-xl font-medium text-gray-900 mb-2">Payment Successful!</h3>
+                        <p class="text-gray-600 mb-4">Your website has been published successfully.</p>
+                        <div class="border-t border-gray-200 pt-4">
+                          <button id="success-close" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded transition-colors">
+                            View Your Website
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex justify-between mt-6">
+                  <button class="demo-prev-btn px-6 py-2 bg-dark-300 text-white rounded-lg hover:bg-dark-400 transition-all">
+                    <i class="fas fa-arrow-left mr-2"></i> Back
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide Navigation Dots -->
+          <div class="flex justify-center p-4 bg-dark-300 border-t border-gray-700">
+            <div class="flex space-x-2">
+              <button class="w-3 h-3 rounded-full bg-neon-green slide-dot active" data-slide="slide-package"></button>
+              <button class="w-3 h-3 rounded-full bg-gray-600 slide-dot" data-slide="slide-details"></button>
+              <button class="w-3 h-3 rounded-full bg-gray-600 slide-dot" data-slide="slide-editor"></button>
+              <button class="w-3 h-3 rounded-full bg-gray-600 slide-dot" data-slide="slide-publish"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Website Builder Features Highlight -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        <div class="bg-dark-100/60 backdrop-blur-sm p-4 rounded-lg border border-neon-green/20 hover:border-neon-green/40 transition-colors">
+          <div class="w-12 h-12 rounded-full bg-neon-green/20 flex items-center justify-center mb-3 mx-auto">
+            <i class="fas fa-magic text-neon-green text-xl"></i>
+          </div>
+          <h3 class="text-center font-medium mb-2">AI-Powered Content</h3>
+          <p class="text-gray-400 text-sm text-center">Our AI generates professional content based on your business type and description.</p>
+        </div>
+
+        <div class="bg-dark-100/60 backdrop-blur-sm p-4 rounded-lg border border-neon-blue/20 hover:border-neon-blue/40 transition-colors">
+          <div class="w-12 h-12 rounded-full bg-neon-blue/20 flex items-center justify-center mb-3 mx-auto">
+            <i class="fas fa-mobile-alt text-neon-blue text-xl"></i>
+          </div>
+          <h3 class="text-center font-medium mb-2">Fully Responsive</h3>
+          <p class="text-gray-400 text-sm text-center">All websites are fully responsive and look great on desktops, tablets, and mobile devices.</p>
+        </div>
+
+        <div class="bg-dark-100/60 backdrop-blur-sm p-4 rounded-lg border border-neon-purple/20 hover:border-neon-purple/40 transition-colors">
+          <div class="w-12 h-12 rounded-full bg-neon-purple/20 flex items-center justify-center mb-3 mx-auto">
+            <i class="fas fa-paint-brush text-neon-purple text-xl"></i>
+          </div>
+          <h3 class="text-center font-medium mb-2">Customizable Themes</h3>
+          <p class="text-gray-400 text-sm text-center">Choose from various themes and color schemes to match your brand identity.</p>
         </div>
       </div>
     </div>
@@ -1157,6 +1700,492 @@
       activeSection.style.display = 'block';
       activeSection.style.opacity = '1';
       activeSection.style.transform = 'translateY(0)';
+    }
+
+    // Website Builder Demo Functionality
+    if (document.getElementById('website-demo')) {
+      // Package selection
+      const packageRadios = document.querySelectorAll('input[name="demo-package"]');
+      const demoSelectedPackage = document.getElementById('demo-selected-package');
+      const freePublishOption = document.querySelector('.free-publish-option');
+      const paidPublishOption = document.querySelector('.paid-publish-option');
+
+      packageRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+          if (this.value === 'premium') {
+            if (demoSelectedPackage) demoSelectedPackage.textContent = 'Premium Package (₹999)';
+            if (freePublishOption) freePublishOption.classList.add('hidden');
+            if (paidPublishOption) paidPublishOption.classList.remove('hidden');
+          } else {
+            if (demoSelectedPackage) demoSelectedPackage.textContent = 'Basic Package (Free)';
+            if (freePublishOption) freePublishOption.classList.remove('hidden');
+            if (paidPublishOption) paidPublishOption.classList.add('hidden');
+          }
+        });
+      });
+
+      // Slide navigation
+      const slides = document.querySelectorAll('.website-demo-slide');
+      const nextBtns = document.querySelectorAll('.demo-next-btn');
+      const prevBtns = document.querySelectorAll('.demo-prev-btn');
+      const slideDots = document.querySelectorAll('.slide-dot');
+
+      // Next buttons
+      nextBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const currentSlide = document.querySelector('.website-demo-slide.active');
+          const nextSlide = currentSlide.nextElementSibling;
+
+          if (nextSlide && nextSlide.classList.contains('website-demo-slide')) {
+            currentSlide.classList.remove('active');
+            nextSlide.classList.add('active');
+
+            // Update dots
+            updateSlideDots(nextSlide.id);
+          }
+        });
+      });
+
+      // Previous buttons
+      prevBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const currentSlide = document.querySelector('.website-demo-slide.active');
+          const prevSlide = currentSlide.previousElementSibling;
+
+          if (prevSlide && prevSlide.classList.contains('website-demo-slide')) {
+            currentSlide.classList.remove('active');
+            prevSlide.classList.add('active');
+
+            // Update dots
+            updateSlideDots(prevSlide.id);
+          }
+        });
+      });
+
+      // Slide dots
+      slideDots.forEach(dot => {
+        dot.addEventListener('click', function() {
+          const targetSlideId = this.dataset.slide;
+          const targetSlide = document.getElementById(targetSlideId);
+
+          if (targetSlide) {
+            document.querySelectorAll('.website-demo-slide').forEach(slide => {
+              slide.classList.remove('active');
+            });
+            targetSlide.classList.add('active');
+
+            // Update dots
+            updateSlideDots(targetSlideId);
+          }
+        });
+      });
+
+      function updateSlideDots(activeSlideId) {
+        slideDots.forEach(dot => {
+          if (dot.dataset.slide === activeSlideId) {
+            dot.classList.add('active');
+            dot.classList.remove('bg-gray-600');
+            dot.classList.add('bg-neon-green');
+          } else {
+            dot.classList.remove('active');
+            dot.classList.remove('bg-neon-green');
+            dot.classList.add('bg-gray-600');
+          }
+        });
+      }
+
+      // Drag and drop demo
+      const startDragDemoBtn = document.querySelector('.start-drag-demo');
+      const editorOverlay = document.querySelector('.editor-overlay');
+      const draggableElements = document.querySelectorAll('.draggable-element');
+
+      if (startDragDemoBtn && editorOverlay) {
+        startDragDemoBtn.addEventListener('click', function() {
+          editorOverlay.style.opacity = '0';
+          editorOverlay.style.pointerEvents = 'none';
+
+          // Make elements draggable
+          draggableElements.forEach(element => {
+            makeDraggable(element);
+          });
+        });
+      }
+
+      function makeDraggable(element) {
+        const handle = element.querySelector('.element-handle');
+        const deleteBtn = element.querySelector('.element-delete');
+        const editBtn = element.querySelector('.element-edit');
+
+        let isDragging = false;
+        let startX, startY, startLeft, startTop;
+        let currentX = 0, currentY = 0;
+
+        // Initialize element for dragging
+        element.style.position = 'relative';
+        element.style.cursor = 'default';
+
+        if (handle) {
+          handle.addEventListener('mousedown', startDrag);
+          handle.addEventListener('touchstart', startDrag, { passive: false });
+        }
+
+        if (deleteBtn) {
+          deleteBtn.addEventListener('click', function() {
+            element.style.opacity = '0';
+            setTimeout(() => {
+              element.remove();
+            }, 300);
+          });
+        }
+
+        if (editBtn) {
+          editBtn.addEventListener('click', function() {
+            // Show a tooltip with edit message
+            const tooltip = document.createElement('div');
+            tooltip.className = 'edit-tooltip';
+            tooltip.innerHTML = 'In the actual editor, this would open a properties panel';
+            element.appendChild(tooltip);
+
+            // Remove tooltip after 2 seconds
+            setTimeout(() => {
+              tooltip.style.opacity = '0';
+              setTimeout(() => tooltip.remove(), 300);
+            }, 2000);
+          });
+        }
+
+        function startDrag(e) {
+          e.preventDefault();
+
+          // Get initial positions
+          isDragging = true;
+          const touch = e.type === 'touchstart' ? e.touches[0] : e;
+          startX = touch.clientX;
+          startY = touch.clientY;
+
+          // Store current position
+          startLeft = currentX;
+          startTop = currentY;
+
+          // Add move and end event listeners
+          document.addEventListener('mousemove', drag);
+          document.addEventListener('touchmove', drag, { passive: false });
+          document.addEventListener('mouseup', endDrag);
+          document.addEventListener('touchend', endDrag);
+
+          // Add dragging class and visual feedback
+          element.classList.add('dragging');
+          element.style.zIndex = '10';
+
+          // Add animation to show it's being dragged
+          element.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
+          element.style.transform = 'scale(1.02)';
+        }
+
+        function drag(e) {
+          if (!isDragging) return;
+          e.preventDefault();
+
+          const touch = e.type === 'touchmove' ? e.touches[0] : e;
+          const dx = touch.clientX - startX;
+          const dy = touch.clientY - startY;
+
+          // Calculate new position
+          currentX = startLeft + dx;
+          currentY = startTop + dy;
+
+          // Update element position
+          element.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) scale(1.02)`;
+        }
+
+        function endDrag() {
+          if (!isDragging) return;
+
+          // Remove event listeners
+          document.removeEventListener('mousemove', drag);
+          document.removeEventListener('touchmove', drag);
+          document.removeEventListener('mouseup', endDrag);
+          document.removeEventListener('touchend', endDrag);
+
+          // Reset dragging state but keep position
+          isDragging = false;
+          element.classList.remove('dragging');
+
+          // Reset visual styles but keep position
+          element.style.boxShadow = '';
+          element.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+
+          // Add a small bounce animation
+          setTimeout(() => {
+            element.style.transition = 'transform 0.2s ease';
+            element.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) scale(1.03)`;
+
+            setTimeout(() => {
+              element.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+              setTimeout(() => {
+                element.style.transition = '';
+                element.style.zIndex = '';
+              }, 200);
+            }, 100);
+          }, 0);
+        }
+      }
+
+      // Scratch card demo
+      const canvas = document.getElementById('scratch-card-demo');
+      const scratchProgress = document.getElementById('scratch-progress');
+      const discountReveal = document.getElementById('demo-discount-reveal');
+      const skipScratchBtn = document.getElementById('skip-scratch-btn');
+
+      if (canvas && discountReveal) {
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let scratchedPixels = 0;
+        let totalPixels = 0;
+
+        // Set canvas dimensions
+        function resizeCanvas() {
+          const container = canvas.parentElement;
+          canvas.width = container.offsetWidth;
+          canvas.height = container.offsetHeight;
+          totalPixels = canvas.width * canvas.height;
+
+          // Fill canvas with gray overlay
+          ctx.fillStyle = '#1f2937';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          // Add some scratch here text and pattern
+          ctx.font = '16px Arial';
+          ctx.fillStyle = '#ffffff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          // Draw scratch pattern
+          for (let i = 0; i < canvas.width; i += 20) {
+            for (let j = 0; j < canvas.height; j += 20) {
+              ctx.fillText('⟨⟩', i, j);
+            }
+          }
+        }
+
+        // Initialize canvas
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Scratch functionality
+        canvas.addEventListener('mousedown', startScratch);
+        canvas.addEventListener('touchstart', startScratch, { passive: false });
+        canvas.addEventListener('mousemove', scratch);
+        canvas.addEventListener('touchmove', scratch, { passive: false });
+        canvas.addEventListener('mouseup', endScratch);
+        canvas.addEventListener('touchend', endScratch);
+
+        function startScratch(e) {
+          isDrawing = true;
+          const touch = e.type === 'touchstart' ? e.touches[0] : e;
+          const rect = canvas.getBoundingClientRect();
+          lastX = touch.clientX - rect.left;
+          lastY = touch.clientY - rect.top;
+          e.preventDefault();
+        }
+
+        function scratch(e) {
+          if (!isDrawing) return;
+          e.preventDefault();
+
+          const touch = e.type === 'touchmove' ? e.touches[0] : e;
+          const rect = canvas.getBoundingClientRect();
+          const x = touch.clientX - rect.left;
+          const y = touch.clientY - rect.top;
+
+          // Set composite operation to reveal what's underneath
+          ctx.globalCompositeOperation = 'destination-out';
+          ctx.lineWidth = 40;
+          ctx.lineCap = 'round';
+
+          // Draw line
+          ctx.beginPath();
+          ctx.moveTo(lastX, lastY);
+          ctx.lineTo(x, y);
+          ctx.stroke();
+
+          // Update last position
+          lastX = x;
+          lastY = y;
+
+          // Calculate scratched percentage
+          calculateScratchPercentage();
+        }
+
+        function endScratch() {
+          isDrawing = false;
+        }
+
+        function calculateScratchPercentage() {
+          // Get image data
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const pixels = imageData.data;
+
+          // Count transparent pixels (scratched)
+          let transparentPixels = 0;
+          for (let i = 3; i < pixels.length; i += 4) {
+            if (pixels[i] === 0) transparentPixels++;
+          }
+
+          // Calculate percentage
+          const percentage = Math.min(100, Math.floor((transparentPixels / totalPixels) * 100));
+          scratchProgress.textContent = percentage + '%';
+
+          // If more than 50% scratched, reveal the discount
+          if (percentage > 50 && discountReveal.style.opacity !== '1') {
+            revealDiscount();
+          }
+        }
+
+        // Function to reveal the discount
+        function revealDiscount() {
+          // Add confetti animation
+          createConfetti();
+
+          // Hide the canvas with animation
+          canvas.style.opacity = '0';
+          canvas.style.pointerEvents = 'none';
+
+          // Show the discount with animation
+          setTimeout(() => {
+            discountReveal.style.opacity = '1';
+            discountReveal.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+              discountReveal.style.transform = 'scale(1)';
+            }, 200);
+          }, 300);
+        }
+
+        // Skip scratch button functionality
+        if (skipScratchBtn) {
+          skipScratchBtn.addEventListener('click', function() {
+            // Fill the entire canvas to reveal discount
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Update progress
+            scratchProgress.textContent = '100%';
+
+            // Reveal the discount
+            revealDiscount();
+
+            // Disable the skip button
+            this.disabled = true;
+            this.classList.add('opacity-50', 'cursor-not-allowed');
+            this.innerHTML = '<i class="fas fa-check mr-1"></i> Scratching skipped';
+          });
+        }
+      }
+
+      // Confetti animation function
+      function createConfetti() {
+        const confettiContainer = document.createElement('div');
+        confettiContainer.className = 'confetti-container';
+        document.body.appendChild(confettiContainer);
+
+        // Create confetti pieces
+        const colors = ['#f94144', '#f3722c', '#f8961e', '#f9c74f', '#90be6d', '#43aa8b', '#577590', '#277da1'];
+        const confettiCount = 100;
+
+        for (let i = 0; i < confettiCount; i++) {
+          const confetti = document.createElement('div');
+          confetti.className = 'confetti-piece';
+          confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+          confetti.style.left = Math.random() * 100 + 'vw';
+          confetti.style.animationDelay = Math.random() * 3 + 's';
+          confetti.style.animationDuration = Math.random() * 2 + 3 + 's';
+          confettiContainer.appendChild(confetti);
+        }
+
+        // Remove confetti after animation
+        setTimeout(() => {
+          confettiContainer.remove();
+        }, 5000);
+      }
+
+      // Razorpay demo
+      const razorpayDemoBtn = document.getElementById('razorpay-demo-btn');
+      const razorpayModal = document.getElementById('razorpay-demo-modal');
+      const razorpayCloseBtn = document.getElementById('razorpay-close');
+      const razorpayPayBtn = document.getElementById('razorpay-pay-btn');
+      const paymentSuccessModal = document.getElementById('payment-success-modal');
+      const successCloseBtn = document.getElementById('success-close');
+      const paymentMethodOptions = document.querySelectorAll('.payment-method-option');
+
+      if (razorpayDemoBtn && razorpayModal) {
+        // Open Razorpay modal
+        razorpayDemoBtn.addEventListener('click', function() {
+          razorpayModal.classList.remove('hidden');
+          razorpayModal.classList.add('flex');
+        });
+
+        // Close Razorpay modal
+        razorpayCloseBtn.addEventListener('click', function() {
+          razorpayModal.classList.add('hidden');
+          razorpayModal.classList.remove('flex');
+        });
+
+        // Payment method selection
+        paymentMethodOptions.forEach(option => {
+          option.addEventListener('click', function() {
+            // Unselect all options
+            paymentMethodOptions.forEach(opt => {
+              opt.classList.remove('active');
+              opt.querySelector('input').checked = false;
+            });
+
+            // Select clicked option
+            this.classList.add('active');
+            this.querySelector('input').checked = true;
+          });
+        });
+
+        // Complete payment
+        razorpayPayBtn.addEventListener('click', function() {
+          // Show loading state
+          this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+          this.disabled = true;
+
+          // Simulate payment processing
+          setTimeout(() => {
+            // Hide Razorpay modal
+            razorpayModal.classList.add('hidden');
+            razorpayModal.classList.remove('flex');
+
+            // Show success modal with animation
+            paymentSuccessModal.classList.remove('hidden');
+            paymentSuccessModal.classList.add('flex');
+
+            // Add success animation
+            const successIcon = paymentSuccessModal.querySelector('.fa-check-circle');
+            if (successIcon) {
+              successIcon.classList.add('success-animation');
+            }
+
+            // Add confetti for successful payment
+            createConfetti();
+
+            // Reset button state for demo purposes
+            setTimeout(() => {
+              this.innerHTML = '<i class="fas fa-credit-card mr-2"></i> Pay ₹849.00';
+              this.disabled = false;
+            }, 1000);
+          }, 1500);
+        });
+
+        // Close success modal
+        successCloseBtn.addEventListener('click', function() {
+          paymentSuccessModal.classList.add('hidden');
+          paymentSuccessModal.classList.remove('flex');
+        });
+      }
     }
   });
 </script>

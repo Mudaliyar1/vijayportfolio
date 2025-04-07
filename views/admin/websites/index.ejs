@@ -1,59 +1,88 @@
-<div class="container mx-auto px-4 py-8 bg-gray-900">
-  <h1 class="text-3xl font-bold mb-8 text-white">Manage Websites</h1>
+<div class="flex flex-col md:flex-row">
+  <!-- Sidebar -->
+  <%- include('../partials/sidebar', { path: '/admin/websites' }) %>
 
-  <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8 text-black">
-    <div class="bg-gradient-to-r from-purple-500 to-indigo-600 p-6 text-white">
-      <h2 class="text-2xl font-bold">All Websites</h2>
-      <p class="mt-1 opacity-90">Manage user-created websites</p>
+  <!-- Main Content -->
+  <div class="flex-grow p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Manage Websites</h1>
+      <span class="text-sm text-gray-400">Welcome, <%= user.username %></span>
     </div>
+
+  <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden mb-8 hover:border-neon-blue transition-colors">
+      <div class="p-4 border-b border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
+        <h2 class="text-xl font-semibold">All Websites</h2>
+        <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+          <div class="relative w-full md:w-64">
+            <input
+              type="text"
+              id="website-search"
+              placeholder="Search websites..."
+              class="bg-dark-200 border border-gray-700 rounded-md py-2 pl-10 pr-4 text-white focus:outline-none focus:border-neon-blue focus:ring-1 focus:ring-neon-blue/50 focus:shadow-glow-blue transition-all duration-300 w-full"
+            >
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+          </div>
+          <div class="flex gap-2 w-full md:w-auto">
+            <button id="bulk-delete-websites" type="button" class="bg-red-500/20 text-red-400 py-2 px-4 rounded-md flex items-center hover:bg-red-500/30 transition-all duration-300 w-full md:w-auto justify-center">
+              <i class="fas fa-trash-alt mr-2"></i> Bulk Delete
+            </button>
+          </div>
+        </div>
+      </div>
 
     <div class="p-6">
       <% if (websites.length === 0) { %>
         <div class="text-center py-8">
-          <svg class="h-16 w-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="h-16 w-16 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
           </svg>
-          <h3 class="text-xl font-bold text-gray-700 mb-2">No Websites Found</h3>
-          <p class="text-gray-600">No websites have been created by users yet.</p>
+          <h3 class="text-xl font-bold text-white mb-2">No Websites Found</h3>
+          <p class="text-gray-400">No websites have been created by users yet.</p>
         </div>
       <% } else { %>
         <div class="overflow-x-auto">
-          <table class="min-w-full bg-white">
+          <table class="w-full">
             <thead>
-              <tr class="bg-gray-100 text-gray-700">
-                <th class="py-3 px-4 text-left">Title</th>
-                <th class="py-3 px-4 text-left">User</th>
-                <th class="py-3 px-4 text-left">Package</th>
-                <th class="py-3 px-4 text-left">Status</th>
-                <th class="py-3 px-4 text-left">Created</th>
-                <th class="py-3 px-4 text-left">Actions</th>
+              <tr class="bg-dark-200 border-b border-gray-800">
+                <th class="py-3 px-4 text-left text-gray-400 font-medium text-sm uppercase">
+                  <input type="checkbox" id="select-all-websites" class="form-check-input">
+                </th>
+                <th class="py-3 px-4 text-left text-gray-400 font-medium text-sm uppercase">Title</th>
+                <th class="py-3 px-4 text-left text-gray-400 font-medium text-sm uppercase">User</th>
+                <th class="py-3 px-4 text-left text-gray-400 font-medium text-sm uppercase">Package</th>
+                <th class="py-3 px-4 text-left text-gray-400 font-medium text-sm uppercase">Status</th>
+                <th class="py-3 px-4 text-left text-gray-400 font-medium text-sm uppercase">Created</th>
+                <th class="py-3 px-4 text-left text-gray-400 font-medium text-sm uppercase">Actions</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody>
               <% websites.forEach(website => { %>
-                <tr class="hover:bg-gray-50">
-                  <td class="py-3 px-4 font-medium"><%= website.title %></td>
-                  <td class="py-3 px-4"><%= website.user.username %></td>
-                  <td class="py-3 px-4"><%= website.package.name %></td>
+                <tr class="border-b border-gray-800 hover:bg-dark-200/50 hover:border-neon-blue/30 transition-all duration-200">
                   <td class="py-3 px-4">
-                    <span class="inline-block px-2 py-1 text-xs rounded-full <%= website.isPublished ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800' %>">
+                    <input type="checkbox" class="website-checkbox form-check-input" data-id="<%= website._id %>">
+                  </td>
+                  <td class="py-3 px-4 font-medium"><%= website.title %></td>
+                  <td class="py-3 px-4"><%= website.user ? website.user.username : 'Unknown User' %></td>
+                  <td class="py-3 px-4"><%= website.package ? website.package.name : 'No Package' %></td>
+                  <td class="py-3 px-4">
+                    <span class="inline-block px-2 py-1 text-xs rounded-full <%= website.isPublished ? 'bg-neon-green/20 text-neon-green' : 'bg-yellow-500/20 text-yellow-400' %>">
                       <%= website.isPublished ? 'Published' : 'Draft' %>
                     </span>
                   </td>
                   <td class="py-3 px-4"><%= new Date(website.createdAt).toLocaleDateString() %></td>
                   <td class="py-3 px-4">
                     <div class="flex space-x-2">
-                      <a href="/admin/websites/<%= website._id %>" class="text-blue-600 hover:text-blue-800">
-                        View
+                      <a href="/admin/websites/<%= website._id %>" class="inline-flex items-center px-2 py-1 bg-neon-blue/20 text-neon-blue text-xs rounded hover:bg-neon-blue/30 transition-colors">
+                        <i class="fas fa-eye mr-1"></i> View
                       </a>
                       <form action="/admin/websites/<%= website._id %>/toggle-status" method="POST" class="inline">
-                        <button type="submit" class="text-purple-600 hover:text-purple-800">
-                          <%= website.isPublished ? 'Unpublish' : 'Publish' %>
+                        <button type="submit" class="inline-flex items-center px-2 py-1 <%= website.isPublished ? 'bg-yellow-500/20 text-yellow-400' : 'bg-neon-green/20 text-neon-green' %> text-xs rounded hover:<%= website.isPublished ? 'bg-yellow-500/30' : 'bg-neon-green/30' %> transition-colors">
+                          <i class="fas fa-<%= website.isPublished ? 'eye-slash' : 'eye' %> mr-1"></i> <%= website.isPublished ? 'Unpublish' : 'Publish' %>
                         </button>
                       </form>
                       <form action="/admin/websites/<%= website._id %>?_method=DELETE" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this website?');">
-                        <button type="submit" class="text-red-600 hover:text-red-800">
-                          Delete
+                        <button type="submit" class="inline-flex items-center px-2 py-1 bg-red-500/20 text-red-400 text-xs rounded hover:bg-red-500/30 transition-colors">
+                          <i class="fas fa-trash-alt mr-1"></i> Delete
                         </button>
                       </form>
                     </div>
@@ -66,4 +95,77 @@
       <% } %>
     </div>
   </div>
+  </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Website search functionality
+    const websiteSearch = document.getElementById('website-search');
+    if (websiteSearch) {
+      websiteSearch.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+          const title = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+          const user = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+          const package = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+          if (title.includes(searchTerm) || user.includes(searchTerm) || package.includes(searchTerm)) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      });
+    }
+
+    // Select all websites checkbox
+    const selectAllCheckbox = document.getElementById('select-all-websites');
+    const websiteCheckboxes = document.querySelectorAll('.website-checkbox');
+
+    if (selectAllCheckbox) {
+      selectAllCheckbox.addEventListener('change', function() {
+        websiteCheckboxes.forEach(checkbox => {
+          checkbox.checked = selectAllCheckbox.checked;
+        });
+      });
+    }
+
+    // Bulk delete websites
+    const bulkDeleteBtn = document.getElementById('bulk-delete-websites');
+    if (bulkDeleteBtn) {
+      bulkDeleteBtn.addEventListener('click', function() {
+        const selectedWebsites = Array.from(websiteCheckboxes)
+          .filter(checkbox => checkbox.checked)
+          .map(checkbox => checkbox.dataset.id);
+
+        if (selectedWebsites.length === 0) {
+          alert('Please select at least one website to delete.');
+          return;
+        }
+
+        if (confirm(`Are you sure you want to delete ${selectedWebsites.length} website(s)? This action cannot be undone.`)) {
+          // Create a form to submit the selected website IDs
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = '/admin/websites/bulk-delete';
+
+          // No need for method override since we're using POST
+
+          // Add selected website IDs
+          selectedWebsites.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'websiteIds[]';
+            input.value = id;
+            form.appendChild(input);
+          });
+
+          document.body.appendChild(form);
+          form.submit();
+        }
+      });
+    }
+  });
+</script>

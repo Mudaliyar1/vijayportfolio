@@ -3,13 +3,26 @@
     <h1 class="text-3xl font-bold text-white"><%= website.title %></h1>
 
     <div class="flex space-x-3">
-      <% if (website.isPublished) { %>
+      <%
+        // Check if the website has a deleted package
+        const hasDeletedPackage = website.needsPackageUpdate ||
+                                 (website.package && website.package.isDeleted) ||
+                                 !website.package;
+
+        // Only show the View Live link if the website is published AND doesn't have a deleted package
+        if (website.isPublished && !hasDeletedPackage) {
+      %>
         <a href="/user-site/<%= website.user.username %>/<%= website.slug %>" target="_blank" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors duration-300 flex items-center">
           <span>View Live</span>
           <svg class="h-4 w-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
           </svg>
         </a>
+      <% } else if (hasDeletedPackage && website.isPublished) { %>
+        <div class="bg-red-600 text-white font-bold py-2 px-4 rounded flex items-center">
+          <i class="fas fa-exclamation-circle mr-1"></i>
+          <span>Package Discontinued</span>
+        </div>
       <% } %>
 
       <form action="/admin/websites/<%= website._id %>/toggle-status" method="POST">

@@ -9,13 +9,15 @@ module.exports = {
 
       res.render('index', {
         title: 'FTRAISE AI - Futuristic AI Chat Experience',
-        topReviews
+        topReviews,
+        user: req.user
       });
     } catch (err) {
       console.error('Error loading homepage:', err);
       res.render('index', {
         title: 'FTRAISE AI - Futuristic AI Chat Experience',
-        topReviews: []
+        topReviews: [],
+        user: req.user
       });
     }
   },
@@ -23,21 +25,24 @@ module.exports = {
   // Render about page
   getAboutPage: (req, res) => {
     res.render('about', {
-      title: 'About - FTRAISE AI'
+      title: 'About - FTRAISE AI',
+      user: req.user
     });
   },
 
   // Render demo page
   getDemoPage: (req, res) => {
     res.render('demo', {
-      title: 'Interactive Demos - FTRAISE AI'
+      title: 'Interactive Demos - FTRAISE AI',
+      user: req.user
     });
   },
 
   // Render analytics page
   getAnalyticsPage: (req, res) => {
     res.render('analytics', {
-      title: 'Platform Analytics - FTRAISE AI'
+      title: 'Platform Analytics - FTRAISE AI',
+      user: req.user
     });
   },
 
@@ -51,7 +56,8 @@ module.exports = {
       console.error('Error in getBlogPage:', error);
       res.render('error', {
         title: 'Error - FTRAISE AI',
-        message: 'An error occurred while loading the blog page.'
+        message: 'An error occurred while loading the blog page.',
+        user: req.user
       });
     }
   },
@@ -73,7 +79,8 @@ module.exports = {
       console.error('Error in getCommunityPage:', error);
       res.render('error', {
         title: 'Error - FTRAISE AI',
-        message: 'An error occurred while loading the community page.'
+        message: 'An error occurred while loading the community page.',
+        user: req.user
       });
     }
   }

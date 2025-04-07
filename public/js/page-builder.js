@@ -17,6 +17,20 @@ class PageBuilder {
     // Available blocks - FTRAISE EDITOR widgets organized by category
     this.blocks = [
       {
+        type: 'header',
+        icon: 'fas fa-window-maximize',
+        title: 'Header',
+        category: 'layout',
+        template: '<header class="site-header editable" data-type="header" style="background-color: #333; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center;"><div class="logo editable">Your Logo</div><nav class="navigation editable"><ul style="display: flex; list-style: none; gap: 20px; margin: 0; padding: 0;"><li><a href="#" class="link-editable" style="color: white; text-decoration: none;">Home</a></li><li><a href="#" class="link-editable" style="color: white; text-decoration: none;">About</a></li><li><a href="#" class="link-editable" style="color: white; text-decoration: none;">Services</a></li><li><a href="#" class="link-editable" style="color: white; text-decoration: none;">Contact</a></li></ul></nav></header>'
+      },
+      {
+        type: 'footer',
+        icon: 'fas fa-window-minimize',
+        title: 'Footer',
+        category: 'layout',
+        template: '<footer class="site-footer editable" data-type="footer" style="background-color: #333; color: white; padding: 20px; text-align: center;"><div class="footer-content editable"><div class="footer-links" style="margin-bottom: 15px;"><a href="#" class="link-editable" style="color: white; text-decoration: none; margin: 0 10px;">Home</a><a href="#" class="link-editable" style="color: white; text-decoration: none; margin: 0 10px;">About</a><a href="#" class="link-editable" style="color: white; text-decoration: none; margin: 0 10px;">Services</a><a href="#" class="link-editable" style="color: white; text-decoration: none; margin: 0 10px;">Contact</a></div><p class="copyright editable">&copy; 2023 Your Company. All rights reserved.</p></div></footer>'
+      },
+      {
         type: 'heading',
         icon: 'fas fa-heading',
         title: 'Heading',
@@ -140,7 +154,7 @@ class PageBuilder {
         icon: 'fas fa-ruler-combined',
         title: 'Header/Footer Adjust',
         category: 'layout',
-        template: '<div class="header-footer-controls" data-type="header-footer-adjust"><h4>Adjust Header & Footer</h4><div class="dimension-controls"><div class="dimension-control"><label>Header Height</label><input type="text" class="header-height" placeholder="e.g., 100px"></div><div class="dimension-control"><label>Footer Height</label><input type="text" class="footer-height" placeholder="e.g., 80px"></div></div><button class="apply-dimensions">Apply Dimensions</button></div>'
+        template: '<div class="header-footer-controls" data-type="header-footer-adjust"><h4>Adjust Header & Footer</h4><div class="dimension-controls"><div class="dimension-control"><label>Header Height</label><input type="text" class="header-height" placeholder="e.g., 100px"></div><div class="dimension-control"><label>Footer Height</label><input type="text" class="footer-height" placeholder="e.g., 80px"></div></div><div class="color-controls"><h5>Header Background</h5><div class="color-control"><label>Background Color</label><input type="color" class="header-bg-color" value="#333333"></div><div class="color-control"><label>Use Gradient</label><input type="checkbox" class="header-use-gradient"></div><div class="gradient-controls header-gradient-controls" style="display: none;"><div class="color-control"><label>Gradient Start</label><input type="color" class="header-gradient-start" value="#3366ff"></div><div class="color-control"><label>Gradient End</label><input type="color" class="header-gradient-end" value="#6633ff"></div></div><h5>Footer Background</h5><div class="color-control"><label>Background Color</label><input type="color" class="footer-bg-color" value="#333333"></div><div class="color-control"><label>Use Gradient</label><input type="checkbox" class="footer-use-gradient"></div><div class="gradient-controls footer-gradient-controls" style="display: none;"><div class="color-control"><label>Gradient Start</label><input type="color" class="footer-gradient-start" value="#3366ff"></div><div class="color-control"><label>Gradient End</label><input type="color" class="footer-gradient-end" value="#6633ff"></div></div></div><button class="apply-dimensions">Apply Changes</button></div>'
       },
       {
         type: 'gradient-background',
@@ -1081,7 +1095,35 @@ class PageBuilder {
     const headerHeightInput = controlsContainer.querySelector('.header-height');
     const footerHeightInput = controlsContainer.querySelector('.footer-height');
 
+    // Background color controls
+    const headerBgColorInput = controlsContainer.querySelector('.header-bg-color');
+    const footerBgColorInput = controlsContainer.querySelector('.footer-bg-color');
+
+    // Gradient controls
+    const headerUseGradient = controlsContainer.querySelector('.header-use-gradient');
+    const headerGradientControls = controlsContainer.querySelector('.header-gradient-controls');
+    const headerGradientStart = controlsContainer.querySelector('.header-gradient-start');
+    const headerGradientEnd = controlsContainer.querySelector('.header-gradient-end');
+
+    const footerUseGradient = controlsContainer.querySelector('.footer-use-gradient');
+    const footerGradientControls = controlsContainer.querySelector('.footer-gradient-controls');
+    const footerGradientStart = controlsContainer.querySelector('.footer-gradient-start');
+    const footerGradientEnd = controlsContainer.querySelector('.footer-gradient-end');
+
     if (!applyBtn || !headerHeightInput || !footerHeightInput) return;
+
+    // Toggle gradient controls visibility
+    if (headerUseGradient) {
+      headerUseGradient.addEventListener('change', () => {
+        headerGradientControls.style.display = headerUseGradient.checked ? 'block' : 'none';
+      });
+    }
+
+    if (footerUseGradient) {
+      footerUseGradient.addEventListener('change', () => {
+        footerGradientControls.style.display = footerUseGradient.checked ? 'block' : 'none';
+      });
+    }
 
     // Add event listener to the apply button
     applyBtn.addEventListener('click', () => {
@@ -1118,10 +1160,41 @@ class PageBuilder {
         }
       }
 
+      // Apply header background color or gradient
+      const header = document.querySelector('header');
+      if (header) {
+        if (headerUseGradient && headerUseGradient.checked) {
+          // Apply gradient
+          header.style.backgroundColor = 'transparent';
+          header.style.background = `linear-gradient(to right, ${headerGradientStart.value}, ${headerGradientEnd.value})`;
+        } else if (headerBgColorInput) {
+          // Apply solid color
+          header.style.background = 'none';
+          header.style.backgroundColor = headerBgColorInput.value;
+        }
+      }
+
+      // Apply footer background color or gradient
+      const footer = document.querySelector('footer');
+      if (footer) {
+        if (footerUseGradient && footerUseGradient.checked) {
+          // Apply gradient
+          footer.style.backgroundColor = 'transparent';
+          footer.style.background = `linear-gradient(to right, ${footerGradientStart.value}, ${footerGradientEnd.value})`;
+        } else if (footerBgColorInput) {
+          // Apply solid color
+          footer.style.background = 'none';
+          footer.style.backgroundColor = footerBgColorInput.value;
+        }
+      }
+
+      // Update the content input
+      this.updateContentInput();
+
       // Show success message
       const successMsg = document.createElement('div');
       successMsg.className = 'dimension-success';
-      successMsg.textContent = 'Dimensions applied successfully!';
+      successMsg.textContent = 'Changes applied successfully!';
       controlsContainer.appendChild(successMsg);
 
       // Remove success message after 3 seconds

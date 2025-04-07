@@ -1,477 +1,47 @@
+<!-- No header include needed here -->
+
 <div class="flex flex-col md:flex-row">
   <!-- Sidebar -->
-  <%- include('./partials/sidebar', { path: '/admin/packages' }) %>
+  <%- include('./partials/sidebar', { path: path }) %>
 
   <!-- Main Content -->
   <div class="flex-grow p-6 max-w-full">
-    <!-- Bootstrap CSS and JS for modals -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
-
-    <!-- Custom styles for dark theme modals -->
-    <style>
-      /* Fix sidebar styling */
-      .w-64 {
-        width: 16rem !important;
-      }
-      .min-h-screen {
-        min-height: 100vh !important;
-      }
-      .hidden {
-        display: none !important;
-      }
-      .md\:block {
-        display: block !important;
-      }
-      @media (min-width: 768px) {
-        .md\:block {
-          display: block !important;
-        }
-        .md\:hidden {
-          display: none !important;
-        }
-        .md\:flex-row {
-          flex-direction: row !important;
-        }
-      }
-      .bg-dark-200 {
-        background-color: #181825 !important;
-      }
-      .border-gray-800 {
-        border-color: #2d2d3a !important;
-      }
-      .border-r {
-        border-right-width: 1px !important;
-      }
-      .border-b {
-        border-bottom-width: 1px !important;
-      }
-      .border-t {
-        border-top-width: 1px !important;
-      }
-      .shadow-xl {
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
-      }
-      .p-6 {
-        padding: 1.5rem !important;
-      }
-      .p-4 {
-        padding: 1rem !important;
-      }
-      .p-3 {
-        padding: 0.75rem !important;
-      }
-      .pb-32 {
-        padding-bottom: 8rem !important;
-      }
-      .mb-6 {
-        margin-bottom: 1.5rem !important;
-      }
-      .mb-3 {
-        margin-bottom: 0.75rem !important;
-      }
-      .mb-2 {
-        margin-bottom: 0.5rem !important;
-      }
-      .mt-2 {
-        margin-top: 0.5rem !important;
-      }
-      .mr-2 {
-        margin-right: 0.5rem !important;
-      }
-      .space-y-1 > * + * {
-        margin-top: 0.25rem !important;
-      }
-      .space-y-2 > * + * {
-        margin-top: 0.5rem !important;
-      }
-
-      /* Fix sidebar section headers */
-      .text-xs {
-        font-size: 0.75rem !important;
-        line-height: 1rem !important;
-      }
-      .uppercase {
-        text-transform: uppercase !important;
-      }
-      .font-semibold {
-        font-weight: 600 !important;
-      }
-      .font-medium {
-        font-weight: 500 !important;
-      }
-      .font-bold {
-        font-weight: 700 !important;
-      }
-      .text-sm {
-        font-size: 0.875rem !important;
-        line-height: 1.25rem !important;
-      }
-      .text-xl {
-        font-size: 1.25rem !important;
-        line-height: 1.75rem !important;
-      }
-      .text-transparent {
-        color: transparent !important;
-      }
-      .bg-clip-text {
-        -webkit-background-clip: text !important;
-        background-clip: text !important;
-      }
-      .w-1 {
-        width: 0.25rem !important;
-      }
-      .h-4 {
-        height: 1rem !important;
-      }
-      .w-2 {
-        width: 0.5rem !important;
-      }
-      .h-2 {
-        height: 0.5rem !important;
-      }
-      .rounded-full {
-        border-radius: 9999px !important;
-      }
-      .bg-neon-blue {
-        background-color: #00f2ff !important;
-      }
-      .bg-neon-green {
-        background-color: #00ff9f !important;
-      }
-      .bg-neon-pink {
-        background-color: #ff00ff !important;
-      }
-      .bg-neon-purple {
-        background-color: #8a2be2 !important;
-      }
-      .animate-pulse {
-        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
-      }
-      @keyframes pulse {
-        0%, 100% {
-          opacity: 1;
-        }
-        50% {
-          opacity: .5;
-        }
-      }
-
-      /* Override Bootstrap container width */
-      .container, .container-fluid, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {
-        width: 100% !important;
-        max-width: none !important;
-        padding-right: 0 !important;
-        padding-left: 0 !important;
-        margin-right: 0 !important;
-        margin-left: 0 !important;
-      }
-
-      /* Override Bootstrap width classes */
-      .w-100, .w-75, .w-50, .w-25, .w-auto {
-        width: auto !important;
-      }
-
-      /* Override Bootstrap col classes */
-      [class*='col-'] {
-        position: relative !important;
-      }
-
-      /* Fix col-md-6 for modals */
-      .modal .col-md-6 {
-        width: 50% !important;
-        float: left !important;
-        padding-right: 10px !important;
-        padding-left: 10px !important;
-      }
-
-      /* Fix Bootstrap row margins */
-      .row {
-        margin-right: 0 !important;
-        margin-left: 0 !important;
-      }
-
-      /* Fix modal row */
-      .modal .row {
-        display: flex !important;
-        flex-wrap: wrap !important;
-        margin-right: -10px !important;
-        margin-left: -10px !important;
-        width: auto !important;
-      }
-
-      /* Fix sidebar links */
-      .text-gray-400 {
-        color: #9ca3af !important;
-      }
-      .text-white {
-        color: #ffffff !important;
-      }
-      .hover\:text-white:hover {
-        color: #ffffff !important;
-      }
-      .hover\:bg-dark-100:hover {
-        background-color: #1e1e2e !important;
-      }
-      .bg-gradient-to-r {
-        background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important;
-      }
-      .from-neon-blue {
-        --tw-gradient-from: #00f2ff !important;
-        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(0, 242, 255, 0)) !important;
-      }
-      .to-neon-purple {
-        --tw-gradient-to: #8a2be2 !important;
-      }
-      .from-neon-blue\/20 {
-        --tw-gradient-from: rgba(0, 242, 255, 0.2) !important;
-        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(0, 242, 255, 0)) !important;
-      }
-      .to-neon-blue\/10 {
-        --tw-gradient-to: rgba(0, 242, 255, 0.1) !important;
-      }
-      .border-neon-blue {
-        border-color: #00f2ff !important;
-      }
-      .hover\:border-neon-blue\/50:hover {
-        border-color: rgba(0, 242, 255, 0.5) !important;
-      }
-      .border-l-2 {
-        border-left-width: 2px !important;
-      }
-      .hover\:border-l-2:hover {
-        border-left-width: 2px !important;
-      }
-      .rounded-md {
-        border-radius: 0.375rem !important;
-      }
-      .py-2 {
-        padding-top: 0.5rem !important;
-        padding-bottom: 0.5rem !important;
-      }
-      .px-4 {
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-      }
-      .transition-all {
-        transition-property: all !important;
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
-        transition-duration: 150ms !important;
-      }
-      .duration-200 {
-        transition-duration: 200ms !important;
-      }
-      .transition-colors {
-        transition-property: color, background-color, border-color, text-decoration-color, fill, stroke !important;
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
-        transition-duration: 150ms !important;
-      }
-      .flex {
-        display: flex !important;
-      }
-      .items-center {
-        align-items: center !important;
-      }
-      .w-5 {
-        width: 1.25rem !important;
-      }
-      .ml-3 {
-        margin-left: 0.75rem !important;
-      }
-
-      /* Remove underlines from all links */
-      a {
-        text-decoration: none !important;
-      }
-      a:hover {
-        text-decoration: none !important;
-      }
-
-      /* Dashboard-like styling */
-      .bg-dark-100 {
-        background-color: #1e1e2e;
-      }
-      .border-gray-800 {
-        border-color: #2d2d3a;
-      }
-      .hover\:border-neon-blue:hover {
-        border-color: #00f2ff !important;
-      }
-      .focus\:shadow-glow-blue:focus {
-        box-shadow: 0 0 5px rgba(0, 242, 255, 0.5), 0 0 10px rgba(0, 242, 255, 0.3);
-      }
-
-      /* Modal styling */
-      .modal-content {
-        background-color: #1e1e2e;
-        color: #fff;
-        border: 1px solid #2d2d3a;
-      }
-      .modal-header {
-        border-bottom: 1px solid #2d2d3a;
-      }
-      .modal-footer {
-        border-top: 1px solid #2d2d3a;
-      }
-      .btn-close {
-        filter: invert(1) grayscale(100%) brightness(200%);
-      }
-      .form-control, .form-select {
-        background-color: #181825;
-        border: 1px solid #2d2d3a;
-        color: #fff;
-      }
-      .form-control:focus, .form-select:focus {
-        background-color: #181825;
-        color: #fff;
-        border-color: #00f2ff;
-        box-shadow: 0 0 0 0.25rem rgba(0, 242, 255, 0.25);
-      }
-      .form-check-input {
-        background-color: #181825;
-        border: 1px solid #2d2d3a;
-      }
-      .form-check-input:checked {
-        background-color: #00f2ff;
-        border-color: #00f2ff;
-      }
-      .list-group-item {
-        background-color: #181825;
-        color: #fff;
-        border-color: #2d2d3a;
-      }
-      .btn-primary {
-        background: linear-gradient(to right, #00f2ff, #8a2be2);
-        border: none;
-        box-shadow: 0 4px 6px -1px rgba(0, 242, 255, 0.2), 0 2px 4px -1px rgba(138, 43, 226, 0.1);
-        transition: all 0.3s ease;
-      }
-      .btn-primary:hover {
-        box-shadow: 0 6px 8px -1px rgba(0, 242, 255, 0.3), 0 4px 6px -1px rgba(138, 43, 226, 0.2);
-        transform: translateY(-1px);
-      }
-      .btn-secondary {
-        background-color: #2d2d3a;
-        border: none;
-        box-shadow: 0 4px 6px -1px rgba(45, 45, 58, 0.2);
-        transition: all 0.3s ease;
-      }
-      .btn-secondary:hover {
-        background-color: #3d3d4a;
-        box-shadow: 0 6px 8px -1px rgba(45, 45, 58, 0.3);
-        transform: translateY(-1px);
-      }
-      .form-label {
-        color: #e0e0e0;
-      }
-      .form-check-label {
-        color: #e0e0e0;
-      }
-      /* Override Bootstrap table styles */
-      .table {
-        width: 100% !important;
-        margin-bottom: 0 !important;
-        color: inherit !important;
-        border-color: #2d2d3a !important;
-      }
-
-      /* Override Bootstrap modal styles */
-      .modal-dialog {
-        max-width: 500px !important;
-      }
-      .modal-lg {
-        max-width: 800px !important;
-      }
-
-      /* Fix mobile sidebar */
-      .md\:hidden {
-        display: none !important;
-      }
-      @media (max-width: 767px) {
-        .md\:hidden {
-          display: block !important;
-        }
-        .md\:block {
-          display: none !important;
-        }
-        .md\:flex-row {
-          flex-direction: column !important;
-        }
-      }
-      .sticky {
-        position: sticky !important;
-      }
-      .top-0 {
-        top: 0 !important;
-      }
-      .z-20 {
-        z-index: 20 !important;
-      }
-      .z-30 {
-        z-index: 30 !important;
-      }
-      .justify-between {
-        justify-content: space-between !important;
-      }
-      .fixed {
-        position: fixed !important;
-      }
-      .inset-0 {
-        top: 0 !important;
-        right: 0 !important;
-        bottom: 0 !important;
-        left: 0 !important;
-      }
-      .absolute {
-        position: absolute !important;
-      }
-      .bg-black\/50 {
-        background-color: rgba(0, 0, 0, 0.5) !important;
-      }
-      .transform {
-        transform: translateX(0) !important;
-      }
-      .-translate-x-full {
-        transform: translateX(-100%) !important;
-      }
-      .transition-transform {
-        transition-property: transform !important;
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
-        transition-duration: 150ms !important;
-      }
-      .duration-300 {
-        transition-duration: 300ms !important;
-      }
-      .ease-in-out {
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
-      }
-
-      /* Mobile responsiveness fixes */
-      @media (max-width: 768px) {
-        .modal-dialog {
-          margin: 0.5rem !important;
-          max-width: calc(100% - 1rem) !important;
-        }
-        .overflow-x-auto {
-          overflow-x: auto !important;
-        }
-        .row {
-          margin-right: 0 !important;
-          margin-left: 0 !important;
-        }
-      }
-    </style>
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold">Package Management</h1>
-      <button type="button" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white py-2 px-4 rounded-md flex items-center shadow-lg shadow-neon-blue/20 hover:shadow-neon-blue/40 transition-all duration-300" data-bs-toggle="modal" data-bs-target="#createPackageModal">
-        <i class="fas fa-plus mr-2"></i> Add New Package
-      </button>
+      <span class="text-sm text-gray-400">Welcome, <%= user.username %></span>
     </div>
+
+    <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden mb-8 hover:border-neon-blue transition-colors">
+      <div class="p-4 border-b border-gray-800">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div class="relative w-full md:w-64">
+            <input type="text" id="package-search" class="bg-dark-200 text-white border border-gray-700 rounded-md py-2 pl-10 pr-4 w-full focus:outline-none focus:border-neon-blue transition-colors" placeholder="Search packages...">
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+          </div>
+          <div class="flex gap-2 w-full md:w-auto">
+            <a href="/admin/packages/create" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white py-2 px-4 rounded-md flex items-center shadow-lg shadow-neon-blue/20 hover:shadow-neon-blue/40 transition-all duration-300 w-full md:w-auto justify-center">
+              <i class="fas fa-plus mr-2"></i> Add New Package
+            </a>
+            <button id="bulk-delete-packages" type="button" class="bg-red-500/20 text-red-400 py-2 px-4 rounded-md flex items-center hover:bg-red-500/30 transition-all duration-300 w-full md:w-auto justify-center">
+              <i class="fas fa-trash-alt mr-2"></i> Bulk Delete
+            </button>
+          </div>
+        </div>
+      </div>
 
     <% if(success_msg != ''){ %>
       <div class="bg-neon-green/10 border-l-4 border-neon-green text-neon-green p-4 mb-6 relative rounded-r-md shadow-md" role="alert">
         <p><%= success_msg %></p>
         <button type="button" class="absolute top-0 right-0 mt-2 mr-2 text-neon-green hover:text-white transition-colors" onclick="this.parentElement.remove()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    <% } %>
+
+    <% if(deletedPackages && deletedPackages.length > 0 && !showDeleted) { %>
+      <div class="bg-blue-900/10 border-l-4 border-blue-500 text-blue-300 p-4 mb-6 relative rounded-r-md shadow-md" role="alert">
+        <p><i class="fas fa-info-circle mr-2"></i> There are <%= deletedPackages.length %> deleted packages that are not shown. <a href="/admin/packages?showDeleted=true" class="text-neon-blue hover:underline">Click here</a> to view them.</p>
+        <button type="button" class="absolute top-0 right-0 mt-2 mr-2 text-blue-300 hover:text-white transition-colors" onclick="this.parentElement.remove()">
           <i class="fas fa-times"></i>
         </button>
       </div>
@@ -486,25 +56,29 @@
       </div>
     <% } %>
 
-    <!-- Package Table -->
-    <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden hover:border-neon-blue transition-colors">
-      <div class="p-4 border-b border-gray-800 flex justify-between items-center">
-        <h2 class="text-xl font-semibold">All Packages</h2>
-        <div class="relative">
-          <input
-            type="text"
-            id="package-search"
-            placeholder="Search packages..."
-            class="bg-dark-200 border border-gray-700 rounded-md py-2 pl-10 pr-4 text-white focus:outline-none focus:border-neon-blue focus:ring-1 focus:ring-neon-blue/50 focus:shadow-glow-blue transition-all duration-300 w-64"
-          >
-          <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
-        </div>
+      <!-- Package filter tabs -->
+      <div class="mb-4 border-b border-gray-800">
+        <ul class="flex flex-wrap -mb-px text-sm font-medium text-center">
+          <li class="mr-2">
+            <a href="/admin/packages" class="inline-block p-4 <%= !showDeleted ? 'text-neon-blue border-b-2 border-neon-blue' : 'text-gray-400 hover:text-gray-300' %> rounded-t-lg">
+              Active Packages (<%= packages.length %>)
+            </a>
+          </li>
+          <li class="mr-2">
+            <a href="/admin/packages?showDeleted=true" class="inline-block p-4 <%= showDeleted ? 'text-neon-blue border-b-2 border-neon-blue' : 'text-gray-400 hover:text-gray-300' %> rounded-t-lg">
+              Deleted Packages (<%= deletedPackages.length %>)
+            </a>
+          </li>
+        </ul>
       </div>
 
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead>
             <tr class="bg-dark-200 border-b border-gray-800">
+              <th class="py-3 px-4 text-left text-gray-400 font-medium text-sm uppercase">
+                <input type="checkbox" id="select-all-packages" class="form-check-input">
+              </th>
               <th class="py-3 px-4 text-left text-gray-400 font-medium text-sm uppercase">Name</th>
               <th class="py-3 px-4 text-left text-gray-400 font-medium text-sm uppercase">Price</th>
               <th class="py-3 px-4 text-left text-gray-400 font-medium text-sm uppercase">Max Pages</th>
@@ -514,16 +88,57 @@
             </tr>
           </thead>
           <tbody>
-            <% if(packages.length > 0) { %>
-              <% packages.forEach(package => { %>
+            <% if(showDeleted) { %>
+              <% if(deletedPackages.length > 0) { %>
+                <% deletedPackages.forEach(function(package) { %>
+                  <tr class="border-b border-gray-800 bg-red-900/10">
+                    <td class="py-3 px-4">
+                      <input type="checkbox" class="package-checkbox form-check-input" value="<%= package._id %>">
+                    </td>
+                    <td class="py-3 px-4 line-through text-gray-500"><%= package.name %></td>
+                    <td class="py-3 px-4 line-through text-gray-500">₹<%= package.price %></td>
+                    <td class="py-3 px-4 line-through text-gray-500"><%= package.maxPages %></td>
+                    <td class="py-3 px-4 line-through text-gray-500">
+                      <% if(package.features && package.features.length > 0) { %>
+                        <%= package.features.slice(0, 2).join(', ') %>
+                        <% if(package.features.length > 2) { %>
+                          <span class="text-gray-600">+<%= package.features.length - 2 %> more</span>
+                        <% } %>
+                      <% } else { %>
+                        No features
+                      <% } %>
+                    </td>
+                    <td class="py-3 px-4">
+                      <span class="bg-red-500/20 text-red-400 text-xs px-2 py-1 rounded-full">Deleted</span>
+                    </td>
+                    <td class="py-3 px-4">
+                      <div class="flex space-x-2">
+                        <a href="/admin/packages/view/<%= package._id %>" class="text-gray-500 hover:text-gray-400">
+                          View
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="7" class="py-4 px-4 text-center text-gray-500">No deleted packages found</td>
+                </tr>
+              <% } %>
+            <% } else { %>
+              <% if(packages.length > 0) { %>
+                <% packages.forEach(function(package) { %>
                 <tr class="border-b border-gray-800 hover:bg-dark-200/50 hover:border-neon-blue/30 transition-all duration-200">
+                  <td class="py-3 px-4">
+                    <input type="checkbox" class="package-checkbox form-check-input" data-id="<%= package._id %>">
+                  </td>
                   <td class="py-3 px-4 text-sm"><%= package.name %></td>
                   <td class="py-3 px-4 text-sm">₹<%= package.price %></td>
                   <td class="py-3 px-4 text-sm"><%= package.maxPages %></td>
                   <td class="py-3 px-4 text-sm">
-                    <button type="button" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white text-xs px-3 py-1 rounded transition-colors" data-bs-toggle="modal" data-bs-target="#featuresModal<%= package._id %>">
-                      View Features
-                    </button>
+                    <a href="/admin/packages/view/<%= package._id %>" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white text-xs px-3 py-1 rounded transition-colors inline-flex items-center">
+                      <i class="fas fa-eye mr-1"></i> View Details
+                    </a>
                   </td>
                   <td class="py-3 px-4 text-sm">
                     <% if(package.isFree) { %>
@@ -534,15 +149,15 @@
                   </td>
                   <td class="py-3 px-4 text-sm">
                     <div class="flex space-x-2">
-                      <button type="button" class="bg-neon-purple/20 hover:bg-neon-purple/30 text-neon-purple p-1.5 rounded transition-colors" data-bs-toggle="modal" data-bs-target="#editPackageModal<%= package._id %>" title="Edit Package">
+                      <a href="/admin/packages/edit/<%= package._id %>" class="bg-neon-purple/20 hover:bg-neon-purple/30 text-neon-purple p-1.5 rounded transition-colors inline-flex items-center" title="Edit Package" data-bs-toggle="tooltip">
                         <i class="fas fa-edit"></i>
-                      </button>
+                      </a>
                       <form action="/admin/packages/<%= package._id %>/toggle-free" method="POST">
                         <button type="submit" class="<%= package.isFree ? 'bg-neon-blue/20 hover:bg-neon-blue/30 text-neon-blue' : 'bg-neon-green/20 hover:bg-neon-green/30 text-neon-green' %> p-1.5 rounded transition-colors" title="<%= package.isFree ? 'Make Paid' : 'Make Free' %>" data-bs-toggle="tooltip">
                           <i class="fas fa-<%= package.isFree ? 'dollar-sign' : 'gift' %>"></i>
                         </button>
                       </form>
-                      <form action="/admin/packages/<%= package._id %>?_method=DELETE" method="POST" class="delete-form">
+                      <form action="/admin/packages/<%= package._id %>/delete" method="POST" class="delete-form">
                         <button type="submit" class="bg-red-500/20 hover:bg-red-500/30 text-red-500 p-1.5 rounded transition-colors" title="Delete Package" data-bs-toggle="tooltip">
                           <i class="fas fa-trash"></i>
                         </button>
@@ -550,240 +165,16 @@
                     </div>
                   </td>
                 </tr>
-
-                <!-- Features Modal -->
-                <div class="modal fade" id="featuresModal<%= package._id %>" tabindex="-1" aria-labelledby="featuresModalLabel<%= package._id %>" aria-hidden="true">
-                  <div class="modal-dialog">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="featuresModalLabel<%= package._id %>"><%= package.name %> Features</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                      </div>
-                      <div class="modal-body">
-                        <ul class="list-group">
-                          <% package.features.forEach(feature => { %>
-                            <li class="list-group-item"><%= feature %></li>
-                          <% }) %>
-                        </ul>
-
-                        <div class="mt-3">
-                          <h6>Additional Features:</h6>
-                          <div class="row">
-                            <div class="col-md-6">
-                              <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" disabled <%= package.allowBlog ? 'checked' : '' %>>
-                                <label class="form-check-label">Blog</label>
-                              </div>
-                              <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" disabled <%= package.allowGallery ? 'checked' : '' %>>
-                                <label class="form-check-label">Gallery</label>
-                              </div>
-                              <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" disabled <%= package.allowContact ? 'checked' : '' %>>
-                                <label class="form-check-label">Contact Form</label>
-                              </div>
-                              <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" disabled <%= package.allowTestimonials ? 'checked' : '' %>>
-                                <label class="form-check-label">Testimonials</label>
-                              </div>
-                            </div>
-                            <div class="col-md-6">
-                              <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" disabled <%= package.allowEcommerce ? 'checked' : '' %>>
-                                <label class="form-check-label">E-commerce</label>
-                              </div>
-                              <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" disabled <%= package.allowAiContent ? 'checked' : '' %>>
-                                <label class="form-check-label">AI Content</label>
-                              </div>
-                              <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" disabled <%= package.allowCustomLayout ? 'checked' : '' %>>
-                                <label class="form-check-label">Custom Layout</label>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Edit Package Modal -->
-                <div class="modal fade" id="editPackageModal<%= package._id %>" tabindex="-1" aria-labelledby="editPackageModalLabel<%= package._id %>" aria-hidden="true">
-                  <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="editPackageModalLabel<%= package._id %>">Edit Package</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                      </div>
-                      <form action="/admin/packages/<%= package._id %>?_method=PUT" method="POST">
-                        <div class="modal-body">
-                          <div class="row mb-3">
-                            <div class="col-md-6">
-                              <label for="name" class="form-label">Package Name</label>
-                              <input type="text" class="form-control" id="name" name="name" value="<%= package.name %>" required>
-                            </div>
-                            <div class="col-md-6">
-                              <label for="price" class="form-label">Price (₹)</label>
-                              <input type="number" class="form-control" id="price" name="price" value="<%= package.price %>" required>
-                            </div>
-                          </div>
-
-                          <div class="mb-3">
-                            <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control" id="description" name="description" rows="3" required><%= package.description %></textarea>
-                          </div>
-
-                          <div class="mb-3">
-                            <label for="maxPages" class="form-label">Maximum Pages</label>
-                            <input type="number" class="form-control" id="maxPages" name="maxPages" value="<%= package.maxPages %>" required>
-                          </div>
-
-                          <div class="mb-3">
-                            <label for="features" class="form-label">Features (one per line)</label>
-                            <textarea class="form-control" id="features" name="features" rows="5" required><%= package.features.join('\n') %></textarea>
-                          </div>
-
-                          <div class="row">
-                            <div class="col-md-6">
-                              <div class="form-check form-switch mb-2">
-                                <input class="form-check-input" type="checkbox" id="isFree" name="isFree" <%= package.isFree ? 'checked' : '' %>>
-                                <label class="form-check-label" for="isFree">Free Package</label>
-                              </div>
-                              <div class="form-check form-switch mb-2">
-                                <input class="form-check-input" type="checkbox" id="allowBlog" name="allowBlog" <%= package.allowBlog ? 'checked' : '' %>>
-                                <label class="form-check-label" for="allowBlog">Allow Blog</label>
-                              </div>
-                              <div class="form-check form-switch mb-2">
-                                <input class="form-check-input" type="checkbox" id="allowGallery" name="allowGallery" <%= package.allowGallery ? 'checked' : '' %>>
-                                <label class="form-check-label" for="allowGallery">Allow Gallery</label>
-                              </div>
-                              <div class="form-check form-switch mb-2">
-                                <input class="form-check-input" type="checkbox" id="allowContact" name="allowContact" <%= package.allowContact ? 'checked' : '' %>>
-                                <label class="form-check-label" for="allowContact">Allow Contact Form</label>
-                              </div>
-                            </div>
-                            <div class="col-md-6">
-                              <div class="form-check form-switch mb-2">
-                                <input class="form-check-input" type="checkbox" id="allowTestimonials" name="allowTestimonials" <%= package.allowTestimonials ? 'checked' : '' %>>
-                                <label class="form-check-label" for="allowTestimonials">Allow Testimonials</label>
-                              </div>
-                              <div class="form-check form-switch mb-2">
-                                <input class="form-check-input" type="checkbox" id="allowEcommerce" name="allowEcommerce" <%= package.allowEcommerce ? 'checked' : '' %>>
-                                <label class="form-check-label" for="allowEcommerce">Allow E-commerce</label>
-                              </div>
-                              <div class="form-check form-switch mb-2">
-                                <input class="form-check-input" type="checkbox" id="allowAiContent" name="allowAiContent" <%= package.allowAiContent ? 'checked' : '' %>>
-                                <label class="form-check-label" for="allowAiContent">Allow AI Content</label>
-                              </div>
-                              <div class="form-check form-switch mb-2">
-                                <input class="form-check-input" type="checkbox" id="allowCustomLayout" name="allowCustomLayout" <%= package.allowCustomLayout ? 'checked' : '' %>>
-                                <label class="form-check-label" for="allowCustomLayout">Allow Custom Layout</label>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                          <button type="submit" class="btn btn-primary">Save Changes</button>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-              <% }) %>
-            <% } else { %>
-              <tr>
-                <td colspan="6" class="py-8 text-center text-gray-500">No packages found</td>
-              </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="7" class="py-4 px-4 text-center text-gray-500">No packages found</td>
+                </tr>
+              <% } %>
             <% } %>
           </tbody>
         </table>
       </div>
-
-<!-- Create Package Modal -->
-<div class="modal fade" id="createPackageModal" tabindex="-1" aria-labelledby="createPackageModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="createPackageModalLabel">Create New Package</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <form action="/admin/packages" method="POST">
-        <div class="modal-body">
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <label for="name" class="form-label">Package Name</label>
-              <input type="text" class="form-control" id="name" name="name" required>
-            </div>
-            <div class="col-md-6">
-              <label for="price" class="form-label">Price (₹)</label>
-              <input type="number" class="form-control" id="price" name="price" required>
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <label for="description" class="form-label">Description</label>
-            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
-          </div>
-
-          <div class="mb-3">
-            <label for="maxPages" class="form-label">Maximum Pages</label>
-            <input type="number" class="form-control" id="maxPages" name="maxPages" required>
-          </div>
-
-          <div class="mb-3">
-            <label for="features" class="form-label">Features (one per line)</label>
-            <textarea class="form-control" id="features" name="features" rows="5" required></textarea>
-          </div>
-
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-check form-switch mb-2">
-                <input class="form-check-input" type="checkbox" id="isFree" name="isFree">
-                <label class="form-check-label" for="isFree">Free Package</label>
-              </div>
-              <div class="form-check form-switch mb-2">
-                <input class="form-check-input" type="checkbox" id="allowBlog" name="allowBlog">
-                <label class="form-check-label" for="allowBlog">Allow Blog</label>
-              </div>
-              <div class="form-check form-switch mb-2">
-                <input class="form-check-input" type="checkbox" id="allowGallery" name="allowGallery">
-                <label class="form-check-label" for="allowGallery">Allow Gallery</label>
-              </div>
-              <div class="form-check form-switch mb-2">
-                <input class="form-check-input" type="checkbox" id="allowContact" name="allowContact">
-                <label class="form-check-label" for="allowContact">Allow Contact Form</label>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-check form-switch mb-2">
-                <input class="form-check-input" type="checkbox" id="allowTestimonials" name="allowTestimonials">
-                <label class="form-check-label" for="allowTestimonials">Allow Testimonials</label>
-              </div>
-              <div class="form-check form-switch mb-2">
-                <input class="form-check-input" type="checkbox" id="allowEcommerce" name="allowEcommerce">
-                <label class="form-check-label" for="allowEcommerce">Allow E-commerce</label>
-              </div>
-              <div class="form-check form-switch mb-2">
-                <input class="form-check-input" type="checkbox" id="allowAiContent" name="allowAiContent">
-                <label class="form-check-label" for="allowAiContent">Allow AI Content</label>
-              </div>
-              <div class="form-check form-switch mb-2">
-                <input class="form-check-input" type="checkbox" id="allowCustomLayout" name="allowCustomLayout">
-                <label class="form-check-label" for="allowCustomLayout">Allow Custom Layout</label>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Create Package</button>
-        </div>
-      </form>
     </div>
   </div>
 </div>
@@ -791,7 +182,7 @@
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     // Confirm delete
-    document.querySelectorAll('.delete-form').forEach(form => {
+    document.querySelectorAll('.delete-form').forEach(function(form) {
       form.addEventListener('submit', function(e) {
         if (!confirm('Are you sure you want to delete this package? This action cannot be undone.')) {
           e.preventDefault();
@@ -806,9 +197,10 @@
         const searchTerm = this.value.toLowerCase();
         const rows = document.querySelectorAll('tbody tr');
 
-        rows.forEach(row => {
-          const name = row.querySelector('td:first-child').textContent.toLowerCase();
-          if (name.includes(searchTerm)) {
+        rows.forEach(function(row) {
+          const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+          const price = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+          if (name.includes(searchTerm) || price.includes(searchTerm)) {
             row.style.display = '';
           } else {
             row.style.display = 'none';
@@ -817,30 +209,75 @@
       });
     }
 
+    // Select all packages checkbox
+    const selectAllCheckbox = document.getElementById('select-all-packages');
+    const packageCheckboxes = document.querySelectorAll('.package-checkbox');
+
+    if (selectAllCheckbox) {
+      selectAllCheckbox.addEventListener('change', function() {
+        packageCheckboxes.forEach(function(checkbox) {
+          checkbox.checked = selectAllCheckbox.checked;
+        });
+      });
+    }
+
+    // Bulk delete packages
+    const bulkDeleteBtn = document.getElementById('bulk-delete-packages');
+    if (bulkDeleteBtn) {
+      bulkDeleteBtn.addEventListener('click', function() {
+        const selectedPackages = Array.from(packageCheckboxes)
+          .filter(function(checkbox) { return checkbox.checked; })
+          .map(function(checkbox) { return checkbox.dataset.id; });
+
+        if (selectedPackages.length === 0) {
+          alert('Please select at least one package to delete.');
+          return;
+        }
+
+        if (confirm('Are you sure you want to delete ' + selectedPackages.length + ' package(s)? This action cannot be undone.')) {
+          // Create a form to submit the selected package IDs
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = '/admin/packages/bulk-delete';
+
+          // Add selected package IDs
+          selectedPackages.forEach(function(id) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'packageIds[]';
+            input.value = id;
+            form.appendChild(input);
+          });
+
+          document.body.appendChild(form);
+          form.submit();
+        }
+      });
+    }
+
     // Fix modal backdrop issues
     const modals = document.querySelectorAll('.modal');
-    modals.forEach(modal => {
+    modals.forEach(function(modal) {
       modal.addEventListener('hidden.bs.modal', function() {
         document.body.classList.remove('modal-open');
         const modalBackdrops = document.querySelectorAll('.modal-backdrop');
-        modalBackdrops.forEach(backdrop => backdrop.remove());
+        modalBackdrops.forEach(function(backdrop) { backdrop.remove(); });
       });
     });
 
     // Initialize Bootstrap tooltips
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
     if (typeof bootstrap !== 'undefined') {
-      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+      const tooltipList = Array.from(tooltipTriggerList).map(function(tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
     }
 
     // Add tooltips to action buttons
-    document.querySelectorAll('button[title]').forEach(button => {
+    document.querySelectorAll('button[title]').forEach(function(button) {
       if (typeof bootstrap !== 'undefined') {
         new bootstrap.Tooltip(button);
       }
     });
   });
 </script>
-
-  </div>
-</div>

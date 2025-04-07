@@ -12,6 +12,9 @@ router.get('/websites/:id', isAuthenticated, isAdmin, websiteController.adminGet
 // Toggle website published status
 router.post('/websites/:id/toggle-status', isAuthenticated, isAdmin, websiteController.adminToggleWebsiteStatus);
 
+// Bulk delete websites
+router.post('/websites/bulk-delete', isAuthenticated, isAdmin, websiteController.adminBulkDeleteWebsites);
+
 // Delete website
 router.delete('/websites/:id', isAuthenticated, isAdmin, websiteController.adminDeleteWebsite);
 
