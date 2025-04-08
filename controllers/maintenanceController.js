@@ -24,6 +24,26 @@ module.exports = {
         // Automatically disable maintenance mode if the end time has passed
         maintenanceSettings.isEnabled = false;
         await maintenanceSettings.save();
+
+        // Log the automatic disabling
+        console.log(`Maintenance mode automatically disabled at ${now.toISOString()} because end time ${maintenanceSettings.endTime.toISOString()} has passed`);
+
+        // Create a maintenance history record
+        try {
+          await MaintenanceHistory.create({
+            action: 'auto_disable',
+            details: 'Maintenance mode automatically disabled due to end time passing',
+            previousSettings: {
+              isEnabled: true,
+              startTime: maintenanceSettings.startTime,
+              endTime: maintenanceSettings.endTime,
+              message: maintenanceSettings.message
+            }
+          });
+        } catch (historyErr) {
+          console.error('Error creating maintenance history record:', historyErr);
+        }
+
         return false;
       }
 
@@ -38,8 +58,53 @@ module.exports = {
   // Middleware to check maintenance mode and redirect non-admin users
   maintenanceMiddleware: async (req, res, next) => {
     try {
-      // Skip maintenance check for maintenance page itself and admin routes
-      if (req.path === '/maintenance' || req.path.startsWith('/admin')) {
+      // Skip maintenance check for these paths
+      const bypassPaths = [
+        '/maintenance',
+        '/health',
+        '/users/login',
+        '/users/logout',
+        '/session-error',
+        '/clear-flash',
+        '/favicon.ico',
+        '/css',
+        '/js',
+        '/images'
+      ];
+
+      // Check if the current path should bypass maintenance check
+      const shouldBypass = bypassPaths.some(path => req.path === path || req.path.startsWith(path));
+      if (shouldBypass) {
+        return next();
+      }
+
+      // ALWAYS bypass maintenance for admin routes
+      if (req.path.startsWith('/admin') || req.originalUrl.startsWith('/admin')) {
+        // For admin routes, check if user is authenticated and is admin
+        if (req.isAuthenticated() &&
+            (req.user.isAdmin ||
+             req.user.role === 'admin' ||
+             req.maintenanceBypass ||
+             req.session.maintenanceBypass ||
+             req.session.isAdminSession)) {
+          // Set a flag to indicate we're in maintenance mode (for UI purposes)
+          req.maintenanceMode = true;
+          return next();
+        }
+
+        // If not authenticated or not admin, redirect to login
+        req.flash('error_msg', 'You must be an administrator to access this area during maintenance mode.');
+        return res.redirect('/users/login?admin=true');
+      }
+
+      // Check if user is admin and should bypass maintenance
+      if (req.isAuthenticated() &&
+          (req.user.isAdmin ||
+           req.user.role === 'admin' ||
+           req.maintenanceBypass ||
+           req.session.maintenanceBypass ||
+           req.session.isAdminSession)) {
+        // Admin users bypass maintenance mode for all routes
         return next();
       }
 
@@ -51,7 +116,7 @@ module.exports = {
         return next();
       }
 
-      // Allow admin users to bypass maintenance mode
+      // Allow admin users to bypass maintenance mode for non-admin routes
       if (req.isAuthenticated() && req.user.isAdmin) {
         return next();
       }
@@ -138,8 +203,10 @@ module.exports = {
         const user = await User.findOne({ email });
 
         // If it's an admin, allow the login attempt to proceed
-        if (user && user.isAdmin) {
+        if (user && (user.isAdmin || user.role === 'admin' || email === process.env.ADMIN_EMAIL || email === 'vijaymudaliyar224@gmail.com')) {
           console.log('Admin login attempt detected, allowing access:', email);
+          // Set a special flag to indicate this is an admin login during maintenance
+          req.adminMaintenance = true;
           return next();
         }
 

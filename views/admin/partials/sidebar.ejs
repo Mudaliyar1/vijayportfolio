@@ -13,6 +13,12 @@ if (typeof path === 'undefined') {
       <span class="w-2 h-2 bg-neon-green rounded-full mr-2 animate-pulse"></span>
       <p class="text-gray-400 text-sm font-medium">Admin Panel</p>
     </div>
+
+    <% if (typeof maintenanceMode !== 'undefined' && maintenanceMode) { %>
+    <div class="maintenance-indicator mt-3 bg-red-900/50 border border-red-500/30 text-white text-center py-2 px-3 text-xs font-bold rounded-md">
+      <i class="fas fa-tools mr-1"></i> Maintenance Mode Active
+    </div>
+    <% } %>
   </div>
 
   <nav class="p-4 pb-32">
@@ -177,6 +183,12 @@ if (typeof path === 'undefined') {
       <div>
         <span class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple">FTRAISE AI</span>
         <p class="text-gray-500 text-sm">Admin Panel</p>
+
+        <% if (typeof maintenanceMode !== 'undefined' && maintenanceMode) { %>
+        <div class="maintenance-indicator mt-2 bg-red-900/50 border border-red-500/30 text-white text-center py-1 px-2 text-xs font-bold rounded-md">
+          <i class="fas fa-tools mr-1"></i> Maintenance Mode
+        </div>
+        <% } %>
       </div>
 
       <button id="close-sidebar" class="text-gray-400 hover:text-white focus:outline-none">

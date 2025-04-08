@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { ensureAdmin } = require('../middlewares/auth');
+const adminMaintenanceAccess = require('../middleware/adminMaintenanceAccess');
 const {
   getImageManagement,
   getUserImages,
@@ -9,6 +10,7 @@ const {
 
 // Apply admin middleware to all routes
 router.use(ensureAdmin);
+router.use(adminMaintenanceAccess);
 
 // Image management dashboard
 router.get('/', getImageManagement);

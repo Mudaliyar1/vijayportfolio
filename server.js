@@ -59,18 +59,31 @@ try {
     ttl: 14 * 24 * 60 * 60, // 14 days
     autoRemove: 'native',
     touchAfter: 24 * 3600, // time period in seconds
-    // Disable encryption to avoid decryption issues
+    // Important: Use JSON.stringify for session serialization
+    stringify: true,
+    // Disable crypto to avoid issues
     crypto: false,
-    stringify: false,
-    // Fallback to in-memory session if MongoDB is unavailable
-    fallbackMemory: true,
+    // Set a collection name
+    collectionName: 'sessions',
+    // Ensure expires field is set
+    autoCreate: true,
     // Clear invalid sessions
-    autoRemoveInterval: 10 // Minutes
+    autoRemoveInterval: 10, // Minutes
+    // Error handling
+    handleReconnectFailed: () => {
+      console.error('Failed to reconnect to MongoDB for sessions');
+      return false; // Don't retry
+    }
   });
 
   // Handle session store errors
   sessionStore.on('error', function(error) {
     console.error('Session store error:', error);
+    // Use memory store as fallback if MongoDB store fails
+    if (sessionStore.client && sessionStore.client.isConnected && !sessionStore.client.isConnected()) {
+      console.log('Falling back to memory store for sessions');
+      sessionStore = new MemoryStore();
+    }
   });
 } catch (err) {
   console.error('Failed to create session store:', err);
@@ -87,9 +100,25 @@ app.use(session({
   cookie: {
     maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days in milliseconds
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production'
-  }
+    secure: process.env.NODE_ENV === 'production',
+    // Ensure the cookie is always set
+    expires: new Date(Date.now() + (14 * 24 * 60 * 60 * 1000))
+  },
+  // Add error handling for session
+  unset: 'destroy',
+  rolling: true // Reset the cookie expiration on each request
 }));
+
+// Add session error handling middleware
+const sessionErrorHandler = require('./middleware/sessionErrorHandler');
+app.use(sessionErrorHandler);
+
+// Make session store available to routes
+app.set('sessionStore', sessionStore);
+
+// Add session redirect handler after session is initialized but before routes
+const sessionRedirectHandler = require('./middleware/sessionRedirectHandler');
+app.use(sessionRedirectHandler);
 
 // Passport configuration
 app.use(passport.initialize());
@@ -150,28 +179,46 @@ app.use(databaseErrorHandler);
 const flashMessagesMiddleware = require('./middleware/flashMessages');
 app.use(flashMessagesMiddleware);
 
-// Maintenance mode middleware
-app.use(maintenanceMiddleware);
-
 // Health check routes (before other routes)
 app.use('/health', require('./routes/health'));
 
 // Clear flash messages route
 app.use('/clear-flash', require('./routes/clear-flash'));
 
+// Session error route
+app.use('/session-error', require('./routes/session-error'));
+
+// Admin bypass maintenance middleware - must be before any other middleware
+const adminBypassMaintenance = require('./middleware/adminBypassMaintenance');
+app.use(adminBypassMaintenance);
+
+// Admin status route - must be before maintenance middleware
+app.use('/admin-status', require('./routes/admin-status'));
+
+// Admin view data middleware
+const adminViewData = require('./middleware/adminViewData');
+
+// Admin routes - these should be before maintenance middleware
+app.use('/admin', adminViewData);
+app.use('/admin', require('./routes/admin'));
+app.use('/admin/images', require('./routes/admin-images'));
+app.use('/admin/rate-limits', require('./routes/admin-rate-limits'));
+app.use('/admin', require('./routes/admin-websites'));
+app.use('/admin', require('./routes/admin-payments'));
+
+// Maintenance mode middleware - applied after admin routes
+app.use(maintenanceMiddleware);
+
 // Routes
 app.use('/', require('./routes/index'));
 app.use('/users', require('./routes/users'));
 app.use('/chat', require('./routes/chat'));
-app.use('/admin', require('./routes/admin'));
 app.use('/profile', require('./routes/profile'));
 app.use('/reviews', require('./routes/reviews'));
 app.use('/maintenance', require('./routes/maintenance'));
 app.use('/images', require('./routes/images'));
 app.use('/api/images', require('./routes/api-images'));
-app.use('/admin/images', require('./routes/admin-images'));
 app.use('/rate-limits', require('./routes/rate-limits'));
-app.use('/admin/rate-limits', require('./routes/admin-rate-limits'));
 app.use('/api/ai', require('./routes/ai-service')); // AI service route
 app.use('/blog', require('./routes/blog')); // Blog routes
 app.use('/community', require('./routes/community')); // Community routes
@@ -181,8 +228,6 @@ app.use('/community', require('./routes/community')); // Community routes
 app.use('/', require('./routes/website-builder'));
 app.use('/', require('./routes/packages'));
 app.use('/', require('./routes/payments'));
-app.use('/admin', require('./routes/admin-websites'));
-app.use('/admin', require('./routes/admin-payments'));
 
 // Policy pages routes
 app.use('/policies', require('./routes/policies'));

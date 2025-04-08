@@ -1,11 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const { ensureAdmin } = require('../middlewares/auth');
+const adminMaintenanceAccess = require('../middleware/adminMaintenanceAccess');
 const User = require('../models/User');
 const RateLimitRequest = require('../models/RateLimitRequest');
 
 // Apply admin middleware to all routes
 router.use(ensureAdmin);
+router.use(adminMaintenanceAccess);
 
 // Get all rate limit requests
 router.get('/', async (req, res) => {

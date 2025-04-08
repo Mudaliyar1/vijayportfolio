@@ -59,7 +59,8 @@ module.exports = {
         recentChats,
         recentWebsites,
         path: '/admin',
-        layout: 'layouts/no-footer'
+        layout: 'layouts/no-footer',
+        maintenanceMode: req.maintenanceMode || req.session.maintenanceBypass || false
       });
     } catch (err) {
       console.error(err);

@@ -60,31 +60,49 @@ module.exports = {
 
         console.log('Maintenance active:', isMaintenanceActive, 'User is admin:', isUserAdmin, 'Email:', user.email);
 
-        // If maintenance is active and user is admin, redirect to admin dashboard
-        if (isMaintenanceActive && isUserAdmin) {
-          console.log('Redirecting admin to dashboard during maintenance');
+        // Handle different scenarios based on maintenance mode and user role
+        if (isMaintenanceActive) {
+          if (isUserAdmin || req.adminMaintenance) {
+            // Admin during maintenance mode
+            console.log('Redirecting admin to dashboard during maintenance');
 
-          // If the user doesn't have the isAdmin flag but is using the admin email, update their status
-          if (isAdminEmail && !user.isAdmin) {
-            console.log('Updating admin status for:', user.email);
-            await User.findByIdAndUpdate(user._id, { isAdmin: true });
+            // If the user doesn't have the isAdmin flag but is using the admin email, update their status
+            if ((isAdminEmail || req.adminMaintenance) && !user.isAdmin) {
+              console.log('Updating admin status for:', user.email);
+              await User.findByIdAndUpdate(user._id, { isAdmin: true, role: 'admin' });
+              // Update the user object in the session
+              user.isAdmin = true;
+              user.role = 'admin';
+            }
+
+            // Force bypass maintenance mode for admin
+            req.maintenanceBypass = true;
+
+            // Store the bypass flag in the session so it persists across requests
+            req.session.maintenanceBypass = true;
+            req.session.isAdminSession = true;
+
+            // Save the session before redirecting
+            return req.session.save(err => {
+              if (err) {
+                console.error('Error saving session:', err);
+              }
+              res.redirect('/admin');
+            });
+          } else {
+            // Non-admin during maintenance mode
+            console.log('Non-admin logged in during maintenance, logging out');
+            return req.logout(function(err) {
+              if (err) { console.error('Error during logout:', err); }
+              req.flash('error_msg', 'Only administrators can access the site during maintenance.');
+              res.redirect('/maintenance');
+            });
           }
-
-          return res.redirect('/admin');
-        } else if (isMaintenanceActive && !isUserAdmin) {
-          // If maintenance is active and user is not admin, log them out and redirect to maintenance
-          console.log('Non-admin logged in during maintenance, logging out');
-          req.logout(function(err) {
-            if (err) { console.error('Error during logout:', err); }
-            req.flash('error_msg', 'Only administrators can access the site during maintenance.');
-            return res.redirect('/maintenance');
-          });
-          return;
+        } else {
+          // Normal operation (no maintenance mode)
+          console.log('Normal login, redirecting to chat');
+          return res.redirect('/chat');
         }
-
-        // Otherwise, redirect to chat
-        console.log('Normal login, redirecting to chat');
-        return res.redirect('/chat');
       });
     })(req, res, next);
   },

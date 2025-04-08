@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { ensureAdmin } = require('../middlewares/auth');
+const adminMaintenanceAccess = require('../middleware/adminMaintenanceAccess');
 const {
   getDashboard,
   getUserManagement,
@@ -47,7 +48,9 @@ const {
 } = require('../controllers/maintenanceController');
 
 // Apply admin middleware to all routes
+// First check if admin is authenticated, then check maintenance access
 router.use(ensureAdmin);
+router.use(adminMaintenanceAccess);
 
 // Dashboard
 router.get('/', getDashboard);
