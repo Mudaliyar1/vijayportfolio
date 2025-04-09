@@ -11,7 +11,8 @@
     "migrate": "node scripts/migrateMemories.js",
     "init-packages": "node scripts/initPackages.js",
     "test-razorpay": "node scripts/testRazorpay.js",
-    "add-free-package": "node scripts/addFreePackage.js"
+    "add-free-package": "node scripts/addFreePackage.js",
+    "install-ai-deps": "node scripts/install-ai-deps.js"
   },
   "keywords": [
     "ai",
@@ -27,6 +28,7 @@
   "dependencies": {
     "axios": "^1.8.4",
     "bcryptjs": "^2.4.3",
+    "cheerio": "^1.0.0",
     "cohere-ai": "4.3.1",
     "connect-flash": "^0.1.1",
     "connect-mongo": "^5.0.0",

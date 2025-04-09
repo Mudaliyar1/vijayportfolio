@@ -1,5 +1,5 @@
 <div class="max-w-4xl mx-auto">
-  <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden mb-8">
+  <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg border border-indigo-500/20 overflow-hidden mb-8 shadow-xl">
     <div class="bg-gradient-to-r from-neon-blue/20 to-neon-purple/20 p-6 text-center relative">
       <div class="absolute inset-0 bg-dark-200/50"></div>
       <div class="relative">
@@ -44,23 +44,24 @@
 
       <div class="border-t border-gray-800 pt-4">
         <!-- Tabs -->
-        <div class="flex border-b border-gray-800 mb-6">
-          <button class="tab-btn active py-2 px-4 border-b-2 border-neon-blue text-white" data-tab="profile">
-            Profile
+        <div class="flex border-b border-indigo-500/20 mb-6 overflow-x-auto pb-1">
+          <button class="tab-btn active py-3 px-5 border-b-2 border-indigo-500 text-white font-medium flex items-center" data-tab="profile">
+            <i class="fas fa-user mr-2"></i> Profile
           </button>
-          <button class="tab-btn py-2 px-4 border-b-2 border-transparent text-gray-400 hover:text-white" data-tab="password">
-            Password
+          <button class="tab-btn py-3 px-5 border-b-2 border-transparent text-gray-400 hover:text-white font-medium flex items-center" data-tab="password">
+            <i class="fas fa-lock mr-2"></i> Password
           </button>
-          <button class="tab-btn py-2 px-4 border-b-2 border-transparent text-gray-400 hover:text-white" data-tab="picture">
-            Profile Picture
+          <button class="tab-btn py-3 px-5 border-b-2 border-transparent text-gray-400 hover:text-white font-medium flex items-center" data-tab="picture">
+            <i class="fas fa-image mr-2"></i> Profile Picture
           </button>
-          <button class="tab-btn py-2 px-4 border-b-2 border-transparent text-gray-400 hover:text-white" data-tab="danger">
-            Danger Zone
+          <button class="tab-btn py-3 px-5 border-b-2 border-transparent text-gray-400 hover:text-white font-medium flex items-center" data-tab="danger">
+            <i class="fas fa-exclamation-triangle mr-2"></i> Danger Zone
           </button>
         </div>
 
         <!-- Profile Tab -->
         <div id="profile-tab" class="tab-content">
+
           <% if (typeof errors != 'undefined') { %>
             <div class="bg-red-900/50 border border-red-500 text-white px-4 py-3 rounded-md mb-4">
               <% errors.forEach(function(error) { %>
@@ -70,35 +71,37 @@
           <% } %>
 
           <form action="/profile/update?_method=PUT" method="POST">
-            <div class="mb-4">
-              <label for="username" class="block text-gray-300 mb-2">Username</label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                class="w-full bg-dark-200 border border-gray-700 rounded-md py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
-                value="<%= user.username %>"
-                required
-              />
-            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label for="username" class="block text-gray-300 mb-2 font-medium">Username</label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  class="w-full bg-gray-800/50 border border-gray-700 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200"
+                  value="<%= typeof user !== 'undefined' && user.username ? user.username : '' %>"
+                  required
+                />
+              </div>
 
-            <div class="mb-6">
-              <label for="email" class="block text-gray-300 mb-2">Email</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                class="w-full bg-dark-200 border border-gray-700 rounded-md py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
-                value="<%= user.email %>"
-                required
-              />
+              <div>
+                <label for="email" class="block text-gray-300 mb-2 font-medium">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  class="w-full bg-gray-800/50 border border-gray-700 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200"
+                  value="<%= typeof user !== 'undefined' && user.email ? user.email : '' %>"
+                  required
+                />
+              </div>
             </div>
 
             <button
               type="submit"
-              class="bg-gradient-to-r from-neon-blue to-neon-purple text-white py-2 px-6 rounded-md font-medium hover:opacity-90 transition-opacity"
+              class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 flex items-center justify-center transform hover:-translate-y-1 shadow-lg hover:shadow-indigo-500/20"
             >
-              Update Profile
+              <i class="fas fa-save mr-2"></i> Update Profile
             </button>
           </form>
         </div>
@@ -114,48 +117,65 @@
           <% } %>
 
           <form action="/profile/password?_method=PUT" method="POST">
-            <div class="mb-4">
-              <label for="currentPassword" class="block text-gray-300 mb-2">Current Password</label>
-              <input
-                type="password"
-                id="currentPassword"
-                name="currentPassword"
-                class="w-full bg-dark-200 border border-gray-700 rounded-md py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
-                placeholder="Enter your current password"
-                required
-              />
-            </div>
+            <div class="space-y-6">
+              <div>
+                <label for="currentPassword" class="block text-gray-300 mb-2 font-medium">Current Password</label>
+                <div class="relative">
+                  <input
+                    type="password"
+                    id="currentPassword"
+                    name="currentPassword"
+                    class="w-full bg-gray-800/50 border border-gray-700 rounded-lg py-3 pl-4 pr-10 text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200"
+                    placeholder="Enter your current password"
+                    required
+                  />
+                  <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                    <i class="fas fa-lock text-gray-500"></i>
+                  </div>
+                </div>
+              </div>
 
-            <div class="mb-4">
-              <label for="newPassword" class="block text-gray-300 mb-2">New Password</label>
-              <input
-                type="password"
-                id="newPassword"
-                name="newPassword"
-                class="w-full bg-dark-200 border border-gray-700 rounded-md py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
-                placeholder="Enter your new password"
-                required
-              />
-            </div>
+              <div>
+                <label for="newPassword" class="block text-gray-300 mb-2 font-medium">New Password</label>
+                <div class="relative">
+                  <input
+                    type="password"
+                    id="newPassword"
+                    name="newPassword"
+                    class="w-full bg-gray-800/50 border border-gray-700 rounded-lg py-3 pl-4 pr-10 text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200"
+                    placeholder="Enter your new password"
+                    required
+                  />
+                  <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                    <i class="fas fa-key text-gray-500"></i>
+                  </div>
+                </div>
+              </div>
 
-            <div class="mb-6">
-              <label for="confirmPassword" class="block text-gray-300 mb-2">Confirm New Password</label>
-              <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                class="w-full bg-dark-200 border border-gray-700 rounded-md py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition-colors"
-                placeholder="Confirm your new password"
-                required
-              />
-            </div>
+              <div>
+                <label for="confirmPassword" class="block text-gray-300 mb-2 font-medium">Confirm New Password</label>
+                <div class="relative">
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    class="w-full bg-gray-800/50 border border-gray-700 rounded-lg py-3 pl-4 pr-10 text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200"
+                    placeholder="Confirm your new password"
+                    required
+                  />
+                  <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                    <i class="fas fa-check-circle text-gray-500"></i>
+                  </div>
+                </div>
+              </div>
 
-            <button
-              type="submit"
-              class="bg-gradient-to-r from-neon-blue to-neon-purple text-white py-2 px-6 rounded-md font-medium hover:opacity-90 transition-opacity"
-            >
-              Update Password
-            </button>
+              <button
+                type="submit"
+                class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 flex items-center justify-center transform hover:-translate-y-1 shadow-lg hover:shadow-indigo-500/20 w-full md:w-auto"
+              >
+                <i class="fas fa-lock mr-2"></i> Update Password
+              </button>
+            </div>
           </form>
         </div>
 
@@ -163,10 +183,10 @@
         <div id="picture-tab" class="tab-content hidden">
           <div class="mb-6">
             <div class="w-32 h-32 rounded-full mx-auto mb-4 border-2 border-neon-blue overflow-hidden">
-              <img src="<%= user.profilePicture %>" alt="<%= user.username %>" class="w-full h-full object-cover" id="profile-preview">
+              <img src="<%= typeof user !== 'undefined' && user.profilePicture ? user.profilePicture : '/images/default-avatar.png' %>" alt="<%= typeof user !== 'undefined' && user.username ? user.username : 'User' %>" class="w-full h-full object-cover" id="profile-preview">
             </div>
 
-            <% if (user.profilePicture !== '/images/default-avatar.png') { %>
+            <% if (typeof user !== 'undefined' && user.profilePicture && user.profilePicture !== '/images/default-avatar.png') { %>
               <div class="text-center">
                 <form action="/profile/picture/remove?_method=DELETE" method="POST" class="inline-block">
                   <button type="submit" class="text-red-500 hover:text-red-400 transition-colors text-sm">
@@ -232,27 +252,189 @@
   </div>
 </div>
 
+<style>
+  /* Modern Tab Styles */
+  .tab-content {
+    display: block;
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    margin-top: 20px;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+  }
+
+  .tab-content.hidden {
+    display: none;
+  }
+
+  /* Tab Button Styles */
+  .tab-btn {
+    position: relative;
+    transition: all 0.3s ease;
+    padding: 12px 20px !important;
+    font-weight: 500 !important;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .tab-btn:hover {
+    color: white !important;
+  }
+
+  .tab-btn.active {
+    color: white !important;
+  }
+
+  .tab-btn.active::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    border-radius: 3px 3px 0 0;
+    z-index: 1;
+  }
+
+  /* Form Styles */
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #e2e8f0;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 12px 16px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: white;
+    transition: all 0.3s ease;
+  }
+
+  .form-group input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  /* Button Styles */
+  button[type="submit"] {
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6) !important;
+    border: none !important;
+    padding: 12px 24px !important;
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+    color: white !important;
+    transition: all 0.3s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  button[type="submit"]:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 15px rgba(59, 130, 246, 0.3) !important;
+  }
+
+  /* Animation for tab content */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .tab-content:not(.hidden) {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  /* Profile Picture Styles */
+  .profile-picture-container {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  /* Danger Zone Styles */
+  .danger-zone-container {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  /* Tab Navigation Container */
+  .border-b.border-gray-800.mb-6 {
+    border-bottom-color: rgba(99, 102, 241, 0.2) !important;
+    padding-bottom: 4px;
+  }
+</style>
+
 <script>
   // Tab switching
-  const tabBtns = document.querySelectorAll('.tab-btn');
-  const tabContents = document.querySelectorAll('.tab-content');
+  document.addEventListener('DOMContentLoaded', function() {
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
 
-  tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
+    // Log tab information to console for debugging
+    console.log(`Found ${tabBtns.length} tabs and ${tabContents.length} content sections`);
+
+    // Function to switch tabs
+    function switchTab(tabId) {
       // Remove active class from all buttons
-      tabBtns.forEach(b => b.classList.remove('active', 'border-neon-blue', 'text-white'));
-      tabBtns.forEach(b => b.classList.add('text-gray-400', 'border-transparent'));
+      tabBtns.forEach(b => {
+        b.classList.remove('active', 'border-neon-blue', 'text-white');
+        b.classList.add('text-gray-400', 'border-transparent');
+      });
 
       // Add active class to clicked button
-      btn.classList.add('active', 'border-neon-blue', 'text-white');
-      btn.classList.remove('text-gray-400', 'border-transparent');
+      const activeBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+      if (activeBtn) {
+        activeBtn.classList.add('active', 'border-neon-blue', 'text-white');
+        activeBtn.classList.remove('text-gray-400', 'border-transparent');
+      }
 
       // Hide all tab contents
-      tabContents.forEach(content => content.classList.add('hidden'));
+      tabContents.forEach(content => {
+        content.classList.add('hidden');
+      });
 
       // Show selected tab content
-      document.getElementById(`${btn.dataset.tab}-tab`).classList.remove('hidden');
+      const activeContent = document.getElementById(`${tabId}-tab`);
+      if (activeContent) {
+        activeContent.classList.remove('hidden');
+        console.log(`Showing tab: ${tabId}`);
+      } else {
+        console.error(`Error: Tab content not found for ${tabId}`);
+      }
+    }
+
+    // Add click event to all tab buttons
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const tabId = btn.getAttribute('data-tab');
+        switchTab(tabId);
+      });
     });
+
+    // Initialize with the first tab or the active tab
+    const activeTab = document.querySelector('.tab-btn.active');
+    if (activeTab) {
+      switchTab(activeTab.getAttribute('data-tab'));
+    } else if (tabBtns.length > 0) {
+      switchTab(tabBtns[0].getAttribute('data-tab'));
+    }
   });
 
   // Profile picture preview

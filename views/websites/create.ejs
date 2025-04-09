@@ -3,13 +3,25 @@
 
   <div class="bg-dark-100 rounded-lg shadow-lg overflow-hidden mb-8 border border-gray-800 hover:border-neon-blue transition-colors">
     <div class="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 text-white">
-      <% if (hasActivePackage) { %>
-        <h2 class="text-2xl font-bold">Your Package: <%= package.name %></h2>
-        <p class="mt-2">You can create unlimited websites with this package.</p>
-      <% } else { %>
-        <h2 class="text-2xl font-bold">Create Your Website</h2>
-        <p class="mt-2">Fill out the form below and select a package to create your website.</p>
-      <% } %>
+      <div class="flex justify-between items-center">
+        <div>
+          <% if (hasActivePackage) { %>
+            <h2 class="text-2xl font-bold">Your Package: <%= package.name %></h2>
+            <p class="mt-2">You can create unlimited websites with this package.</p>
+          <% } else { %>
+            <h2 class="text-2xl font-bold">Create Your Website</h2>
+            <p class="mt-2">Fill out the form below and select a package to create your website.</p>
+          <% } %>
+        </div>
+        <div>
+          <button id="ai-automation-btn" class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl flex items-center relative overflow-hidden group">
+            <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-purple-600/30 to-pink-600/30 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></span>
+            <i class="fas fa-magic mr-2 relative z-10"></i>
+            <span class="relative z-10">AI Automation</span>
+            <span class="absolute right-0 top-0 h-full w-12 bg-gradient-to-l from-white/10 to-transparent transform translate-x-full group-hover:translate-x-0 transition-transform duration-500 delay-100"></span>
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="p-6 bg-dark-200 text-white">
@@ -188,3 +200,303 @@
     </ol>
   </div>
 </div>
+
+<!-- AI Automation Modal -->
+<div id="ai-automation-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-100 rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden border border-purple-500/30 transform transition-all">
+    <!-- Modal Header -->
+    <div class="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 text-white">
+      <div class="flex justify-between items-center">
+        <h3 class="text-xl font-bold flex items-center">
+          <i class="fas fa-magic mr-2"></i> AI Website Automation
+        </h3>
+        <button id="close-modal" class="text-white hover:text-gray-300 focus:outline-none">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="p-6">
+      <p class="text-gray-300 mb-4">Enter your website title and let our AI automatically fill in the rest of the form for you.</p>
+
+      <div class="mb-4">
+        <label for="ai-website-title" class="block text-white font-semibold mb-2">Website Title</label>
+        <input type="text" id="ai-website-title" class="w-full px-4 py-2 bg-dark-300 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-neon-blue" placeholder="My Business Website">
+        <p class="text-gray-400 text-sm mt-1">This is required for AI to generate suggestions.</p>
+      </div>
+
+      <div id="ai-error" class="hidden bg-red-900/50 text-white p-3 rounded-lg mb-4">
+        Please enter a website title (at least 3 characters).
+      </div>
+
+      <div id="ai-loading" class="hidden">
+        <div class="flex items-center justify-center space-x-2 mb-4">
+          <div class="w-4 h-4 bg-purple-500 rounded-full animate-pulse"></div>
+          <div class="w-4 h-4 bg-indigo-500 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
+          <div class="w-4 h-4 bg-blue-500 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
+        </div>
+        <p class="text-center text-gray-300">AI is analyzing your website title...</p>
+      </div>
+
+      <button id="generate-suggestions" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl flex items-center justify-center">
+        <i class="fas fa-magic mr-2"></i> Generate Suggestions
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- AI Automation Script -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Elements
+    const aiAutomationBtn = document.getElementById('ai-automation-btn');
+    const aiAutomationModal = document.getElementById('ai-automation-modal');
+    const closeModalBtn = document.getElementById('close-modal');
+    const generateSuggestionsBtn = document.getElementById('generate-suggestions');
+    const aiWebsiteTitleInput = document.getElementById('ai-website-title');
+    const aiError = document.getElementById('ai-error');
+    const aiLoading = document.getElementById('ai-loading');
+
+    // Form fields
+    const titleInput = document.getElementById('title');
+    const descriptionInput = document.getElementById('description');
+    const businessTypeSelect = document.getElementById('businessType');
+    const colorSchemeInputs = document.querySelectorAll('input[name="colorScheme"]');
+    const themeSelect = document.getElementById('theme');
+
+    // Open modal
+    aiAutomationBtn.addEventListener('click', function() {
+      aiAutomationModal.classList.remove('hidden');
+      aiAutomationModal.classList.add('animate-fade-in');
+
+      // If title is already filled in the main form, copy it to the modal
+      if (titleInput.value.trim() !== '') {
+        aiWebsiteTitleInput.value = titleInput.value;
+      }
+    });
+
+    // Close modal
+    closeModalBtn.addEventListener('click', function() {
+      aiAutomationModal.classList.add('animate-fade-out');
+      setTimeout(() => {
+        aiAutomationModal.classList.add('hidden');
+        aiAutomationModal.classList.remove('animate-fade-out', 'animate-fade-in');
+      }, 300);
+    });
+
+    // Close modal when clicking outside
+    aiAutomationModal.addEventListener('click', function(e) {
+      if (e.target === aiAutomationModal) {
+        closeModalBtn.click();
+      }
+    });
+
+    // Generate suggestions
+    generateSuggestionsBtn.addEventListener('click', function() {
+      const title = aiWebsiteTitleInput.value.trim();
+
+      // Validate title
+      if (title.length < 3) {
+        aiError.classList.remove('hidden');
+        return;
+      }
+
+      // Hide error if previously shown
+      aiError.classList.add('hidden');
+
+      // Show loading
+      aiLoading.classList.remove('hidden');
+      generateSuggestionsBtn.disabled = true;
+      generateSuggestionsBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Searching the web...';
+
+      // Update loading message to show we're searching the web
+      const loadingText = document.querySelector('#ai-loading p');
+      if (loadingText) {
+        loadingText.innerHTML = 'AI is searching the web for detailed information about <strong>' + title + '</strong>...';
+      }
+
+      // Call API to get suggestions
+      fetch('/api/website-generator/suggest', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ title })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Fill the form with suggestions
+          titleInput.value = data.suggestion.title;
+
+          // Set description with animation to show it's being filled
+          if (descriptionInput) {
+            // Save original description for animation
+            const originalDesc = descriptionInput.value;
+            const newDesc = data.suggestion.description;
+
+            // Set the description immediately for form submission
+            descriptionInput.value = newDesc;
+
+            // Highlight the description field to draw attention
+            descriptionInput.classList.add('bg-purple-100', 'dark:bg-purple-900/30');
+            setTimeout(() => {
+              descriptionInput.classList.remove('bg-purple-100', 'dark:bg-purple-900/30');
+            }, 2000);
+          }
+
+          // Set business type with animation
+          if (businessTypeSelect) {
+            const options = businessTypeSelect.options;
+            let found = false;
+            let selectedIndex = 0;
+
+            // First try exact match
+            for (let i = 0; i < options.length; i++) {
+              if (options[i].value.toLowerCase() === data.suggestion.businessType.toLowerCase()) {
+                selectedIndex = i;
+                found = true;
+                break;
+              }
+            }
+
+            // If no exact match, try partial match
+            if (!found) {
+              for (let i = 0; i < options.length; i++) {
+                if (data.suggestion.businessType.toLowerCase().includes(options[i].value.toLowerCase()) ||
+                    options[i].value.toLowerCase().includes(data.suggestion.businessType.toLowerCase())) {
+                  selectedIndex = i;
+                  found = true;
+                  break;
+                }
+              }
+            }
+
+            // If still no match, use Professional Services as fallback
+            if (!found) {
+              console.log('Could not find matching business type for:', data.suggestion.businessType);
+              console.log('Available options:', Array.from(options).map(o => o.value));
+
+              // Find Professional Services option
+              for (let i = 0; i < options.length; i++) {
+                if (options[i].value.toLowerCase() === 'professional services') {
+                  selectedIndex = i;
+                  break;
+                }
+              }
+            }
+
+            // Set the selected index with animation
+            businessTypeSelect.selectedIndex = selectedIndex;
+            businessTypeSelect.classList.add('bg-purple-100', 'dark:bg-purple-900/30');
+            setTimeout(() => {
+              businessTypeSelect.classList.remove('bg-purple-100', 'dark:bg-purple-900/30');
+            }, 2000);
+          }
+
+          // Set color scheme with animation
+          colorSchemeInputs.forEach(input => {
+            if (input.value === data.suggestion.colorScheme) {
+              input.checked = true;
+
+              // Highlight the label
+              const label = input.closest('label');
+              if (label) {
+                label.classList.add('ring-2', 'ring-purple-500', 'ring-offset-2');
+                setTimeout(() => {
+                  label.classList.remove('ring-2', 'ring-purple-500', 'ring-offset-2');
+                }, 2000);
+              }
+            }
+          });
+
+          // Set theme with animation
+          if (themeSelect) {
+            const options = themeSelect.options;
+            for (let i = 0; i < options.length; i++) {
+              if (options[i].value.toLowerCase() === data.suggestion.theme.toLowerCase()) {
+                themeSelect.selectedIndex = i;
+                break;
+              }
+            }
+
+            themeSelect.classList.add('bg-purple-100', 'dark:bg-purple-900/30');
+            setTimeout(() => {
+              themeSelect.classList.remove('bg-purple-100', 'dark:bg-purple-900/30');
+            }, 2000);
+          }
+
+          // Close modal
+          closeModalBtn.click();
+
+          // Show success message with details about what was found
+          const successMessage = document.createElement('div');
+          successMessage.className = 'fixed bottom-4 right-4 bg-green-900/80 text-white p-4 rounded-lg shadow-lg z-50 animate-fade-in max-w-md';
+
+          // Create more detailed success message
+          let messageHTML = '<div class="flex items-start">';
+          messageHTML += '<i class="fas fa-check-circle mr-2 mt-1"></i>';
+          messageHTML += '<div>';
+          messageHTML += '<p class="font-bold">AI has filled your form!</p>';
+          messageHTML += '<p class="text-sm mt-1">Based on "' + title + '", we found:</p>';
+          messageHTML += '<ul class="text-sm mt-1 list-disc pl-5">';
+          messageHTML += '<li>Business type: ' + data.suggestion.businessType + '</li>';
+          messageHTML += '<li>Detailed description</li>';
+          messageHTML += '<li>Matching color scheme & theme</li>';
+          messageHTML += '</ul>';
+          messageHTML += '</div></div>';
+
+          successMessage.innerHTML = messageHTML;
+          document.body.appendChild(successMessage);
+
+          // Remove success message after 5 seconds (longer because it has more content)
+          setTimeout(() => {
+            successMessage.classList.add('animate-fade-out');
+            setTimeout(() => {
+              document.body.removeChild(successMessage);
+            }, 300);
+          }, 5000);
+        } else {
+          // Show error
+          aiError.textContent = data.message || 'Failed to generate suggestions. Please try again.';
+          aiError.classList.remove('hidden');
+        }
+      })
+      .catch(error => {
+        console.error('Error generating suggestions:', error);
+        aiError.textContent = 'An error occurred. Please try again.';
+        aiError.classList.remove('hidden');
+      })
+      .finally(() => {
+        // Hide loading
+        aiLoading.classList.add('hidden');
+        generateSuggestionsBtn.disabled = false;
+        generateSuggestionsBtn.innerHTML = '<i class="fas fa-magic mr-2"></i> Generate Suggestions';
+      });
+    });
+
+    // Add animations
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fade-in {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes fade-out {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(20px); }
+      }
+
+      .animate-fade-in {
+        animation: fade-in 0.3s ease-out forwards;
+      }
+
+      .animate-fade-out {
+        animation: fade-out 0.3s ease-in forwards;
+      }
+    `;
+    document.head.appendChild(style);
+  });
+</script>

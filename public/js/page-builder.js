@@ -133,21 +133,105 @@ class PageBuilder {
         icon: 'fas fa-film',
         title: 'Custom Video',
         category: 'media',
-        template: '<div class="custom-video-container" data-type="custom-video"><div class="video-placeholder editable">Click to add your video</div><video controls style="display:none; width:100%;"></video></div>'
+        template: '<div class="custom-video-container" data-type="custom-video"><div class="video-placeholder editable">Click to add your video</div><video controls style="display:none; width:100%;"></video><div class="responsive-controls"><label>Hide on Mobile: <input type="checkbox" class="responsive-toggle" data-screen="mobile"></label><label>Hide on Tablet: <input type="checkbox" class="responsive-toggle" data-screen="tablet"></label></div></div>'
       },
       {
         type: 'audio-player',
         icon: 'fas fa-music',
         title: 'Audio Player',
         category: 'media',
-        template: '<div class="audio-container" data-type="audio-player"><div class="audio-placeholder editable">Click to add your audio</div><audio controls style="display:none; width:100%;"></audio></div>'
+        template: '<div class="audio-container" data-type="audio-player"><div class="audio-placeholder editable">Click to add your audio</div><audio controls style="display:none; width:100%;"></audio><div class="responsive-controls"><label>Hide on Mobile: <input type="checkbox" class="responsive-toggle" data-screen="mobile"></label><label>Hide on Tablet: <input type="checkbox" class="responsive-toggle" data-screen="tablet"></label></div></div>'
+      },
+      {
+        type: 'image-gallery',
+        icon: 'fas fa-images',
+        title: 'Image Gallery',
+        category: 'media',
+        template: '<div class="wp-gallery-container" data-type="image-gallery"><div class="gallery-grid editable"><div class="gallery-item"><img src="/images/placeholder.jpg" alt="Gallery Image 1"><div class="image-caption editable">Image Caption</div></div><div class="gallery-item"><img src="/images/placeholder.jpg" alt="Gallery Image 2"><div class="image-caption editable">Image Caption</div></div><div class="gallery-item"><img src="/images/placeholder.jpg" alt="Gallery Image 3"><div class="image-caption editable">Image Caption</div></div></div><div class="responsive-controls"><label>Hide on Mobile: <input type="checkbox" class="responsive-toggle" data-screen="mobile"></label><label>Hide on Tablet: <input type="checkbox" class="responsive-toggle" data-screen="tablet"></label></div></div>'
+      },
+      {
+        type: 'youtube-video',
+        icon: 'fab fa-youtube',
+        title: 'YouTube Video',
+        category: 'media',
+        template: '<div class="youtube-container" data-type="youtube-video"><div class="youtube-placeholder editable">Enter YouTube URL</div><div class="youtube-embed" style="display:none; position:relative; padding-bottom:56.25%; height:0; overflow:hidden;"><iframe style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;" allowfullscreen></iframe></div><div class="responsive-controls"><label>Hide on Mobile: <input type="checkbox" class="responsive-toggle" data-screen="mobile"></label><label>Hide on Tablet: <input type="checkbox" class="responsive-toggle" data-screen="tablet"></label></div></div>'
+      },
+      {
+        type: 'file-download',
+        icon: 'fas fa-download',
+        title: 'File Download',
+        category: 'interactive',
+        template: '<div class="file-download-container" data-type="file-download"><a href="#" class="download-button editable"><i class="fas fa-download"></i> Download File</a><div class="file-placeholder editable">Click to select a file</div><div class="responsive-controls"><label>Hide on Mobile: <input type="checkbox" class="responsive-toggle" data-screen="mobile"></label><label>Hide on Tablet: <input type="checkbox" class="responsive-toggle" data-screen="tablet"></label></div></div>'
       },
       {
         type: 'dark-mode-toggle',
         icon: 'fas fa-moon',
         title: 'Dark Mode Toggle',
         category: 'interactive',
-        template: '<div class="dark-mode-container" data-type="dark-mode-toggle"><button class="dark-mode-toggle"><i class="fas fa-moon"></i><span class="editable">Toggle Dark Mode</span></button></div>'
+        template: '<div class="dark-mode-container" data-type="dark-mode-toggle"><button class="dark-mode-toggle"><i class="fas fa-moon"></i><span class="editable">Toggle Dark Mode</span></button><div class="responsive-controls"><label>Hide on Mobile: <input type="checkbox" class="responsive-toggle" data-screen="mobile"></label><label>Hide on Tablet: <input type="checkbox" class="responsive-toggle" data-screen="tablet"></label></div></div>'
+      },
+      {
+        type: 'accordion',
+        icon: 'fas fa-bars',
+        title: 'Accordion',
+        category: 'interactive',
+        template: '<div class="accordion-container" data-type="accordion"><div class="accordion-item"><div class="accordion-header editable">Accordion Title 1</div><div class="accordion-content"><p class="editable">Accordion content goes here. Click to edit.</p></div></div><div class="accordion-item"><div class="accordion-header editable">Accordion Title 2</div><div class="accordion-content"><p class="editable">Accordion content goes here. Click to edit.</p></div></div><div class="responsive-controls"><label>Hide on Mobile: <input type="checkbox" class="responsive-toggle" data-screen="mobile"></label><label>Hide on Tablet: <input type="checkbox" class="responsive-toggle" data-screen="tablet"></label></div></div>'
+      },
+      {
+        type: 'tabs',
+        icon: 'fas fa-folder',
+        title: 'Tabs',
+        category: 'interactive',
+        template: '<div class="tabs-container" data-type="tabs"><div class="tabs-nav"><div class="tab-nav-item active editable">Tab 1</div><div class="tab-nav-item editable">Tab 2</div><div class="tab-nav-item editable">Tab 3</div></div><div class="tabs-content"><div class="tab-content active"><p class="editable">Tab 1 content goes here. Click to edit.</p></div><div class="tab-content"><p class="editable">Tab 2 content goes here. Click to edit.</p></div><div class="tab-content"><p class="editable">Tab 3 content goes here. Click to edit.</p></div></div><div class="responsive-controls"><label>Hide on Mobile: <input type="checkbox" class="responsive-toggle" data-screen="mobile"></label><label>Hide on Tablet: <input type="checkbox" class="responsive-toggle" data-screen="tablet"></label></div></div>'
+      },
+      {
+        type: 'testimonial',
+        icon: 'fas fa-quote-right',
+        title: 'Testimonial',
+        category: 'content',
+        template: '<div class="testimonial-container" data-type="testimonial"><div class="testimonial-content"><p class="testimonial-text editable">"This is a testimonial quote. Replace with your customer testimonial."</p><div class="testimonial-author editable">- John Doe, CEO</div></div><div class="responsive-controls"><label>Hide on Mobile: <input type="checkbox" class="responsive-toggle" data-screen="mobile"></label><label>Hide on Tablet: <input type="checkbox" class="responsive-toggle" data-screen="tablet"></label></div></div>'
+      },
+      {
+        type: 'pricing-table',
+        icon: 'fas fa-dollar-sign',
+        title: 'Pricing Table',
+        category: 'content',
+        template: '<div class="pricing-table-container" data-type="pricing-table"><div class="pricing-column"><div class="pricing-header"><h3 class="editable">Basic</h3><div class="price editable">$19</div><div class="price-period editable">per month</div></div><ul class="pricing-features"><li class="editable">Feature 1</li><li class="editable">Feature 2</li><li class="editable">Feature 3</li></ul><div class="pricing-button"><a href="#" class="editable">Sign Up</a></div></div><div class="pricing-column featured"><div class="pricing-header"><h3 class="editable">Pro</h3><div class="price editable">$49</div><div class="price-period editable">per month</div></div><ul class="pricing-features"><li class="editable">Feature 1</li><li class="editable">Feature 2</li><li class="editable">Feature 3</li><li class="editable">Feature 4</li></ul><div class="pricing-button"><a href="#" class="editable">Sign Up</a></div></div><div class="pricing-column"><div class="pricing-header"><h3 class="editable">Premium</h3><div class="price editable">$99</div><div class="price-period editable">per month</div></div><ul class="pricing-features"><li class="editable">Feature 1</li><li class="editable">Feature 2</li><li class="editable">Feature 3</li><li class="editable">Feature 4</li><li class="editable">Feature 5</li></ul><div class="pricing-button"><a href="#" class="editable">Sign Up</a></div></div><div class="responsive-controls"><label>Hide on Mobile: <input type="checkbox" class="responsive-toggle" data-screen="mobile"></label><label>Hide on Tablet: <input type="checkbox" class="responsive-toggle" data-screen="tablet"></label></div></div>'
+      },
+      {
+        type: 'countdown-timer',
+        icon: 'fas fa-clock',
+        title: 'Countdown Timer',
+        category: 'interactive',
+        template: '<div class="countdown-container" data-type="countdown-timer"><div class="countdown-header editable">Special Offer Ends In:</div><div class="countdown-timer" data-end="2023-12-31T23:59:59"><div class="countdown-item"><div class="countdown-value days">00</div><div class="countdown-label">Days</div></div><div class="countdown-item"><div class="countdown-value hours">00</div><div class="countdown-label">Hours</div></div><div class="countdown-item"><div class="countdown-value minutes">00</div><div class="countdown-label">Minutes</div></div><div class="countdown-item"><div class="countdown-value seconds">00</div><div class="countdown-label">Seconds</div></div></div><div class="countdown-message editable">Don\'t miss out!</div><div class="responsive-controls"><label>Hide on Mobile: <input type="checkbox" class="responsive-toggle" data-screen="mobile"></label><label>Hide on Tablet: <input type="checkbox" class="responsive-toggle" data-screen="tablet"></label></div></div>'
+      },
+      {
+        type: 'progress-bar',
+        icon: 'fas fa-tasks',
+        title: 'Progress Bar',
+        category: 'interactive',
+        template: '<div class="progress-bar-container" data-type="progress-bar"><div class="progress-title editable">Project Completion</div><div class="progress-bar"><div class="progress-fill" style="width: 75%;"><span class="progress-text editable">75%</span></div></div><div class="responsive-controls"><label>Hide on Mobile: <input type="checkbox" class="responsive-toggle" data-screen="mobile"></label><label>Hide on Tablet: <input type="checkbox" class="responsive-toggle" data-screen="tablet"></label></div></div>'
+      },
+      {
+        type: 'social-share',
+        icon: 'fas fa-share-alt',
+        title: 'Social Share',
+        category: 'interactive',
+        template: '<div class="social-share-container" data-type="social-share"><div class="social-share-title editable">Share This Page</div><div class="social-icons"><a href="#" class="social-icon facebook"><i class="fab fa-facebook-f"></i></a><a href="#" class="social-icon twitter"><i class="fab fa-twitter"></i></a><a href="#" class="social-icon linkedin"><i class="fab fa-linkedin-in"></i></a><a href="#" class="social-icon pinterest"><i class="fab fa-pinterest-p"></i></a><a href="#" class="social-icon whatsapp"><i class="fab fa-whatsapp"></i></a></div><div class="responsive-controls"><label>Hide on Mobile: <input type="checkbox" class="responsive-toggle" data-screen="mobile"></label><label>Hide on Tablet: <input type="checkbox" class="responsive-toggle" data-screen="tablet"></label></div></div>'
+      },
+      {
+        type: 'team-members',
+        icon: 'fas fa-users',
+        title: 'Team Members',
+        category: 'content',
+        template: '<div class="team-container" data-type="team-members"><h2 class="team-title editable">Our Team</h2><div class="team-grid"><div class="team-member"><div class="team-image"><img src="/images/placeholder.jpg" alt="Team Member" class="editable-image"></div><h3 class="team-name editable">John Doe</h3><p class="team-position editable">CEO & Founder</p><p class="team-bio editable">Short bio about this team member.</p><div class="team-social"><a href="#" class="editable"><i class="fab fa-linkedin"></i></a><a href="#" class="editable"><i class="fab fa-twitter"></i></a></div></div><div class="team-member"><div class="team-image"><img src="/images/placeholder.jpg" alt="Team Member" class="editable-image"></div><h3 class="team-name editable">Jane Smith</h3><p class="team-position editable">Marketing Director</p><p class="team-bio editable">Short bio about this team member.</p><div class="team-social"><a href="#" class="editable"><i class="fab fa-linkedin"></i></a><a href="#" class="editable"><i class="fab fa-twitter"></i></a></div></div><div class="team-member"><div class="team-image"><img src="/images/placeholder.jpg" alt="Team Member" class="editable-image"></div><h3 class="team-name editable">Mike Johnson</h3><p class="team-position editable">Lead Developer</p><p class="team-bio editable">Short bio about this team member.</p><div class="team-social"><a href="#" class="editable"><i class="fab fa-linkedin"></i></a><a href="#" class="editable"><i class="fab fa-github"></i></a></div></div></div><div class="responsive-controls"><label>Hide on Mobile: <input type="checkbox" class="responsive-toggle" data-screen="mobile"></label><label>Hide on Tablet: <input type="checkbox" class="responsive-toggle" data-screen="tablet"></label></div></div>'
+      },
+      {
+        type: 'faq-section',
+        icon: 'fas fa-question-circle',
+        title: 'FAQ Section',
+        category: 'content',
+        template: '<div class="faq-container" data-type="faq-section"><h2 class="faq-title editable">Frequently Asked Questions</h2><div class="faq-items"><div class="faq-item"><div class="faq-question editable">What services do you offer?</div><div class="faq-answer editable">We offer a wide range of services including web design, development, and digital marketing. Contact us to learn more about how we can help your business.</div></div><div class="faq-item"><div class="faq-question editable">How much do your services cost?</div><div class="faq-answer editable">Our pricing varies depending on the specific needs of your project. We offer customized solutions to fit different budgets and requirements.</div></div><div class="faq-item"><div class="faq-question editable">How long does it take to complete a project?</div><div class="faq-answer editable">Project timelines depend on the scope and complexity of the work. We provide detailed timelines during our initial consultation and keep you updated throughout the process.</div></div></div><div class="responsive-controls"><label>Hide on Mobile: <input type="checkbox" class="responsive-toggle" data-screen="mobile"></label><label>Hide on Tablet: <input type="checkbox" class="responsive-toggle" data-screen="tablet"></label></div></div>'
       },
       {
         type: 'header-footer-adjust',
@@ -189,6 +273,31 @@ class PageBuilder {
     this.loadContent();
     this.addSidebarToggle();
     this.setupResponsivePreview();
+
+    // Store the instance globally for AI automation
+    window.pageBuilderInstance = this;
+  }
+
+  // Add HTML to canvas - used by AI automation
+  addHTMLToCanvas(html) {
+    // Create a temporary container
+    const tempContainer = document.createElement('div');
+    tempContainer.innerHTML = html;
+
+    // Add each element to the canvas
+    while (tempContainer.firstChild) {
+      this.canvas.appendChild(tempContainer.firstChild);
+    }
+
+    // Update the content input
+    this.updateContentInput();
+
+    // Setup drag and drop for the new elements
+    const newElements = this.canvas.querySelectorAll('.block-container:not(.initialized)');
+    newElements.forEach(element => {
+      element.classList.add('initialized');
+      this.setupBlockControls(element);
+    });
   }
 
   addSidebarToggle() {
@@ -201,14 +310,31 @@ class PageBuilder {
     // Insert after sidebar
     this.sidebarContainer.parentNode.insertBefore(sidebarToggle, this.sidebarContainer.nextSibling);
 
+    // Create overlay for mobile
+    let overlay = document.getElementById('sidebar-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'sidebar-overlay';
+      overlay.className = 'sidebar-overlay';
+      document.body.appendChild(overlay);
+    }
+
     // Add event listener
     sidebarToggle.addEventListener('click', () => {
       const sidebar = this.sidebarContainer.querySelector('.builder-sidebar');
-      sidebar.classList.toggle('collapsed');
+
+      // Toggle active class for mobile view
+      if (window.innerWidth <= 1030) {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+      } else {
+        // Use collapsed for desktop view
+        sidebar.classList.toggle('collapsed');
+      }
 
       // Update icon based on state
       const icon = sidebarToggle.querySelector('i');
-      if (sidebar.classList.contains('collapsed')) {
+      if (sidebar.classList.contains('collapsed') || sidebar.classList.contains('active')) {
         icon.classList.remove('fa-times');
         icon.classList.add('fa-bars');
       } else {
@@ -217,11 +343,33 @@ class PageBuilder {
       }
     });
 
-    // Initially collapse sidebar on mobile
-    if (window.innerWidth <= 768) {
+    // Close sidebar when clicking on overlay
+    overlay.addEventListener('click', () => {
       const sidebar = this.sidebarContainer.querySelector('.builder-sidebar');
-      sidebar.classList.add('collapsed');
+      sidebar.classList.remove('active');
+      overlay.classList.remove('active');
+    });
+
+    // Initially collapse sidebar on mobile
+    if (window.innerWidth <= 1030) {
+      const sidebar = this.sidebarContainer.querySelector('.builder-sidebar');
+      sidebar.classList.remove('active'); // Ensure it starts closed
     }
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      const sidebar = this.sidebarContainer.querySelector('.builder-sidebar');
+      if (window.innerWidth > 1030) {
+        // Switch to desktop mode
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+      } else {
+        // Switch to mobile mode
+        if (!sidebar.classList.contains('collapsed') && !sidebar.classList.contains('active')) {
+          sidebar.classList.add('collapsed');
+        }
+      }
+    });
   }
 
   setupResponsivePreview() {
@@ -242,6 +390,9 @@ class PageBuilder {
         desktopBtn.classList.add('active');
         tabletBtn.classList.remove('active');
         mobileBtn.classList.remove('active');
+
+        // Show all elements
+        this.updateResponsiveVisibility('desktop');
       });
 
       // Tablet preview
@@ -254,6 +405,9 @@ class PageBuilder {
         desktopBtn.classList.remove('active');
         tabletBtn.classList.add('active');
         mobileBtn.classList.remove('active');
+
+        // Update element visibility for tablet
+        this.updateResponsiveVisibility('tablet');
       });
 
       // Mobile preview
@@ -266,11 +420,56 @@ class PageBuilder {
         desktopBtn.classList.remove('active');
         tabletBtn.classList.remove('active');
         mobileBtn.classList.add('active');
+
+        // Update element visibility for mobile
+        this.updateResponsiveVisibility('mobile');
       });
+
+      // Setup responsive toggle event listeners
+      this.setupResponsiveToggleListeners();
     }
   }
 
+  updateResponsiveVisibility(deviceType) {
+    // Get all elements with responsive controls
+    const elements = document.querySelectorAll('.block-container');
+
+    elements.forEach(element => {
+      // Check if this element has responsive controls
+      const responsiveControls = element.querySelector('.responsive-controls');
+      if (!responsiveControls) return;
+
+      // Get the toggle for this device type
+      const toggle = responsiveControls.querySelector(`[data-screen="${deviceType}"]`);
+      if (!toggle) return;
+
+      // Show/hide based on toggle state
+      if (toggle.checked) {
+        element.style.display = 'none';
+      } else {
+        element.style.display = '';
+      }
+    });
+  }
+
+  setupResponsiveToggleListeners() {
+    // Add event listeners to all responsive toggles
+    document.addEventListener('change', (e) => {
+      if (e.target.classList.contains('responsive-toggle')) {
+        // If we're currently in the device mode that this toggle controls,
+        // update visibility immediately
+        const deviceType = e.target.getAttribute('data-screen');
+        if (this.currentPreviewMode === deviceType) {
+          this.updateResponsiveVisibility(deviceType);
+        }
+      }
+    });
+  }
+
   renderSidebar() {
+    // Clear existing sidebar content first to prevent duplicates
+    this.sidebarContainer.innerHTML = '';
+
     const sidebar = document.createElement('div');
     sidebar.className = 'builder-sidebar';
 
@@ -626,6 +825,16 @@ class PageBuilder {
   }
 
   editBlock(blockElement) {
+    // Find all editable elements in the block
+    const editableElements = blockElement.querySelectorAll('.editable');
+
+    // If there are editable elements, make the first one editable
+    if (editableElements.length > 0) {
+      this.makeEditable(editableElements[0]);
+      return;
+    }
+
+    // Fallback to the old method if no editable elements are found
     const type = blockElement.getAttribute('data-type');
     const content = blockElement.querySelector(`[data-type="${type}"]`);
 
@@ -1201,6 +1410,178 @@ class PageBuilder {
       setTimeout(() => {
         successMsg.remove();
       }, 3000);
+    });
+  }
+
+  setupCountdownTimer(countdownContainer) {
+    const countdownTimer = countdownContainer.querySelector('.countdown-timer');
+    if (!countdownTimer) return;
+
+    // Get the end date from the data attribute
+    const endDateStr = countdownTimer.getAttribute('data-end');
+    if (!endDateStr) return;
+
+    // Parse the end date
+    const endDate = new Date(endDateStr);
+
+    // Update the countdown every second
+    const updateCountdown = () => {
+      const now = new Date();
+      const diff = endDate - now;
+
+      // If the countdown is over
+      if (diff <= 0) {
+        countdownTimer.innerHTML = '<div class="countdown-expired">Offer Expired</div>';
+        return;
+      }
+
+      // Calculate days, hours, minutes, seconds
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      // Update the countdown values
+      const daysEl = countdownTimer.querySelector('.days');
+      const hoursEl = countdownTimer.querySelector('.hours');
+      const minutesEl = countdownTimer.querySelector('.minutes');
+      const secondsEl = countdownTimer.querySelector('.seconds');
+
+      if (daysEl) daysEl.textContent = days.toString().padStart(2, '0');
+      if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
+      if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
+      if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
+    };
+
+    // Update immediately and then every second
+    updateCountdown();
+    const countdownInterval = setInterval(updateCountdown, 1000);
+
+    // Store the interval ID on the element to clear it when needed
+    countdownContainer.dataset.countdownInterval = countdownInterval;
+  }
+
+  setupProgressBar(progressContainer) {
+    const progressBar = progressContainer.querySelector('.progress-bar');
+    const progressFill = progressContainer.querySelector('.progress-fill');
+    const progressText = progressContainer.querySelector('.progress-text');
+
+    if (!progressBar || !progressFill || !progressText) return;
+
+    // Make the progress value editable
+    progressText.addEventListener('click', (e) => {
+      e.stopPropagation();
+
+      // Create an input for editing
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.min = '0';
+      input.max = '100';
+      input.value = progressText.textContent.replace('%', '');
+      input.style.width = '60px';
+      input.style.padding = '4px';
+      input.style.textAlign = 'center';
+
+      // Replace the text with the input
+      progressText.textContent = '';
+      progressText.appendChild(input);
+      input.focus();
+
+      // Update on blur
+      input.addEventListener('blur', () => {
+        let value = parseInt(input.value);
+        if (isNaN(value)) value = 0;
+        if (value < 0) value = 0;
+        if (value > 100) value = 100;
+
+        progressText.textContent = value + '%';
+        progressFill.style.width = value + '%';
+      });
+
+      // Update on enter key
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          input.blur();
+        }
+      });
+    });
+  }
+
+  setupSocialShare(shareContainer) {
+    const socialIcons = shareContainer.querySelectorAll('.social-icon');
+
+    socialIcons.forEach(icon => {
+      icon.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        const platform = Array.from(icon.classList)
+          .find(cls => ['facebook', 'twitter', 'linkedin', 'pinterest', 'whatsapp'].includes(cls));
+
+        if (!platform) return;
+
+        // Get the current page URL
+        const url = encodeURIComponent(window.location.href);
+        const title = encodeURIComponent(document.title);
+
+        // Open the share dialog
+        let shareUrl = '';
+
+        switch (platform) {
+          case 'facebook':
+            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+            break;
+          case 'twitter':
+            shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${title}`;
+            break;
+          case 'linkedin':
+            shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+            break;
+          case 'pinterest':
+            shareUrl = `https://pinterest.com/pin/create/button/?url=${url}&description=${title}`;
+            break;
+          case 'whatsapp':
+            shareUrl = `https://api.whatsapp.com/send?text=${title} ${url}`;
+            break;
+        }
+
+        if (shareUrl) {
+          window.open(shareUrl, '_blank', 'width=600,height=400');
+        }
+      });
+    });
+  }
+
+  setupFaqSection(faqContainer) {
+    const faqItems = faqContainer.querySelectorAll('.faq-item');
+
+    faqItems.forEach(item => {
+      const question = item.querySelector('.faq-question');
+      const answer = item.querySelector('.faq-answer');
+
+      if (!question || !answer) return;
+
+      // Add click event to toggle answer visibility
+      question.addEventListener('click', (e) => {
+        // Don't toggle if we're editing
+        if (e.target.isContentEditable) return;
+
+        // Toggle the active class
+        item.classList.toggle('active');
+
+        // Toggle answer visibility
+        if (item.classList.contains('active')) {
+          answer.style.maxHeight = answer.scrollHeight + 'px';
+        } else {
+          answer.style.maxHeight = '0';
+        }
+      });
+
+      // Initialize answer state
+      if (item.classList.contains('active')) {
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+      } else {
+        answer.style.maxHeight = '0';
+      }
     });
   }
 

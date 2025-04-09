@@ -1,17 +1,31 @@
 /* Page Builder Styles - FTRAISE EDITOR modern interface */
 .page-builder-container {
   display: flex;
-  min-height: 700px;
-  background-color: #f8f9fa;
+  min-height: calc(100vh - 200px); /* Extend from top to bottom with some margin */
+  height: auto; /* Allow container to grow with content */
+  background-color: #121212;
   border-radius: 12px;
   overflow: hidden;
-  margin: -20px -20px 30px -20px; /* Negative margins to make it full width */
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  margin: 0 0 50px 0; /* Add bottom margin */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
   position: relative;
   transition: all 0.3s ease;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  width: calc(100% + 40px); /* Full width plus the margins */
+  border: 1px solid rgba(128, 90, 213, 0.2);
+  width: 100%; /* Full width */
+}
+
+/* Full width editor mode */
+.full-width-editor {
+  width: 100vw;
+  max-width: 100%;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  position: relative;
+  background: linear-gradient(to bottom, #1a1a2e, #16213e);
 }
 
 /* Full width mode for larger displays - preserves header and footer */
@@ -126,6 +140,26 @@
 .builder-sidebar:not(.collapsed) + .sidebar-toggle {
   left: 315px;
   background-color: #e94560;
+}
+
+/* Sidebar overlay for mobile */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  backdrop-filter: blur(2px);
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+  visibility: visible;
 }
 
 .builder-sidebar:not(.collapsed) + .sidebar-toggle:hover {
@@ -299,6 +333,51 @@
   max-width: 100%;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   border-radius: 8px;
+  color: #333; /* Default text color for all content */
+}
+
+/* Modern builder canvas with improved styling */
+.modern-builder .builder-canvas {
+  background-color: #f8fafc;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+  border: 1px solid rgba(128, 90, 213, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Responsive controls for elements */
+.responsive-controls {
+  margin-top: 10px;
+  padding: 8px;
+  background-color: #f0f4f8;
+  border-radius: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  border: 1px dashed #cbd5e0;
+}
+
+.responsive-controls label {
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
+  color: #4a5568;
+  cursor: pointer;
+}
+
+.responsive-controls input[type="checkbox"] {
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+/* Live preview styles */
+#live-preview-overlay {
+  transition: all 0.3s ease;
+}
+
+#preview-container {
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .canvas-header {
@@ -377,6 +456,7 @@
   flex-grow: 1;
   background-color: #f8f9fa;
   border-radius: 0 0 8px 8px;
+  height: auto; /* Allow canvas to grow with content */
 }
 
 .canvas-area.drag-over {
@@ -429,6 +509,7 @@
   transition: all 0.3s ease;
   background-color: #fff;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+  color: #333; /* Ensure text is visible */
 }
 
 .block-container:hover {
@@ -543,6 +624,7 @@
   background-color: #f8fcff;
   transition: all 0.3s ease;
   animation: pulse-edit 2s infinite;
+  color: #333; /* Ensure text is visible when editing */
 }
 
 @keyframes pulse-edit {
@@ -728,21 +810,100 @@
   font-size: 0.9rem;
 }
 
+/* Improved Text Readability */
+.editable, .block-item, .canvas-area, .builder-sidebar, .builder-canvas {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+
+.editable {
+  font-size: 16px;
+  color: #333;
+}
+
+.editable h1 {
+  font-size: 2.5rem;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.editable h2 {
+  font-size: 2rem;
+  line-height: 1.3;
+  margin-bottom: 0.875rem;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.editable h3 {
+  font-size: 1.5rem;
+  line-height: 1.4;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.editable p {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #4a5568;
+}
+
+.editable a {
+  color: #4f46e5;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.editable a:hover {
+  color: #6366f1;
+  text-decoration: underline;
+}
+
+.editable ul, .editable ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.editable li {
+  margin-bottom: 0.5rem;
+}
+
 /* Responsive Styles - Mobile-friendly layout */
-@media (max-width: 768px) {
+@media (max-width: 1030px) {
   .page-builder-container {
     flex-direction: column;
+    min-height: calc(100vh - 150px); /* Adjust height for mobile */
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
   }
 
   /* Mobile sidebar uses the same collapsible functionality */
   .builder-sidebar {
     position: fixed;
     top: 0;
-    left: 0;
+    left: -280px; /* Start off-screen */
     width: 280px;
     height: 100vh;
     z-index: 999;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, rgba(30, 30, 46, 0.95), rgba(44, 44, 84, 0.95));
+    backdrop-filter: blur(10px);
+    transition: left 0.3s ease; /* Smooth transition for opening/closing */
+    overflow-y: auto; /* Allow scrolling if content is too tall */
+    transform: translateZ(0); /* Force hardware acceleration */
+  }
+
+  /* When sidebar is active/open */
+  .builder-sidebar.active {
+    left: 0; /* Fully visible */
   }
 
   /* We don't need the active class anymore since we're using collapsed */
@@ -762,6 +923,146 @@
   .hamburger-menu {
     display: none; /* Hide the hamburger menu since we're using sidebar-toggle */
   }
+
+  /* Improved mobile sidebar toggle */
+  .sidebar-toggle {
+    background: linear-gradient(135deg, #9333ea, #6366f1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    min-height: 44px; /* Larger touch target */
+    min-width: 44px; /* Larger touch target */
+  }
+
+  .sidebar-toggle:hover {
+    background: linear-gradient(135deg, #a855f7, #818cf8);
+  }
+
+  /* Improve canvas area for mobile */
+  .canvas-area {
+    padding: 15px; /* Smaller padding on mobile */
+  }
+
+  /* Make block controls more touch-friendly */
+  .block-controls button {
+    min-height: 40px;
+    min-width: 40px;
+    margin: 2px;
+  }
+
+  /* Improve text readability on mobile */
+  .block-container h1 {
+    font-size: 1.8rem !important;
+  }
+
+  .block-container h2 {
+    font-size: 1.5rem !important;
+  }
+
+  .block-container h3 {
+    font-size: 1.3rem !important;
+  }
+
+  .block-container p {
+    font-size: 1rem !important;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .builder-sidebar {
+    width: 250px;
+  }
+
+  .sidebar-header h3 {
+    font-size: 1.2rem;
+  }
+
+  .block-item {
+    padding: 8px 10px;
+  }
+
+  .block-item span {
+    font-size: 0.85rem;
+  }
+
+  .block-container h1 {
+    font-size: 1.5rem !important;
+  }
+
+  .block-container h2 {
+    font-size: 1.3rem !important;
+  }
+
+  .block-container h3 {
+    font-size: 1.1rem !important;
+  }
+
+  .block-container p {
+    font-size: 0.95rem !important;
+  }
+
+  /* Adjust canvas padding for better mobile editing */
+  .canvas-area {
+    padding: 10px;
+  }
+
+  /* Make buttons more tappable on mobile */
+  .block-control-btn,
+  .sidebar-toggle,
+  .block-controls button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+  /* Mobile controls are now handled in the media queries above */
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .builder-sidebar {
+    width: 250px;
+  }
+
+  .sidebar-header h3 {
+    font-size: 1.2rem;
+  }
+
+  .block-item {
+    padding: 8px 10px;
+  }
+
+  .block-item span {
+    font-size: 0.85rem;
+  }
+
+  .editable h1 {
+    font-size: 1.5rem;
+  }
+
+  .editable h2 {
+    font-size: 1.3rem;
+  }
+
+  .editable h3 {
+    font-size: 1.1rem;
+  }
+
+  .editable p {
+    font-size: 0.95rem;
+  }
+
+  /* Adjust canvas padding for better mobile editing */
+  .canvas-area {
+    padding: 10px;
+  }
+
+  /* Make buttons more tappable on mobile */
+  .block-control-btn,
+  .toggle-fullwidth,
+  #ai-automation-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
 
   /* Improved overlay */
   .sidebar-overlay {

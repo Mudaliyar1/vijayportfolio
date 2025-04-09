@@ -220,6 +220,44 @@ app.use('/images', require('./routes/images'));
 app.use('/api/images', require('./routes/api-images'));
 app.use('/rate-limits', require('./routes/rate-limits'));
 app.use('/api/ai', require('./routes/ai-service')); // AI service route
+// AI website generator route with error handling
+try {
+  app.use('/api/website-generator', require('./routes/ai-website-generator'));
+  console.log('AI website generator route loaded successfully');
+} catch (error) {
+  console.error('Error loading AI website generator route:', error.message);
+  console.log('Running dependency installation script...');
+
+  try {
+    // Try to run the dependency installation script
+    const { execSync } = require('child_process');
+    execSync('node scripts/install-ai-deps.js', { stdio: 'inherit' });
+    console.log('Dependencies installed, trying to load AI website generator route again...');
+
+    try {
+      app.use('/api/website-generator', require('./routes/ai-website-generator'));
+      console.log('AI website generator route loaded successfully after installing dependencies');
+    } catch (retryError) {
+      console.error('Still unable to load AI website generator route:', retryError.message);
+      // Create a fallback route that informs the user about the missing dependencies
+      app.use('/api/website-generator/suggest', (req, res) => {
+        res.status(500).json({
+          success: false,
+          message: 'AI website generator is not available due to missing dependencies. Please contact the administrator.'
+        });
+      });
+    }
+  } catch (installError) {
+    console.error('Error running dependency installation script:', installError.message);
+    // Create a fallback route
+    app.use('/api/website-generator/suggest', (req, res) => {
+      res.status(500).json({
+        success: false,
+        message: 'AI website generator is not available due to missing dependencies. Please contact the administrator.'
+      });
+    });
+  }
+}
 app.use('/blog', require('./routes/blog')); // Blog routes
 app.use('/community', require('./routes/community')); // Community routes
 // Social routes removed as requested
