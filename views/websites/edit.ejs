@@ -1,4 +1,9 @@
-<div class="container mx-auto px-4 py-8 max-w-4xl bg-gray-900">
+<!-- Edit Website -->
+<!-- Sidebar -->
+<%- include('./partials/sidebar', { path: '/websites/dashboard' }) %>
+
+<!-- Main Content -->
+<div class="flex-grow p-6">
   <h1 class="text-3xl font-bold text-center mb-8 text-white">Edit Website</h1>
 
   <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8 text-black">
@@ -89,6 +94,16 @@
             <span class="ml-2 text-gray-700">Publish Website</span>
           </label>
           <p class="text-gray-500 text-sm mt-1">When published, your website will be accessible to the public.</p>
+
+          <% if (isPaidPackage && !website.isPublished) { %>
+            <div class="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-yellow-800 text-sm">
+              <% if (paymentExists) { %>
+                <p><strong>Payment Completed:</strong> Your website will be published when you save changes.</p>
+              <% } else { %>
+                <p><strong>Note:</strong> This website uses a paid package (<%= website.package.name %> - ₹<%= website.package.price %>). Publishing will require payment before the website becomes publicly accessible.</p>
+              <% } %>
+            </div>
+          <% } %>
         </div>
 
         <div class="flex justify-between">

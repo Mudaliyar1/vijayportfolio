@@ -1,3 +1,53 @@
+<style>
+  /* Dropdown animations */
+  .dropdown-menu {
+    transition: all 0.2s ease-in-out;
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+    display: none;
+  }
+
+  .dropdown-menu.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    display: block;
+  }
+
+  /* Mobile dropdown animations */
+  .mobile-dropdown > div {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+  }
+
+  .mobile-dropdown > div:not(.hidden) {
+    max-height: 200px;
+  }
+
+  /* Dropdown button hover effect */
+  .dropdown-btn {
+    position: relative;
+  }
+
+  .dropdown-btn::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(to right, transparent, rgba(59, 130, 246, 0.5), transparent);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .dropdown-btn:hover::after {
+    transform: scaleX(1);
+  }
+</style>
+
 <nav class="bg-dark-200 border-b border-gray-800">
   <div class="container mx-auto px-4">
     <div class="flex justify-between items-center py-4">
@@ -9,23 +59,104 @@
       <!-- Desktop Navigation -->
       <div class="hidden md:flex items-center space-x-6">
         <a href="/" class="text-gray-300 hover:text-white transition-colors">Home</a>
-        <a href="/chat" class="text-gray-300 hover:text-white transition-colors">AI Chat</a>
-        <a href="/images" class="text-gray-300 hover:text-white transition-colors">AI Images</a>
-        <a href="/demo" class="text-gray-300 hover:text-white transition-colors">Demo</a>
-        <a href="/analytics" class="text-gray-300 hover:text-white transition-colors">Analytics</a>
-        <a href="/blog" class="text-gray-300 hover:text-white transition-colors">Blog</a>
-        <a href="/community" class="text-gray-300 hover:text-white transition-colors">Community</a>
-        <a href="/buy-package" class="text-gray-300 hover:text-white transition-colors">Website Builder</a>
-        <a href="/about" class="text-gray-300 hover:text-white transition-colors">About</a>
+
+        <!-- AI Tools Dropdown -->
+        <div class="relative">
+          <button class="flex items-center space-x-1 text-gray-300 hover:text-white transition-colors focus:outline-none dropdown-btn" data-dropdown-id="ai-tools-dropdown">
+            <span>AI Tools</span>
+            <i class="fas fa-chevron-down text-xs"></i>
+          </button>
+          <div id="ai-tools-dropdown" class="absolute left-0 mt-2 w-48 bg-dark-100 border border-gray-800 rounded-md shadow-lg py-1 z-10 dropdown-menu">
+            <a href="/chat" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
+              <i class="fas fa-comments mr-2"></i> AI Chat
+            </a>
+            <a href="/images" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
+              <i class="fas fa-image mr-2"></i> AI Images
+            </a>
+            <a href="/content-generator" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
+              <i class="fas fa-magic mr-2"></i> Content Generator
+            </a>
+            <a href="/seo-analyzer" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
+              <i class="fas fa-search mr-2"></i> SEO Analyzer
+            </a>
+            <a href="/website-assistant" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
+              <i class="fas fa-robot mr-2"></i> Website Assistant
+            </a>
+            <!-- Uncomment when ready -->
+            <!-- <a href="/website-assistant" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
+              <i class="fas fa-robot mr-2"></i> Website Assistant
+            </a> -->
+          </div>
+        </div>
+
+        <!-- Community Dropdown -->
+        <div class="relative">
+          <button class="flex items-center space-x-1 text-gray-300 hover:text-white transition-colors focus:outline-none dropdown-btn" data-dropdown-id="community-dropdown">
+            <span>Community</span>
+            <i class="fas fa-chevron-down text-xs"></i>
+          </button>
+          <div id="community-dropdown" class="absolute left-0 mt-2 w-48 bg-dark-100 border border-gray-800 rounded-md shadow-lg py-1 z-10 dropdown-menu">
+            <a href="/blog" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
+              <i class="fas fa-newspaper mr-2"></i> Blog
+            </a>
+            <a href="/community" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
+              <i class="fas fa-users mr-2"></i> Community
+            </a>
+          </div>
+        </div>
+
+        <!-- Resources Dropdown -->
+        <div class="relative">
+          <button class="flex items-center space-x-1 text-gray-300 hover:text-white transition-colors focus:outline-none dropdown-btn" data-dropdown-id="resources-dropdown">
+            <span>Resources</span>
+            <i class="fas fa-chevron-down text-xs"></i>
+          </button>
+          <div id="resources-dropdown" class="absolute left-0 mt-2 w-48 bg-dark-100 border border-gray-800 rounded-md shadow-lg py-1 z-10 dropdown-menu">
+            <a href="/demo" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
+              <i class="fas fa-laptop-code mr-2"></i> Demo
+            </a>
+            <a href="/analytics" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
+              <i class="fas fa-chart-line mr-2"></i> Analytics
+            </a>
+            <a href="/about" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
+              <i class="fas fa-info-circle mr-2"></i> About
+            </a>
+          </div>
+        </div>
+
+        <!-- Website Builder Dropdown -->
+        <div class="relative">
+          <button class="flex items-center space-x-1 text-gray-300 hover:text-white transition-colors focus:outline-none dropdown-btn" data-dropdown-id="websites-dropdown">
+            <span>Website Builder</span>
+            <i class="fas fa-chevron-down text-xs"></i>
+          </button>
+          <div id="websites-dropdown" class="absolute left-0 mt-2 w-48 bg-dark-100 border border-gray-800 rounded-md shadow-lg py-1 z-10 dropdown-menu">
+            <a href="/websites" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
+              <i class="fas fa-globe mr-2"></i> My Websites
+            </a>
+            <a href="/websites/create" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
+              <i class="fas fa-plus mr-2"></i> Create Website
+            </a>
+            <a href="/template-marketplace" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
+              <i class="fas fa-store mr-2"></i> Template Marketplace
+            </a>
+            <a href="/website-analytics" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
+              <i class="fas fa-chart-line mr-2"></i> Website Analytics
+            </a>
+            <a href="/buy-package" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
+              <i class="fas fa-shopping-cart mr-2"></i> Buy Package
+            </a>
+          </div>
+        </div>
 
         <% if (typeof user !== 'undefined' && user) { %>
-          <div class="relative group">
-            <button class="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors focus:outline-none">
+          <div class="relative">
+            <button class="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors focus:outline-none dropdown-btn" data-dropdown-id="profile-dropdown">
               <img src="<%= user.profilePicture %>" alt="<%= user.username %>" class="w-8 h-8 rounded-full object-cover border border-neon-blue">
               <span><%= user.username %></span>
               <i class="fas fa-chevron-down text-xs"></i>
             </button>
-            <div class="absolute right-0 mt-2 w-48 bg-dark-100 border border-gray-800 rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
+            <div id="profile-dropdown" class="absolute right-0 mt-2 w-48 bg-dark-100 border border-gray-800 rounded-md shadow-lg py-1 z-10 dropdown-menu">
               <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
                 <a href="/admin" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
                   <i class="fas fa-tachometer-alt mr-2"></i> Admin Dashboard
@@ -71,14 +202,95 @@
     <div id="mobile-menu" class="md:hidden hidden pb-4">
       <div class="flex flex-col space-y-3">
         <a href="/" class="text-gray-300 hover:text-white transition-colors py-2">Home</a>
-        <a href="/chat" class="text-gray-300 hover:text-white transition-colors py-2">AI Chat</a>
-        <a href="/images" class="text-gray-300 hover:text-white transition-colors py-2">AI Images</a>
-        <a href="/demo" class="text-gray-300 hover:text-white transition-colors py-2">Demo</a>
-        <a href="/analytics" class="text-gray-300 hover:text-white transition-colors py-2">Analytics</a>
-        <a href="/blog" class="text-gray-300 hover:text-white transition-colors py-2">Blog</a>
-        <a href="/community" class="text-gray-300 hover:text-white transition-colors py-2">Community</a>
-        <a href="/buy-package" class="text-gray-300 hover:text-white transition-colors py-2">Website Builder</a>
-        <a href="/about" class="text-gray-300 hover:text-white transition-colors py-2">About</a>
+
+        <!-- AI Tools Mobile Dropdown -->
+        <div class="mobile-dropdown">
+          <button class="flex items-center justify-between w-full text-gray-300 hover:text-white transition-colors py-2 focus:outline-none mobile-dropdown-btn" data-dropdown-id="ai-tools-dropdown-mobile">
+            <span>AI Tools</span>
+            <i class="fas fa-chevron-down text-xs"></i>
+          </button>
+          <div id="ai-tools-dropdown-mobile" class="hidden pl-4 mt-1 border-l border-gray-700">
+            <a href="/chat" class="block py-2 text-gray-300 hover:text-white">
+              <i class="fas fa-comments mr-2"></i> AI Chat
+            </a>
+            <a href="/images" class="block py-2 text-gray-300 hover:text-white">
+              <i class="fas fa-image mr-2"></i> AI Images
+            </a>
+            <a href="/content-generator" class="block py-2 text-gray-300 hover:text-white">
+              <i class="fas fa-magic mr-2"></i> Content Generator
+            </a>
+            <a href="/seo-analyzer" class="block py-2 text-gray-300 hover:text-white">
+              <i class="fas fa-search mr-2"></i> SEO Analyzer
+            </a>
+            <a href="/website-assistant" class="block py-2 text-gray-300 hover:text-white">
+              <i class="fas fa-robot mr-2"></i> Website Assistant
+            </a>
+            <!-- Uncomment when ready -->
+            <!-- <a href="/website-assistant" class="block py-2 text-gray-300 hover:text-white">
+              <i class="fas fa-robot mr-2"></i> Website Assistant
+            </a> -->
+          </div>
+        </div>
+
+        <!-- Community Mobile Dropdown -->
+        <div class="mobile-dropdown">
+          <button class="flex items-center justify-between w-full text-gray-300 hover:text-white transition-colors py-2 focus:outline-none mobile-dropdown-btn" data-dropdown-id="community-dropdown-mobile">
+            <span>Community</span>
+            <i class="fas fa-chevron-down text-xs"></i>
+          </button>
+          <div id="community-dropdown-mobile" class="hidden pl-4 mt-1 border-l border-gray-700">
+            <a href="/blog" class="block py-2 text-gray-300 hover:text-white">
+              <i class="fas fa-newspaper mr-2"></i> Blog
+            </a>
+            <a href="/community" class="block py-2 text-gray-300 hover:text-white">
+              <i class="fas fa-users mr-2"></i> Community
+            </a>
+          </div>
+        </div>
+
+        <!-- Resources Mobile Dropdown -->
+        <div class="mobile-dropdown">
+          <button class="flex items-center justify-between w-full text-gray-300 hover:text-white transition-colors py-2 focus:outline-none mobile-dropdown-btn" data-dropdown-id="resources-dropdown-mobile">
+            <span>Resources</span>
+            <i class="fas fa-chevron-down text-xs"></i>
+          </button>
+          <div id="resources-dropdown-mobile" class="hidden pl-4 mt-1 border-l border-gray-700">
+            <a href="/demo" class="block py-2 text-gray-300 hover:text-white">
+              <i class="fas fa-laptop-code mr-2"></i> Demo
+            </a>
+            <a href="/analytics" class="block py-2 text-gray-300 hover:text-white">
+              <i class="fas fa-chart-line mr-2"></i> Analytics
+            </a>
+            <a href="/about" class="block py-2 text-gray-300 hover:text-white">
+              <i class="fas fa-info-circle mr-2"></i> About
+            </a>
+          </div>
+        </div>
+
+        <!-- Website Builder Mobile Dropdown -->
+        <div class="mobile-dropdown">
+          <button class="flex items-center justify-between w-full text-gray-300 hover:text-white transition-colors py-2 focus:outline-none dropdown-btn mobile-dropdown-btn" data-dropdown-id="websites-dropdown-mobile">
+            <span>Website Builder</span>
+            <i class="fas fa-chevron-down text-xs"></i>
+          </button>
+          <div id="websites-dropdown-mobile" class="hidden pl-4 mt-1 border-l border-gray-700">
+            <a href="/websites" class="block py-2 text-gray-300 hover:text-white">
+              <i class="fas fa-globe mr-2"></i> My Websites
+            </a>
+            <a href="/websites/create" class="block py-2 text-gray-300 hover:text-white">
+              <i class="fas fa-plus mr-2"></i> Create Website
+            </a>
+            <a href="/template-marketplace" class="block py-2 text-gray-300 hover:text-white">
+              <i class="fas fa-store mr-2"></i> Template Marketplace
+            </a>
+            <a href="/website-analytics" class="block py-2 text-gray-300 hover:text-white">
+              <i class="fas fa-chart-line mr-2"></i> Website Analytics
+            </a>
+            <a href="/buy-package" class="block py-2 text-gray-300 hover:text-white">
+              <i class="fas fa-shopping-cart mr-2"></i> Buy Package
+            </a>
+          </div>
+        </div>
 
         <% if (user) { %>
           <div class="border-t border-gray-800 my-2 pt-2">
@@ -95,11 +307,8 @@
               <i class="fas fa-user mr-2"></i> My Profile
             </a>
             <!-- Messages link removed as requested -->
-            <a href="/dashboard/websites" class="block py-2 text-gray-300 hover:text-white">
-              <i class="fas fa-globe mr-2"></i> My Websites
-            </a>
-            <a href="/create-website" class="block py-2 text-gray-300 hover:text-white">
-              <i class="fas fa-plus mr-2"></i> Create Website
+            <a href="/dashboard" class="block py-2 text-gray-300 hover:text-white">
+              <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
             </a>
             <a href="/blog/create/new" class="block py-2 text-gray-300 hover:text-white">
               <i class="fas fa-newspaper mr-2"></i> Create Blog
@@ -127,8 +336,173 @@
 
 <script>
   // Mobile menu toggle
-  document.getElementById('mobile-menu-button').addEventListener('click', function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
     const mobileMenu = document.getElementById('mobile-menu');
-    mobileMenu.classList.toggle('hidden');
+
+    if (mobileMenuButton && mobileMenu) {
+      mobileMenuButton.onclick = function() {
+        mobileMenu.classList.toggle('hidden');
+      };
+    }
+  });
+
+  // Desktop dropdown toggle function
+  function toggleDesktopDropdown(id) {
+    console.log('Toggling desktop dropdown:', id);
+    const dropdown = document.getElementById(id);
+
+    if (!dropdown) {
+      console.error('Dropdown element not found:', id);
+      return;
+    }
+
+    const allDropdowns = document.querySelectorAll('.dropdown-menu');
+
+    // Close all other dropdowns
+    allDropdowns.forEach(item => {
+      if (item.id !== id && item.classList.contains('active')) {
+        item.classList.remove('active');
+        // Reset all other dropdown icons
+        const parentButton = item.previousElementSibling;
+        if (parentButton && parentButton.querySelector('i.fas')) {
+          parentButton.querySelector('i.fas').classList.remove('fa-chevron-up');
+          parentButton.querySelector('i.fas').classList.add('fa-chevron-down');
+        }
+      }
+    });
+
+    // Toggle current dropdown
+    dropdown.classList.toggle('active');
+    console.log('Dropdown active?', dropdown.classList.contains('active'));
+
+    // Toggle icon
+    const button = dropdown.previousElementSibling;
+    const icon = button.querySelector('i.fas');
+    if (!dropdown.classList.contains('active')) {
+      icon.classList.remove('fa-chevron-up');
+      icon.classList.add('fa-chevron-down');
+    } else {
+      icon.classList.remove('fa-chevron-down');
+      icon.classList.add('fa-chevron-up');
+    }
+
+    // Close dropdown when clicking outside
+    if (dropdown.classList.contains('active')) {
+      document.addEventListener('click', closeDropdownOnClickOutside);
+    }
+  }
+
+  // Close dropdown when clicking outside
+  function closeDropdownOnClickOutside(event) {
+    const dropdowns = document.querySelectorAll('.dropdown-menu.active');
+    dropdowns.forEach(dropdown => {
+      const button = dropdown.previousElementSibling;
+      if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+        dropdown.classList.remove('active');
+        const icon = button.querySelector('i.fas');
+        icon.classList.remove('fa-chevron-up');
+        icon.classList.add('fa-chevron-down');
+      }
+    });
+
+    if (document.querySelectorAll('.dropdown-menu.active').length === 0) {
+      document.removeEventListener('click', closeDropdownOnClickOutside);
+    }
+  }
+
+  // Mobile dropdown toggle function
+  function toggleMobileDropdown(id) {
+    console.log('Toggling mobile dropdown:', id);
+    const dropdown = document.getElementById(id);
+
+    if (!dropdown) {
+      console.error('Dropdown element not found:', id);
+      return;
+    }
+
+    // Close all dropdowns
+    const allDropdowns = document.querySelectorAll('.mobile-dropdown > div');
+    allDropdowns.forEach(item => {
+      if (item.id !== id) {
+        item.classList.add('hidden');
+        // Reset all other dropdown icons
+        const parentButton = item.previousElementSibling;
+        if (parentButton && parentButton.querySelector('i.fas')) {
+          parentButton.querySelector('i.fas').classList.remove('fa-chevron-up');
+          parentButton.querySelector('i.fas').classList.add('fa-chevron-down');
+        }
+      }
+    });
+
+    // Toggle current dropdown
+    dropdown.classList.toggle('hidden');
+
+    // Toggle icon
+    const button = dropdown.previousElementSibling;
+    const icon = button.querySelector('i.fas');
+    if (dropdown.classList.contains('hidden')) {
+      icon.classList.remove('fa-chevron-up');
+      icon.classList.add('fa-chevron-down');
+    } else {
+      icon.classList.remove('fa-chevron-down');
+      icon.classList.add('fa-chevron-up');
+    }
+  }
+
+  // Initialize dropdown states
+  document.addEventListener('DOMContentLoaded', function() {
+    // Hide all mobile dropdowns initially
+    document.querySelectorAll('.mobile-dropdown > div').forEach(dropdown => {
+      dropdown.classList.add('hidden');
+    });
+
+    // Hide all desktop dropdowns initially
+    document.querySelectorAll('.dropdown-menu').forEach(dropdown => {
+      dropdown.classList.remove('active');
+    });
+
+    // Add click event listeners to all mobile dropdown buttons
+    document.querySelectorAll('.mobile-dropdown-btn').forEach(button => {
+      button.onclick = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const dropdownId = this.getAttribute('data-dropdown-id');
+        toggleMobileDropdown(dropdownId);
+      };
+    });
+
+    // Close mobile dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+      document.querySelectorAll('.mobile-dropdown > div:not(.hidden)').forEach(dropdown => {
+        const button = dropdown.previousElementSibling;
+        if (!dropdown.contains(e.target) && !button.contains(e.target)) {
+          dropdown.classList.add('hidden');
+
+          // Reset the icon
+          const icon = button.querySelector('i.fas');
+          if (icon) {
+            icon.classList.remove('fa-chevron-up');
+            icon.classList.add('fa-chevron-down');
+          }
+        }
+      });
+    });
+
+    // Log all mobile dropdown buttons for debugging
+    console.log('Mobile dropdown buttons:');
+    document.querySelectorAll('.mobile-dropdown-btn').forEach((btn, i) => {
+      console.log(i, btn.getAttribute('data-dropdown-id'));
+    });
+
+    // Add click event listeners to all desktop dropdown buttons
+    document.querySelectorAll('.dropdown-btn').forEach(button => {
+      button.onclick = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const dropdownId = this.getAttribute('data-dropdown-id');
+        toggleDesktopDropdown(dropdownId);
+      };
+    });
   });
 </script>

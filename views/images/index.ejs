@@ -1,4 +1,27 @@
 <!-- FraiseAI Image Generation Page -->
+<style>
+  /* Tab content styling */
+  .tab-content {
+    display: none;
+    background-color: #111827; /* dark background */
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+    min-height: 400px; /* Ensure minimum height for content */
+  }
+
+  /* Active tab styling */
+  .tab-button.active {
+    background-color: #1f2937;
+    color: #3b82f6;
+    border-color: #3b82f6;
+  }
+
+  /* Tab hover effect */
+  .tab-button:hover {
+    background-color: #1f2937;
+  }
+</style>
+
 <div class="max-w-6xl mx-auto">
   <div class="mb-8 text-center">
     <h1 class="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent">
@@ -547,43 +570,84 @@
       startCountdownTimer(<%= rateLimit.cooldown || 0 %>, headerCountdown);
       console.log('Initialized countdown timer with cooldown: <%= rateLimit.cooldown %>');
     }
-    // Tab switching
+    // Tab switching - completely rewritten for reliability
+    console.log('Initializing tab switching');
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.tab-content');
 
-    tabButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        // Remove active class from all buttons
-        tabButtons.forEach(btn => {
-          btn.classList.remove('active');
-          btn.classList.remove('text-neon-blue');
-          btn.classList.remove('border-neon-blue');
-          btn.classList.add('text-gray-400');
-          btn.classList.add('border-transparent');
-        });
+    console.log('Found tab buttons:', tabButtons.length);
+    console.log('Found tab contents:', tabContents.length);
 
-        // Add active class to clicked button
-        button.classList.add('active');
-        button.classList.add('text-neon-blue');
-        button.classList.add('border-neon-blue');
-        button.classList.remove('text-gray-400');
-        button.classList.remove('border-transparent');
+    // Log all tab content IDs for debugging
+    tabContents.forEach(content => {
+      console.log('Tab content ID:', content.id);
+    });
 
-        // Hide all tab contents
-        tabContents.forEach(content => {
-          content.classList.add('hidden');
-        });
+    // Function to switch tabs
+    function switchTab(tabId) {
+      console.log('Switching to tab:', tabId);
 
-        // Show corresponding tab content
-        const contentId = 'content-' + button.id.split('-')[1];
-        document.getElementById(contentId).classList.remove('hidden');
+      // First hide all tab contents
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.style.display = 'none';
+      });
 
-        // Load my images if that tab is selected
-        if (contentId === 'content-my-images') {
-          loadMyImages();
+      // Then show the selected tab content
+      const selectedContent = document.getElementById('content-' + tabId);
+      if (selectedContent) {
+        selectedContent.style.display = 'block';
+        console.log('Displayed content:', selectedContent.id);
+      } else {
+        console.error('Tab content not found for:', tabId);
+      }
+
+      // Update tab button styles
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        // Remove active classes from all buttons
+        btn.classList.remove('active');
+        btn.classList.remove('text-neon-blue');
+        btn.classList.remove('border-neon-blue');
+        btn.classList.add('text-gray-400');
+        btn.classList.add('border-transparent');
+      });
+
+      // Add active classes to the selected button
+      const activeButton = document.getElementById('tab-' + tabId);
+      if (activeButton) {
+        activeButton.classList.add('active');
+        activeButton.classList.add('text-neon-blue');
+        activeButton.classList.add('border-neon-blue');
+        activeButton.classList.remove('text-gray-400');
+        activeButton.classList.remove('border-transparent');
+      }
+
+      // Load my images if that tab is selected
+      if (tabId === 'my-images') {
+        try {
+          if (typeof loadMyImages === 'function') {
+            loadMyImages();
+          }
+        } catch (e) {
+          console.error('Error loading images:', e);
         }
+      }
+    }
+
+    // Add click event to all tab buttons
+    tabButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const tabId = this.id.replace('tab-', '');
+        switchTab(tabId);
       });
     });
+
+    // Initialize the first tab
+    switchTab('generate');
+
+    // Force the initial tab to be visible after a short delay
+    setTimeout(function() {
+      document.getElementById('content-generate').style.display = 'block';
+    }, 100);
 
     // Generate image form
     const generateForm = document.getElementById('generate-form');

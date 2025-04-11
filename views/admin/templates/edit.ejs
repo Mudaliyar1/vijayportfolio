@@ -1,0 +1,283 @@
+<!-- Admin Edit Template Page -->
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-6">
+    <a href="/admin/templates" class="text-gray-400 hover:text-white flex items-center">
+      <i class="fas fa-arrow-left mr-2"></i> Back to Templates
+    </a>
+  </div>
+
+  <div class="bg-dark-200 rounded-lg shadow-lg overflow-hidden">
+    <div class="p-4 border-b border-gray-700">
+      <h2 class="text-lg font-semibold text-white">Edit Template: <%= template.name %></h2>
+    </div>
+
+    <form action="/admin/templates/<%= template._id %>/edit" method="POST" enctype="multipart/form-data" class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Basic Information -->
+        <div class="space-y-4">
+          <h3 class="text-white font-medium mb-2">Basic Information</h3>
+
+          <div>
+            <label for="name" class="block text-gray-300 mb-1">Template Name</label>
+            <input type="text" id="name" name="name" value="<%= template.name %>" class="w-full bg-dark-300 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue" required>
+          </div>
+
+          <div>
+            <label for="description" class="block text-gray-300 mb-1">Description</label>
+            <textarea id="description" name="description" rows="3" class="w-full bg-dark-300 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue" required><%= template.description %></textarea>
+          </div>
+
+          <div>
+            <label for="businessType" class="block text-gray-300 mb-1">Business Type</label>
+            <select id="businessType" name="businessType" class="w-full bg-dark-300 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue" required>
+              <option value="">Select Business Type</option>
+              <option value="Restaurant" <%= template.businessType === 'Restaurant' ? 'selected' : '' %>>Restaurant</option>
+              <option value="Technology" <%= template.businessType === 'Technology' ? 'selected' : '' %>>Technology</option>
+              <option value="Retail Store" <%= template.businessType === 'Retail Store' ? 'selected' : '' %>>Retail Store</option>
+              <option value="Professional Services" <%= template.businessType === 'Professional Services' ? 'selected' : '' %>>Professional Services</option>
+              <option value="Healthcare" <%= template.businessType === 'Healthcare' ? 'selected' : '' %>>Healthcare</option>
+              <option value="Education" <%= template.businessType === 'Education' ? 'selected' : '' %>>Education</option>
+              <option value="Beauty" <%= template.businessType === 'Beauty' ? 'selected' : '' %>>Beauty</option>
+              <option value="Real Estate" <%= template.businessType === 'Real Estate' ? 'selected' : '' %>>Real Estate</option>
+              <option value="Fitness" <%= template.businessType === 'Fitness' ? 'selected' : '' %>>Fitness</option>
+              <option value="Travel" <%= template.businessType === 'Travel' ? 'selected' : '' %>>Travel</option>
+              <option value="Photography" <%= template.businessType === 'Photography' ? 'selected' : '' %>>Photography</option>
+              <option value="Art & Design" <%= template.businessType === 'Art & Design' ? 'selected' : '' %>>Art & Design</option>
+              <option value="Construction" <%= template.businessType === 'Construction' ? 'selected' : '' %>>Construction</option>
+              <option value="Automotive" <%= template.businessType === 'Automotive' ? 'selected' : '' %>>Automotive</option>
+              <option value="Legal" <%= template.businessType === 'Legal' ? 'selected' : '' %>>Legal</option>
+              <option value="Finance" <%= template.businessType === 'Finance' ? 'selected' : '' %>>Finance</option>
+              <option value="Entertainment" <%= template.businessType === 'Entertainment' ? 'selected' : '' %>>Entertainment</option>
+              <option value="Other" <%= template.businessType === 'Other' ? 'selected' : '' %>>Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="thumbnail" class="block text-gray-300 mb-1">Thumbnail Image</label>
+            <div class="flex items-center mb-2">
+              <img src="<%= template.thumbnail %>" alt="<%= template.name %>" class="w-32 h-24 object-cover rounded-md border border-gray-600">
+            </div>
+            <input type="file" id="thumbnail" name="thumbnail" accept="image/*" class="w-full bg-dark-300 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue">
+            <p class="text-gray-400 text-xs mt-1">Leave empty to keep current image. Recommended size: 800x600px. Max file size: 5MB.</p>
+          </div>
+        </div>
+
+        <!-- Template Settings -->
+        <div class="space-y-4">
+          <h3 class="text-white font-medium mb-2">Template Settings</h3>
+
+          <div>
+            <label for="theme" class="block text-gray-300 mb-1">Theme</label>
+            <select id="theme" name="theme" class="w-full bg-dark-300 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue">
+              <option value="default" <%= template.theme === 'default' ? 'selected' : '' %>>Default</option>
+              <option value="modern" <%= template.theme === 'modern' ? 'selected' : '' %>>Modern</option>
+              <option value="minimal" <%= template.theme === 'minimal' ? 'selected' : '' %>>Minimal</option>
+              <option value="bold" <%= template.theme === 'bold' ? 'selected' : '' %>>Bold</option>
+              <option value="elegant" <%= template.theme === 'elegant' ? 'selected' : '' %>>Elegant</option>
+              <option value="professional" <%= template.theme === 'professional' ? 'selected' : '' %>>Professional</option>
+            </select>
+          </div>
+
+          <div class="flex items-center mt-4">
+            <input type="checkbox" id="isResponsive" name="isResponsive" class="h-4 w-4 text-neon-blue focus:ring-neon-blue border-gray-600 rounded" <%= template.isResponsive ? 'checked' : '' %>>
+            <label for="isResponsive" class="ml-2 block text-gray-300">Responsive Design</label>
+            <span class="ml-2 text-xs text-gray-400">(Optimized for mobile devices)</span>
+          </div>
+
+          <div>
+            <label for="colorScheme" class="block text-gray-300 mb-1">Color Scheme</label>
+            <select id="colorScheme" name="colorScheme" class="w-full bg-dark-300 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue">
+              <option value="blue" <%= template.colorScheme === 'blue' ? 'selected' : '' %>>Blue</option>
+              <option value="green" <%= template.colorScheme === 'green' ? 'selected' : '' %>>Green</option>
+              <option value="purple" <%= template.colorScheme === 'purple' ? 'selected' : '' %>>Purple</option>
+              <option value="red" <%= template.colorScheme === 'red' ? 'selected' : '' %>>Red</option>
+              <option value="orange" <%= template.colorScheme === 'orange' ? 'selected' : '' %>>Orange</option>
+              <option value="pink" <%= template.colorScheme === 'pink' ? 'selected' : '' %>>Pink</option>
+              <option value="teal" <%= template.colorScheme === 'teal' ? 'selected' : '' %>>Teal</option>
+              <option value="gray" <%= template.colorScheme === 'gray' ? 'selected' : '' %>>Gray</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="packageType" class="block text-gray-300 mb-1">Required Package</label>
+            <select id="packageType" name="packageType" class="w-full bg-dark-300 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue">
+              <option value="All" <%= template.packageType === 'All' ? 'selected' : '' %>>All Packages</option>
+              <option value="Free" <%= template.packageType === 'Free' ? 'selected' : '' %>>Free</option>
+              <%
+                // Show all packages except Free (which is already shown above)
+                packages.forEach(pkg => {
+                  if (pkg.name !== 'Free') {
+              %>
+                  <option value="<%= pkg.name %>" <%= template.packageType === pkg.name ? 'selected' : '' %>><%= pkg.name %></option>
+              <%
+                  }
+                });
+              %>
+            </select>
+            <p class="text-gray-400 text-xs mt-1">This template will only be available to users with exactly this package. Select 'All Packages' to make it available to everyone.</p>
+          </div>
+
+          <div>
+            <label for="pageCount" class="block text-gray-300 mb-1">Number of Pages</label>
+            <input type="number" id="pageCount" name="pageCount" min="1" max="20" value="<%= template.pageCount %>" class="w-full bg-dark-300 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue">
+          </div>
+
+          <div class="flex items-center">
+            <input type="checkbox" id="active" name="active" class="h-4 w-4 text-neon-blue focus:ring-neon-blue border-gray-600 rounded" <%= template.active ? 'checked' : '' %>>
+            <label for="active" class="ml-2 block text-gray-300">Active</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Template Pages -->
+      <div class="mt-8 border-t border-gray-700 pt-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-white font-medium">Template Pages</h3>
+          <a href="/admin/templates/<%= template._id %>/pages/add" class="bg-neon-blue hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm flex items-center">
+            <i class="fas fa-plus mr-1"></i> Add Page
+          </a>
+        </div>
+
+        <div class="bg-dark-300 rounded-lg p-4">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-700">
+              <thead>
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Title</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Slug</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Type</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Order</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-700">
+                <% if (template.pages.length === 0) { %>
+                  <tr>
+                    <td colspan="5" class="px-6 py-4 text-center text-gray-400">
+                      No pages found. <a href="/admin/templates/<%= template._id %>/pages/add" class="text-neon-blue hover:underline">Add your first page</a>.
+                    </td>
+                  </tr>
+                <% } else { %>
+                  <% template.pages.sort((a, b) => a.order - b.order).forEach(page => { %>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-white"><%= page.title %></div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-400"><%= page.slug %></div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <% if (page.isHomepage) { %>
+                          <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                            Homepage
+                          </span>
+                        <% } else { %>
+                          <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                            Regular
+                          </span>
+                        <% } %>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-white"><%= page.order %></div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex space-x-3">
+                          <a href="/admin/templates/<%= template._id %>/pages/<%= page._id %>/edit" class="text-neon-blue hover:text-blue-400">
+                            <i class="fas fa-edit"></i> Edit
+                          </a>
+                          <% if (!page.isHomepage && template.pages.length > 1) { %>
+                            <button class="text-red-500 hover:text-red-400 delete-page-btn"
+                                    data-template-id="<%= template._id %>"
+                                    data-page-id="<%= page._id %>"
+                                    data-page-title="<%= page.title %>">
+                              <i class="fas fa-trash-alt"></i> Delete
+                            </button>
+                          <% } %>
+                        </div>
+                      </td>
+                    </tr>
+                  <% }); %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="mt-4 text-gray-400 text-sm">
+          <p><i class="fas fa-info-circle mr-1"></i> The homepage cannot be deleted. To delete the current homepage, first set another page as the homepage.</p>
+        </div>
+      </div>
+
+      <div class="mt-8 border-t border-gray-700 pt-6">
+        <div class="flex justify-end">
+          <a href="/admin/templates" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 mr-3">Cancel</a>
+          <button type="submit" class="px-4 py-2 bg-neon-blue text-white rounded-md hover:bg-blue-600">Update Template</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Page Modal -->
+<div id="delete-page-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-200 rounded-lg p-6 max-w-md w-full">
+    <h3 class="text-xl font-bold text-white mb-4">Delete Page</h3>
+    <p class="text-gray-300 mb-6">Are you sure you want to delete the page <span id="page-name-to-delete" class="font-semibold"></span>? This action cannot be undone.</p>
+    <div class="flex justify-end space-x-3">
+      <button id="cancel-delete-page-btn" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700">Cancel</button>
+      <form id="delete-page-form" method="POST">
+        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Delete</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Preview thumbnail image
+    const thumbnailInput = document.getElementById('thumbnail');
+    thumbnailInput.addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+          // Update the existing thumbnail preview
+          const thumbnailPreview = thumbnailInput.previousElementSibling.querySelector('img');
+          thumbnailPreview.src = e.target.result;
+        }
+
+        reader.readAsDataURL(this.files[0]);
+      }
+    });
+
+    // Delete page modal functionality
+    const deletePageModal = document.getElementById('delete-page-modal');
+    const deletePageButtons = document.querySelectorAll('.delete-page-btn');
+    const cancelDeletePageBtn = document.getElementById('cancel-delete-page-btn');
+    const deletePageForm = document.getElementById('delete-page-form');
+    const pageNameToDelete = document.getElementById('page-name-to-delete');
+
+    deletePageButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const templateId = this.dataset.templateId;
+        const pageId = this.dataset.pageId;
+        const pageTitle = this.dataset.pageTitle;
+
+        pageNameToDelete.textContent = pageTitle;
+        deletePageForm.action = `/admin/templates/${templateId}/pages/${pageId}/delete`;
+        deletePageModal.classList.remove('hidden');
+      });
+    });
+
+    cancelDeletePageBtn.addEventListener('click', function() {
+      deletePageModal.classList.add('hidden');
+    });
+
+    // Close modal when clicking outside
+    deletePageModal.addEventListener('click', function(e) {
+      if (e.target === deletePageModal) {
+        deletePageModal.classList.add('hidden');
+      }
+    });
+  });
+</script>

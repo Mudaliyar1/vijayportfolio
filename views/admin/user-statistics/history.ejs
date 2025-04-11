@@ -1,0 +1,128 @@
+<!-- Admin User Activity History -->
+<div class="flex flex-col md:flex-row">
+  <div class="flex-grow p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">User Activity History</h1>
+      <a href="/admin/user-statistics" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-3 py-2 rounded-md text-sm transition-colors">
+        <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
+      </a>
+    </div>
+
+    <!-- User Activity Table -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden">
+      <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+        <h2 class="text-lg font-semibold">All Users</h2>
+        <div class="flex items-center space-x-2">
+          <div class="relative">
+            <input type="text" id="user-search" placeholder="Search users..." class="bg-dark-300 border border-gray-700 rounded-md px-3 py-1 text-sm text-white focus:outline-none focus:border-neon-blue">
+          </div>
+          <select id="activity-filter" class="bg-dark-300 border border-gray-700 rounded-md px-3 py-1 text-sm text-white focus:outline-none focus:border-neon-blue">
+            <option value="all">All Activity</option>
+            <option value="content">Content Generator</option>
+            <option value="seo">SEO Analyzer</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-700">
+          <thead class="bg-dark-200">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">User</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Joined</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Last Login</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Content Generations</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">SEO Analyses</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Total Activity</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-dark-100 divide-y divide-gray-700" id="user-table-body">
+            <% if (userActivity.length === 0) { %>
+              <tr>
+                <td colspan="7" class="px-6 py-4 text-center text-gray-400">
+                  No user activity found.
+                </td>
+              </tr>
+            <% } else { %>
+              <% userActivity.forEach(user => { %>
+                <tr class="user-row" 
+                    data-username="<%= user.username.toLowerCase() %>" 
+                    data-email="<%= user.email.toLowerCase() %>"
+                    data-content="<%= user.contentCount %>"
+                    data-seo="<%= user.seoCount %>">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-white"><%= user.username %></div>
+                    <div class="text-xs text-gray-400"><%= user.email %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-white"><%= new Date(user.createdAt).toLocaleDateString() %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-white"><%= user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never' %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-white"><%= user.contentCount %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-white"><%= user.seoCount %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-white"><%= user.totalCount %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <a href="/admin/user-statistics/user/<%= user._id %>" class="text-neon-blue hover:text-blue-400">
+                      <i class="fas fa-eye mr-1"></i> View Details
+                    </a>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // User search and filter functionality
+    const userSearch = document.getElementById('user-search');
+    const activityFilter = document.getElementById('activity-filter');
+    const userRows = document.querySelectorAll('.user-row');
+    
+    function filterUsers() {
+      const searchTerm = userSearch.value.toLowerCase();
+      const activityType = activityFilter.value;
+      
+      userRows.forEach(row => {
+        const username = row.getAttribute('data-username');
+        const email = row.getAttribute('data-email');
+        const contentCount = parseInt(row.getAttribute('data-content'));
+        const seoCount = parseInt(row.getAttribute('data-seo'));
+        
+        // Check if user matches search term
+        const matchesSearch = username.includes(searchTerm) || email.includes(searchTerm);
+        
+        // Check if user matches activity filter
+        let matchesFilter = true;
+        if (activityType === 'content' && contentCount === 0) {
+          matchesFilter = false;
+        } else if (activityType === 'seo' && seoCount === 0) {
+          matchesFilter = false;
+        }
+        
+        // Show/hide row based on filters
+        if (matchesSearch && matchesFilter) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+    
+    userSearch.addEventListener('input', filterUsers);
+    activityFilter.addEventListener('change', filterUsers);
+  });
+</script>

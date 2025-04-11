@@ -3,13 +3,26 @@ const router = express.Router();
 const { isAuthenticated } = require('../middleware/auth');
 const websiteController = require('../controllers/websiteController');
 
-// Website builder form
+// Main dashboard route
+router.get('/', isAuthenticated, websiteController.getUserWebsites);
+
+// Dashboard route
+router.get('/dashboard', isAuthenticated, websiteController.getUserWebsites);
+
+// Unpublished websites route
+router.get('/unpublished', isAuthenticated, websiteController.getUserWebsites);
+
+// Create website form route
+router.get('/create', isAuthenticated, websiteController.getWebsiteBuilderForm);
+router.post('/create', isAuthenticated, websiteController.createWebsite);
+
+// Website builder form (original route)
 router.get('/create-website', isAuthenticated, websiteController.getWebsiteBuilderForm);
 
 // Create website
 router.post('/create-website', isAuthenticated, websiteController.createWebsite);
 
-// User websites dashboard
+// User websites dashboard (original route)
 router.get('/dashboard/websites', isAuthenticated, websiteController.getUserWebsites);
 
 // Website details

@@ -30,6 +30,11 @@
           <%= website.isPublished ? 'Unpublish' : 'Publish' %>
         </button>
       </form>
+      <% if (!website.isPublished && website.package && website.package.isFree !== true) { %>
+        <div class="mt-2 text-xs text-gray-400">
+          <p>Note: As an admin, you can publish this website even if the user hasn't made a payment.</p>
+        </div>
+      <% } %>
     </div>
   </div>
 

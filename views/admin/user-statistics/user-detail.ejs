@@ -1,0 +1,538 @@
+<!-- Admin User Detail -->
+<div class="flex flex-col md:flex-row">
+  <div class="flex-grow p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">User Detail: <%= userData.username %></h1>
+      <a href="/admin/user-statistics/history" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-3 py-2 rounded-md text-sm transition-colors">
+        <i class="fas fa-arrow-left mr-1"></i> Back to User History
+      </a>
+    </div>
+
+    <!-- User Info Card -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 mb-8">
+      <div class="flex flex-col md:flex-row md:items-center">
+        <div class="flex-shrink-0 mb-4 md:mb-0 md:mr-6">
+          <div class="w-24 h-24 rounded-full bg-gradient-to-r from-neon-blue to-neon-purple flex items-center justify-center text-white text-4xl font-bold">
+            <%= userData.username.charAt(0).toUpperCase() %>
+          </div>
+        </div>
+        <div class="flex-grow">
+          <h2 class="text-xl font-semibold"><%= userData.username %></h2>
+          <p class="text-gray-400"><%= userData.email %></p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div>
+              <p class="text-sm text-gray-400">Joined</p>
+              <p class="text-white"><%= new Date(userData.createdAt).toLocaleDateString() %></p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-400">Last Login</p>
+              <p class="text-white"><%= userData.lastLogin ? new Date(userData.lastLogin).toLocaleDateString() : 'Never' %></p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-400">Total Activity</p>
+              <p class="text-white"><%= contentGenerations.length + seoAnalyses.length %> actions</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Chart -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 mb-8">
+      <h2 class="text-xl font-semibold mb-4">Activity History (Last 30 Days)</h2>
+      <div class="h-80">
+        <canvas id="activityChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Activity Tabs -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden mb-8">
+      <div class="border-b border-gray-700">
+        <div class="flex">
+          <button id="content-tab" class="tab-btn px-6 py-3 <%= contentGenerations.length > 0 ? 'text-white font-medium border-b-2 border-neon-blue' : 'text-gray-400 hover:text-white' %>">
+            Content Generator (<%= contentGenerations.length %>)
+          </button>
+          <button id="seo-tab" class="tab-btn px-6 py-3 <%= seoAnalyses.length > 0 && contentGenerations.length === 0 ? 'text-white font-medium border-b-2 border-neon-blue' : 'text-gray-400 hover:text-white' %>">
+            SEO Analyzer (<%= seoAnalyses.length %>)
+          </button>
+        </div>
+      </div>
+
+      <!-- Content Generator Tab -->
+      <div id="content-tab-content" class="tab-content p-6 <%= contentGenerations.length === 0 && seoAnalyses.length > 0 ? 'hidden' : '' %>">
+        <% if (contentGenerations.length === 0) { %>
+          <div class="text-center py-8">
+            <i class="fas fa-file-alt text-4xl text-gray-500 mb-3"></i>
+            <p class="text-gray-400">No content generations found for this user</p>
+          </div>
+        <% } else { %>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-700">
+              <thead class="bg-dark-200">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Date</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Type</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Prompt</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Template</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="bg-dark-100 divide-y divide-gray-700">
+                <% contentGenerations.forEach(generation => { %>
+                  <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm text-white"><%= new Date(generation.createdAt).toLocaleDateString() %></div>
+                      <div class="text-xs text-gray-400"><%= new Date(generation.createdAt).toLocaleTimeString() %></div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                        <%= generation.contentType === 'website' ? 'bg-blue-100 text-blue-800' :
+                           generation.contentType === 'blog' ? 'bg-green-100 text-green-800' :
+                           generation.contentType === 'social' ? 'bg-purple-100 text-purple-800' :
+                           generation.contentType === 'email' ? 'bg-yellow-100 text-yellow-800' :
+                           generation.contentType === 'product' ? 'bg-red-100 text-red-800' :
+                           'bg-gray-100 text-gray-800' %>">
+                        <%= generation.contentType.charAt(0).toUpperCase() + generation.contentType.slice(1) %>
+                      </span>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="text-sm text-white truncate max-w-xs"><%= generation.prompt %></div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm text-white">
+                        <%= generation.template ? generation.template.name : 'None' %>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <button class="view-content-btn text-neon-blue hover:text-blue-400" data-id="<%= generation._id %>">
+                        <i class="fas fa-eye"></i> View
+                      </button>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- SEO Analyzer Tab -->
+      <div id="seo-tab-content" class="tab-content p-6 <%= seoAnalyses.length > 0 && contentGenerations.length === 0 ? '' : 'hidden' %>">
+        <% if (seoAnalyses.length === 0) { %>
+          <div class="text-center py-8">
+            <i class="fas fa-search text-4xl text-gray-500 mb-3"></i>
+            <p class="text-gray-400">No SEO analyses found for this user</p>
+          </div>
+        <% } else { %>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-700">
+              <thead class="bg-dark-200">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Date</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">URL</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Score</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Website</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="bg-dark-100 divide-y divide-gray-700">
+                <% seoAnalyses.forEach(analysis => { %>
+                  <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm text-white"><%= new Date(analysis.createdAt).toLocaleDateString() %></div>
+                      <div class="text-xs text-gray-400"><%= new Date(analysis.createdAt).toLocaleTimeString() %></div>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="text-sm text-white truncate max-w-xs">
+                        <a href="<%= analysis.url %>" target="_blank" class="hover:text-neon-blue"><%= analysis.url %></a>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <% const score = analysis.analysis.score; %>
+                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                        <%= score >= 80 ? 'bg-green-100 text-green-800' :
+                           score >= 60 ? 'bg-yellow-100 text-yellow-800' :
+                           'bg-red-100 text-red-800' %>">
+                        <%= score %>/100
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm text-white">
+                        <%= analysis.website ? analysis.website.title : 'None' %>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <button class="view-analysis-btn text-neon-blue hover:text-blue-400" data-id="<%= analysis._id %>">
+                        <i class="fas fa-eye"></i> View
+                      </button>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Content View Modal -->
+<div id="content-view-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-200 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+    <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+      <h3 class="text-lg font-semibold text-white" id="modal-title">View Generated Content</h3>
+      <button id="close-modal-btn" class="text-gray-400 hover:text-white">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="p-6 overflow-y-auto max-h-[70vh]">
+      <div class="mb-4">
+        <h4 class="text-sm font-medium text-gray-400 mb-1">Type</h4>
+        <p class="text-white bg-dark-300 p-3 rounded-md" id="modal-type"></p>
+      </div>
+      <div class="mb-4">
+        <h4 class="text-sm font-medium text-gray-400 mb-1">Prompt</h4>
+        <p class="text-white bg-dark-300 p-3 rounded-md" id="modal-prompt"></p>
+      </div>
+      <div>
+        <h4 class="text-sm font-medium text-gray-400 mb-1">Generated Content</h4>
+        <div class="text-white bg-dark-300 p-3 rounded-md prose prose-invert max-w-none" id="modal-content"></div>
+      </div>
+    </div>
+    <div class="p-4 border-t border-gray-700 flex justify-end">
+      <button id="close-modal-btn-2" class="bg-dark-300 hover:bg-dark-400 text-gray-300 px-4 py-2 rounded-md transition-colors">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Analysis View Modal -->
+<div id="analysis-view-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-200 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+    <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+      <h3 class="text-lg font-semibold text-white">View SEO Analysis</h3>
+      <button id="close-analysis-modal-btn" class="text-gray-400 hover:text-white">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="p-6 overflow-y-auto max-h-[70vh]">
+      <div class="mb-4">
+        <h4 class="text-sm font-medium text-gray-400 mb-1">URL</h4>
+        <p class="text-white bg-dark-300 p-3 rounded-md" id="modal-url"></p>
+      </div>
+      <div class="mb-4">
+        <h4 class="text-sm font-medium text-gray-400 mb-1">Overall Score</h4>
+        <div class="flex items-center">
+          <div id="modal-score-badge" class="px-3 py-1 rounded-full text-sm font-medium mr-3"></div>
+          <div class="w-full bg-dark-300 rounded-full h-4">
+            <div id="modal-score-bar" class="h-4 rounded-full bg-gradient-to-r from-red-500 via-yellow-500 to-green-500" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="mb-4">
+        <h4 class="text-sm font-medium text-gray-400 mb-1">Analysis Summary</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-dark-300 p-3 rounded-md">
+            <h5 class="text-sm font-medium text-white mb-2">Title</h5>
+            <p class="text-sm text-gray-300" id="modal-title-content"></p>
+            <div class="flex items-center mt-2">
+              <span class="text-xs text-gray-400 mr-2">Score:</span>
+              <div id="modal-title-score" class="px-2 py-1 rounded-full text-xs font-medium"></div>
+            </div>
+          </div>
+          <div class="bg-dark-300 p-3 rounded-md">
+            <h5 class="text-sm font-medium text-white mb-2">Meta Description</h5>
+            <p class="text-sm text-gray-300" id="modal-meta-content"></p>
+            <div class="flex items-center mt-2">
+              <span class="text-xs text-gray-400 mr-2">Score:</span>
+              <div id="modal-meta-score" class="px-2 py-1 rounded-full text-xs font-medium"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mb-4">
+        <h4 class="text-sm font-medium text-gray-400 mb-1">Key Recommendations</h4>
+        <ul id="modal-recommendations" class="list-disc list-inside text-sm text-gray-300 space-y-1 bg-dark-300 p-3 rounded-md"></ul>
+      </div>
+    </div>
+    <div class="p-4 border-t border-gray-700 flex justify-end">
+      <button id="close-analysis-modal-btn-2" class="bg-dark-300 hover:bg-dark-400 text-gray-300 px-4 py-2 rounded-md transition-colors">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Parse the daily stats data
+    const dailyStats = <%= JSON.stringify(dailyStats) %>;
+
+    // Prepare data for chart
+    const dates = dailyStats.map(stat => stat.date);
+    const contentCounts = dailyStats.map(stat => stat.content);
+    const seoCounts = dailyStats.map(stat => stat.seo);
+    const totalCounts = dailyStats.map(stat => stat.total);
+
+    // Set up the activity chart
+    const activityCtx = document.getElementById('activityChart').getContext('2d');
+    const activityChart = new Chart(activityCtx, {
+      type: 'line',
+      data: {
+        labels: dates,
+        datasets: [
+          {
+            label: 'Total Activity',
+            data: totalCounts,
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            borderColor: 'rgba(255, 255, 255, 0.8)',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true
+          },
+          {
+            label: 'Content Generator',
+            data: contentCounts,
+            backgroundColor: 'rgba(0, 242, 255, 0.2)',
+            borderColor: 'rgba(0, 242, 255, 1)',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true
+          },
+          {
+            label: 'SEO Analyzer',
+            data: seoCounts,
+            backgroundColor: 'rgba(138, 43, 226, 0.2)',
+            borderColor: 'rgba(138, 43, 226, 1)',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            stacked: false,
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          },
+          x: {
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          }
+        }
+      }
+    });
+
+    // Tab functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const contentTab = document.getElementById('content-tab');
+      const seoTab = document.getElementById('seo-tab');
+      const contentTabContent = document.getElementById('content-tab-content');
+      const seoTabContent = document.getElementById('seo-tab-content');
+
+      // Make sure elements exist before adding event listeners
+      if (contentTab && seoTab && contentTabContent && seoTabContent) {
+        console.log('Tab elements found');
+
+        // Initialize tabs based on content
+        if (<%= contentGenerations.length === 0 && seoAnalyses.length > 0 %>) {
+          // If there are no content generations but there are SEO analyses, show SEO tab by default
+          contentTab.classList.remove('text-white', 'font-medium', 'border-b-2', 'border-neon-blue');
+          contentTab.classList.add('text-gray-400');
+          seoTab.classList.add('text-white', 'font-medium', 'border-b-2', 'border-neon-blue');
+          seoTab.classList.remove('text-gray-400');
+          contentTabContent.classList.add('hidden');
+          seoTabContent.classList.remove('hidden');
+        }
+
+        contentTab.addEventListener('click', function() {
+          console.log('Content tab clicked');
+          // Update tab buttons
+          contentTab.classList.add('text-white', 'font-medium', 'border-b-2', 'border-neon-blue');
+          contentTab.classList.remove('text-gray-400');
+          seoTab.classList.remove('text-white', 'font-medium', 'border-b-2', 'border-neon-blue');
+          seoTab.classList.add('text-gray-400');
+
+          // Show/hide tab content
+          contentTabContent.classList.remove('hidden');
+          seoTabContent.classList.add('hidden');
+        });
+
+        seoTab.addEventListener('click', function() {
+          console.log('SEO tab clicked');
+          // Update tab buttons
+          seoTab.classList.add('text-white', 'font-medium', 'border-b-2', 'border-neon-blue');
+          seoTab.classList.remove('text-gray-400');
+          contentTab.classList.remove('text-white', 'font-medium', 'border-b-2', 'border-neon-blue');
+          contentTab.classList.add('text-gray-400');
+
+          // Show/hide tab content
+          seoTabContent.classList.remove('hidden');
+          contentTabContent.classList.add('hidden');
+        });
+      } else {
+        console.error('Tab elements not found');
+      }
+    });
+
+    // Content view modal
+    const contentModal = document.getElementById('content-view-modal');
+    const closeContentModalBtns = document.querySelectorAll('#close-modal-btn, #close-modal-btn-2');
+    const modalType = document.getElementById('modal-type');
+    const modalPrompt = document.getElementById('modal-prompt');
+    const modalContent = document.getElementById('modal-content');
+    const viewContentBtns = document.querySelectorAll('.view-content-btn');
+
+    // View content
+    viewContentBtns.forEach(button => {
+      button.addEventListener('click', function() {
+        const contentId = this.getAttribute('data-id');
+        const row = this.closest('tr');
+        const type = row.querySelector('td:nth-child(2) span').textContent.trim();
+        const prompt = row.querySelector('td:nth-child(3)').textContent.trim();
+
+        // Set modal content
+        modalType.textContent = type;
+        modalPrompt.textContent = prompt;
+
+        // Simulate loading content
+        modalContent.innerHTML = '<div class="flex justify-center"><div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-neon-blue"></div></div>';
+
+        // Show modal
+        contentModal.classList.remove('hidden');
+
+        // Simulate API call to get content
+        setTimeout(() => {
+          // This would be replaced with actual content from the API
+          modalContent.innerHTML = `
+            <h2>Sample Generated Content</h2>
+            <p>This is a sample content for the prompt: "${prompt}"</p>
+            <p>In a real implementation, this would be the actual content stored in the database.</p>
+            <ul>
+              <li>Key point 1</li>
+              <li>Key point 2</li>
+              <li>Key point 3</li>
+            </ul>
+            <p>Thank you for using our AI Content Generator!</p>
+          `;
+        }, 1000);
+      });
+    });
+
+    // Close content modal
+    closeContentModalBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        contentModal.classList.add('hidden');
+      });
+    });
+
+    // Analysis view modal
+    const analysisModal = document.getElementById('analysis-view-modal');
+    const closeAnalysisModalBtns = document.querySelectorAll('#close-analysis-modal-btn, #close-analysis-modal-btn-2');
+    const modalUrl = document.getElementById('modal-url');
+    const modalScoreBadge = document.getElementById('modal-score-badge');
+    const modalScoreBar = document.getElementById('modal-score-bar');
+    const modalTitleContent = document.getElementById('modal-title-content');
+    const modalTitleScore = document.getElementById('modal-title-score');
+    const modalMetaContent = document.getElementById('modal-meta-content');
+    const modalMetaScore = document.getElementById('modal-meta-score');
+    const modalRecommendations = document.getElementById('modal-recommendations');
+    const viewAnalysisBtns = document.querySelectorAll('.view-analysis-btn');
+
+    // View analysis
+    viewAnalysisBtns.forEach(button => {
+      button.addEventListener('click', function() {
+        const analysisId = this.getAttribute('data-id');
+        const row = this.closest('tr');
+        const url = row.querySelector('td:nth-child(2)').textContent.trim();
+        const scoreText = row.querySelector('td:nth-child(3) span').textContent.trim();
+        const score = parseInt(scoreText.split('/')[0]);
+
+        // Set modal content
+        modalUrl.textContent = url;
+
+        // Set score
+        modalScoreBadge.textContent = `${score}/100`;
+        modalScoreBar.style.width = `${score}%`;
+
+        if (score >= 80) {
+          modalScoreBadge.className = 'px-3 py-1 rounded-full text-sm font-medium mr-3 bg-green-100 text-green-800';
+        } else if (score >= 60) {
+          modalScoreBadge.className = 'px-3 py-1 rounded-full text-sm font-medium mr-3 bg-yellow-100 text-yellow-800';
+        } else {
+          modalScoreBadge.className = 'px-3 py-1 rounded-full text-sm font-medium mr-3 bg-red-100 text-red-800';
+        }
+
+        // Set title content and score
+        modalTitleContent.textContent = 'Sample page title for the analyzed website';
+        const titleScore = Math.floor(Math.random() * 30) + 70; // Simulated score
+        modalTitleScore.textContent = `${titleScore}/100`;
+
+        if (titleScore >= 80) {
+          modalTitleScore.className = 'px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800';
+        } else if (titleScore >= 60) {
+          modalTitleScore.className = 'px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800';
+        } else {
+          modalTitleScore.className = 'px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800';
+        }
+
+        // Set meta content and score
+        modalMetaContent.textContent = 'Sample meta description for the analyzed website';
+        const metaScore = Math.floor(Math.random() * 30) + 60; // Simulated score
+        modalMetaScore.textContent = `${metaScore}/100`;
+
+        if (metaScore >= 80) {
+          modalMetaScore.className = 'px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800';
+        } else if (metaScore >= 60) {
+          modalMetaScore.className = 'px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800';
+        } else {
+          modalMetaScore.className = 'px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800';
+        }
+
+        // Set recommendations
+        modalRecommendations.innerHTML = `
+          <li>Improve keyword usage in the page title</li>
+          <li>Add more descriptive meta description</li>
+          <li>Optimize heading structure for better hierarchy</li>
+          <li>Increase content length to at least 1000 words</li>
+          <li>Add more internal links to related content</li>
+        `;
+
+        // Show modal
+        analysisModal.classList.remove('hidden');
+      });
+    });
+
+    // Close analysis modal
+    closeAnalysisModalBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        analysisModal.classList.add('hidden');
+      });
+    });
+  });
+</script>

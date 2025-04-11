@@ -1,0 +1,212 @@
+<!-- Admin Template Marketplace Dashboard -->
+<div>
+  <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Template Marketplace Dashboard</h1>
+      <div class="flex space-x-2">
+        <a href="/admin/template-marketplace/pending" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-3 py-2 rounded-md text-sm transition-colors">
+          <i class="fas fa-clock mr-1"></i> Pending Templates
+        </a>
+        <a href="/admin/template-marketplace/analytics" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-3 py-2 rounded-md text-sm transition-colors">
+          <i class="fas fa-chart-bar mr-1"></i> Analytics
+        </a>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-blue transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Total Templates</h3>
+          <div class="w-10 h-10 rounded-full bg-neon-blue/20 flex items-center justify-center">
+            <i class="fas fa-layer-group text-neon-blue"></i>
+          </div>
+        </div>
+        <p class="text-3xl font-bold"><%= totalTemplates %></p>
+        <p class="text-sm text-gray-400 mt-1">Templates in marketplace</p>
+      </div>
+
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-green transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Approved</h3>
+          <div class="w-10 h-10 rounded-full bg-neon-green/20 flex items-center justify-center">
+            <i class="fas fa-check text-neon-green"></i>
+          </div>
+        </div>
+        <p class="text-3xl font-bold"><%= approvedTemplates %></p>
+        <p class="text-sm text-gray-400 mt-1">Approved templates</p>
+      </div>
+
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-purple transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Pending</h3>
+          <div class="w-10 h-10 rounded-full bg-neon-purple/20 flex items-center justify-center">
+            <i class="fas fa-clock text-neon-purple"></i>
+          </div>
+        </div>
+        <p class="text-3xl font-bold"><%= pendingTemplates %></p>
+        <p class="text-sm text-gray-400 mt-1">Pending approval</p>
+      </div>
+
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-green transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Free</h3>
+          <div class="w-10 h-10 rounded-full bg-neon-green/20 flex items-center justify-center">
+            <i class="fas fa-gift text-neon-green"></i>
+          </div>
+        </div>
+        <p class="text-3xl font-bold"><%= freeTemplates %></p>
+        <p class="text-sm text-gray-400 mt-1">Free templates</p>
+      </div>
+
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-purple transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Paid</h3>
+          <div class="w-10 h-10 rounded-full bg-neon-purple/20 flex items-center justify-center">
+            <i class="fas fa-dollar-sign text-neon-purple"></i>
+          </div>
+        </div>
+        <p class="text-3xl font-bold"><%= paidTemplates %></p>
+        <p class="text-sm text-gray-400 mt-1">Paid templates</p>
+      </div>
+    </div>
+
+    <!-- Recent Templates -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Recent Templates</h2>
+        <div class="flex items-center space-x-2">
+          <div class="relative">
+            <input type="text" id="template-search" placeholder="Search templates..." class="bg-dark-300 border border-gray-700 rounded-md px-3 py-1 text-sm text-white focus:outline-none focus:border-neon-blue">
+          </div>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-700">
+          <thead class="bg-dark-200">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Template</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Creator</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Category</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Price</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-dark-100 divide-y divide-gray-700" id="templates-table-body">
+            <% if (recentTemplates.length === 0) { %>
+              <tr>
+                <td colspan="6" class="px-6 py-4 text-center text-gray-400">
+                  No templates found.
+                </td>
+              </tr>
+            <% } else { %>
+              <% recentTemplates.forEach(template => { %>
+                <tr class="template-row" data-name="<%= template.name.toLowerCase() %>">
+                  <td class="px-6 py-4">
+                    <div class="flex items-center">
+                      <img src="<%= template.thumbnail %>" alt="<%= template.name %>" class="w-10 h-10 rounded object-cover mr-3">
+                      <div>
+                        <div class="text-sm font-medium text-white"><%= template.name %></div>
+                        <div class="text-xs text-gray-400"><%= new Date(template.createdAt).toLocaleDateString() %></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-white"><%= template.creator ? template.creator.username : 'Unknown' %></div>
+                    <div class="text-xs text-gray-400"><%= template.creator ? template.creator.email : 'Unknown' %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-white"><%= template.businessType %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <% if (template.price > 0) { %>
+                      <div class="text-sm text-white">$<%= template.price.toFixed(2) %></div>
+                    <% } else { %>
+                      <div class="text-sm text-neon-green">Free</div>
+                    <% } %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <% if (template.isApproved) { %>
+                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        Approved
+                      </span>
+                    <% } else { %>
+                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                        Pending
+                      </span>
+                    <% } %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex space-x-3">
+                      <a href="/template-marketplace/template/<%= template._id %>" target="_blank" class="text-neon-blue hover:text-blue-400">
+                        <i class="fas fa-eye"></i> View
+                      </a>
+                      <% if (!template.isApproved) { %>
+                        <a href="/admin/template-marketplace/pending" class="text-neon-green hover:text-green-400">
+                          <i class="fas fa-check"></i> Review
+                        </a>
+                      <% } %>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Top Templates -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6">
+      <h2 class="text-xl font-semibold mb-4">Top Templates</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <% if (topTemplates.length === 0) { %>
+          <div class="col-span-3 text-center py-8">
+            <i class="fas fa-chart-line text-4xl text-gray-500 mb-3"></i>
+            <p class="text-gray-400">No templates data available yet</p>
+          </div>
+        <% } else { %>
+          <% topTemplates.forEach(template => { %>
+            <div class="bg-dark-200 rounded-lg overflow-hidden flex">
+              <img src="<%= template.thumbnail %>" alt="<%= template.name %>" class="w-20 h-auto object-cover">
+              <div class="p-3 flex-grow">
+                <h3 class="text-white font-medium mb-1"><%= template.name %></h3>
+                <div class="flex justify-between items-center">
+                  <div class="text-sm text-gray-400"><%= template.businessType %></div>
+                  <div class="flex items-center">
+                    <i class="fas fa-download text-neon-blue mr-1"></i>
+                    <span class="text-white text-sm"><%= template.downloads %></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Template search functionality
+    const templateSearch = document.getElementById('template-search');
+    const templateRows = document.querySelectorAll('.template-row');
+
+    templateSearch.addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase();
+
+      templateRows.forEach(row => {
+        const name = row.getAttribute('data-name');
+
+        if (name.includes(searchTerm)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+  });
+</script>

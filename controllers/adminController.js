@@ -633,6 +633,13 @@ module.exports = {
     try {
       const { name, price, description, maxPages, features, isFree } = req.body;
 
+      // Check if a package with the same name already exists
+      const existingPackage = await Package.findOne({ name: name });
+      if (existingPackage) {
+        req.flash('error_msg', `A package with the name "${name}" already exists. Please choose a different name.`);
+        return res.redirect('/admin/packages/create');
+      }
+
       // Convert features string to array
       const featuresArray = features.split('\n').filter(feature => feature.trim() !== '');
 
@@ -666,7 +673,14 @@ module.exports = {
       res.redirect('/admin/packages');
     } catch (err) {
       console.error('Error creating package:', err);
-      req.flash('error_msg', 'Failed to create package');
+
+      // Check if this is a duplicate key error
+      if (err.code === 11000 && err.keyPattern && err.keyPattern.name) {
+        req.flash('error_msg', `A package with the name "${err.keyValue.name}" already exists. Please choose a different name.`);
+      } else {
+        req.flash('error_msg', 'Failed to create package');
+      }
+
       res.redirect('/admin/packages/create');
     }
   },
@@ -675,6 +689,18 @@ module.exports = {
     try {
       const { id } = req.params;
       const { name, price, description, maxPages, features, isFree } = req.body;
+
+      // Get the old package to check if name has changed
+      const oldPackage = await Package.findById(id);
+
+      // If name is being changed, check if the new name already exists
+      if (name !== oldPackage.name) {
+        const existingPackage = await Package.findOne({ name: name, _id: { $ne: id } });
+        if (existingPackage) {
+          req.flash('error_msg', `A package with the name "${name}" already exists. Please choose a different name.`);
+          return res.redirect(`/admin/packages/edit/${id}`);
+        }
+      }
 
       // Convert features string to array
       const featuresArray = features.split('\n').filter(feature => feature.trim() !== '');
@@ -686,8 +712,6 @@ module.exports = {
       const isFreeBoolean = isFree === 'on' ? true : false;
       console.log('isFree as boolean:', isFreeBoolean);
 
-      // Get the old package to check if maxPages has changed
-      const oldPackage = await Package.findById(id);
       const oldMaxPages = oldPackage.maxPages;
 
       // Update package
@@ -756,7 +780,14 @@ module.exports = {
       res.redirect('/admin/packages');
     } catch (err) {
       console.error('Error updating package:', err);
-      req.flash('error_msg', 'Failed to update package');
+
+      // Check if this is a duplicate key error
+      if (err.code === 11000 && err.keyPattern && err.keyPattern.name) {
+        req.flash('error_msg', `A package with the name "${err.keyValue.name}" already exists. Please choose a different name.`);
+      } else {
+        req.flash('error_msg', 'Failed to update package');
+      }
+
       res.redirect('/admin/packages/edit/' + req.params.id);
     }
   },

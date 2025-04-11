@@ -1,0 +1,333 @@
+<!-- SEO Analysis History Page -->
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-white mb-2">SEO Analysis History</h1>
+      <p class="text-gray-400">View and manage your previous SEO analyses</p>
+    </div>
+    <div>
+      <a href="/seo-analyzer" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-4 py-2 rounded-md transition-colors">
+        <i class="fas fa-arrow-left mr-2"></i>Back to Analyzer
+      </a>
+    </div>
+  </div>
+
+  <div class="bg-dark-200 rounded-lg shadow-lg overflow-hidden">
+    <div class="p-4 border-b border-gray-700">
+      <div class="flex justify-between items-center">
+        <h2 class="text-lg font-semibold text-white">All Analyses</h2>
+        <div class="flex items-center">
+          <input type="text" id="analysis-search" placeholder="Search analyses..." class="bg-dark-300 text-white border border-gray-700 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-neon-blue">
+        </div>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <% if (analyses.length === 0) { %>
+        <div class="p-8 text-center">
+          <i class="fas fa-search text-4xl text-gray-500 mb-3"></i>
+          <p class="text-gray-400">You haven't performed any SEO analyses yet</p>
+          <a href="/seo-analyzer" class="mt-4 inline-block bg-neon-blue hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors">
+            Analyze Your First Website
+          </a>
+        </div>
+      <% } else { %>
+        <table class="min-w-full divide-y divide-gray-700">
+          <thead class="bg-dark-300">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Date</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">URL</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Title</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Score</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Website</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-dark-200 divide-y divide-gray-700" id="analysis-table-body">
+            <% analyses.forEach(analysis => { %>
+              <tr class="analysis-row">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-white"><%= new Date(analysis.createdAt).toLocaleDateString() %></div>
+                  <div class="text-xs text-gray-400"><%= new Date(analysis.createdAt).toLocaleTimeString() %></div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="text-sm text-white truncate max-w-xs">
+                    <a href="<%= analysis.url %>" target="_blank" class="hover:text-neon-blue"><%= analysis.url %></a>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="text-sm text-white truncate max-w-xs"><%= analysis.pageTitle %></div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% const score = analysis.analysis.score; %>
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                    <%= score >= 80 ? 'bg-green-100 text-green-800' : 
+                       score >= 60 ? 'bg-yellow-100 text-yellow-800' : 
+                       'bg-red-100 text-red-800' %>">
+                    <%= score %>/100
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-white">
+                    <%= analysis.website ? analysis.website.title : 'None' %>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <div class="flex space-x-3">
+                    <button class="text-neon-blue hover:text-blue-400 view-analysis-btn" data-id="<%= analysis._id %>">
+                      <i class="fas fa-eye"></i> View
+                    </button>
+                    <button class="text-red-500 hover:text-red-400 delete-analysis-btn" data-id="<%= analysis._id %>">
+                      <i class="fas fa-trash-alt"></i> Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<!-- Analysis View Modal -->
+<div id="analysis-view-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-200 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+    <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+      <h3 class="text-lg font-semibold text-white" id="modal-title">View SEO Analysis</h3>
+      <button id="close-modal-btn" class="text-gray-400 hover:text-white">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="p-6 overflow-y-auto max-h-[70vh]">
+      <div class="mb-4">
+        <h4 class="text-sm font-medium text-gray-400 mb-1">URL</h4>
+        <p class="text-white bg-dark-300 p-3 rounded-md" id="modal-url"></p>
+      </div>
+      <div class="mb-4">
+        <h4 class="text-sm font-medium text-gray-400 mb-1">Overall Score</h4>
+        <div class="flex items-center">
+          <div id="modal-score-badge" class="px-3 py-1 rounded-full text-sm font-medium mr-3"></div>
+          <div class="w-full bg-dark-300 rounded-full h-4">
+            <div id="modal-score-bar" class="h-4 rounded-full bg-gradient-to-r from-red-500 via-yellow-500 to-green-500" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="mb-4">
+        <h4 class="text-sm font-medium text-gray-400 mb-1">Page Title</h4>
+        <div class="flex justify-between items-center mb-2">
+          <p class="text-white bg-dark-300 p-3 rounded-md flex-grow" id="modal-title-content"></p>
+          <div id="modal-title-score" class="px-2 py-1 rounded-full text-xs font-medium ml-3"></div>
+        </div>
+        <div id="modal-title-optimized" class="hidden">
+          <h5 class="text-xs font-medium text-neon-blue mb-1">Optimized Title</h5>
+          <p class="text-white bg-dark-400 p-3 rounded-md text-sm" id="modal-title-optimized-content"></p>
+        </div>
+      </div>
+      <div class="mb-4">
+        <h4 class="text-sm font-medium text-gray-400 mb-1">Meta Description</h4>
+        <div class="flex justify-between items-center mb-2">
+          <p class="text-white bg-dark-300 p-3 rounded-md flex-grow" id="modal-meta-content"></p>
+          <div id="modal-meta-score" class="px-2 py-1 rounded-full text-xs font-medium ml-3"></div>
+        </div>
+        <div id="modal-meta-optimized" class="hidden">
+          <h5 class="text-xs font-medium text-neon-blue mb-1">Optimized Meta Description</h5>
+          <p class="text-white bg-dark-400 p-3 rounded-md text-sm" id="modal-meta-optimized-content"></p>
+        </div>
+      </div>
+      <div class="mb-4">
+        <h4 class="text-sm font-medium text-gray-400 mb-1">Key Recommendations</h4>
+        <ul id="modal-recommendations" class="list-disc list-inside text-sm text-gray-300 space-y-1 bg-dark-300 p-3 rounded-md"></ul>
+      </div>
+    </div>
+    <div class="p-4 border-t border-gray-700 flex justify-end">
+      <a id="reanalyze-btn" href="/seo-analyzer" class="bg-neon-blue hover:bg-blue-600 text-white px-4 py-2 rounded-md mr-3 transition-colors">
+        <i class="fas fa-sync-alt mr-2"></i>Re-analyze
+      </a>
+      <button id="close-modal-btn-2" class="bg-dark-300 hover:bg-dark-400 text-gray-300 px-4 py-2 rounded-md transition-colors">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const analysisSearch = document.getElementById('analysis-search');
+    const analysisRows = document.querySelectorAll('.analysis-row');
+    const viewButtons = document.querySelectorAll('.view-analysis-btn');
+    const deleteButtons = document.querySelectorAll('.delete-analysis-btn');
+    const modal = document.getElementById('analysis-view-modal');
+    const closeModalBtns = document.querySelectorAll('#close-modal-btn, #close-modal-btn-2');
+    const modalTitle = document.getElementById('modal-title');
+    const modalUrl = document.getElementById('modal-url');
+    const modalScoreBadge = document.getElementById('modal-score-badge');
+    const modalScoreBar = document.getElementById('modal-score-bar');
+    const modalTitleContent = document.getElementById('modal-title-content');
+    const modalTitleScore = document.getElementById('modal-title-score');
+    const modalTitleOptimized = document.getElementById('modal-title-optimized');
+    const modalTitleOptimizedContent = document.getElementById('modal-title-optimized-content');
+    const modalMetaContent = document.getElementById('modal-meta-content');
+    const modalMetaScore = document.getElementById('modal-meta-score');
+    const modalMetaOptimized = document.getElementById('modal-meta-optimized');
+    const modalMetaOptimizedContent = document.getElementById('modal-meta-optimized-content');
+    const modalRecommendations = document.getElementById('modal-recommendations');
+    const reanalyzeBtn = document.getElementById('reanalyze-btn');
+    
+    // Search functionality
+    analysisSearch.addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase();
+      
+      analysisRows.forEach(row => {
+        const url = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        const title = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+        
+        if (url.includes(searchTerm) || title.includes(searchTerm)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+    
+    // View analysis
+    viewButtons.forEach(button => {
+      button.addEventListener('click', async function() {
+        const analysisId = this.getAttribute('data-id');
+        
+        // In a real implementation, you would fetch the analysis from the server
+        // For now, we'll just use the data in the table
+        const row = this.closest('tr');
+        const url = row.querySelector('td:nth-child(2)').textContent.trim();
+        const title = row.querySelector('td:nth-child(3)').textContent.trim();
+        const scoreText = row.querySelector('td:nth-child(4) span').textContent.trim();
+        const score = parseInt(scoreText.split('/')[0]);
+        
+        // Set modal content
+        modalUrl.textContent = url;
+        modalTitleContent.textContent = title;
+        
+        // Set score
+        modalScoreBadge.textContent = `${score}/100`;
+        modalScoreBar.style.width = `${score}%`;
+        
+        if (score >= 80) {
+          modalScoreBadge.className = 'px-3 py-1 rounded-full text-sm font-medium mr-3 bg-green-100 text-green-800';
+        } else if (score >= 60) {
+          modalScoreBadge.className = 'px-3 py-1 rounded-full text-sm font-medium mr-3 bg-yellow-100 text-yellow-800';
+        } else {
+          modalScoreBadge.className = 'px-3 py-1 rounded-full text-sm font-medium mr-3 bg-red-100 text-red-800';
+        }
+        
+        // Set title score
+        const titleScore = Math.floor(Math.random() * 30) + 70; // Simulated score
+        modalTitleScore.textContent = `${titleScore}/100`;
+        
+        if (titleScore >= 80) {
+          modalTitleScore.className = 'px-2 py-1 rounded-full text-xs font-medium ml-3 bg-green-100 text-green-800';
+        } else if (titleScore >= 60) {
+          modalTitleScore.className = 'px-2 py-1 rounded-full text-xs font-medium ml-3 bg-yellow-100 text-yellow-800';
+        } else {
+          modalTitleScore.className = 'px-2 py-1 rounded-full text-xs font-medium ml-3 bg-red-100 text-red-800';
+        }
+        
+        // Set meta description
+        modalMetaContent.textContent = 'This is a sample meta description for the analyzed page. In a real implementation, this would be the actual meta description from the analysis.';
+        
+        // Set meta score
+        const metaScore = Math.floor(Math.random() * 30) + 60; // Simulated score
+        modalMetaScore.textContent = `${metaScore}/100`;
+        
+        if (metaScore >= 80) {
+          modalMetaScore.className = 'px-2 py-1 rounded-full text-xs font-medium ml-3 bg-green-100 text-green-800';
+        } else if (metaScore >= 60) {
+          modalMetaScore.className = 'px-2 py-1 rounded-full text-xs font-medium ml-3 bg-yellow-100 text-yellow-800';
+        } else {
+          modalMetaScore.className = 'px-2 py-1 rounded-full text-xs font-medium ml-3 bg-red-100 text-red-800';
+        }
+        
+        // Check if optimized content exists
+        const hasOptimizedTitle = Math.random() > 0.5; // Simulated
+        const hasOptimizedMeta = Math.random() > 0.5; // Simulated
+        
+        if (hasOptimizedTitle) {
+          modalTitleOptimized.classList.remove('hidden');
+          modalTitleOptimizedContent.textContent = 'This is an optimized version of the page title with better keyword usage and more compelling content.';
+        } else {
+          modalTitleOptimized.classList.add('hidden');
+        }
+        
+        if (hasOptimizedMeta) {
+          modalMetaOptimized.classList.remove('hidden');
+          modalMetaOptimizedContent.textContent = 'This is an optimized version of the meta description that includes keywords and a clear call to action to improve click-through rates.';
+        } else {
+          modalMetaOptimized.classList.add('hidden');
+        }
+        
+        // Set recommendations
+        modalRecommendations.innerHTML = `
+          <li>Improve keyword usage in the page title</li>
+          <li>Add more descriptive meta description</li>
+          <li>Optimize heading structure for better hierarchy</li>
+          <li>Increase content length to at least 1000 words</li>
+          <li>Add more internal links to related content</li>
+        `;
+        
+        // Set reanalyze button URL
+        reanalyzeBtn.href = `/seo-analyzer?url=${encodeURIComponent(url)}`;
+        
+        // Show modal
+        modal.classList.remove('hidden');
+      });
+    });
+    
+    // Close modal
+    closeModalBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        modal.classList.add('hidden');
+      });
+    });
+    
+    // Delete analysis
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', async function() {
+        if (confirm('Are you sure you want to delete this analysis? This action cannot be undone.')) {
+          const analysisId = this.getAttribute('data-id');
+          const row = this.closest('tr');
+          
+          try {
+            const response = await fetch(`/seo-analyzer/history/${analysisId}`, {
+              method: 'DELETE'
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+              // Remove the row from the table
+              row.remove();
+              
+              // If no more rows, show empty state
+              if (document.querySelectorAll('.analysis-row').length === 0) {
+                document.querySelector('.overflow-x-auto').innerHTML = `
+                  <div class="p-8 text-center">
+                    <i class="fas fa-search text-4xl text-gray-500 mb-3"></i>
+                    <p class="text-gray-400">You haven't performed any SEO analyses yet</p>
+                    <a href="/seo-analyzer" class="mt-4 inline-block bg-neon-blue hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors">
+                      Analyze Your First Website
+                    </a>
+                  </div>
+                `;
+              }
+            } else {
+              alert('Failed to delete analysis: ' + data.message);
+            }
+          } catch (error) {
+            console.error('Error deleting analysis:', error);
+            alert('An error occurred while deleting the analysis');
+          }
+        }
+      });
+    });
+  });
+</script>

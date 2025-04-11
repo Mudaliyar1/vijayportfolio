@@ -21,6 +21,7 @@ module.exports = {
       const packageId = req.params.id;
       const websiteId = req.query.websiteId; // Get website ID if available
       const isPackageUpdate = req.query.isPackageUpdate === 'true'; // Check if this is a package update
+      const isTemplateWebsite = req.query.isTemplateWebsite === 'true'; // Check if this is a template website
       const package = await Package.findById(packageId);
 
       if (!package) {
@@ -155,6 +156,7 @@ module.exports = {
         notes: websiteId ? {
           websiteId,
           isPackageUpdate: isPackageUpdate || false,
+          isTemplateWebsite: isTemplateWebsite || false,
           originalPrice: package.price,
           discountAmount: discountAmount
         } : {
@@ -264,7 +266,15 @@ module.exports = {
             user.websiteCount += 1;
             await user.save();
 
-            req.flash('success_msg', `Successfully purchased ${package.name} package! Your website is now published.`);
+            // Check if this website was created from a template
+            const isTemplateWebsite = payment.notes && payment.notes.isTemplateWebsite;
+
+            if (isTemplateWebsite) {
+              req.flash('success_msg', `Successfully purchased ${package.name} package! Your template website is now published.`);
+            } else {
+              req.flash('success_msg', `Successfully purchased ${package.name} package! Your website is now published.`);
+            }
+
             return res.redirect(`/dashboard/websites/${siteId}`);
           }
         }

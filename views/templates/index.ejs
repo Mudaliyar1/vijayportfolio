@@ -1,0 +1,119 @@
+<!-- Templates Index Page -->
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <div class="mb-8 text-center">
+    <h1 class="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent">
+      Website Templates
+    </h1>
+    <p class="text-gray-300 max-w-3xl mx-auto">
+      Choose from our professionally designed templates to quickly create your website.
+      All templates are fully customizable using our drag-and-drop editor.
+    </p>
+  </div>
+
+  <% if (!user) { %>
+    <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-8">
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <i class="fas fa-exclamation-triangle text-yellow-500 mt-1"></i>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-yellow-500 font-medium">Sign in to use templates</h3>
+          <p class="text-gray-300 mt-1">
+            You need to <a href="/users/login" class="text-blue-400 hover:underline">sign in</a> or
+            <a href="/users/register" class="text-blue-400 hover:underline">create an account</a> to use these templates.
+          </p>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+  <% if (user && !user.activePackage) { %>
+    <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-8">
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <i class="fas fa-exclamation-triangle text-yellow-500 mt-1"></i>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-yellow-500 font-medium">Upgrade to access more templates</h3>
+          <p class="text-gray-300 mt-1">
+            You're currently using the Free plan. <a href="/buy-package" class="text-blue-400 hover:underline">Upgrade your package</a> to access more premium templates.
+          </p>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Template Categories -->
+  <% Object.keys(templatesByType).forEach(businessType => { %>
+    <div class="mb-12">
+      <h2 class="text-2xl font-bold mb-6 text-white border-b border-gray-700 pb-2">
+        <%= businessType %> Templates
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <% templatesByType[businessType].forEach(template => { %>
+          <div class="bg-dark-200 rounded-lg overflow-hidden border border-gray-700 transition-all hover:shadow-lg hover:shadow-neon-blue/20 hover:border-neon-blue/50">
+            <div class="relative">
+              <img src="<%= template.thumbnail %>" alt="<%= template.name %>" class="w-full h-48 object-cover">
+
+              <% if (template.packageType !== 'Free' && template.packageType !== 'All' && userPackage === 'Free') { %>
+                <div class="absolute top-2 right-2 bg-purple-600 text-white text-xs px-2 py-1 rounded-full">
+                  <%= template.packageType %> Plan
+                </div>
+              <% } %>
+            </div>
+
+            <div class="p-4">
+              <h3 class="text-xl font-bold text-white mb-2"><%= template.name %></h3>
+              <p class="text-gray-400 text-sm mb-4"><%= template.description %></p>
+
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                  <span class="text-xs text-gray-500"><%= template.pageCount %> pages</span>
+                  <% if (template.isResponsive) { %>
+                    <span class="text-xs text-green-500" title="Mobile Responsive"><i class="fas fa-mobile-alt"></i></span>
+                  <% } %>
+                </div>
+                <a href="/templates/<%= template._id %>" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white px-4 py-2 rounded-md text-sm hover:opacity-90 transition-opacity">
+                  View Template
+                </a>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  <% }); %>
+
+  <% if (Object.keys(templatesByType).length === 0) { %>
+    <div class="text-center py-12">
+      <div class="text-gray-400 mb-4">
+        <i class="fas fa-file-alt text-5xl"></i>
+      </div>
+      <h3 class="text-xl font-medium text-white mb-2">No templates available</h3>
+      <p class="text-gray-400">
+        There are no templates available for your current package.
+        <% if (userPackage === 'Free') { %>
+          <a href="/buy-package" class="text-blue-400 hover:underline">Upgrade your package</a> to access premium templates.
+        <% } %>
+      </p>
+    </div>
+  <% } %>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add animation to template cards
+    const templateCards = document.querySelectorAll('.bg-dark-200');
+    templateCards.forEach((card, index) => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(20px)';
+
+      setTimeout(() => {
+        card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+      }, 100 + (index * 100));
+    });
+  });
+</script>

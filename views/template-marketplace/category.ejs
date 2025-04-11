@@ -1,0 +1,62 @@
+<!-- Category Page -->
+<div class="container mx-auto px-4 py-8">
+  <div class="flex flex-col md:flex-row justify-between items-start mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-white mb-2"><%= category %> Templates</h1>
+      <p class="text-gray-400">Browse templates for <%= category.toLowerCase() %> websites</p>
+    </div>
+    <div class="mt-4 md:mt-0">
+      <a href="/template-marketplace" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-4 py-2 rounded-md transition-colors">
+        <i class="fas fa-arrow-left mr-2"></i>Back to Marketplace
+      </a>
+    </div>
+  </div>
+
+  <!-- Templates Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% if (templates.length === 0) { %>
+      <div class="col-span-3 bg-dark-200 rounded-lg p-12 text-center">
+        <i class="fas fa-folder-open text-5xl text-gray-500 mb-4"></i>
+        <h2 class="text-2xl font-semibold text-white mb-2">No templates found</h2>
+        <p class="text-gray-400 mb-6">There are no templates available in this category yet</p>
+        <a href="/template-marketplace" class="bg-neon-blue hover:bg-blue-600 text-white px-6 py-3 rounded-md transition-colors">
+          Browse All Templates
+        </a>
+      </div>
+    <% } else { %>
+      <% templates.forEach(template => { %>
+        <div class="bg-dark-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+          <div class="relative">
+            <img src="<%= template.thumbnail %>" alt="<%= template.name %>" class="w-full h-48 object-cover">
+            <% if (template.price > 0) { %>
+              <div class="absolute top-3 right-3 bg-neon-purple text-white px-2 py-1 rounded-md text-sm font-medium">
+                $<%= template.price.toFixed(2) %>
+              </div>
+            <% } else { %>
+              <div class="absolute top-3 right-3 bg-neon-green text-white px-2 py-1 rounded-md text-sm font-medium">
+                Free
+              </div>
+            <% } %>
+          </div>
+          <div class="p-4">
+            <h3 class="text-lg font-medium text-white mb-1"><%= template.name %></h3>
+            <p class="text-gray-400 text-sm mb-3"><%= template.businessType %></p>
+            <div class="flex justify-between items-center">
+              <div class="flex items-center">
+                <div class="flex items-center mr-3">
+                  <i class="fas fa-star text-yellow-400 mr-1"></i>
+                  <span class="text-gray-300 text-sm"><%= template.rating.toFixed(1) %></span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-download text-gray-400 mr-1"></i>
+                  <span class="text-gray-300 text-sm"><%= template.downloads %></span>
+                </div>
+              </div>
+              <a href="/template-marketplace/template/<%= template._id %>" class="text-neon-blue hover:underline text-sm">View Details</a>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    <% } %>
+  </div>
+</div>

@@ -14,6 +14,12 @@ module.exports = async (req, res, next) => {
     // Create options object if it doesn't exist
     options = options || {};
 
+    // Set admin layout
+    options.layout = 'layouts/admin';
+
+    // Set path for sidebar
+    options.path = req.originalUrl;
+
     try {
       // Check if maintenance mode is actually active by querying the database
       const maintenanceSettings = await MaintenanceMode.findOne().sort({ updatedAt: -1 });

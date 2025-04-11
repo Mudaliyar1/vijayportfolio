@@ -1,0 +1,132 @@
+<!-- Admin Website Assistant Dashboard -->
+<div class="flex flex-col md:flex-row">
+  <div class="flex-grow p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Website Assistant Dashboard</h1>
+      <div class="flex space-x-2">
+        <a href="/admin/website-assistant/settings" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-3 py-2 rounded-md text-sm transition-colors">
+          <i class="fas fa-cog mr-1"></i> Settings
+        </a>
+        <a href="/admin/website-assistant/analytics" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-3 py-2 rounded-md text-sm transition-colors">
+          <i class="fas fa-chart-bar mr-1"></i> Analytics
+        </a>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-blue transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Total Conversations</h3>
+          <div class="w-10 h-10 rounded-full bg-neon-blue/20 flex items-center justify-center">
+            <i class="fas fa-comments text-neon-blue"></i>
+          </div>
+        </div>
+        <p class="text-3xl font-bold"><%= totalChats %></p>
+        <p class="text-sm text-gray-400 mt-1">Website assistant conversations</p>
+      </div>
+
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-green transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Active Users</h3>
+          <div class="w-10 h-10 rounded-full bg-neon-green/20 flex items-center justify-center">
+            <i class="fas fa-users text-neon-green"></i>
+          </div>
+        </div>
+        <p class="text-3xl font-bold"><%= totalUsers %></p>
+        <p class="text-sm text-gray-400 mt-1">Users using the assistant</p>
+      </div>
+    </div>
+
+    <!-- Recent Conversations -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Recent Conversations</h2>
+        <a href="/admin/website-assistant/chats" class="text-sm text-neon-blue hover:underline">View All</a>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-700">
+          <thead class="bg-dark-200">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Date</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">User</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Website</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Message</th>
+            </tr>
+          </thead>
+          <tbody class="bg-dark-100 divide-y divide-gray-700">
+            <% if (recentChats.length === 0) { %>
+              <tr>
+                <td colspan="4" class="px-6 py-4 text-center text-gray-400">
+                  No conversations found.
+                </td>
+              </tr>
+            <% } else { %>
+              <% recentChats.forEach(chat => { %>
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-white"><%= new Date(chat.createdAt).toLocaleDateString() %></div>
+                    <div class="text-xs text-gray-400"><%= new Date(chat.createdAt).toLocaleTimeString() %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-white"><%= chat.user.username %></div>
+                    <div class="text-xs text-gray-400"><%= chat.user.email %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-white"><%= chat.website.title %></div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="text-sm text-white truncate max-w-xs"><%= chat.userMessage %></div>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6">
+      <h2 class="text-xl font-semibold mb-4">Quick Actions</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <a href="/admin/website-assistant/chats" class="bg-dark-200 hover:bg-dark-300 rounded-lg p-4 transition-colors">
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-full bg-neon-blue/20 flex items-center justify-center mr-3">
+              <i class="fas fa-comments text-neon-blue"></i>
+            </div>
+            <div>
+              <h3 class="font-medium">View All Chats</h3>
+              <p class="text-sm text-gray-400">Browse all assistant conversations</p>
+            </div>
+          </div>
+        </a>
+        
+        <a href="/admin/website-assistant/settings" class="bg-dark-200 hover:bg-dark-300 rounded-lg p-4 transition-colors">
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-full bg-neon-green/20 flex items-center justify-center mr-3">
+              <i class="fas fa-cog text-neon-green"></i>
+            </div>
+            <div>
+              <h3 class="font-medium">Configure Settings</h3>
+              <p class="text-sm text-gray-400">Adjust assistant parameters</p>
+            </div>
+          </div>
+        </a>
+        
+        <a href="/admin/website-assistant/analytics" class="bg-dark-200 hover:bg-dark-300 rounded-lg p-4 transition-colors">
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-full bg-neon-purple/20 flex items-center justify-center mr-3">
+              <i class="fas fa-chart-line text-neon-purple"></i>
+            </div>
+            <div>
+              <h3 class="font-medium">View Analytics</h3>
+              <p class="text-sm text-gray-400">Track usage and performance</p>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

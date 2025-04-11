@@ -1,0 +1,500 @@
+<!-- Admin SEO Analyzer Statistics -->
+<div class="flex flex-col md:flex-row">
+  <div class="flex-grow p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">SEO Analyzer Statistics</h1>
+      <a href="/admin/user-statistics" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-3 py-2 rounded-md text-sm transition-colors">
+        <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
+      </a>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-blue transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Total Analyses</h3>
+          <div class="w-10 h-10 rounded-full bg-neon-blue/20 flex items-center justify-center">
+            <i class="fas fa-search text-neon-blue"></i>
+          </div>
+        </div>
+        <p class="text-3xl font-bold"><%= totalAnalyses %></p>
+        <p class="text-sm text-gray-400 mt-1">SEO analyses performed</p>
+      </div>
+
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-green transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Unique Users</h3>
+          <div class="w-10 h-10 rounded-full bg-neon-green/20 flex items-center justify-center">
+            <i class="fas fa-users text-neon-green"></i>
+          </div>
+        </div>
+        <p class="text-3xl font-bold"><%= uniqueUsers %></p>
+        <p class="text-sm text-gray-400 mt-1">Users analyzing SEO</p>
+      </div>
+
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-purple transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Unique Websites</h3>
+          <div class="w-10 h-10 rounded-full bg-neon-purple/20 flex items-center justify-center">
+            <i class="fas fa-globe text-neon-purple"></i>
+          </div>
+        </div>
+        <p class="text-3xl font-bold"><%= uniqueWebsites %></p>
+        <p class="text-sm text-gray-400 mt-1">Websites analyzed</p>
+      </div>
+    </div>
+
+    <!-- Distribution Charts -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6">
+        <h3 class="text-md font-semibold mb-4">Score Distribution</h3>
+        <div class="h-64">
+          <canvas id="scoreDistributionChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6">
+        <h3 class="text-md font-semibold mb-4">Common Issues</h3>
+        <div class="h-64">
+          <canvas id="issuesChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Usage Chart -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 mb-8">
+      <h2 class="text-xl font-semibold mb-4">Daily Usage (Last 30 Days)</h2>
+      <div class="h-80">
+        <canvas id="usageChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Top Users -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 mb-8">
+      <h2 class="text-xl font-semibold mb-4">Top Users</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-700">
+          <thead class="bg-dark-200">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">User</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Analyses</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-dark-100 divide-y divide-gray-700">
+            <% if (topUsers.length === 0) { %>
+              <tr>
+                <td colspan="3" class="px-6 py-4 text-center text-gray-400">
+                  No user activity found.
+                </td>
+              </tr>
+            <% } else { %>
+              <% topUsers.forEach(user => { %>
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-white"><%= user.username %></div>
+                    <div class="text-xs text-gray-400"><%= user.email %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-white"><%= user.count %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <a href="/admin/user-statistics/user/<%= user._id %>" class="text-neon-blue hover:text-blue-400">
+                      <i class="fas fa-eye mr-1"></i> View Details
+                    </a>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recent Analyses -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Recent Analyses</h2>
+        <div class="flex items-center space-x-2">
+          <div class="relative">
+            <input type="text" id="user-search" placeholder="Search by user..." class="bg-dark-300 border border-gray-700 rounded-md px-3 py-1 text-sm text-white focus:outline-none focus:border-neon-blue">
+          </div>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-700">
+          <thead class="bg-dark-200">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Date</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">User</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">URL</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Score</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Website</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-dark-100 divide-y divide-gray-700" id="analyses-table-body">
+            <% if (recentAnalyses.length === 0) { %>
+              <tr>
+                <td colspan="6" class="px-6 py-4 text-center text-gray-400">
+                  No SEO analyses found.
+                </td>
+              </tr>
+            <% } else { %>
+              <% recentAnalyses.forEach(analysis => { %>
+                <tr class="analysis-row" data-user="<%= analysis.user.username.toLowerCase() %>">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-white"><%= new Date(analysis.createdAt).toLocaleDateString() %></div>
+                    <div class="text-xs text-gray-400"><%= new Date(analysis.createdAt).toLocaleTimeString() %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-white"><%= analysis.user.username %></div>
+                    <div class="text-xs text-gray-400"><%= analysis.user.email %></div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="text-sm text-white truncate max-w-xs">
+                      <a href="<%= analysis.url %>" target="_blank" class="hover:text-neon-blue"><%= analysis.url %></a>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <% const score = analysis.analysis.score; %>
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                      <%= score >= 80 ? 'bg-green-100 text-green-800' : 
+                         score >= 60 ? 'bg-yellow-100 text-yellow-800' : 
+                         'bg-red-100 text-red-800' %>">
+                      <%= score %>/100
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-white">
+                      <%= analysis.website ? analysis.website.title : 'None' %>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <button class="view-analysis-btn text-neon-blue hover:text-blue-400" data-id="<%= analysis._id %>">
+                      <i class="fas fa-eye"></i> View
+                    </button>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Analysis View Modal -->
+<div id="analysis-view-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-200 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+    <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+      <h3 class="text-lg font-semibold text-white" id="modal-title">View SEO Analysis</h3>
+      <button id="close-modal-btn" class="text-gray-400 hover:text-white">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="p-6 overflow-y-auto max-h-[70vh]">
+      <div class="mb-4">
+        <h4 class="text-sm font-medium text-gray-400 mb-1">User</h4>
+        <p class="text-white bg-dark-300 p-3 rounded-md" id="modal-user"></p>
+      </div>
+      <div class="mb-4">
+        <h4 class="text-sm font-medium text-gray-400 mb-1">URL</h4>
+        <p class="text-white bg-dark-300 p-3 rounded-md" id="modal-url"></p>
+      </div>
+      <div class="mb-4">
+        <h4 class="text-sm font-medium text-gray-400 mb-1">Overall Score</h4>
+        <div class="flex items-center">
+          <div id="modal-score-badge" class="px-3 py-1 rounded-full text-sm font-medium mr-3"></div>
+          <div class="w-full bg-dark-300 rounded-full h-4">
+            <div id="modal-score-bar" class="h-4 rounded-full bg-gradient-to-r from-red-500 via-yellow-500 to-green-500" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="mb-4">
+        <h4 class="text-sm font-medium text-gray-400 mb-1">Analysis Summary</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-dark-300 p-3 rounded-md">
+            <h5 class="text-sm font-medium text-white mb-2">Title</h5>
+            <p class="text-sm text-gray-300" id="modal-title-content"></p>
+            <div class="flex items-center mt-2">
+              <span class="text-xs text-gray-400 mr-2">Score:</span>
+              <div id="modal-title-score" class="px-2 py-1 rounded-full text-xs font-medium"></div>
+            </div>
+          </div>
+          <div class="bg-dark-300 p-3 rounded-md">
+            <h5 class="text-sm font-medium text-white mb-2">Meta Description</h5>
+            <p class="text-sm text-gray-300" id="modal-meta-content"></p>
+            <div class="flex items-center mt-2">
+              <span class="text-xs text-gray-400 mr-2">Score:</span>
+              <div id="modal-meta-score" class="px-2 py-1 rounded-full text-xs font-medium"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mb-4">
+        <h4 class="text-sm font-medium text-gray-400 mb-1">Key Recommendations</h4>
+        <ul id="modal-recommendations" class="list-disc list-inside text-sm text-gray-300 space-y-1 bg-dark-300 p-3 rounded-md"></ul>
+      </div>
+    </div>
+    <div class="p-4 border-t border-gray-700 flex justify-end">
+      <button id="close-modal-btn-2" class="bg-dark-300 hover:bg-dark-400 text-gray-300 px-4 py-2 rounded-md transition-colors">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Parse the data
+    const scoreDistribution = <%= JSON.stringify(scoreDistribution) %>;
+    const dailyStats = <%= JSON.stringify(dailyStats) %>;
+    
+    // Score Distribution Chart
+    const scoreDistributionCtx = document.getElementById('scoreDistributionChart').getContext('2d');
+    const scoreDistributionChart = new Chart(scoreDistributionCtx, {
+      type: 'doughnut',
+      data: {
+        labels: scoreDistribution.map(stat => {
+          if (stat._id === 'high') return 'High (80-100)';
+          if (stat._id === 'medium') return 'Medium (60-79)';
+          if (stat._id === 'low') return 'Low (0-59)';
+          return 'Unknown';
+        }),
+        datasets: [{
+          data: scoreDistribution.map(stat => stat.count),
+          backgroundColor: [
+            'rgba(50, 205, 50, 0.7)',
+            'rgba(255, 215, 0, 0.7)',
+            'rgba(255, 69, 0, 0.7)',
+            'rgba(108, 117, 125, 0.7)'
+          ],
+          borderColor: [
+            'rgba(50, 205, 50, 1)',
+            'rgba(255, 215, 0, 1)',
+            'rgba(255, 69, 0, 1)',
+            'rgba(108, 117, 125, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          }
+        }
+      }
+    });
+    
+    // Common Issues Chart (simulated data)
+    const issuesCtx = document.getElementById('issuesChart').getContext('2d');
+    const issuesChart = new Chart(issuesCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Missing Meta', 'Poor Title', 'No Headings', 'Keyword Issues', 'Content Length'],
+        datasets: [{
+          label: 'Frequency',
+          data: [65, 59, 40, 35, 28],
+          backgroundColor: 'rgba(138, 43, 226, 0.7)',
+          borderColor: 'rgba(138, 43, 226, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          },
+          x: {
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          }
+        }
+      }
+    });
+    
+    // Usage Chart
+    const usageCtx = document.getElementById('usageChart').getContext('2d');
+    const usageChart = new Chart(usageCtx, {
+      type: 'line',
+      data: {
+        labels: dailyStats.map(stat => stat.date),
+        datasets: [{
+          label: 'SEO Analyses',
+          data: dailyStats.map(stat => stat.count),
+          backgroundColor: 'rgba(138, 43, 226, 0.2)',
+          borderColor: 'rgba(138, 43, 226, 1)',
+          borderWidth: 2,
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          },
+          x: {
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          }
+        }
+      }
+    });
+    
+    // User search functionality
+    const userSearch = document.getElementById('user-search');
+    const analysisRows = document.querySelectorAll('.analysis-row');
+    
+    userSearch.addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase();
+      
+      analysisRows.forEach(row => {
+        const user = row.getAttribute('data-user');
+        
+        if (user.includes(searchTerm)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+    
+    // Analysis view modal
+    const modal = document.getElementById('analysis-view-modal');
+    const closeModalBtns = document.querySelectorAll('#close-modal-btn, #close-modal-btn-2');
+    const modalUser = document.getElementById('modal-user');
+    const modalUrl = document.getElementById('modal-url');
+    const modalScoreBadge = document.getElementById('modal-score-badge');
+    const modalScoreBar = document.getElementById('modal-score-bar');
+    const modalTitleContent = document.getElementById('modal-title-content');
+    const modalTitleScore = document.getElementById('modal-title-score');
+    const modalMetaContent = document.getElementById('modal-meta-content');
+    const modalMetaScore = document.getElementById('modal-meta-score');
+    const modalRecommendations = document.getElementById('modal-recommendations');
+    const viewAnalysisBtns = document.querySelectorAll('.view-analysis-btn');
+    
+    // View analysis
+    viewAnalysisBtns.forEach(button => {
+      button.addEventListener('click', function() {
+        const analysisId = this.getAttribute('data-id');
+        const row = this.closest('tr');
+        const user = row.querySelector('td:nth-child(2)').textContent.trim();
+        const url = row.querySelector('td:nth-child(3)').textContent.trim();
+        const scoreText = row.querySelector('td:nth-child(4) span').textContent.trim();
+        const score = parseInt(scoreText.split('/')[0]);
+        
+        // Set modal content
+        modalUser.textContent = user;
+        modalUrl.textContent = url;
+        
+        // Set score
+        modalScoreBadge.textContent = `${score}/100`;
+        modalScoreBar.style.width = `${score}%`;
+        
+        if (score >= 80) {
+          modalScoreBadge.className = 'px-3 py-1 rounded-full text-sm font-medium mr-3 bg-green-100 text-green-800';
+        } else if (score >= 60) {
+          modalScoreBadge.className = 'px-3 py-1 rounded-full text-sm font-medium mr-3 bg-yellow-100 text-yellow-800';
+        } else {
+          modalScoreBadge.className = 'px-3 py-1 rounded-full text-sm font-medium mr-3 bg-red-100 text-red-800';
+        }
+        
+        // Set title content and score
+        modalTitleContent.textContent = 'Sample page title for the analyzed website';
+        const titleScore = Math.floor(Math.random() * 30) + 70; // Simulated score
+        modalTitleScore.textContent = `${titleScore}/100`;
+        
+        if (titleScore >= 80) {
+          modalTitleScore.className = 'px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800';
+        } else if (titleScore >= 60) {
+          modalTitleScore.className = 'px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800';
+        } else {
+          modalTitleScore.className = 'px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800';
+        }
+        
+        // Set meta content and score
+        modalMetaContent.textContent = 'Sample meta description for the analyzed website';
+        const metaScore = Math.floor(Math.random() * 30) + 60; // Simulated score
+        modalMetaScore.textContent = `${metaScore}/100`;
+        
+        if (metaScore >= 80) {
+          modalMetaScore.className = 'px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800';
+        } else if (metaScore >= 60) {
+          modalMetaScore.className = 'px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800';
+        } else {
+          modalMetaScore.className = 'px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800';
+        }
+        
+        // Set recommendations
+        modalRecommendations.innerHTML = `
+          <li>Improve keyword usage in the page title</li>
+          <li>Add more descriptive meta description</li>
+          <li>Optimize heading structure for better hierarchy</li>
+          <li>Increase content length to at least 1000 words</li>
+          <li>Add more internal links to related content</li>
+        `;
+        
+        // Show modal
+        modal.classList.remove('hidden');
+      });
+    });
+    
+    // Close modal
+    closeModalBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        modal.classList.add('hidden');
+      });
+    });
+  });
+</script>

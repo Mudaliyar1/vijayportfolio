@@ -1,0 +1,152 @@
+<!-- Admin SEO Analyzer Settings -->
+<div class="flex flex-col md:flex-row">
+  <div class="flex-grow p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">SEO Analyzer Settings</h1>
+      <a href="/admin/seo-analyzer" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-3 py-2 rounded-md text-sm transition-colors">
+        <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
+      </a>
+    </div>
+
+    <!-- Settings Form -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden">
+      <div class="p-4 border-b border-gray-700">
+        <h2 class="text-lg font-semibold">General Settings</h2>
+        <p class="text-sm text-gray-400">Configure the SEO analyzer parameters</p>
+      </div>
+
+      <form action="/admin/seo-analyzer/settings" method="POST" class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 class="text-md font-semibold mb-4">AI Model Settings</h3>
+            
+            <div class="mb-4">
+              <label for="defaultModel" class="block text-gray-300 mb-1">Default AI Model</label>
+              <select id="defaultModel" name="defaultModel" class="w-full bg-dark-300 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue">
+                <option value="gpt-3.5-turbo" <%= settings.defaultModel === 'gpt-3.5-turbo' ? 'selected' : '' %>>GPT-3.5 Turbo</option>
+                <option value="gpt-4" <%= settings.defaultModel === 'gpt-4' ? 'selected' : '' %>>GPT-4</option>
+                <option value="cohere-command" <%= settings.defaultModel === 'cohere-command' ? 'selected' : '' %>>Cohere Command</option>
+              </select>
+              <p class="text-gray-400 text-xs mt-1">Select the default AI model for SEO analysis</p>
+            </div>
+            
+            <div class="mb-4">
+              <label for="maxTokens" class="block text-gray-300 mb-1">Maximum Tokens</label>
+              <input type="number" id="maxTokens" name="maxTokens" value="<%= settings.maxTokens %>" min="500" max="4000" class="w-full bg-dark-300 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue">
+              <p class="text-gray-400 text-xs mt-1">Maximum number of tokens for SEO analysis</p>
+            </div>
+          </div>
+          
+          <div>
+            <h3 class="text-md font-semibold mb-4">Usage Settings</h3>
+            
+            <div class="mb-4">
+              <div class="flex items-center">
+                <input type="checkbox" id="enabledForFreeUsers" name="enabledForFreeUsers" <%= settings.enabledForFreeUsers ? 'checked' : '' %> class="mr-2">
+                <label for="enabledForFreeUsers" class="text-gray-300">Enable for Free Users</label>
+              </div>
+              <p class="text-gray-400 text-xs mt-1">Allow free users to access the SEO analyzer</p>
+            </div>
+            
+            <div class="mb-4">
+              <label for="maxAnalysesPerDay" class="block text-gray-300 mb-1">Max Analyses Per Day (Free Users)</label>
+              <input type="number" id="maxAnalysesPerDay" name="maxAnalysesPerDay" value="<%= settings.maxAnalysesPerDay %>" min="1" max="20" class="w-full bg-dark-300 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue">
+              <p class="text-gray-400 text-xs mt-1">Maximum number of analyses free users can perform per day</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-6">
+          <h3 class="text-md font-semibold mb-4">SEO Analysis Parameters</h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-dark-200 rounded-lg p-4">
+              <h4 class="text-sm font-medium text-white mb-2">Title Analysis</h4>
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <label for="titleMinLength" class="text-gray-300 text-sm">Minimum Length</label>
+                  <input type="number" id="titleMinLength" name="titleMinLength" value="30" min="10" max="100" class="w-20 bg-dark-300 border border-gray-600 rounded-md px-2 py-1 text-white text-sm focus:outline-none focus:border-neon-blue">
+                </div>
+                <div class="flex items-center justify-between">
+                  <label for="titleMaxLength" class="text-gray-300 text-sm">Maximum Length</label>
+                  <input type="number" id="titleMaxLength" name="titleMaxLength" value="60" min="30" max="120" class="w-20 bg-dark-300 border border-gray-600 rounded-md px-2 py-1 text-white text-sm focus:outline-none focus:border-neon-blue">
+                </div>
+                <div class="flex items-center justify-between">
+                  <label for="titleKeywordWeight" class="text-gray-300 text-sm">Keyword Weight</label>
+                  <input type="number" id="titleKeywordWeight" name="titleKeywordWeight" value="30" min="10" max="50" class="w-20 bg-dark-300 border border-gray-600 rounded-md px-2 py-1 text-white text-sm focus:outline-none focus:border-neon-blue">
+                  <span class="text-gray-400 text-xs">%</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-dark-200 rounded-lg p-4">
+              <h4 class="text-sm font-medium text-white mb-2">Meta Description Analysis</h4>
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <label for="metaMinLength" class="text-gray-300 text-sm">Minimum Length</label>
+                  <input type="number" id="metaMinLength" name="metaMinLength" value="120" min="50" max="200" class="w-20 bg-dark-300 border border-gray-600 rounded-md px-2 py-1 text-white text-sm focus:outline-none focus:border-neon-blue">
+                </div>
+                <div class="flex items-center justify-between">
+                  <label for="metaMaxLength" class="text-gray-300 text-sm">Maximum Length</label>
+                  <input type="number" id="metaMaxLength" name="metaMaxLength" value="160" min="100" max="300" class="w-20 bg-dark-300 border border-gray-600 rounded-md px-2 py-1 text-white text-sm focus:outline-none focus:border-neon-blue">
+                </div>
+                <div class="flex items-center justify-between">
+                  <label for="metaKeywordWeight" class="text-gray-300 text-sm">Keyword Weight</label>
+                  <input type="number" id="metaKeywordWeight" name="metaKeywordWeight" value="20" min="10" max="50" class="w-20 bg-dark-300 border border-gray-600 rounded-md px-2 py-1 text-white text-sm focus:outline-none focus:border-neon-blue">
+                  <span class="text-gray-400 text-xs">%</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-dark-200 rounded-lg p-4">
+              <h4 class="text-sm font-medium text-white mb-2">Content Analysis</h4>
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <label for="contentMinLength" class="text-gray-300 text-sm">Minimum Length</label>
+                  <input type="number" id="contentMinLength" name="contentMinLength" value="300" min="100" max="1000" class="w-20 bg-dark-300 border border-gray-600 rounded-md px-2 py-1 text-white text-sm focus:outline-none focus:border-neon-blue">
+                  <span class="text-gray-400 text-xs">words</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <label for="contentKeywordDensity" class="text-gray-300 text-sm">Keyword Density</label>
+                  <input type="number" id="contentKeywordDensity" name="contentKeywordDensity" value="2" min="0.5" max="5" step="0.1" class="w-20 bg-dark-300 border border-gray-600 rounded-md px-2 py-1 text-white text-sm focus:outline-none focus:border-neon-blue">
+                  <span class="text-gray-400 text-xs">%</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <label for="contentHeadingWeight" class="text-gray-300 text-sm">Heading Weight</label>
+                  <input type="number" id="contentHeadingWeight" name="contentHeadingWeight" value="25" min="10" max="50" class="w-20 bg-dark-300 border border-gray-600 rounded-md px-2 py-1 text-white text-sm focus:outline-none focus:border-neon-blue">
+                  <span class="text-gray-400 text-xs">%</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-dark-200 rounded-lg p-4">
+              <h4 class="text-sm font-medium text-white mb-2">Other Parameters</h4>
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <label for="headingStructureWeight" class="text-gray-300 text-sm">Heading Structure</label>
+                  <input type="number" id="headingStructureWeight" name="headingStructureWeight" value="15" min="5" max="30" class="w-20 bg-dark-300 border border-gray-600 rounded-md px-2 py-1 text-white text-sm focus:outline-none focus:border-neon-blue">
+                  <span class="text-gray-400 text-xs">%</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <label for="internalLinksWeight" class="text-gray-300 text-sm">Internal Links</label>
+                  <input type="number" id="internalLinksWeight" name="internalLinksWeight" value="10" min="5" max="30" class="w-20 bg-dark-300 border border-gray-600 rounded-md px-2 py-1 text-white text-sm focus:outline-none focus:border-neon-blue">
+                  <span class="text-gray-400 text-xs">%</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <label for="imageOptimizationWeight" class="text-gray-300 text-sm">Image Optimization</label>
+                  <input type="number" id="imageOptimizationWeight" name="imageOptimizationWeight" value="10" min="5" max="30" class="w-20 bg-dark-300 border border-gray-600 rounded-md px-2 py-1 text-white text-sm focus:outline-none focus:border-neon-blue">
+                  <span class="text-gray-400 text-xs">%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-8 border-t border-gray-700 pt-6 flex justify-end">
+          <button type="reset" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 mr-3">Reset</button>
+          <button type="submit" class="px-4 py-2 bg-neon-blue text-white rounded-md hover:bg-blue-600">Save Settings</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

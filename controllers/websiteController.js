@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Website = require('../models/Website');
 const Package = require('../models/Package');
 const Payment = require('../models/Payment');
+const Template = require('../models/Template');
 
 // Helper function to generate AI website content
 const generateWebsiteContent = async (title, description, businessType, theme, pages) => {
@@ -464,8 +465,11 @@ module.exports = {
   // Render website builder form
   getWebsiteBuilderForm: async (req, res) => {
     try {
-      // Get user data
-      const user = await User.findById(req.user._id).populate('activePackage');
+      // Get user data with fully populated activePackage
+      const user = await User.findById(req.user._id).populate({
+        path: 'activePackage',
+        model: 'Package'
+      });
 
       // Get available packages for selection
       const packages = await Package.find({ active: true }).sort({ price: 1 });
@@ -477,15 +481,78 @@ module.exports = {
       let selectedPackage = null;
       if (req.query.packageId) {
         selectedPackage = await Package.findById(req.query.packageId);
+
+        // If a package is selected via query parameter, update the user's active package
+        if (selectedPackage) {
+          console.log('User selected package via query param:', selectedPackage.name);
+
+          // Update the user's active package to the selected one
+          user.activePackage = selectedPackage._id;
+
+          // Set expiry date (1 year from now)
+          const expiryDate = new Date();
+          expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+          user.packageExpiryDate = expiryDate;
+
+          // Ensure unlimited websites
+          user.maxWebsites = 999999; // Effectively unlimited
+
+          // Save the updated user
+          await user.save();
+
+          console.log('Updated user active package to:', selectedPackage.name);
+        }
+      }
+
+      // Make sure we have the full package information
+      const userPackage = user?.activePackage?.name || 'Free';
+      console.log('User package information:', {
+        packageName: userPackage,
+        packageId: user?.activePackage?._id,
+        fullPackage: JSON.stringify(user?.activePackage)
+      }); // Debug log
+
+      let featuredTemplates = [];
+
+      if (userPackage === 'Free') {
+        featuredTemplates = await Template.find({
+          active: true,
+          packageType: { $in: ['Free', 'All'] }
+        }).limit(3);
+      } else {
+        featuredTemplates = await Template.find({
+          active: true,
+          packageType: { $in: [userPackage, 'All'] }
+        }).limit(3);
+      }
+
+      // Debug log to check package information
+      if (user.activePackage) {
+        console.log('Active package details:', {
+          id: user.activePackage._id,
+          name: user.activePackage.name,
+          price: user.activePackage.price
+        });
+      }
+
+      // If user has an active package but it's not fully populated, re-fetch it
+      if (user.activePackage && (!user.activePackage.name || !user.activePackage.maxPages)) {
+        console.log('Active package not fully populated, re-fetching...');
+        const fullPackage = await Package.findById(user.activePackage._id);
+        if (fullPackage) {
+          user.activePackage = fullPackage;
+          console.log('Re-fetched package:', fullPackage.name);
+        }
       }
 
       res.render('websites/create', {
         title: 'Create Website - FTRAISE AI',
         user,
-        package: user.activePackage,
         packages,
         hasActivePackage: !!user.activePackage,
-        selectedPackage
+        selectedPackage,
+        featuredTemplates,
+        package: user.activePackage // Add this for backward compatibility
       });
     } catch (err) {
       console.error('Error loading website builder form:', err);
@@ -505,8 +572,21 @@ module.exports = {
         return res.redirect('/create-website');
       }
 
-      // Get user
-      const user = await User.findById(req.user._id).populate('activePackage');
+      // Get user with fully populated activePackage
+      const user = await User.findById(req.user._id).populate({
+        path: 'activePackage',
+        model: 'Package'
+      });
+
+      // If user has an active package but it's not fully populated, re-fetch it
+      if (user.activePackage && (!user.activePackage.name || !user.activePackage.maxPages)) {
+        console.log('Active package not fully populated, re-fetching...');
+        const fullPackage = await Package.findById(user.activePackage._id);
+        if (fullPackage) {
+          user.activePackage = fullPackage;
+          console.log('Re-fetched package:', fullPackage.name);
+        }
+      }
 
       // Determine which package to use
       let selectedPackage;
@@ -520,32 +600,24 @@ module.exports = {
           return res.redirect('/create-website');
         }
 
-        // If user has an active package but selected a different one
-        if (user.activePackage && user.activePackage._id.toString() !== selectedPackage._id.toString()) {
-          console.log('User selected a different package than their active one');
+        console.log('User selected package:', selectedPackage.name);
 
-          // If the selected package is free, we can use it
-          if (selectedPackage.isFree === true) {
-            console.log('Selected package is free, can use it');
-          }
-          // If the selected package is paid and not the active one, will need payment
-          else {
-            console.log('Selected package is paid, will need payment');
-          }
-        }
-        // If user has the same active package, they can create unlimited websites
-        // But for paid packages, they still need to pay for each new website
-        else if (user.activePackage && user.activePackage._id.toString() === selectedPackage._id.toString()) {
-          console.log('User is creating another website with their existing package');
-          // If it's a paid package, they'll still need to pay during publishing
-          // This is handled in the publishWebsite function
-        }
-        // For free packages with no active package, assign it to the user immediately
-        else if (!user.activePackage && selectedPackage.isFree === true) {
-          user.activePackage = selectedPackage._id;
-          user.maxWebsites = 999999; // Effectively unlimited
-          await user.save();
-        }
+        // Always update the user's active package to the selected one
+        // This ensures the UI always shows the correct package
+        user.activePackage = selectedPackage._id;
+
+        // Set expiry date (1 year from now)
+        const expiryDate = new Date();
+        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+        user.packageExpiryDate = expiryDate;
+
+        // Ensure unlimited websites
+        user.maxWebsites = 999999; // Effectively unlimited
+
+        // Save the updated user
+        await user.save();
+
+        console.log('Updated user active package to:', selectedPackage.name);
       }
       // Use existing package if available and no specific package selected
       else if (user.activePackage) {
@@ -630,7 +702,10 @@ module.exports = {
   getUserWebsites: async (req, res) => {
     try {
       const websites = await Website.find({ user: req.user._id }).sort({ createdAt: -1 });
-      const user = await User.findById(req.user._id).populate('activePackage');
+      const user = await User.findById(req.user._id).populate({
+        path: 'activePackage',
+        model: 'Package'
+      });
 
       res.render('websites/dashboard', {
         title: 'My Websites - FTRAISE AI',
@@ -679,15 +754,21 @@ module.exports = {
       const isFreePackage = website.package && website.package.isFree === true;
 
       // Check if user has this package already
-      const user = await User.findById(req.user._id).populate('activePackage');
+      const user = await User.findById(req.user._id).populate({
+        path: 'activePackage',
+        model: 'Package'
+      });
 
       // Check if payment exists for this specific website
       let paymentExists = false;
       if (website.package && !isFreePackage) {
         const payment = await Payment.findOne({
           user: req.user._id,
-          website: websiteId,
-          status: 'completed'
+          status: 'completed',
+          $or: [
+            { website: websiteId },
+            { 'notes.websiteId': websiteId }
+          ]
         });
         paymentExists = !!payment;
       }
@@ -717,20 +798,43 @@ module.exports = {
   getEditWebsiteForm: async (req, res) => {
     try {
       const websiteId = req.params.id;
-      const website = await Website.findById(websiteId);
+      const website = await Website.findById(websiteId).populate('package');
 
       if (!website || website.user.toString() !== req.user._id.toString()) {
         req.flash('error_msg', 'Website not found');
         return res.redirect('/dashboard/websites');
       }
 
-      const user = await User.findById(req.user._id).populate('activePackage');
+      const user = await User.findById(req.user._id).populate({
+        path: 'activePackage',
+        model: 'Package'
+      });
+
+      // Check if this is a paid package
+      const isPaidPackage = website.package && website.package.isFree !== true;
+
+      // Check if payment exists for this website
+      let paymentExists = false;
+      if (isPaidPackage) {
+        const Payment = require('../models/Payment');
+        const payment = await Payment.findOne({
+          user: req.user._id,
+          status: 'completed',
+          $or: [
+            { website: websiteId },
+            { 'notes.websiteId': websiteId.toString() }
+          ]
+        });
+        paymentExists = !!payment;
+      }
 
       res.render('websites/edit', {
         title: `Edit ${website.title} - FTRAISE AI`,
         website,
         user,
-        package: user.activePackage
+        package: user.activePackage,
+        isPaidPackage,
+        paymentExists
       });
     } catch (err) {
       console.error('Error loading edit website form:', err);
@@ -862,7 +966,7 @@ module.exports = {
       console.log('User needs to pay for this package');
 
       // If user hasn't purchased this package, redirect to payment
-      req.flash('error_msg', 'You need to purchase this package to publish your website');
+      req.flash('info_msg', 'To publish your website, you need to complete the payment for this package.');
       return res.redirect(`/payment/create-order/${website.package._id}?websiteId=${website._id}`);
     } catch (err) {
       console.error('Error publishing website:', err);
@@ -877,11 +981,37 @@ module.exports = {
       const websiteId = req.params.id;
       const { title, description, businessType, theme, colorScheme, isPublished } = req.body;
 
-      const website = await Website.findById(websiteId);
+      const website = await Website.findById(websiteId).populate('package');
 
       if (!website || website.user.toString() !== req.user._id.toString()) {
         req.flash('error_msg', 'Website not found');
         return res.redirect('/dashboard/websites');
+      }
+
+      // Check if trying to publish a paid website
+      const tryingToPublish = isPublished === 'on' && !website.isPublished;
+      const isPaidPackage = website.package && website.package.isFree !== true;
+
+      // If trying to publish a paid website, check for payment
+      if (tryingToPublish && isPaidPackage) {
+        console.log('Trying to publish a paid website through the edit form');
+
+        // Check if payment exists for this website
+        const paymentExists = await Payment.findOne({
+          user: req.user._id,
+          status: 'completed',
+          $or: [
+            { website: websiteId },
+            { 'notes.websiteId': websiteId.toString() }
+          ]
+        });
+
+        // If no payment exists, redirect to the publish endpoint
+        if (!paymentExists) {
+          console.log('No payment found - redirecting to publish endpoint');
+          req.flash('info_msg', 'To publish your website, you need to complete the payment for this package.');
+          return res.redirect(`/dashboard/websites/${websiteId}`);
+        }
       }
 
       // Update website details
@@ -890,7 +1020,11 @@ module.exports = {
       website.businessType = businessType;
       website.theme = theme || website.theme;
       website.colorScheme = colorScheme || website.colorScheme;
-      website.isPublished = isPublished === 'on';
+
+      // Only set isPublished if it's a free package or payment exists
+      if (!isPaidPackage || !tryingToPublish) {
+        website.isPublished = isPublished === 'on';
+      }
 
       await website.save();
 
@@ -1039,6 +1173,12 @@ module.exports = {
         return res.redirect('/dashboard/websites');
       }
 
+      // Get user with fully populated package
+      const user = await User.findById(req.user._id).populate({
+        path: 'activePackage',
+        model: 'Package'
+      });
+
       // Check if the website has reached the maximum number of pages allowed by the package
       if (website.pages.length >= website.package.maxPages) {
         req.flash('error_msg', `You have reached the maximum number of pages (${website.package.maxPages}) allowed by your package`);
@@ -1048,7 +1188,8 @@ module.exports = {
       res.render('websites/add-page', {
         title: `Add New Page - ${website.title} - FTRAISE AI`,
         website,
-        user: req.user,
+        user,
+        package: user.activePackage,
         success_msg: req.flash('success_msg'),
         error_msg: req.flash('error_msg')
       });
@@ -1307,12 +1448,30 @@ module.exports = {
         const hasMatchingPackage = user.activePackage &&
                                   user.activePackage._id.toString() === website.package._id.toString();
 
+        // Check if payment exists for this website
+        const Payment = require('../models/Payment');
+        const paymentExists = await Payment.findOne({
+          user: website.user,
+          package: website.package._id,
+          status: 'completed',
+          $or: [
+            { website: websiteId },
+            { 'notes.websiteId': website._id.toString() }
+          ]
+        });
+
+        // If not a free package and no payment exists, show a warning but still allow admin to publish
+        if (!isFreePackage && !paymentExists) {
+          req.flash('warning_msg', 'Warning: Payment has not been made for this website. Publishing anyway as administrator.');
+        }
+
         // If not a free package and user doesn't have a matching active package, show warning
         if (!isFreePackage && !hasMatchingPackage) {
-          req.flash('warning_msg', 'Warning: User has not purchased this package. Website has been published anyway.');
+          req.flash('warning_msg', 'Warning: User has not set this package as their active package. Website has been published anyway.');
         }
       }
 
+      // Toggle the published status
       website.isPublished = !website.isPublished;
       await website.save();
 

@@ -1,0 +1,393 @@
+<!-- Admin Content Generator Dashboard -->
+<div class="flex flex-col md:flex-row">
+  <div class="flex-grow p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Content Generator Dashboard</h1>
+      <div class="flex space-x-2">
+        <a href="/admin/content-generator/settings" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-3 py-2 rounded-md text-sm transition-colors">
+          <i class="fas fa-cog mr-1"></i> Settings
+        </a>
+        <a href="/admin/content-generator/templates" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-3 py-2 rounded-md text-sm transition-colors">
+          <i class="fas fa-file-alt mr-1"></i> Templates
+        </a>
+        <a href="/admin/content-generator/analytics" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-3 py-2 rounded-md text-sm transition-colors">
+          <i class="fas fa-chart-bar mr-1"></i> Analytics
+        </a>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-blue transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Total Generations</h3>
+          <div class="w-10 h-10 rounded-full bg-neon-blue/20 flex items-center justify-center">
+            <i class="fas fa-file-alt text-neon-blue"></i>
+          </div>
+        </div>
+        <p class="text-3xl font-bold"><%= totalGenerations %></p>
+        <p class="text-sm text-gray-400 mt-1">Content pieces generated</p>
+      </div>
+
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-green transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Active Users</h3>
+          <div class="w-10 h-10 rounded-full bg-neon-green/20 flex items-center justify-center">
+            <i class="fas fa-users text-neon-green"></i>
+          </div>
+        </div>
+        <p class="text-3xl font-bold"><%= totalUsers %></p>
+        <p class="text-sm text-gray-400 mt-1">Users generating content</p>
+      </div>
+
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-purple transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Content Types</h3>
+          <div class="w-10 h-10 rounded-full bg-neon-purple/20 flex items-center justify-center">
+            <i class="fas fa-th-list text-neon-purple"></i>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <% contentTypeStats.forEach(stat => { %>
+            <span class="px-2 py-1 bg-dark-200 rounded-full text-xs font-medium">
+              <%= stat._id %>: <%= stat.count %>
+            </span>
+          <% }); %>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Activity Overview -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">User Activity Overview</h2>
+        <a href="/admin/content-generator/analytics" class="text-sm text-neon-blue hover:underline">View Detailed Analytics</a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Most Active Users -->
+        <div class="bg-dark-200 rounded-lg p-4">
+          <h3 class="text-md font-semibold mb-3">Most Active Users</h3>
+          <div class="space-y-3">
+            <% const topUsers = recentGenerations.reduce((acc, gen) => {
+              const userId = gen.user._id.toString();
+              if (!acc[userId]) acc[userId] = { user: gen.user, count: 0 };
+              acc[userId].count++;
+              return acc;
+            }, {});
+
+            const sortedUsers = Object.values(topUsers).sort((a, b) => b.count - a.count).slice(0, 5);
+
+            sortedUsers.forEach(item => { %>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <div class="w-8 h-8 rounded-full bg-neon-blue/20 flex items-center justify-center mr-3">
+                    <i class="fas fa-user text-neon-blue"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium text-white"><%= item.user.username %></p>
+                    <p class="text-xs text-gray-400"><%= item.user.email %></p>
+                  </div>
+                </div>
+                <div class="bg-dark-300 px-2 py-1 rounded-full">
+                  <span class="text-xs font-medium text-neon-green"><%= item.count %> generations</span>
+                </div>
+              </div>
+            <% }); %>
+
+            <% if (sortedUsers.length === 0) { %>
+              <p class="text-gray-400 text-sm">No user activity data available</p>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Content Type Distribution -->
+        <div class="bg-dark-200 rounded-lg p-4">
+          <h3 class="text-md font-semibold mb-3">Content Type Distribution</h3>
+          <div class="space-y-3">
+            <% const typeDistribution = recentGenerations.reduce((acc, gen) => {
+              const type = gen.contentType;
+              if (!acc[type]) acc[type] = 0;
+              acc[type]++;
+              return acc;
+            }, {});
+
+            const totalCount = recentGenerations.length;
+            const types = Object.keys(typeDistribution).sort((a, b) => typeDistribution[b] - typeDistribution[a]);
+
+            types.forEach(type => {
+              const count = typeDistribution[type];
+              const percentage = totalCount > 0 ? Math.round((count / totalCount) * 100) : 0;
+            %>
+              <div class="space-y-1">
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-white"><%= type.charAt(0).toUpperCase() + type.slice(1) %></span>
+                  <span class="text-xs text-gray-400"><%= count %> (<%= percentage %>%)</span>
+                </div>
+                <div class="w-full bg-dark-300 rounded-full h-2">
+                  <div class="h-2 rounded-full <%=
+                    type === 'website' ? 'bg-blue-500' :
+                    type === 'blog' ? 'bg-green-500' :
+                    type === 'social' ? 'bg-purple-500' :
+                    type === 'email' ? 'bg-yellow-500' :
+                    type === 'product' ? 'bg-red-500' :
+                    'bg-gray-500' %>" style="width: <%= percentage %>%"></div>
+                </div>
+              </div>
+            <% }); %>
+
+            <% if (types.length === 0) { %>
+              <p class="text-gray-400 text-sm">No content type data available</p>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Generations -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Recent Generations</h2>
+        <div class="flex items-center space-x-2">
+          <div class="relative">
+            <input type="text" id="user-search" placeholder="Search by user..." class="bg-dark-300 border border-gray-700 rounded-md px-3 py-1 text-sm text-white focus:outline-none focus:border-neon-blue">
+          </div>
+          <a href="/admin/content-generator/analytics" class="text-sm text-neon-blue hover:underline">View All</a>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-700">
+          <thead class="bg-dark-200">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Date</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">User</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Type</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Prompt</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Template</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-dark-100 divide-y divide-gray-700" id="generations-table-body">
+            <% if (recentGenerations.length === 0) { %>
+              <tr>
+                <td colspan="6" class="px-6 py-4 text-center text-gray-400">
+                  No content generations found.
+                </td>
+              </tr>
+            <% } else { %>
+              <% recentGenerations.forEach(generation => { %>
+                <tr class="generation-row" data-user="<%= generation.user.username.toLowerCase() %>">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-white"><%= new Date(generation.createdAt).toLocaleDateString() %></div>
+                    <div class="text-xs text-gray-400"><%= new Date(generation.createdAt).toLocaleTimeString() %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-white"><%= generation.user.username %></div>
+                    <div class="text-xs text-gray-400"><%= generation.user.email %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                      <%= generation.contentType === 'website' ? 'bg-blue-100 text-blue-800' :
+                         generation.contentType === 'blog' ? 'bg-green-100 text-green-800' :
+                         generation.contentType === 'social' ? 'bg-purple-100 text-purple-800' :
+                         generation.contentType === 'email' ? 'bg-yellow-100 text-yellow-800' :
+                         generation.contentType === 'product' ? 'bg-red-100 text-red-800' :
+                         'bg-gray-100 text-gray-800' %>">
+                      <%= generation.contentType.charAt(0).toUpperCase() + generation.contentType.slice(1) %>
+                    </span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="text-sm text-white truncate max-w-xs"><%= generation.prompt %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-white">
+                      <%= generation.template ? generation.template.name : 'None' %>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <button class="view-content-btn text-neon-blue hover:text-blue-400" data-id="<%= generation._id %>">
+                      <i class="fas fa-eye"></i> View
+                    </button>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6">
+      <h2 class="text-xl font-semibold mb-4">Quick Actions</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <a href="/admin/content-generator/templates" class="bg-dark-200 hover:bg-dark-300 rounded-lg p-4 transition-colors">
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-full bg-neon-blue/20 flex items-center justify-center mr-3">
+              <i class="fas fa-file-alt text-neon-blue"></i>
+            </div>
+            <div>
+              <h3 class="font-medium">Manage Templates</h3>
+              <p class="text-sm text-gray-400">Create and edit content templates</p>
+            </div>
+          </div>
+        </a>
+
+        <a href="/admin/content-generator/settings" class="bg-dark-200 hover:bg-dark-300 rounded-lg p-4 transition-colors">
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-full bg-neon-green/20 flex items-center justify-center mr-3">
+              <i class="fas fa-cog text-neon-green"></i>
+            </div>
+            <div>
+              <h3 class="font-medium">Configure Settings</h3>
+              <p class="text-sm text-gray-400">Adjust generator parameters</p>
+            </div>
+          </div>
+        </a>
+
+        <a href="/admin/content-generator/analytics" class="bg-dark-200 hover:bg-dark-300 rounded-lg p-4 transition-colors">
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-full bg-neon-purple/20 flex items-center justify-center mr-3">
+              <i class="fas fa-chart-line text-neon-purple"></i>
+            </div>
+            <div>
+              <h3 class="font-medium">View Analytics</h3>
+              <p class="text-sm text-gray-400">Track usage and performance</p>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Content View Modal -->
+<div id="content-view-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-200 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+    <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+      <h3 class="text-lg font-semibold text-white" id="modal-title">View Generated Content</h3>
+      <button id="close-modal-btn" class="text-gray-400 hover:text-white">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="p-6 overflow-y-auto max-h-[70vh]">
+      <div class="mb-4">
+        <h4 class="text-sm font-medium text-gray-400 mb-1">User</h4>
+        <p class="text-white bg-dark-300 p-3 rounded-md" id="modal-user"></p>
+      </div>
+      <div class="mb-4">
+        <h4 class="text-sm font-medium text-gray-400 mb-1">Prompt</h4>
+        <p class="text-white bg-dark-300 p-3 rounded-md" id="modal-prompt"></p>
+      </div>
+      <div>
+        <h4 class="text-sm font-medium text-gray-400 mb-1">Generated Content</h4>
+        <div class="text-white bg-dark-300 p-3 rounded-md prose prose-invert max-w-none" id="modal-content"></div>
+      </div>
+    </div>
+    <div class="p-4 border-t border-gray-700 flex justify-end">
+      <button id="modal-copy-btn" class="bg-dark-300 hover:bg-dark-400 text-gray-300 px-4 py-2 rounded-md mr-3 transition-colors">
+        <i class="fas fa-copy mr-2"></i>Copy Content
+      </button>
+      <button id="close-modal-btn-2" class="bg-neon-blue hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // User search functionality
+    const userSearch = document.getElementById('user-search');
+    const generationRows = document.querySelectorAll('.generation-row');
+
+    userSearch.addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase();
+
+      generationRows.forEach(row => {
+        const user = row.getAttribute('data-user');
+
+        if (user.includes(searchTerm)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+
+    // Content view modal
+    const modal = document.getElementById('content-view-modal');
+    const closeModalBtns = document.querySelectorAll('#close-modal-btn, #close-modal-btn-2');
+    const modalTitle = document.getElementById('modal-title');
+    const modalUser = document.getElementById('modal-user');
+    const modalPrompt = document.getElementById('modal-prompt');
+    const modalContent = document.getElementById('modal-content');
+    const modalCopyBtn = document.getElementById('modal-copy-btn');
+    const viewContentBtns = document.querySelectorAll('.view-content-btn');
+
+    // View content
+    viewContentBtns.forEach(button => {
+      button.addEventListener('click', async function() {
+        const contentId = this.getAttribute('data-id');
+        const row = this.closest('tr');
+        const user = row.querySelector('td:nth-child(2)').textContent.trim();
+        const prompt = row.querySelector('td:nth-child(4)').textContent.trim();
+
+        // In a real implementation, you would fetch the content from the server
+        // For now, we'll just use placeholder content
+        modalUser.textContent = user;
+        modalPrompt.textContent = prompt;
+
+        // Simulate loading content
+        modalContent.innerHTML = '<div class="flex justify-center"><div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-neon-blue"></div></div>';
+
+        // Show modal
+        modal.classList.remove('hidden');
+
+        // Simulate API call to get content
+        setTimeout(() => {
+          // This would be replaced with actual content from the API
+          modalContent.innerHTML = `
+            <h2>Sample Generated Content</h2>
+            <p>This is a sample content for the prompt: "${prompt}"</p>
+            <p>In a real implementation, this would be the actual content stored in the database.</p>
+            <ul>
+              <li>Key point 1</li>
+              <li>Key point 2</li>
+              <li>Key point 3</li>
+            </ul>
+            <p>Thank you for using our AI Content Generator!</p>
+          `;
+        }, 1000);
+      });
+    });
+
+    // Close modal
+    closeModalBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        modal.classList.add('hidden');
+      });
+    });
+
+    // Copy content
+    modalCopyBtn.addEventListener('click', function() {
+      const content = modalContent.innerText;
+
+      // Create a temporary textarea to copy the content
+      const textarea = document.createElement('textarea');
+      textarea.value = content;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+
+      // Show success message
+      const originalText = modalCopyBtn.innerHTML;
+      modalCopyBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Copied!';
+      setTimeout(() => {
+        modalCopyBtn.innerHTML = originalText;
+      }, 2000);
+    });
+  });
+</script>

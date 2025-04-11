@@ -1,0 +1,320 @@
+<!-- Admin Content Generator Analytics -->
+<div class="flex flex-col md:flex-row">
+  <div class="flex-grow p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Content Generator Analytics</h1>
+      <a href="/admin/content-generator" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-3 py-2 rounded-md text-sm transition-colors">
+        <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
+      </a>
+    </div>
+
+    <!-- Usage Chart -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 mb-8">
+      <h2 class="text-xl font-semibold mb-4">Daily Usage</h2>
+      <div class="h-80">
+        <canvas id="usageChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Analytics Filters -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 mb-8">
+      <div class="flex flex-wrap justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Usage Filters</h2>
+        <div class="flex space-x-2 mt-2 md:mt-0">
+          <button class="time-filter active px-3 py-1 bg-dark-200 hover:bg-dark-300 text-gray-300 rounded-md text-sm transition-colors" data-range="30">30 Days</button>
+          <button class="time-filter px-3 py-1 bg-dark-200 hover:bg-dark-300 text-gray-300 rounded-md text-sm transition-colors" data-range="90">90 Days</button>
+          <button class="time-filter px-3 py-1 bg-dark-200 hover:bg-dark-300 text-gray-300 rounded-md text-sm transition-colors" data-range="365">1 Year</button>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label for="content-type-filter" class="block text-gray-300 mb-1 text-sm">Content Type</label>
+          <select id="content-type-filter" class="w-full bg-dark-300 border border-gray-600 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-neon-blue">
+            <option value="all">All Types</option>
+            <option value="website">Website</option>
+            <option value="blog">Blog</option>
+            <option value="social">Social Media</option>
+            <option value="email">Email</option>
+            <option value="product">Product</option>
+            <option value="seo">SEO</option>
+          </select>
+        </div>
+        
+        <div>
+          <label for="user-filter" class="block text-gray-300 mb-1 text-sm">User</label>
+          <select id="user-filter" class="w-full bg-dark-300 border border-gray-600 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-neon-blue">
+            <option value="all">All Users</option>
+            <!-- This would be populated with actual users in a real implementation -->
+            <option value="user1">User 1</option>
+            <option value="user2">User 2</option>
+            <option value="user3">User 3</option>
+          </select>
+        </div>
+        
+        <div>
+          <label for="template-filter" class="block text-gray-300 mb-1 text-sm">Template</label>
+          <select id="template-filter" class="w-full bg-dark-300 border border-gray-600 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-neon-blue">
+            <option value="all">All Templates</option>
+            <!-- This would be populated with actual templates in a real implementation -->
+            <option value="template1">Template 1</option>
+            <option value="template2">Template 2</option>
+            <option value="template3">Template 3</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="mt-4 flex justify-end">
+        <button id="apply-filters" class="px-4 py-2 bg-neon-blue text-white rounded-md hover:bg-blue-600 text-sm">
+          Apply Filters
+        </button>
+      </div>
+    </div>
+
+    <!-- Content Type Distribution -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6">
+        <h2 class="text-xl font-semibold mb-4">Content Type Distribution</h2>
+        <div class="h-64">
+          <canvas id="contentTypeChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-6">
+        <h2 class="text-xl font-semibold mb-4">User Activity</h2>
+        <div class="h-64">
+          <canvas id="userActivityChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Export Options -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6">
+      <h2 class="text-xl font-semibold mb-4">Export Data</h2>
+      <div class="flex flex-wrap gap-4">
+        <button class="px-4 py-2 bg-dark-200 hover:bg-dark-300 text-gray-300 rounded-md transition-colors">
+          <i class="fas fa-file-csv mr-2"></i> Export as CSV
+        </button>
+        <button class="px-4 py-2 bg-dark-200 hover:bg-dark-300 text-gray-300 rounded-md transition-colors">
+          <i class="fas fa-file-excel mr-2"></i> Export as Excel
+        </button>
+        <button class="px-4 py-2 bg-dark-200 hover:bg-dark-300 text-gray-300 rounded-md transition-colors">
+          <i class="fas fa-file-pdf mr-2"></i> Export as PDF
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Sample data for charts
+    const dailyStats = <%= JSON.stringify(dailyStats) %>;
+    
+    // Parse the dates and prepare data for chart
+    const dates = dailyStats.map(stat => stat.date);
+    const counts = dailyStats.map(stat => stat.count);
+    
+    // Set up the usage chart
+    const usageCtx = document.getElementById('usageChart').getContext('2d');
+    const usageChart = new Chart(usageCtx, {
+      type: 'line',
+      data: {
+        labels: dates,
+        datasets: [{
+          label: 'Content Generations',
+          data: counts,
+          backgroundColor: 'rgba(0, 242, 255, 0.2)',
+          borderColor: 'rgba(0, 242, 255, 1)',
+          borderWidth: 2,
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          },
+          x: {
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          }
+        }
+      }
+    });
+    
+    // Sample data for content type distribution
+    const contentTypeCtx = document.getElementById('contentTypeChart').getContext('2d');
+    const contentTypeChart = new Chart(contentTypeCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Website', 'Blog', 'Social', 'Email', 'Product', 'SEO'],
+        datasets: [{
+          data: [30, 25, 15, 10, 12, 8],
+          backgroundColor: [
+            'rgba(0, 242, 255, 0.7)',
+            'rgba(138, 43, 226, 0.7)',
+            'rgba(255, 105, 180, 0.7)',
+            'rgba(255, 215, 0, 0.7)',
+            'rgba(50, 205, 50, 0.7)',
+            'rgba(255, 69, 0, 0.7)'
+          ],
+          borderColor: [
+            'rgba(0, 242, 255, 1)',
+            'rgba(138, 43, 226, 1)',
+            'rgba(255, 105, 180, 1)',
+            'rgba(255, 215, 0, 1)',
+            'rgba(50, 205, 50, 1)',
+            'rgba(255, 69, 0, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          }
+        }
+      }
+    });
+    
+    // Sample data for user activity
+    const userActivityCtx = document.getElementById('userActivityChart').getContext('2d');
+    const userActivityChart = new Chart(userActivityCtx, {
+      type: 'bar',
+      data: {
+        labels: ['User 1', 'User 2', 'User 3', 'User 4', 'User 5'],
+        datasets: [{
+          label: 'Content Generations',
+          data: [45, 32, 28, 19, 15],
+          backgroundColor: 'rgba(138, 43, 226, 0.7)',
+          borderColor: 'rgba(138, 43, 226, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          },
+          x: {
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: 'rgba(255, 255, 255, 0.7)'
+            }
+          }
+        }
+      }
+    });
+    
+    // Time filter buttons
+    const timeFilters = document.querySelectorAll('.time-filter');
+    timeFilters.forEach(filter => {
+      filter.addEventListener('click', function() {
+        // Remove active class from all filters
+        timeFilters.forEach(f => f.classList.remove('active'));
+        
+        // Add active class to clicked filter
+        this.classList.add('active');
+        
+        // Get the time range
+        const range = parseInt(this.getAttribute('data-range'));
+        
+        // Update chart data (this would fetch new data in a real implementation)
+        // For now, we'll just simulate different data
+        const newData = [];
+        for (let i = 0; i < range; i++) {
+          const date = new Date();
+          date.setDate(date.getDate() - i);
+          newData.unshift({
+            date: date.toISOString().split('T')[0],
+            count: Math.floor(Math.random() * 20) + 1
+          });
+        }
+        
+        // Update chart
+        usageChart.data.labels = newData.map(item => item.date);
+        usageChart.data.datasets[0].data = newData.map(item => item.count);
+        usageChart.update();
+      });
+    });
+    
+    // Apply filters button
+    document.getElementById('apply-filters').addEventListener('click', function() {
+      const contentType = document.getElementById('content-type-filter').value;
+      const user = document.getElementById('user-filter').value;
+      const template = document.getElementById('template-filter').value;
+      
+      // In a real implementation, this would fetch filtered data from the server
+      // For now, we'll just show an alert with the selected filters
+      alert(`Filters applied:\nContent Type: ${contentType}\nUser: ${user}\nTemplate: ${template}`);
+      
+      // Simulate updating charts with new data
+      // This would be replaced with actual data in a real implementation
+      contentTypeChart.data.datasets[0].data = [
+        Math.floor(Math.random() * 30) + 10,
+        Math.floor(Math.random() * 30) + 10,
+        Math.floor(Math.random() * 30) + 10,
+        Math.floor(Math.random() * 30) + 10,
+        Math.floor(Math.random() * 30) + 10,
+        Math.floor(Math.random() * 30) + 10
+      ];
+      contentTypeChart.update();
+      
+      userActivityChart.data.datasets[0].data = [
+        Math.floor(Math.random() * 30) + 10,
+        Math.floor(Math.random() * 30) + 10,
+        Math.floor(Math.random() * 30) + 10,
+        Math.floor(Math.random() * 30) + 10,
+        Math.floor(Math.random() * 30) + 10
+      ];
+      userActivityChart.update();
+    });
+  });
+</script>

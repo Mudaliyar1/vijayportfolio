@@ -23,12 +23,12 @@ module.exports = {
     try {
       const packageId = req.params.id;
       const packageDetails = await Package.findById(packageId);
-      
+
       if (!packageDetails) {
         req.flash('error_msg', 'Package not found');
         return res.redirect('/buy-package');
       }
-      
+
       res.render('packages/details', {
         title: `${packageDetails.name} Package - FTRAISE AI`,
         package: packageDetails,
@@ -84,6 +84,13 @@ module.exports = {
         active
       } = req.body;
 
+      // Check if a package with the same name already exists
+      const existingPackage = await Package.findOne({ name: name });
+      if (existingPackage) {
+        req.flash('error_msg', `A package with the name "${name}" already exists. Please choose a different name.`);
+        return res.redirect('/admin/packages/create');
+      }
+
       // Convert checkbox values to boolean
       const newPackage = new Package({
         name,
@@ -106,7 +113,14 @@ module.exports = {
       res.redirect('/admin/packages');
     } catch (err) {
       console.error('Error creating package:', err);
-      req.flash('error_msg', 'Failed to create package');
+
+      // Check if this is a duplicate key error
+      if (err.code === 11000 && err.keyPattern && err.keyPattern.name) {
+        req.flash('error_msg', `A package with the name "${err.keyValue.name}" already exists. Please choose a different name.`);
+      } else {
+        req.flash('error_msg', 'Failed to create package');
+      }
+
       res.redirect('/admin/packages/create');
     }
   },
@@ -116,12 +130,12 @@ module.exports = {
     try {
       const packageId = req.params.id;
       const packageDetails = await Package.findById(packageId);
-      
+
       if (!packageDetails) {
         req.flash('error_msg', 'Package not found');
         return res.redirect('/admin/packages');
       }
-      
+
       res.render('admin/packages/edit', {
         title: `Edit ${packageDetails.name} Package - Admin`,
         package: packageDetails,
@@ -154,6 +168,18 @@ module.exports = {
         active
       } = req.body;
 
+      // Get the old package to check if name has changed
+      const oldPackage = await Package.findById(packageId);
+
+      // If name is being changed, check if the new name already exists
+      if (name !== oldPackage.name) {
+        const existingPackage = await Package.findOne({ name: name, _id: { $ne: packageId } });
+        if (existingPackage) {
+          req.flash('error_msg', `A package with the name "${name}" already exists. Please choose a different name.`);
+          return res.redirect(`/admin/packages/edit/${packageId}`);
+        }
+      }
+
       const updatedPackage = {
         name,
         price,
@@ -175,7 +201,14 @@ module.exports = {
       res.redirect('/admin/packages');
     } catch (err) {
       console.error('Error updating package:', err);
-      req.flash('error_msg', 'Failed to update package');
+
+      // Check if this is a duplicate key error
+      if (err.code === 11000 && err.keyPattern && err.keyPattern.name) {
+        req.flash('error_msg', `A package with the name "${err.keyValue.name}" already exists. Please choose a different name.`);
+      } else {
+        req.flash('error_msg', 'Failed to update package');
+      }
+
       res.redirect(`/admin/packages/edit/${req.params.id}`);
     }
   },
@@ -184,15 +217,15 @@ module.exports = {
   adminDeletePackage: async (req, res) => {
     try {
       const packageId = req.params.id;
-      
+
       // Check if any users are using this package
       const usersWithPackage = await User.countDocuments({ activePackage: packageId });
-      
+
       if (usersWithPackage > 0) {
         req.flash('error_msg', 'Cannot delete package as it is currently in use by users');
         return res.redirect('/admin/packages');
       }
-      
+
       await Package.findByIdAndDelete(packageId);
       req.flash('success_msg', 'Package deleted successfully');
       res.redirect('/admin/packages');

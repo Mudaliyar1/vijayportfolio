@@ -1,0 +1,317 @@
+<!-- Template Details Page -->
+<div class="container mx-auto px-4 py-8">
+  <div class="flex flex-col md:flex-row justify-between items-start mb-8">
+    <div>
+      <a href="/template-marketplace" class="text-neon-blue hover:underline mb-2 inline-block">
+        <i class="fas fa-arrow-left mr-2"></i>Back to Templates
+      </a>
+      <h1 class="text-3xl font-bold text-white mb-2"><%= template.name %></h1>
+      <p class="text-gray-400"><%= template.businessType %> Template</p>
+    </div>
+    <div class="mt-4 md:mt-0 flex space-x-3">
+      <% if (hasPurchased) { %>
+        <a href="/websites/create?template=<%= template._id %>" class="bg-neon-green hover:bg-green-600 text-white px-4 py-2 rounded-md transition-colors">
+          <i class="fas fa-plus mr-2"></i>Use Template
+        </a>
+      <% } else { %>
+        <% if (template.price > 0) { %>
+          <form action="/template-marketplace/purchase/<%= template._id %>" method="POST">
+            <button type="submit" class="bg-neon-purple hover:bg-purple-600 text-white px-4 py-2 rounded-md transition-colors">
+              <i class="fas fa-shopping-cart mr-2"></i>Purchase ($<%= template.price.toFixed(2) %>)
+            </button>
+          </form>
+        <% } else { %>
+          <form action="/template-marketplace/purchase/<%= template._id %>" method="POST">
+            <button type="submit" class="bg-neon-green hover:bg-green-600 text-white px-4 py-2 rounded-md transition-colors">
+              <i class="fas fa-download mr-2"></i>Get Free Template
+            </button>
+          </form>
+        <% } %>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Left Column: Preview and Details -->
+    <div class="lg:col-span-2">
+      <!-- Preview Image -->
+      <div class="bg-dark-200 rounded-lg overflow-hidden mb-8">
+        <img src="<%= template.preview || template.thumbnail %>" alt="<%= template.name %>" class="w-full h-auto">
+      </div>
+
+      <!-- Template Description -->
+      <div class="bg-dark-200 rounded-lg p-6 mb-8">
+        <h2 class="text-xl font-semibold text-white mb-4">Description</h2>
+        <p class="text-gray-300 whitespace-pre-line"><%= template.description %></p>
+      </div>
+
+      <!-- Features -->
+      <div class="bg-dark-200 rounded-lg p-6 mb-8">
+        <h2 class="text-xl font-semibold text-white mb-4">Features</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="flex items-start">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-neon-blue/20 flex items-center justify-center mr-3">
+              <i class="fas fa-mobile-alt text-neon-blue"></i>
+            </div>
+            <div>
+              <h3 class="text-white font-medium">Responsive Design</h3>
+              <p class="text-gray-400 text-sm">Looks great on all devices</p>
+            </div>
+          </div>
+          <div class="flex items-start">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-neon-green/20 flex items-center justify-center mr-3">
+              <i class="fas fa-tachometer-alt text-neon-green"></i>
+            </div>
+            <div>
+              <h3 class="text-white font-medium">Fast Loading</h3>
+              <p class="text-gray-400 text-sm">Optimized for performance</p>
+            </div>
+          </div>
+          <div class="flex items-start">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-neon-purple/20 flex items-center justify-center mr-3">
+              <i class="fas fa-search text-neon-purple"></i>
+            </div>
+            <div>
+              <h3 class="text-white font-medium">SEO Friendly</h3>
+              <p class="text-gray-400 text-sm">Optimized for search engines</p>
+            </div>
+          </div>
+          <div class="flex items-start">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-yellow-500/20 flex items-center justify-center mr-3">
+              <i class="fas fa-paint-brush text-yellow-500"></i>
+            </div>
+            <div>
+              <h3 class="text-white font-medium">Customizable</h3>
+              <p class="text-gray-400 text-sm">Easy to modify and adapt</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reviews -->
+      <div class="bg-dark-200 rounded-lg p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold text-white">Reviews</h2>
+          <% if (hasPurchased) { %>
+            <button id="write-review-btn" class="text-neon-blue hover:underline">
+              <i class="fas fa-pen mr-1"></i> Write a Review
+            </button>
+          <% } %>
+        </div>
+
+        <!-- Review Form (Hidden by default) -->
+        <% if (hasPurchased) { %>
+          <div id="review-form" class="bg-dark-300 rounded-lg p-4 mb-6 hidden">
+            <form action="/template-marketplace/review/<%= template._id %>" method="POST">
+              <div class="mb-4">
+                <label class="block text-gray-300 mb-2">Rating</label>
+                <div class="flex space-x-2">
+                  <% for (let i = 1; i <= 5; i++) { %>
+                    <label class="cursor-pointer">
+                      <input type="radio" name="rating" value="<%= i %>" class="hidden rating-input" <%= i === 5 ? 'checked' : '' %>>
+                      <i class="fas fa-star text-2xl rating-star" data-rating="<%= i %>"></i>
+                    </label>
+                  <% } %>
+                </div>
+              </div>
+              <div class="mb-4">
+                <label for="comment" class="block text-gray-300 mb-2">Comment (optional)</label>
+                <textarea id="comment" name="comment" rows="4" class="w-full bg-dark-400 border border-gray-600 rounded-md px-4 py-2 text-white focus:outline-none focus:border-neon-blue"></textarea>
+              </div>
+              <div class="flex justify-end space-x-3">
+                <button type="button" id="cancel-review-btn" class="bg-dark-400 hover:bg-dark-500 text-gray-300 px-4 py-2 rounded-md transition-colors">
+                  Cancel
+                </button>
+                <button type="submit" class="bg-neon-blue hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors">
+                  Submit Review
+                </button>
+              </div>
+            </form>
+          </div>
+        <% } %>
+
+        <!-- Reviews List -->
+        <% if (template.reviews && template.reviews.length > 0) { %>
+          <div class="space-y-4">
+            <% template.reviews.forEach(review => { %>
+              <div class="border-b border-gray-700 pb-4 last:border-0 last:pb-0">
+                <div class="flex justify-between items-start mb-2">
+                  <div>
+                    <div class="flex items-center">
+                      <% for (let i = 1; i <= 5; i++) { %>
+                        <i class="fas fa-star <%= i <= review.rating ? 'text-yellow-400' : 'text-gray-600' %> mr-1"></i>
+                      <% } %>
+                    </div>
+                    <div class="text-white font-medium mt-1"><%= review.user ? review.user.username : 'Anonymous' %></div>
+                  </div>
+                  <div class="text-gray-400 text-sm"><%= new Date(review.createdAt).toLocaleDateString() %></div>
+                </div>
+                <% if (review.comment) { %>
+                  <p class="text-gray-300"><%= review.comment %></p>
+                <% } %>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <div class="text-center py-8">
+            <i class="fas fa-comment-alt text-4xl text-gray-500 mb-3"></i>
+            <p class="text-gray-400">No reviews yet</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Right Column: Sidebar -->
+    <div>
+      <!-- Template Info Card -->
+      <div class="bg-dark-200 rounded-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold text-white mb-4">Template Info</h2>
+        <div class="space-y-4">
+          <div>
+            <h3 class="text-gray-400 text-sm">Price</h3>
+            <p class="text-white font-medium">
+              <% if (template.price > 0) { %>
+                $<%= template.price.toFixed(2) %>
+              <% } else { %>
+                Free
+              <% } %>
+            </p>
+          </div>
+          <div>
+            <h3 class="text-gray-400 text-sm">Package Type</h3>
+            <p class="text-white font-medium"><%= template.packageType.charAt(0).toUpperCase() + template.packageType.slice(1) %></p>
+          </div>
+          <div>
+            <h3 class="text-gray-400 text-sm">Category</h3>
+            <p class="text-white font-medium"><%= template.businessType %></p>
+          </div>
+          <div>
+            <h3 class="text-gray-400 text-sm">Downloads</h3>
+            <p class="text-white font-medium"><%= template.downloads %></p>
+          </div>
+          <div>
+            <h3 class="text-gray-400 text-sm">Rating</h3>
+            <div class="flex items-center">
+              <div class="flex mr-2">
+                <% for (let i = 1; i <= 5; i++) { %>
+                  <i class="fas fa-star <%= i <= Math.round(template.rating) ? 'text-yellow-400' : 'text-gray-600' %> mr-1"></i>
+                <% } %>
+              </div>
+              <span class="text-white"><%= template.rating.toFixed(1) %></span>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-gray-400 text-sm">Created By</h3>
+            <p class="text-white font-medium"><%= template.creator ? template.creator.username : 'FTRAISE AI' %></p>
+          </div>
+          <div>
+            <h3 class="text-gray-400 text-sm">Created On</h3>
+            <p class="text-white font-medium"><%= new Date(template.createdAt).toLocaleDateString() %></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Similar Templates -->
+      <div class="bg-dark-200 rounded-lg p-6">
+        <h2 class="text-xl font-semibold text-white mb-4">Similar Templates</h2>
+        <% if (similarTemplates.length === 0) { %>
+          <p class="text-gray-400">No similar templates found</p>
+        <% } else { %>
+          <div class="space-y-4">
+            <% similarTemplates.forEach(similarTemplate => { %>
+              <a href="/template-marketplace/template/<%= similarTemplate._id %>" class="block bg-dark-300 rounded-lg overflow-hidden hover:border-neon-blue border border-transparent transition-colors">
+                <div class="flex">
+                  <img src="<%= similarTemplate.thumbnail %>" alt="<%= similarTemplate.name %>" class="w-20 h-20 object-cover">
+                  <div class="p-3 flex-grow">
+                    <h3 class="text-white font-medium mb-1"><%= similarTemplate.name %></h3>
+                    <div class="flex justify-between items-center">
+                      <div class="text-sm text-gray-400"><%= similarTemplate.businessType %></div>
+                      <% if (similarTemplate.price > 0) { %>
+                        <div class="text-neon-purple font-medium">$<%= similarTemplate.price.toFixed(2) %></div>
+                      <% } else { %>
+                        <div class="text-neon-green font-medium">Free</div>
+                      <% } %>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            <% }); %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Review form toggle
+    const writeReviewBtn = document.getElementById('write-review-btn');
+    const reviewForm = document.getElementById('review-form');
+    const cancelReviewBtn = document.getElementById('cancel-review-btn');
+    
+    if (writeReviewBtn && reviewForm && cancelReviewBtn) {
+      writeReviewBtn.addEventListener('click', function() {
+        reviewForm.classList.remove('hidden');
+        writeReviewBtn.classList.add('hidden');
+      });
+      
+      cancelReviewBtn.addEventListener('click', function() {
+        reviewForm.classList.add('hidden');
+        writeReviewBtn.classList.remove('hidden');
+      });
+    }
+    
+    // Star rating functionality
+    const ratingStars = document.querySelectorAll('.rating-star');
+    const ratingInputs = document.querySelectorAll('.rating-input');
+    
+    if (ratingStars.length > 0 && ratingInputs.length > 0) {
+      // Initialize stars
+      updateStars();
+      
+      // Add event listeners to stars
+      ratingStars.forEach(star => {
+        star.addEventListener('click', function() {
+          const rating = parseInt(this.getAttribute('data-rating'));
+          
+          // Update radio input
+          ratingInputs.forEach(input => {
+            if (parseInt(input.value) === rating) {
+              input.checked = true;
+            } else {
+              input.checked = false;
+            }
+          });
+          
+          // Update stars
+          updateStars();
+        });
+      });
+      
+      function updateStars() {
+        let selectedRating = 0;
+        
+        // Find selected rating
+        ratingInputs.forEach(input => {
+          if (input.checked) {
+            selectedRating = parseInt(input.value);
+          }
+        });
+        
+        // Update star colors
+        ratingStars.forEach(star => {
+          const rating = parseInt(star.getAttribute('data-rating'));
+          
+          if (rating <= selectedRating) {
+            star.classList.add('text-yellow-400');
+            star.classList.remove('text-gray-600');
+          } else {
+            star.classList.remove('text-yellow-400');
+            star.classList.add('text-gray-600');
+          }
+        });
+      }
+    }
+  });
+</script>

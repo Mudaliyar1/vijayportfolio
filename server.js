@@ -195,6 +195,9 @@ app.use(adminBypassMaintenance);
 // Admin status route - must be before maintenance middleware
 app.use('/admin-status', require('./routes/admin-status'));
 
+// View data middleware
+const viewData = require('./middleware/viewData');
+
 // Admin view data middleware
 const adminViewData = require('./middleware/adminViewData');
 
@@ -205,6 +208,29 @@ app.use('/admin/images', require('./routes/admin-images'));
 app.use('/admin/rate-limits', require('./routes/admin-rate-limits'));
 app.use('/admin', require('./routes/admin-websites'));
 app.use('/admin', require('./routes/admin-payments'));
+app.use('/admin', require('./routes/admin-templates'));
+
+// User Statistics admin routes
+app.use('/admin/user-statistics', adminViewData);
+app.use('/admin/user-statistics', require('./routes/user-statistics'));
+
+// Template Marketplace routes
+app.use('/template-marketplace', viewData);
+app.use('/template-marketplace', require('./routes/template-marketplace'));
+app.use('/admin/template-marketplace', adminViewData);
+app.use('/admin/template-marketplace', require('./routes/template-marketplace'));
+
+// Website Analytics routes
+app.use('/website-analytics', viewData);
+app.use('/website-analytics', require('./routes/website-analytics'));
+app.use('/admin/website-analytics', adminViewData);
+app.use('/admin/website-analytics', require('./routes/website-analytics'));
+
+// Website Assistant routes
+app.use('/website-assistant', viewData);
+app.use('/website-assistant', require('./routes/website-assistant'));
+app.use('/admin/website-assistant', adminViewData);
+app.use('/admin/website-assistant', require('./routes/website-assistant'));
 
 // Maintenance mode middleware - applied after admin routes
 app.use(maintenanceMiddleware);
@@ -262,10 +288,26 @@ app.use('/blog', require('./routes/blog')); // Blog routes
 app.use('/community', require('./routes/community')); // Community routes
 // Social routes removed as requested
 
+// Load website builder view data middleware
+const websiteBuilderViewData = require('./middleware/websiteBuilderViewData');
+
 // Website builder routes
-app.use('/', require('./routes/website-builder'));
+app.use('/websites', websiteBuilderViewData);
+app.use('/websites', require('./routes/website-builder'));
+app.use('/templates', websiteBuilderViewData);
+app.use('/templates', require('./routes/templates'));
+app.use('/buy-package', websiteBuilderViewData);
 app.use('/', require('./routes/packages'));
 app.use('/', require('./routes/payments'));
+
+// Content Generator routes
+app.use('/content-generator', require('./routes/content-generator'));
+
+// SEO Analyzer routes
+app.use('/seo-analyzer', require('./routes/seo-analyzer'));
+
+// Website Assistant routes - Uncomment when ready
+// app.use('/website-assistant', require('./routes/website-assistant'));
 
 // Policy pages routes
 app.use('/policies', require('./routes/policies'));

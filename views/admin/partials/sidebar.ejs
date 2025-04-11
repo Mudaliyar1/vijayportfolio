@@ -4,15 +4,16 @@ if (typeof path === 'undefined') {
   path = '/admin';
 }
 %>
-<div class="w-64 bg-dark-200 border-r border-gray-800 min-h-screen hidden md:block shadow-xl">
-  <div class="p-6 border-b border-gray-800 bg-gradient-to-r from-dark-100 to-dark-200">
-    <a href="/" class="flex items-center">
+<div class="w-64 bg-dark-200 border-r border-gray-800 min-h-screen block shadow-xl flex flex-col">
+  <!-- Fixed Header - Always visible -->
+  <div class="flex-shrink-0 p-6 border-b border-gray-800 bg-gradient-to-r from-dark-100 to-dark-200 sticky top-0 z-20">
+    <a href="/admin" class="flex flex-col items-center">
       <span class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple">FTRAISE AI</span>
+      <div class="flex items-center mt-2">
+        <span class="w-2 h-2 bg-neon-green rounded-full mr-2 animate-pulse"></span>
+        <p class="text-gray-300 text-sm font-medium">Admin Panel</p>
+      </div>
     </a>
-    <div class="flex items-center mt-2">
-      <span class="w-2 h-2 bg-neon-green rounded-full mr-2 animate-pulse"></span>
-      <p class="text-gray-400 text-sm font-medium">Admin Panel</p>
-    </div>
 
     <% if (typeof maintenanceMode !== 'undefined' && maintenanceMode) { %>
     <div class="maintenance-indicator mt-3 bg-red-900/50 border border-red-500/30 text-white text-center py-2 px-3 text-xs font-bold rounded-md">
@@ -21,7 +22,8 @@ if (typeof path === 'undefined') {
     <% } %>
   </div>
 
-  <nav class="p-4 pb-32">
+  <!-- Scrollable Navigation -->
+  <nav class="flex-grow overflow-y-auto p-4 custom-scrollbar" style="max-height: calc(100vh - 200px); overflow-y: auto; padding-bottom: 150px;">
     <!-- Dashboard Section -->
     <div class="mb-6">
       <h3 class="text-xs uppercase text-gray-400 font-semibold px-4 mb-3 flex items-center"><span class="w-1 h-4 bg-neon-blue rounded-full mr-2"></span>Main</h3>
@@ -108,6 +110,12 @@ if (typeof path === 'undefined') {
             <span class="ml-3">Payments</span>
           </a>
         </li>
+        <li>
+          <a href="/admin/templates" class="flex items-center py-2 px-4 rounded-md <%= path.startsWith('/admin/templates') ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-th-large w-5"></i>
+            <span class="ml-3">Templates</span>
+          </a>
+        </li>
       </ul>
     </div>
 
@@ -130,13 +138,57 @@ if (typeof path === 'undefined') {
       </ul>
     </div>
 
-    <!-- Empty Section for Future Additions -->
+    <!-- AI Tools Section -->
     <div class="mb-6">
-      <h3 class="text-xs uppercase text-gray-400 font-semibold px-4 mb-3 flex items-center"><span class="w-1 h-4 bg-gray-500 rounded-full mr-2"></span>Extensions</h3>
+      <h3 class="text-xs uppercase text-gray-400 font-semibold px-4 mb-3 flex items-center"><span class="w-1 h-4 bg-neon-green rounded-full mr-2"></span>User Statistics</h3>
       <ul class="space-y-1">
-        <li class="px-4 py-2 text-gray-500 text-sm italic">
-          <i class="fas fa-puzzle-piece w-5"></i>
-          <span class="ml-3">Future modules</span>
+        <li>
+          <a href="/admin/user-statistics" class="flex items-center py-2 px-4 rounded-md <%= path.startsWith('/admin/user-statistics') && path === '/admin/user-statistics' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-chart-line w-5"></i>
+            <span class="ml-3">Usage Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/user-statistics/content-generator" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/user-statistics/content-generator' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-magic w-5"></i>
+            <span class="ml-3">Content Generator</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/user-statistics/seo-analyzer" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/user-statistics/seo-analyzer' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-search w-5"></i>
+            <span class="ml-3">SEO Analyzer</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/user-statistics/history" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/user-statistics/history' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-history w-5"></i>
+            <span class="ml-3">User History</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="mb-6">
+      <h3 class="text-xs uppercase text-gray-400 font-semibold px-4 mb-3 flex items-center"><span class="w-1 h-4 bg-neon-purple rounded-full mr-2"></span>Template Marketplace</h3>
+      <ul class="space-y-1">
+        <li>
+          <a href="/admin/template-marketplace" class="flex items-center py-2 px-4 rounded-md <%= path.startsWith('/admin/template-marketplace') && path === '/admin/template-marketplace' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-store w-5"></i>
+            <span class="ml-3">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/template-marketplace/pending" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/template-marketplace/pending' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-clock w-5"></i>
+            <span class="ml-3">Pending Templates</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/template-marketplace/analytics" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/template-marketplace/analytics' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-chart-bar w-5"></i>
+            <span class="ml-3">Analytics</span>
+          </a>
         </li>
       </ul>
     </div>
@@ -211,6 +263,20 @@ if (typeof path === 'undefined') {
           </a>
         </li>
         <li>
+          <a href="#" class="flex items-center py-2 px-4 rounded-md text-gray-500 cursor-not-allowed">
+            <i class="fas fa-user-shield w-5"></i>
+            <span class="ml-3">User Permissions</span>
+            <span class="ml-auto text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded">Coming Soon</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center py-2 px-4 rounded-md text-gray-500 cursor-not-allowed">
+            <i class="fas fa-user-clock w-5"></i>
+            <span class="ml-3">User Activity</span>
+            <span class="ml-auto text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded">Coming Soon</span>
+          </a>
+        </li>
+        <li>
           <a href="/admin/chats" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/chats' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
             <i class="fas fa-comments w-5"></i>
             <span class="ml-3">Chat Management</span>
@@ -271,10 +337,80 @@ if (typeof path === 'undefined') {
             <span class="ml-3">Payments</span>
           </a>
         </li>
+        <li>
+          <a href="/admin/user-statistics" class="flex items-center py-2 px-4 rounded-md <%= path.startsWith('/admin/user-statistics') && path === '/admin/user-statistics' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-chart-line w-5"></i>
+            <span class="ml-3">Usage Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/user-statistics/content-generator" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/user-statistics/content-generator' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-magic w-5"></i>
+            <span class="ml-3">Content Generator</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/user-statistics/seo-analyzer" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/user-statistics/seo-analyzer' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-search w-5"></i>
+            <span class="ml-3">SEO Analyzer</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/user-statistics/history" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/user-statistics/history' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-history w-5"></i>
+            <span class="ml-3">User History</span>
+          </a>
+        </li>
+
+        <!-- Template Marketplace Section -->
+        <li class="mt-4 px-4 py-2 text-xs uppercase text-gray-400 font-semibold" id="template-marketplace-section">Template Marketplace</li>
+        <li>
+          <a href="/admin/template-marketplace" class="flex items-center py-2 px-4 rounded-md <%= path.startsWith('/admin/template-marketplace') && path === '/admin/template-marketplace' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-store w-5"></i>
+            <span class="ml-3">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/template-marketplace/pending" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/template-marketplace/pending' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-clock w-5"></i>
+            <span class="ml-3">Pending Templates</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/template-marketplace/analytics" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/template-marketplace/analytics' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-chart-bar w-5"></i>
+            <span class="ml-3">Analytics</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/template-marketplace/templates" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/template-marketplace/templates' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-layer-group w-5"></i>
+            <span class="ml-3">Manage Templates</span>
+          </a>
+        </li>
+
+        <!-- Future Links for Template Marketplace -->
+        <li>
+          <a href="#" class="flex items-center py-2 px-4 rounded-md text-gray-500 cursor-not-allowed">
+            <i class="fas fa-cog w-5"></i>
+            <span class="ml-3">Settings</span>
+            <span class="ml-auto text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded">Coming Soon</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center py-2 px-4 rounded-md text-gray-500 cursor-not-allowed">
+            <i class="fas fa-comments w-5"></i>
+            <span class="ml-3">Reviews</span>
+            <span class="ml-auto text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded">Coming Soon</span>
+          </a>
+        </li>
+
+        <!-- Spacer for bottom padding -->
+        <li class="h-96"></li>
       </ul>
     </nav>
 
-    <div class="absolute bottom-0 w-64 p-4 border-t border-gray-800">
+    <div class="sticky bottom-0 w-full p-4 border-t border-gray-800 bg-dark-200 mt-auto z-10">
       <div class="flex items-center">
         <img src="<%= user.profilePicture %>" alt="<%= user.username %>" class="w-8 h-8 rounded-full mr-3">
         <div>
@@ -288,6 +424,12 @@ if (typeof path === 'undefined') {
         </a>
         <a href="/users/logout" class="flex-1 py-2 px-3 bg-dark-100 text-white text-sm rounded-md hover:bg-dark-300 transition-colors text-center">
           Logout
+        </a>
+      </div>
+      <div class="mt-3">
+        <a href="/admin/users" class="flex items-center py-2 px-3 rounded-md <%= path === '/admin/users' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+          <i class="fas fa-users w-5"></i>
+          <span class="ml-2 text-sm">User Management</span>
         </a>
       </div>
     </div>
