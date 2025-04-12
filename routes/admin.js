@@ -18,15 +18,7 @@ const {
   viewMemory,
   deleteMemory,
   deleteInteraction,
-  getPackageManagement,
-  getCreatePackage,
-  getEditPackage,
-  getViewPackage,
-  createPackage,
-  updatePackage,
-  deletePackage,
-  bulkDeletePackages,
-  toggleFreePackage
+
 } = require('../controllers/adminController');
 
 const {
@@ -94,16 +86,6 @@ router.delete('/maintenance/attempts', clearLoginAttempts);
 router.delete('/maintenance/history/:id', deleteMaintenanceHistory);
 router.delete('/maintenance/history/bulk-delete', bulkDeleteMaintenanceHistory);
 
-// Package management
-router.get('/packages', getPackageManagement);
-router.get('/packages/create', getCreatePackage);
-router.get('/packages/edit/:id', getEditPackage);
-router.get('/packages/view/:id', getViewPackage);
-router.post('/packages/create', createPackage);
-router.post('/packages/edit/:id', updatePackage);
-router.post('/packages/bulk-delete', bulkDeletePackages);
-router.delete('/packages/:id', deletePackage);
-router.post('/packages/:id/delete', deletePackage); // Alternative route for form submissions
-router.post('/packages/:id/toggle-free', toggleFreePackage);
+
 
 module.exports = router;

@@ -80,24 +80,7 @@ const UserSchema = new mongoose.Schema({
   },
   // Social media links removed as requested
 
-  // Website builder related fields
-  activePackage: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Package',
-    default: null
-  },
-  packageExpiryDate: {
-    type: Date,
-    default: null
-  },
-  websiteCount: {
-    type: Number,
-    default: 0
-  },
-  maxWebsites: {
-    type: Number,
-    default: 1
-  }
+
 });
 
 module.exports = mongoose.model('User', UserSchema);

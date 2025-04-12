@@ -206,31 +206,13 @@ app.use('/admin', adminViewData);
 app.use('/admin', require('./routes/admin'));
 app.use('/admin/images', require('./routes/admin-images'));
 app.use('/admin/rate-limits', require('./routes/admin-rate-limits'));
-app.use('/admin', require('./routes/admin-websites'));
-app.use('/admin', require('./routes/admin-payments'));
-app.use('/admin', require('./routes/admin-templates'));
 
-// User Statistics admin routes
-app.use('/admin/user-statistics', adminViewData);
-app.use('/admin/user-statistics', require('./routes/user-statistics'));
 
-// Template Marketplace routes
-app.use('/template-marketplace', viewData);
-app.use('/template-marketplace', require('./routes/template-marketplace'));
-app.use('/admin/template-marketplace', adminViewData);
-app.use('/admin/template-marketplace', require('./routes/template-marketplace'));
 
-// Website Analytics routes
-app.use('/website-analytics', viewData);
-app.use('/website-analytics', require('./routes/website-analytics'));
-app.use('/admin/website-analytics', adminViewData);
-app.use('/admin/website-analytics', require('./routes/website-analytics'));
 
-// Website Assistant routes
-app.use('/website-assistant', viewData);
-app.use('/website-assistant', require('./routes/website-assistant'));
-app.use('/admin/website-assistant', adminViewData);
-app.use('/admin/website-assistant', require('./routes/website-assistant'));
+
+
+
 
 // Maintenance mode middleware - applied after admin routes
 app.use(maintenanceMiddleware);
@@ -246,68 +228,16 @@ app.use('/images', require('./routes/images'));
 app.use('/api/images', require('./routes/api-images'));
 app.use('/rate-limits', require('./routes/rate-limits'));
 app.use('/api/ai', require('./routes/ai-service')); // AI service route
-// AI website generator route with error handling
-try {
-  app.use('/api/website-generator', require('./routes/ai-website-generator'));
-  console.log('AI website generator route loaded successfully');
-} catch (error) {
-  console.error('Error loading AI website generator route:', error.message);
-  console.log('Running dependency installation script...');
 
-  try {
-    // Try to run the dependency installation script
-    const { execSync } = require('child_process');
-    execSync('node scripts/install-ai-deps.js', { stdio: 'inherit' });
-    console.log('Dependencies installed, trying to load AI website generator route again...');
-
-    try {
-      app.use('/api/website-generator', require('./routes/ai-website-generator'));
-      console.log('AI website generator route loaded successfully after installing dependencies');
-    } catch (retryError) {
-      console.error('Still unable to load AI website generator route:', retryError.message);
-      // Create a fallback route that informs the user about the missing dependencies
-      app.use('/api/website-generator/suggest', (req, res) => {
-        res.status(500).json({
-          success: false,
-          message: 'AI website generator is not available due to missing dependencies. Please contact the administrator.'
-        });
-      });
-    }
-  } catch (installError) {
-    console.error('Error running dependency installation script:', installError.message);
-    // Create a fallback route
-    app.use('/api/website-generator/suggest', (req, res) => {
-      res.status(500).json({
-        success: false,
-        message: 'AI website generator is not available due to missing dependencies. Please contact the administrator.'
-      });
-    });
-  }
-}
 app.use('/blog', require('./routes/blog')); // Blog routes
 app.use('/community', require('./routes/community')); // Community routes
 // Social routes removed as requested
 
-// Load website builder view data middleware
-const websiteBuilderViewData = require('./middleware/websiteBuilderViewData');
 
-// Website builder routes
-app.use('/websites', websiteBuilderViewData);
-app.use('/websites', require('./routes/website-builder'));
-app.use('/templates', websiteBuilderViewData);
-app.use('/templates', require('./routes/templates'));
-app.use('/buy-package', websiteBuilderViewData);
-app.use('/', require('./routes/packages'));
-app.use('/', require('./routes/payments'));
 
-// Content Generator routes
-app.use('/content-generator', require('./routes/content-generator'));
 
-// SEO Analyzer routes
-app.use('/seo-analyzer', require('./routes/seo-analyzer'));
 
-// Website Assistant routes - Uncomment when ready
-// app.use('/website-assistant', require('./routes/website-assistant'));
+
 
 // Policy pages routes
 app.use('/policies', require('./routes/policies'));

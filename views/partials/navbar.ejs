@@ -73,19 +73,7 @@
             <a href="/images" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
               <i class="fas fa-image mr-2"></i> AI Images
             </a>
-            <a href="/content-generator" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
-              <i class="fas fa-magic mr-2"></i> Content Generator
-            </a>
-            <a href="/seo-analyzer" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
-              <i class="fas fa-search mr-2"></i> SEO Analyzer
-            </a>
-            <a href="/website-assistant" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
-              <i class="fas fa-robot mr-2"></i> Website Assistant
-            </a>
-            <!-- Uncomment when ready -->
-            <!-- <a href="/website-assistant" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
-              <i class="fas fa-robot mr-2"></i> Website Assistant
-            </a> -->
+
           </div>
         </div>
 
@@ -124,30 +112,7 @@
           </div>
         </div>
 
-        <!-- Website Builder Dropdown -->
-        <div class="relative">
-          <button class="flex items-center space-x-1 text-gray-300 hover:text-white transition-colors focus:outline-none dropdown-btn" data-dropdown-id="websites-dropdown">
-            <span>Website Builder</span>
-            <i class="fas fa-chevron-down text-xs"></i>
-          </button>
-          <div id="websites-dropdown" class="absolute left-0 mt-2 w-48 bg-dark-100 border border-gray-800 rounded-md shadow-lg py-1 z-10 dropdown-menu">
-            <a href="/websites" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
-              <i class="fas fa-globe mr-2"></i> My Websites
-            </a>
-            <a href="/websites/create" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
-              <i class="fas fa-plus mr-2"></i> Create Website
-            </a>
-            <a href="/template-marketplace" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
-              <i class="fas fa-store mr-2"></i> Template Marketplace
-            </a>
-            <a href="/website-analytics" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
-              <i class="fas fa-chart-line mr-2"></i> Website Analytics
-            </a>
-            <a href="/buy-package" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
-              <i class="fas fa-shopping-cart mr-2"></i> Buy Package
-            </a>
-          </div>
-        </div>
+
 
         <% if (typeof user !== 'undefined' && user) { %>
           <div class="relative">
@@ -166,12 +131,7 @@
                 <i class="fas fa-user mr-2"></i> My Profile
               </a>
               <!-- Messages link removed as requested -->
-              <a href="/dashboard/websites" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
-                <i class="fas fa-globe mr-2"></i> My Websites
-              </a>
-              <a href="/create-website" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
-                <i class="fas fa-plus mr-2"></i> Create Website
-              </a>
+
               <a href="/blog/create/new" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-200 hover:text-white">
                 <i class="fas fa-newspaper mr-2"></i> Create Blog
               </a>
@@ -216,19 +176,6 @@
             <a href="/images" class="block py-2 text-gray-300 hover:text-white">
               <i class="fas fa-image mr-2"></i> AI Images
             </a>
-            <a href="/content-generator" class="block py-2 text-gray-300 hover:text-white">
-              <i class="fas fa-magic mr-2"></i> Content Generator
-            </a>
-            <a href="/seo-analyzer" class="block py-2 text-gray-300 hover:text-white">
-              <i class="fas fa-search mr-2"></i> SEO Analyzer
-            </a>
-            <a href="/website-assistant" class="block py-2 text-gray-300 hover:text-white">
-              <i class="fas fa-robot mr-2"></i> Website Assistant
-            </a>
-            <!-- Uncomment when ready -->
-            <!-- <a href="/website-assistant" class="block py-2 text-gray-300 hover:text-white">
-              <i class="fas fa-robot mr-2"></i> Website Assistant
-            </a> -->
           </div>
         </div>
 
@@ -267,30 +214,7 @@
           </div>
         </div>
 
-        <!-- Website Builder Mobile Dropdown -->
-        <div class="mobile-dropdown">
-          <button class="flex items-center justify-between w-full text-gray-300 hover:text-white transition-colors py-2 focus:outline-none dropdown-btn mobile-dropdown-btn" data-dropdown-id="websites-dropdown-mobile">
-            <span>Website Builder</span>
-            <i class="fas fa-chevron-down text-xs"></i>
-          </button>
-          <div id="websites-dropdown-mobile" class="hidden pl-4 mt-1 border-l border-gray-700">
-            <a href="/websites" class="block py-2 text-gray-300 hover:text-white">
-              <i class="fas fa-globe mr-2"></i> My Websites
-            </a>
-            <a href="/websites/create" class="block py-2 text-gray-300 hover:text-white">
-              <i class="fas fa-plus mr-2"></i> Create Website
-            </a>
-            <a href="/template-marketplace" class="block py-2 text-gray-300 hover:text-white">
-              <i class="fas fa-store mr-2"></i> Template Marketplace
-            </a>
-            <a href="/website-analytics" class="block py-2 text-gray-300 hover:text-white">
-              <i class="fas fa-chart-line mr-2"></i> Website Analytics
-            </a>
-            <a href="/buy-package" class="block py-2 text-gray-300 hover:text-white">
-              <i class="fas fa-shopping-cart mr-2"></i> Buy Package
-            </a>
-          </div>
-        </div>
+
 
         <% if (user) { %>
           <div class="border-t border-gray-800 my-2 pt-2">
@@ -307,9 +231,7 @@
               <i class="fas fa-user mr-2"></i> My Profile
             </a>
             <!-- Messages link removed as requested -->
-            <a href="/dashboard" class="block py-2 text-gray-300 hover:text-white">
-              <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
-            </a>
+
             <a href="/blog/create/new" class="block py-2 text-gray-300 hover:text-white">
               <i class="fas fa-newspaper mr-2"></i> Create Blog
             </a>
@@ -414,6 +336,7 @@
   // Mobile dropdown toggle function
   function toggleMobileDropdown(id) {
     console.log('Toggling mobile dropdown:', id);
+    console.log('Element exists:', !!document.getElementById(id));
     const dropdown = document.getElementById(id);
 
     if (!dropdown) {
@@ -441,19 +364,37 @@
     // Toggle icon
     const button = dropdown.previousElementSibling;
     const icon = button.querySelector('i.fas');
+    console.log('Button:', button);
+    console.log('Icon:', icon);
+    console.log('Icon classes before:', icon ? icon.className : 'No icon found');
+
     if (dropdown.classList.contains('hidden')) {
-      icon.classList.remove('fa-chevron-up');
-      icon.classList.add('fa-chevron-down');
+      if (icon) {
+        icon.classList.remove('fa-chevron-up');
+        icon.classList.add('fa-chevron-down');
+      }
     } else {
-      icon.classList.remove('fa-chevron-down');
-      icon.classList.add('fa-chevron-up');
+      if (icon) {
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-up');
+      }
     }
+
+    console.log('Icon classes after:', icon ? icon.className : 'No icon found');
+    console.log('Dropdown state:', dropdown.classList.contains('hidden') ? 'hidden' : 'visible');
   }
 
   // Initialize dropdown states
   document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing dropdowns');
+
+    // Check if mobile dropdowns exist
+    const mobileDropdowns = document.querySelectorAll('.mobile-dropdown > div');
+    console.log('Mobile dropdowns found:', mobileDropdowns.length);
+
     // Hide all mobile dropdowns initially
-    document.querySelectorAll('.mobile-dropdown > div').forEach(dropdown => {
+    mobileDropdowns.forEach(dropdown => {
+      console.log('Initializing dropdown:', dropdown.id);
       dropdown.classList.add('hidden');
     });
 
@@ -463,11 +404,19 @@
     });
 
     // Add click event listeners to all mobile dropdown buttons
-    document.querySelectorAll('.mobile-dropdown-btn').forEach(button => {
+    const mobileButtons = document.querySelectorAll('.mobile-dropdown-btn');
+    console.log('Mobile dropdown buttons found:', mobileButtons.length);
+
+    mobileButtons.forEach(button => {
+      console.log('Adding click listener to button:', button);
+      console.log('Button dropdown ID:', button.getAttribute('data-dropdown-id'));
+
       button.onclick = function(e) {
+        console.log('Mobile dropdown button clicked');
         e.preventDefault();
         e.stopPropagation();
         const dropdownId = this.getAttribute('data-dropdown-id');
+        console.log('Dropdown ID from click:', dropdownId);
         toggleMobileDropdown(dropdownId);
       };
     });
