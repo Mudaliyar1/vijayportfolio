@@ -1,0 +1,74 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="bg-dark-100 p-6 rounded-lg shadow-lg mb-6">
+    <h1 class="text-3xl font-bold mb-6">Create Your Digital Twin</h1>
+
+  <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg border border-indigo-500/20 overflow-hidden p-6 mb-6 text-gray-200 shadow-xl">
+    <p class="mb-6">A digital twin is an AI representation of yourself that can interact with others even when you're not available. Customize your digital twin below to make it represent you accurately.</p>
+
+    <form action="/digital-twin/create" method="POST">
+      <div class="mb-4">
+        <label for="name" class="block text-gray-300 text-sm font-bold mb-2">Digital Twin Name</label>
+        <input type="text" id="name" name="name" placeholder="<%= user.username %>'s Digital Twin" class="bg-dark-200 border border-gray-700 rounded w-full py-2 px-3 text-white focus:outline-none focus:border-neon-blue focus:ring-2 focus:ring-neon-blue/50 transition-all duration-200">
+        <p class="text-gray-400 text-xs mt-1">This is how your digital twin will introduce itself.</p>
+      </div>
+
+      <div class="mb-4">
+        <label for="personality" class="block text-gray-300 text-sm font-bold mb-2">Personality Description</label>
+        <textarea id="personality" name="personality" rows="3" placeholder="Describe your personality, communication style, and how you typically respond to questions..." class="bg-dark-200 border border-gray-700 rounded w-full py-2 px-3 text-white focus:outline-none focus:border-neon-blue focus:ring-2 focus:ring-neon-blue/50 transition-all duration-200"></textarea>
+        <p class="text-gray-400 text-xs mt-1">The more detailed you are, the more accurately your digital twin will represent you.</p>
+      </div>
+
+      <div class="mb-4">
+        <label for="interests" class="block text-gray-300 text-sm font-bold mb-2">Interests</label>
+        <input type="text" id="interests" name="interests" placeholder="technology, music, travel, cooking, etc." class="bg-dark-200 border border-gray-700 rounded w-full py-2 px-3 text-white focus:outline-none focus:border-neon-blue focus:ring-2 focus:ring-neon-blue/50 transition-all duration-200">
+        <p class="text-gray-400 text-xs mt-1">Comma-separated list of your interests.</p>
+      </div>
+
+      <div class="mb-4">
+        <label for="expertise" class="block text-gray-300 text-sm font-bold mb-2">Areas of Expertise</label>
+        <input type="text" id="expertise" name="expertise" placeholder="web development, marketing, design, etc." class="bg-dark-200 border border-gray-700 rounded w-full py-2 px-3 text-white focus:outline-none focus:border-neon-blue focus:ring-2 focus:ring-neon-blue/50 transition-all duration-200">
+        <p class="text-gray-400 text-xs mt-1">Comma-separated list of topics you're knowledgeable about.</p>
+      </div>
+
+      <div class="mb-4">
+        <label for="tone" class="block text-gray-300 text-sm font-bold mb-2">Communication Style</label>
+        <select id="tone" name="tone" class="bg-dark-200 border border-gray-700 rounded w-full py-2 px-3 text-white focus:outline-none focus:border-neon-blue focus:ring-2 focus:ring-neon-blue/50 transition-all duration-200">
+          <option value="friendly">Friendly and Approachable</option>
+          <option value="professional">Professional and Formal</option>
+          <option value="casual">Casual and Relaxed</option>
+          <option value="humorous">Humorous and Light-hearted</option>
+          <option value="formal">Formal and Academic</option>
+        </select>
+      </div>
+
+      <div class="mb-6">
+        <label class="flex items-center">
+          <input type="checkbox" name="isPublic" class="mr-2">
+          <span class="text-gray-300">Make my digital twin public</span>
+        </label>
+        <p class="text-gray-400 text-xs mt-1">If checked, others can interact with your digital twin through a public link.</p>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <button type="submit" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white font-bold py-2 px-4 rounded hover:opacity-90 transition-opacity inline-flex items-center">
+          <i class="fas fa-robot mr-2"></i> Create Digital Twin
+        </button>
+        <a href="/profile" class="inline-block align-baseline font-bold text-sm text-neon-blue hover:text-neon-purple transition-colors">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <div class="bg-dark-200/50 border border-neon-blue/20 rounded-lg p-6 text-gray-200">
+    <h2 class="text-xl font-semibold mb-4">What's Next?</h2>
+    <p class="mb-4">After creating your digital twin, you'll need to train it to respond like you would. You'll be able to:</p>
+    <ul class="list-disc pl-5 mb-4">
+      <li class="mb-2">Add training data (question and answer pairs)</li>
+      <li class="mb-2">Customize your digital twin's settings</li>
+      <li class="mb-2">Share your digital twin with others</li>
+    </ul>
+    <p>The more you train your digital twin, the more accurately it will represent you!</p>
+  </div>
+  </div>
+</div>

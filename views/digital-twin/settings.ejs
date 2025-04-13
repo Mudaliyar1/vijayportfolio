@@ -1,0 +1,104 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="bg-dark-100 p-6 rounded-lg shadow-lg mb-6">
+    <h1 class="text-3xl font-bold mb-6">Digital Twin Settings</h1>
+
+  <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg border border-indigo-500/20 overflow-hidden p-6 mb-6 text-gray-200 shadow-xl">
+    <h2 class="text-xl font-semibold mb-4">Configuration</h2>
+
+    <form action="/digital-twin/settings" method="POST">
+      <div class="mb-4">
+        <label for="responseLength" class="block text-gray-300 text-sm font-bold mb-2">Response Length (tokens)</label>
+        <input type="range" id="responseLength" name="responseLength" min="50" max="800" step="50" value="<%= digitalTwin.configuration.responseLength %>" class="w-full">
+        <div class="flex justify-between text-xs text-gray-400">
+          <span>Short (50)</span>
+          <span id="responseLengthValue"><%= digitalTwin.configuration.responseLength %></span>
+          <span>Long (800)</span>
+        </div>
+        <p class="text-gray-400 text-xs mt-1">Controls how detailed your digital twin's responses will be.</p>
+      </div>
+
+      <div class="mb-4">
+        <label for="creativity" class="block text-gray-300 text-sm font-bold mb-2">Creativity Level</label>
+        <input type="range" id="creativity" name="creativity" min="0.1" max="1.0" step="0.1" value="<%= digitalTwin.configuration.creativity %>" class="w-full">
+        <div class="flex justify-between text-xs text-gray-400">
+          <span>Precise (0.1)</span>
+          <span id="creativityValue"><%= digitalTwin.configuration.creativity %></span>
+          <span>Creative (1.0)</span>
+        </div>
+        <p class="text-gray-400 text-xs mt-1">Higher values make responses more creative but potentially less accurate.</p>
+      </div>
+
+      <div class="mb-4">
+        <label for="contextMemory" class="block text-gray-300 text-sm font-bold mb-2">Conversation Memory</label>
+        <input type="range" id="contextMemory" name="contextMemory" min="1" max="10" step="1" value="<%= digitalTwin.configuration.contextMemory %>" class="w-full">
+        <div class="flex justify-between text-xs text-gray-400">
+          <span>Short (1)</span>
+          <span id="contextMemoryValue"><%= digitalTwin.configuration.contextMemory %></span>
+          <span>Long (10)</span>
+        </div>
+        <p class="text-gray-400 text-xs mt-1">How many previous exchanges your digital twin will remember in a conversation.</p>
+      </div>
+
+      <div class="mb-4">
+        <label class="flex items-center">
+          <input type="checkbox" name="isActive" <%= digitalTwin.isActive ? 'checked' : '' %> class="mr-2">
+          <span class="text-gray-300">Digital Twin is active</span>
+        </label>
+        <p class="text-gray-400 text-xs mt-1">If unchecked, your digital twin will be temporarily disabled.</p>
+      </div>
+
+      <div class="mb-6">
+        <label class="flex items-center">
+          <input type="checkbox" name="isPublic" <%= digitalTwin.isPublic ? 'checked' : '' %> class="mr-2">
+          <span class="text-gray-300">Digital Twin is public</span>
+        </label>
+        <p class="text-gray-400 text-xs mt-1">If checked, others can interact with your digital twin through a public link.</p>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <button type="submit" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white font-bold py-2 px-4 rounded hover:opacity-90 transition-opacity inline-flex items-center">
+          <i class="fas fa-save mr-2"></i> Save Settings
+        </button>
+        <a href="/digital-twin/dashboard" class="inline-block align-baseline font-bold text-sm text-neon-blue hover:text-neon-purple transition-colors">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg border border-indigo-500/20 overflow-hidden p-6 mb-6 text-gray-200 shadow-xl">
+    <h2 class="text-xl font-semibold mb-4 text-red-600">Danger Zone</h2>
+
+    <p class="mb-4">Deleting your digital twin will permanently remove all of its data, including training data and interaction history. This action cannot be undone.</p>
+
+    <form action="/digital-twin/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete your digital twin? This action cannot be undone.');">
+      <button type="submit" class="bg-gradient-to-r from-red-600 to-red-800 text-white font-bold py-2 px-4 rounded hover:opacity-90 transition-opacity inline-flex items-center border border-red-500">
+        <i class="fas fa-trash-alt mr-2"></i> Delete Digital Twin
+      </button>
+    </form>
+  </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Update displayed values when sliders change
+    const responseLength = document.getElementById('responseLength');
+    const responseLengthValue = document.getElementById('responseLengthValue');
+    responseLength.addEventListener('input', function() {
+      responseLengthValue.textContent = this.value;
+    });
+
+    const creativity = document.getElementById('creativity');
+    const creativityValue = document.getElementById('creativityValue');
+    creativity.addEventListener('input', function() {
+      creativityValue.textContent = this.value;
+    });
+
+    const contextMemory = document.getElementById('contextMemory');
+    const contextMemoryValue = document.getElementById('contextMemoryValue');
+    contextMemory.addEventListener('input', function() {
+      contextMemoryValue.textContent = this.value;
+    });
+  });
+</script>

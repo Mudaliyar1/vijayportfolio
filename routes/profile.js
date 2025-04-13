@@ -9,7 +9,8 @@ const {
   updatePassword,
   updateProfilePicture,
   removeProfilePicture,
-  getUserContent
+  getUserContent,
+  viewUserProfile
 } = require('../controllers/profileController');
 
 // Configure multer for file uploads
@@ -56,5 +57,8 @@ router.delete('/picture/remove', ensureAuthenticated, removeProfilePicture);
 
 // User content management (blogs and community posts)
 router.get('/content', ensureAuthenticated, getUserContent);
+
+// View another user's public profile by username
+router.get('/:username', viewUserProfile);
 
 module.exports = router;

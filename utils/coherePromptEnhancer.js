@@ -44,7 +44,7 @@ const styleCategories = {
 };
 
 /**
- * Enhances an image prompt using the Cohere AI approach
+ * Enhances an image prompt using the FTRAISE AI approach
  *
  * @param {string} prompt - The user's original prompt
  * @param {string} style - The requested style (optional)
@@ -246,7 +246,7 @@ async function enhanceImagePrompt(prompt, style = 'realistic', hasReferenceImage
 }
 
 /**
- * Enhances a chat prompt using the Cohere AI approach
+ * Enhances a chat prompt using the FTRAISE AI approach
  *
  * @param {string} prompt - The user's original prompt
  * @param {object} user - The user object (optional)

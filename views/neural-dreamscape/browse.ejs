@@ -1,0 +1,110 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="bg-dark-100 p-6 rounded-lg shadow-lg">
+    <div class="max-w-6xl mx-auto">
+      <h1 class="text-2xl font-bold text-white mb-6 flex items-center">
+        <i class="fas fa-brain text-neon-blue mr-3"></i>
+        Browse Neural Dreamscapes
+      </h1>
+
+      <p class="text-gray-300 mb-8">
+        Explore visual representations of thoughts and ideas created by our community. Discover new perspectives and connect with like-minded individuals.
+      </p>
+
+      <!-- Filters -->
+      <div class="bg-dark-200 p-4 rounded-lg mb-8">
+        <form action="/neural-dreamscape/browse" method="GET" class="flex flex-wrap gap-4">
+          <div>
+            <label for="theme" class="block text-gray-400 text-sm mb-1">Theme</label>
+            <select id="theme" name="theme" class="bg-dark-300 border border-gray-700 rounded px-3 py-1 text-white focus:border-neon-blue focus:outline-none">
+              <option value="">All Themes</option>
+              <% filters.allThemes.forEach(theme => { %>
+                <option value="<%= theme %>" <%= filters.theme === theme ? 'selected' : '' %>><%= theme %></option>
+              <% }) %>
+            </select>
+          </div>
+          
+          <div>
+            <label for="sort" class="block text-gray-400 text-sm mb-1">Sort By</label>
+            <select id="sort" name="sort" class="bg-dark-300 border border-gray-700 rounded px-3 py-1 text-white focus:border-neon-blue focus:outline-none">
+              <option value="newest" <%= filters.sort === 'newest' ? 'selected' : '' %>>Newest First</option>
+              <option value="popular" <%= filters.sort === 'popular' ? 'selected' : '' %>>Most Viewed</option>
+              <option value="connected" <%= filters.sort === 'connected' ? 'selected' : '' %>>Most Connected</option>
+            </select>
+          </div>
+          
+          <div class="flex items-end">
+            <button type="submit" class="bg-neon-blue text-white px-4 py-1 rounded hover:bg-neon-purple transition-colors">
+              <i class="fas fa-filter mr-1"></i> Apply Filters
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Dreamscapes Grid -->
+      <% if (dreamscapes.length === 0) { %>
+        <div class="bg-dark-200 p-8 rounded-lg text-center">
+          <i class="fas fa-brain text-gray-600 text-5xl mb-4"></i>
+          <p class="text-gray-400 mb-4">No dreamscapes found matching your filters.</p>
+          <a href="/neural-dreamscape/browse" class="bg-neon-blue text-white px-4 py-2 rounded hover:bg-neon-purple transition-colors">
+            <i class="fas fa-sync mr-2"></i> Clear Filters
+          </a>
+        </div>
+      <% } else { %>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <% dreamscapes.forEach(dreamscape => { %>
+            <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg border border-indigo-500/20 overflow-hidden hover:border-neon-blue/30 transition-colors shadow-xl">
+              <div class="p-4">
+                <div class="flex items-center mb-3">
+                  <img src="<%= dreamscape.userId.profilePicture %>" alt="<%= dreamscape.userId.username %>" class="w-10 h-10 rounded-full mr-3 object-cover">
+                  <div>
+                    <h2 class="text-lg font-bold text-white"><%= dreamscape.title %></h2>
+                    <p class="text-gray-400 text-sm">By <a href="/profile/<%= dreamscape.userId.username %>" class="text-neon-blue hover:text-neon-purple transition-colors"><%= dreamscape.userId.username %></a></p>
+                  </div>
+                </div>
+                
+                <% if (dreamscape.description) { %>
+                  <p class="text-gray-300 text-sm mb-3 line-clamp-2"><%= dreamscape.description %></p>
+                <% } %>
+                
+                <div class="flex flex-wrap gap-2 mb-3">
+                  <% dreamscape.themes.slice(0, 3).forEach(theme => { %>
+                    <span class="bg-dark-200 text-neon-blue text-xs px-2 py-1 rounded"><%= theme %></span>
+                  <% }) %>
+                  
+                  <% if (dreamscape.themes.length > 3) { %>
+                    <span class="bg-dark-200 text-gray-400 text-xs px-2 py-1 rounded">+<%= dreamscape.themes.length - 3 %> more</span>
+                  <% } %>
+                </div>
+                
+                <div class="flex justify-between items-center text-xs text-gray-400">
+                  <span><i class="fas fa-eye mr-1"></i> <%= dreamscape.stats.views %> views</span>
+                  <span><i class="fas fa-project-diagram mr-1"></i> <%= dreamscape.stats.connections %> connections</span>
+                </div>
+              </div>
+              
+              <a href="/neural-dreamscape/view/<%= dreamscape._id %>" class="block border-t border-gray-800 p-3 text-center text-neon-blue hover:text-neon-purple transition-colors">
+                <i class="fas fa-eye mr-1"></i> View Dreamscape
+              </a>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="/neural-dreamscape/network" class="bg-dark-300 text-white px-4 py-2 rounded hover:bg-dark-400 transition-colors inline-flex items-center">
+          <i class="fas fa-project-diagram mr-2"></i> View Neural Network
+        </a>
+        <% if (user) { %>
+          <a href="/neural-dreamscape/create" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white font-bold py-2 px-4 rounded hover:opacity-90 transition-opacity inline-flex items-center">
+            <i class="fas fa-plus mr-2"></i> Create Your Own
+          </a>
+        <% } else { %>
+          <a href="/users/login" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white font-bold py-2 px-4 rounded hover:opacity-90 transition-opacity inline-flex items-center">
+            <i class="fas fa-sign-in-alt mr-2"></i> Login to Create
+          </a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>

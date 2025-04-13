@@ -1,0 +1,75 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="bg-dark-100 p-6 rounded-lg shadow-lg">
+    <div class="max-w-6xl mx-auto">
+      <h1 class="text-2xl font-bold text-white mb-6 flex items-center">
+        <i class="fas fa-project-diagram text-neon-blue mr-3"></i>
+        Neural Network Visualization
+      </h1>
+
+      <p class="text-gray-300 mb-8">
+        Explore the interconnected web of neural dreamscapes. This visualization shows how different thoughts and ideas are connected across our community.
+      </p>
+
+      <!-- Network Visualization -->
+      <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg border border-indigo-500/20 overflow-hidden p-4 shadow-xl mb-8">
+        <div class="mb-4 text-gray-400 text-sm">
+          <p><i class="fas fa-info-circle mr-1"></i> Drag nodes to rearrange the network. Scroll to zoom in/out. Click on a node to view that dreamscape.</p>
+        </div>
+        
+        <div id="network-visualization" class="w-full h-[600px] border border-gray-700 rounded-lg overflow-hidden" data-network='<%= JSON.stringify(networkData) %>'></div>
+      </div>
+
+      <!-- Network Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg border border-neon-blue/20 overflow-hidden p-6 text-gray-200 shadow-xl">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold">Dreamscapes</h2>
+            <span class="text-2xl text-neon-blue"><%= networkData.nodes.length %></span>
+          </div>
+          <p class="text-gray-400 text-sm">Total public dreamscapes in the network</p>
+        </div>
+
+        <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg border border-neon-purple/20 overflow-hidden p-6 text-gray-200 shadow-xl">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold">Connections</h2>
+            <span class="text-2xl text-neon-purple"><%= networkData.edges.length %></span>
+          </div>
+          <p class="text-gray-400 text-sm">Neural links between dreamscapes</p>
+        </div>
+
+        <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg border border-neon-blue/20 overflow-hidden p-6 text-gray-200 shadow-xl">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold">Network Density</h2>
+            <span class="text-2xl text-neon-blue">
+              <%= networkData.nodes.length > 1 ? 
+                Math.round((networkData.edges.length / (networkData.nodes.length * (networkData.nodes.length - 1) / 2)) * 100) : 
+                0 
+              %>%
+            </span>
+          </div>
+          <p class="text-gray-400 text-sm">Percentage of possible connections that exist</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="/neural-dreamscape/browse" class="bg-dark-300 text-white px-4 py-2 rounded hover:bg-dark-400 transition-colors inline-flex items-center">
+          <i class="fas fa-search mr-2"></i> Browse Dreamscapes
+        </a>
+        <% if (user) { %>
+          <a href="/neural-dreamscape/create" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white font-bold py-2 px-4 rounded hover:opacity-90 transition-opacity inline-flex items-center">
+            <i class="fas fa-plus mr-2"></i> Create Your Own
+          </a>
+        <% } else { %>
+          <a href="/users/login" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white font-bold py-2 px-4 rounded hover:opacity-90 transition-opacity inline-flex items-center">
+            <i class="fas fa-sign-in-alt mr-2"></i> Login to Create
+          </a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Include D3.js for network visualization -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="/js/neural-network.js"></script>

@@ -252,5 +252,55 @@ module.exports = {
       req.flash('error_msg', 'An error occurred while loading your content');
       res.redirect('/profile');
     }
+  },
+
+  // View another user's public profile
+  viewUserProfile: async (req, res) => {
+    try {
+      const { username } = req.params;
+
+      // Find the user by username
+      const profileUser = await User.findOne({ username });
+
+      if (!profileUser) {
+        return res.status(404).render('404', {
+          title: '404 - User Not Found',
+          user: req.user
+        });
+      }
+
+      // Get user's public blogs
+      const blogs = await Blog.find({
+        author: profileUser._id,
+        status: 'published'
+      }).sort({ createdAt: -1 }).limit(5);
+
+      // Get user's public community posts
+      const posts = await CommunityPost.find({
+        author: profileUser._id,
+        status: 'published'
+      }).sort({ createdAt: -1 }).limit(5);
+
+      // Check if user has a digital twin
+      let hasDigitalTwin = false;
+      if (profileUser.digitalTwin) {
+        hasDigitalTwin = true;
+      }
+
+      res.render('profile/public', {
+        title: `${profileUser.username}'s Profile - FTRAISE AI`,
+        user: req.user,
+        profileUser,
+        blogs,
+        posts,
+        hasDigitalTwin
+      });
+    } catch (error) {
+      console.error('Error viewing user profile:', error);
+      res.status(500).render('500', {
+        title: '500 - Server Error',
+        user: req.user
+      });
+    }
   }
 };

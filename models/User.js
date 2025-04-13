@@ -80,7 +80,12 @@ const UserSchema = new mongoose.Schema({
   },
   // Social media links removed as requested
 
-
+  // Digital Twin reference
+  digitalTwin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'DigitalTwin',
+    default: null
+  }
 });
 
 module.exports = mongoose.model('User', UserSchema);

@@ -56,8 +56,13 @@
             <div class="p-4">
               <div class="mb-3">
                 <span class="text-gray-400 text-sm">Package:</span>
-                <span class="text-white ml-1"><%= website.packageId.name %></span>
-                <% if (website.packageId.isFree) { %>
+                <% if (website.packageId && website.packageId.name) { %>
+                  <span class="text-white ml-1"><%= website.packageId.name %></span>
+                  <% if (website.packageId.isFree) { %>
+                    <span class="ml-2 text-xs bg-neon-blue/20 text-neon-blue px-2 py-0.5 rounded-full">Free</span>
+                  <% } %>
+                <% } else { %>
+                  <span class="text-white ml-1">Basic</span>
                   <span class="ml-2 text-xs bg-neon-blue/20 text-neon-blue px-2 py-0.5 rounded-full">Free</span>
                 <% } %>
               </div>
@@ -90,7 +95,7 @@
               </div>
 
               <!-- Payment Status -->
-              <% if (website.unpublishedBy === 'admin' && !website.packageId.isFree) { %>
+              <% if (website.unpublishedBy === 'admin' && website.packageId && !website.packageId.isFree) { %>
                 <div class="bg-red-500/10 border border-red-500/30 rounded-md p-3 mb-4">
                   <div class="flex items-start">
                     <i class="fas fa-exclamation-triangle text-red-500 mt-1 mr-2"></i>
@@ -100,7 +105,7 @@
                     </div>
                   </div>
                 </div>
-              <% } else if (!website.isPaid && !website.packageId.isFree) { %>
+              <% } else if (!website.isPaid && website.packageId && !website.packageId.isFree) { %>
                 <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-md p-3 mb-4">
                   <div class="flex items-start">
                     <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-2"></i>
@@ -135,7 +140,7 @@
 
               <div class="grid grid-cols-2 gap-2">
                 <% if (!website.isPublished) { %>
-                  <% if (website.isPaid || (website.packageId.isFree && (!website.templateId || !website.templateId.isPaid))) { %>
+                  <% if (website.isPaid || (website.packageId && website.packageId.isFree && (!website.templateId || !website.templateId.isPaid))) { %>
                     <form action="/website-builder/publish/<%= website._id %>" method="POST" class="col-span-2">
                       <button type="submit" class="w-full bg-green-500/20 hover:bg-green-500/30 text-green-400 py-2 px-3 rounded text-center text-sm transition-colors">
                         <i class="fas fa-globe mr-1"></i> Publish
@@ -143,7 +148,7 @@
                     </form>
                   <% } else { %>
                     <!-- Debug info -->
-                    <!-- isPaid: <%= website.isPaid %>, isFree: <%= website.packageId.isFree %>, hasTemplate: <%= !!website.templateId %> -->
+                    <!-- isPaid: <%= website.isPaid %>, isFree: <%= website.packageId ? website.packageId.isFree : 'N/A' %>, hasTemplate: <%= !!website.templateId %> -->
                     <a href="/website-builder/payment/<%= website._id %>" class="col-span-2 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 py-2 px-3 rounded text-center text-sm transition-colors">
                       <i class="fas fa-credit-card mr-1"></i> Pay to Publish
                     </a>

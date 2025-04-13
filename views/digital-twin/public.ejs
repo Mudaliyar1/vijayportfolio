@@ -1,0 +1,254 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="bg-dark-100 p-6 rounded-lg shadow-lg mb-6">
+    <div class="max-w-4xl mx-auto">
+    <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg border border-indigo-500/20 overflow-hidden p-3 mb-2 text-gray-200 shadow-xl max-w-md mx-auto">
+      <div class="flex justify-between items-start mb-2">
+        <div class="flex items-center">
+          <img src="<%= twinOwner.profilePicture %>" alt="<%= twinOwner.username %>" class="w-10 h-10 rounded-full mr-2 object-cover border border-neon-blue/30">
+          <div>
+            <h1 class="text-lg font-bold"><%= digitalTwin.name %></h1>
+            <p class="text-gray-400 text-xs">Digital Twin of <a href="/profile/<%= twinOwner.username %>" class="text-neon-blue hover:text-neon-purple transition-colors"><%= twinOwner.username %></a></p>
+          </div>
+        </div>
+        <a href="/digital-twin/browse" class="text-neon-blue hover:text-neon-purple transition-colors text-xs flex items-center">
+          <i class="fas fa-arrow-left mr-1"></i> Back
+        </a>
+      </div>
+
+      <div class="mb-1 text-xs">
+        <% if (digitalTwin.personality) { %>
+          <p class="text-gray-300 line-clamp-1"><%= digitalTwin.personality %></p>
+        <% } %>
+
+        <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
+          <% if (digitalTwin.interests && digitalTwin.interests.length > 0) { %>
+            <div class="inline-flex items-center">
+              <span class="text-gray-400 text-xs mr-1">Interests:</span>
+              <div class="inline-flex gap-1">
+                <% digitalTwin.interests.slice(0, 2).forEach(interest => { %>
+                  <span class="bg-dark-200/70 text-neon-blue border border-neon-blue/30 px-1.5 py-0 rounded text-xs"><%= interest %></span>
+                <% }); %>
+                <% if (digitalTwin.interests.length > 2) { %>
+                  <span class="text-gray-400 text-xs">+<%= digitalTwin.interests.length - 2 %></span>
+                <% } %>
+              </div>
+            </div>
+          <% } %>
+
+          <% if (digitalTwin.expertise && digitalTwin.expertise.length > 0) { %>
+            <div class="inline-flex items-center">
+              <span class="text-gray-400 text-xs mr-1">Expertise:</span>
+              <div class="inline-flex gap-1">
+                <% digitalTwin.expertise.slice(0, 2).forEach(item => { %>
+                  <span class="bg-dark-200/70 text-neon-purple border border-neon-purple/30 px-1.5 py-0 rounded text-xs"><%= item %></span>
+                <% }); %>
+                <% if (digitalTwin.expertise.length > 2) { %>
+                  <span class="text-gray-400 text-xs">+<%= digitalTwin.expertise.length - 2 %></span>
+                <% } %>
+              </div>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg border border-indigo-500/20 overflow-hidden p-4 mb-4 text-gray-200 shadow-xl">
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="text-lg font-semibold">Chat with <%= digitalTwin.name %></h2>
+        <a href="/digital-twin/browse" class="text-neon-blue hover:text-neon-purple transition-colors text-sm flex items-center">
+          <i class="fas fa-arrow-left mr-1"></i> Back to Browse
+        </a>
+      </div>
+
+      <div id="chat-container" class="border border-gray-700 bg-dark-200/50 rounded-lg p-3 mb-3 h-80 overflow-y-auto">
+        <div id="chat-messages">
+          <% if (interaction && interaction.messages && interaction.messages.length > 0) { %>
+            <% interaction.messages.forEach(message => { %>
+              <div class="mb-4 <%= message.role === 'visitor' ? 'text-right' : '' %>">
+                <div class="inline-block max-w-xs sm:max-w-md px-3 py-2 rounded-lg <%= message.role === 'visitor' ? 'bg-gradient-to-r from-neon-blue/20 to-neon-purple/20 text-white border border-neon-blue/30' : 'bg-dark-200/70 text-gray-200 border border-gray-700' %>">
+                  <p><%- message.content %></p>
+                </div>
+                <p class="text-xs text-gray-500 mt-1"><%= new Date(message.timestamp).toLocaleTimeString() %></p>
+              </div>
+            <% }); %>
+          <% } else { %>
+            <div class="mb-4">
+              <div class="inline-block max-w-xs sm:max-w-md px-3 py-2 rounded-lg bg-dark-200/70 text-gray-200 border border-gray-700">
+                <p>Hello! I'm <%= digitalTwin.name %>, the digital twin of <%= twinOwner.username %>. Feel free to ask me anything!</p>
+              </div>
+              <p class="text-xs text-gray-500 mt-1"><%= new Date().toLocaleTimeString() %></p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+      <form id="chat-form" class="flex">
+        <input type="hidden" id="twin-id" value="<%= digitalTwin._id %>">
+        <input type="hidden" id="visitor-id" value="<%= visitorId %>">
+        <input type="text" id="message-input" placeholder="Type your message..." class="flex-grow bg-dark-200 border border-gray-700 rounded-l px-4 py-2 text-white focus:outline-none focus:border-neon-blue focus:ring-2 focus:ring-neon-blue/50 transition-all duration-200" required>
+        <button type="submit" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white font-bold py-2 px-4 rounded-r hover:opacity-90 transition-opacity">
+          Send
+        </button>
+      </form>
+    </div>
+
+    <div class="text-center text-gray-500 text-xs">
+      <p>This is an AI-powered digital twin and may not perfectly represent <%= twinOwner.username %>'s views or personality.</p>
+      <p class="mt-1">Powered by <span class="text-neon-blue">FTRAISE AI</span> technology.</p>
+    </div>
+  </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const chatForm = document.getElementById('chat-form');
+    const messageInput = document.getElementById('message-input');
+    const chatMessages = document.getElementById('chat-messages');
+    const chatContainer = document.getElementById('chat-container');
+    const twinId = document.getElementById('twin-id').value;
+    const visitorId = document.getElementById('visitor-id').value;
+
+    // Scroll to bottom of chat
+    function scrollToBottom() {
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // Add a message to the chat
+    function addMessage(content, isVisitor = false) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `mb-4 ${isVisitor ? 'text-right' : ''}`;
+
+      const messageContent = document.createElement('div');
+      messageContent.className = `inline-block max-w-xs sm:max-w-md px-4 py-2 rounded-lg ${isVisitor ? 'bg-gradient-to-r from-neon-blue/20 to-neon-purple/20 text-white border border-neon-blue/30' : 'bg-dark-200/70 text-gray-200 border border-gray-700'}`;
+      // Allow HTML content to be rendered safely
+      messageContent.innerHTML = `<p>${content}</p>`;
+
+      const timestamp = document.createElement('p');
+      timestamp.className = 'text-xs text-gray-500 mt-1';
+      timestamp.textContent = new Date().toLocaleTimeString();
+
+      messageDiv.appendChild(messageContent);
+      messageDiv.appendChild(timestamp);
+
+      chatMessages.appendChild(messageDiv);
+      scrollToBottom();
+    }
+
+    // Handle form submission
+    chatForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const message = messageInput.value.trim();
+      if (!message) return;
+
+      // Add visitor message to chat
+      addMessage(message, true);
+
+      // Clear input
+      messageInput.value = '';
+
+      // Show typing indicator
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'mb-4';
+      typingDiv.id = 'typing-indicator';
+      typingDiv.innerHTML = `
+        <div class="inline-block max-w-xs sm:max-w-md px-4 py-2 rounded-lg bg-dark-200/70 text-gray-200 border border-gray-700">
+          <p>Typing<span class="dot-typing">...</span></p>
+        </div>
+      `;
+      chatMessages.appendChild(typingDiv);
+      scrollToBottom();
+
+      // Ensure visitorId is in the correct format
+      let currentVisitorId = visitorId;
+
+      // If the visitorId doesn't start with 'user_' or 'anon_', it's in the old format
+      // We'll create a new one with the 'anon_' prefix
+      if (!currentVisitorId.startsWith('user_') && !currentVisitorId.startsWith('anon_')) {
+        currentVisitorId = `anon_${visitorId}`;
+        // Update the hidden input value
+        document.getElementById('visitor-id').value = currentVisitorId;
+      }
+
+      // Send message to server
+      fetch('/digital-twin/interact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          twinId,
+          visitorId: currentVisitorId,
+          message
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Remove typing indicator
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+          typingIndicator.remove();
+        }
+
+        if (data.success) {
+          // Add twin response to chat
+          addMessage(data.response);
+        } else {
+          // Add error message
+          addMessage('Sorry, I encountered an error. Please try again later.');
+          console.error('Error:', data.message);
+        }
+      })
+      .catch(error => {
+        // Remove typing indicator
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+          typingIndicator.remove();
+        }
+
+        // Add error message
+        addMessage('Sorry, I encountered an error. Please try again later.');
+        console.error('Error:', error);
+      });
+    });
+
+    // Initial scroll to bottom
+    scrollToBottom();
+  });
+</script>
+
+<style>
+  .dot-typing {
+    position: relative;
+    animation: dotTyping 1.5s infinite linear;
+  }
+
+  @keyframes dotTyping {
+    0% { content: ''; }
+    25% { content: '.'; }
+    50% { content: '..'; }
+    75% { content: '...'; }
+    100% { content: ''; }
+  }
+
+  /* Creator card styles */
+  .creator-card {
+    display: inline-block;
+    width: auto;
+    max-width: 250px;
+    margin: 0.5rem 0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .creator-card img {
+    border: 1px solid rgba(79, 156, 255, 0.3);
+  }
+
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

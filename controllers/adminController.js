@@ -566,14 +566,7 @@ module.exports = {
         });
       }
 
-      // Render the password reset history page
-      res.render('admin/password-resets', {
-        title: 'Password Reset History - FTRAISE AI',
-        passwordResets,
-        search,
-        path: '/admin/password-reset-history',
-        layout: 'layouts/no-footer'
-      });
+      // Process the data before rendering
 
       // Group by user and count attempts
       const userResetCounts = {};

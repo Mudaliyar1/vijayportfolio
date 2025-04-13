@@ -1,0 +1,61 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="bg-dark-100 p-6 rounded-lg shadow-lg mb-6">
+    <h1 class="text-3xl font-bold mb-6">Edit Your Digital Twin</h1>
+
+  <div class="bg-white rounded-lg shadow-md p-6 mb-6 text-gray-800">
+    <form action="/digital-twin/update" method="POST">
+      <div class="mb-4">
+        <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Digital Twin Name</label>
+        <input type="text" id="name" name="name" value="<%= digitalTwin.name %>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        <p class="text-gray-500 text-xs mt-1">This is how your digital twin will introduce itself.</p>
+      </div>
+
+      <div class="mb-4">
+        <label for="personality" class="block text-gray-700 text-sm font-bold mb-2">Personality Description</label>
+        <textarea id="personality" name="personality" rows="3" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"><%= digitalTwin.personality %></textarea>
+        <p class="text-gray-500 text-xs mt-1">The more detailed you are, the more accurately your digital twin will represent you.</p>
+      </div>
+
+      <div class="mb-4">
+        <label for="interests" class="block text-gray-700 text-sm font-bold mb-2">Interests</label>
+        <input type="text" id="interests" name="interests" value="<%= digitalTwin.interests.join(', ') %>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        <p class="text-gray-500 text-xs mt-1">Comma-separated list of your interests.</p>
+      </div>
+
+      <div class="mb-4">
+        <label for="expertise" class="block text-gray-700 text-sm font-bold mb-2">Areas of Expertise</label>
+        <input type="text" id="expertise" name="expertise" value="<%= digitalTwin.expertise.join(', ') %>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        <p class="text-gray-500 text-xs mt-1">Comma-separated list of topics you're knowledgeable about.</p>
+      </div>
+
+      <div class="mb-4">
+        <label for="tone" class="block text-gray-700 text-sm font-bold mb-2">Communication Style</label>
+        <select id="tone" name="tone" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          <option value="friendly" <%= digitalTwin.tone === 'friendly' ? 'selected' : '' %>>Friendly and Approachable</option>
+          <option value="professional" <%= digitalTwin.tone === 'professional' ? 'selected' : '' %>>Professional and Formal</option>
+          <option value="casual" <%= digitalTwin.tone === 'casual' ? 'selected' : '' %>>Casual and Relaxed</option>
+          <option value="humorous" <%= digitalTwin.tone === 'humorous' ? 'selected' : '' %>>Humorous and Light-hearted</option>
+          <option value="formal" <%= digitalTwin.tone === 'formal' ? 'selected' : '' %>>Formal and Academic</option>
+        </select>
+      </div>
+
+      <div class="mb-6">
+        <label class="flex items-center">
+          <input type="checkbox" name="isPublic" <%= digitalTwin.isPublic ? 'checked' : '' %> class="mr-2">
+          <span class="text-gray-700">Make my digital twin public</span>
+        </label>
+        <p class="text-gray-500 text-xs mt-1">If checked, others can interact with your digital twin through a public link.</p>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+          Save Changes
+        </button>
+        <a href="/digital-twin/dashboard" class="inline-block align-baseline font-bold text-sm text-blue-600 hover:text-blue-800">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+  </div>
+</div>

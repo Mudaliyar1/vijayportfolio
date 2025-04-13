@@ -48,9 +48,27 @@ module.exports = {
         .populate('templateId')
         .sort({ createdAt: -1 });
 
+      // Set a default package for websites with null packageId
+      const defaultPackage = {
+        name: 'Basic',
+        isFree: true,
+        pagesAllowed: 5
+      };
+
+      // Process websites to handle null packageId
+      const processedWebsites = websites.map(website => {
+        if (!website.packageId) {
+          // Create a new object to avoid modifying the original mongoose document
+          const websiteObj = website.toObject();
+          websiteObj.packageId = defaultPackage;
+          return websiteObj;
+        }
+        return website;
+      });
+
       res.render('website-builder/dashboard', {
         title: 'Website Builder Dashboard - FTRAISE AI',
-        websites,
+        websites: processedWebsites,
         user: req.user
       });
     } catch (err) {
@@ -601,6 +619,18 @@ module.exports = {
       // Check if payment is required
       console.log('Publishing website:', websiteId);
       console.log('Website isPaid:', website.isPaid);
+
+      // Handle null packageId
+      if (!website.packageId) {
+        console.log('Package is null, setting default free package');
+        // Create a default package object
+        website.packageId = {
+          name: 'Basic',
+          isFree: true,
+          pagesAllowed: 5
+        };
+      }
+
       console.log('Package isFree:', website.packageId.isFree);
       console.log('Has template:', !!website.templateId);
       if (website.templateId) {

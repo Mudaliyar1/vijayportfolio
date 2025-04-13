@@ -1,0 +1,102 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="bg-dark-100 p-6 rounded-lg shadow-lg">
+    <div class="max-w-6xl mx-auto">
+      <h1 class="text-2xl font-bold text-white mb-6 flex items-center">
+        <i class="fas fa-brain text-neon-blue mr-3"></i>
+        Edit Neural Dreamscape
+      </h1>
+
+      <p class="text-gray-300 mb-8">
+        Update your neural dreamscape visualization and settings.
+      </p>
+
+      <form action="/neural-dreamscape/update/<%= dreamscape._id %>" method="POST">
+        <!-- Basic Information -->
+        <div class="mb-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="title" class="block text-gray-300 mb-2">Title</label>
+              <input type="text" id="title" name="title" required
+                class="w-full bg-dark-200 border border-gray-700 rounded px-4 py-2 text-white focus:border-neon-blue focus:outline-none"
+                placeholder="My Neural Dreamscape" value="<%= dreamscape.title %>">
+            </div>
+            
+            <div>
+              <label for="themes" class="block text-gray-300 mb-2">Themes (comma-separated)</label>
+              <input type="text" id="themes" name="themes"
+                class="w-full bg-dark-200 border border-gray-700 rounded px-4 py-2 text-white focus:border-neon-blue focus:outline-none"
+                placeholder="creativity, technology, philosophy" value="<%= dreamscape.themes.join(', ') %>">
+            </div>
+          </div>
+          
+          <div class="mt-4">
+            <label for="description" class="block text-gray-300 mb-2">Description</label>
+            <textarea id="description" name="description" rows="3"
+              class="w-full bg-dark-200 border border-gray-700 rounded px-4 py-2 text-white focus:border-neon-blue focus:outline-none"
+              placeholder="Describe what this dreamscape represents..."><%= dreamscape.description %></textarea>
+          </div>
+          
+          <div class="mt-4 flex items-center">
+            <input type="checkbox" id="isPublic" name="isPublic" class="mr-2" <%= dreamscape.isPublic ? 'checked' : '' %>>
+            <label for="isPublic" class="text-gray-300">Make this dreamscape public</label>
+          </div>
+        </div>
+
+        <!-- Canvas Editor -->
+        <div class="mb-8">
+          <h2 class="text-xl font-semibold text-white mb-4">Dreamscape Canvas</h2>
+          
+          <div class="bg-dark-200 p-4 rounded-lg mb-4">
+            <div class="flex flex-wrap gap-3 mb-4">
+              <button type="button" id="add-node-btn" class="bg-dark-300 text-white px-3 py-1 rounded hover:bg-dark-400 transition-colors">
+                <i class="fas fa-plus mr-1"></i> Add Node
+              </button>
+              <button type="button" id="connect-nodes-btn" class="bg-dark-300 text-white px-3 py-1 rounded hover:bg-dark-400 transition-colors">
+                <i class="fas fa-link mr-1"></i> Connect Nodes
+              </button>
+              <div id="node-options" class="hidden">
+                <input type="text" id="node-text" placeholder="Node text" 
+                  class="bg-dark-300 border border-gray-700 rounded px-3 py-1 text-white focus:border-neon-blue focus:outline-none">
+                <div class="flex gap-2 mt-2">
+                  <button type="button" class="node-color w-6 h-6 rounded-full" data-color="#00f2ff" style="background-color: #00f2ff;"></button>
+                  <button type="button" class="node-color w-6 h-6 rounded-full" data-color="#8a2be2" style="background-color: #8a2be2;"></button>
+                  <button type="button" class="node-color w-6 h-6 rounded-full" data-color="#ff00ff" style="background-color: #ff00ff;"></button>
+                  <button type="button" class="node-color w-6 h-6 rounded-full" data-color="#00ff00" style="background-color: #00ff00;"></button>
+                  <button type="button" class="node-color w-6 h-6 rounded-full" data-color="#ffff00" style="background-color: #ffff00;"></button>
+                  <button type="button" id="delete-node-btn" class="bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="border border-gray-700 rounded-lg overflow-hidden">
+              <canvas id="dreamscape-canvas" class="w-full"></canvas>
+            </div>
+            
+            <div class="mt-4 text-gray-400 text-sm">
+              <p><i class="fas fa-info-circle mr-1"></i> Double-click on the canvas to add a node. Drag nodes to move them. Click on a node to edit it.</p>
+            </div>
+          </div>
+          
+          <!-- Hidden field to store canvas data -->
+          <input type="hidden" id="existing-canvas-data" value='<%= JSON.stringify(dreamscape.canvasData) %>'>
+          <input type="hidden" id="canvas-data" name="canvasData" value='<%= JSON.stringify(dreamscape.canvasData) %>'>
+        </div>
+
+        <!-- Submit Buttons -->
+        <div class="flex justify-between">
+          <a href="/neural-dreamscape/view/<%= dreamscape._id %>" class="bg-dark-300 text-white px-4 py-2 rounded hover:bg-dark-400 transition-colors">
+            Cancel
+          </a>
+          <button type="submit" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white font-bold py-2 px-6 rounded hover:opacity-90 transition-opacity">
+            Update Dreamscape
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Include the Neural Dreamscape JS -->
+<script src="/js/neural-dreamscape.js"></script>

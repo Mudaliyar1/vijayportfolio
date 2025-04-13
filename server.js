@@ -187,6 +187,9 @@ app.use('/clear-flash', require('./routes/clear-flash'));
 // Session error route
 app.use('/session-error', require('./routes/session-error'));
 
+// General error route
+app.use('/error', require('./routes/error'));
+
 // Admin bypass maintenance middleware - must be before any other middleware
 const adminBypassMaintenance = require('./middleware/adminBypassMaintenance');
 app.use(adminBypassMaintenance);
@@ -231,6 +234,8 @@ app.use('/images', require('./routes/images'));
 app.use('/api/images', require('./routes/api-images'));
 app.use('/rate-limits', require('./routes/rate-limits'));
 app.use('/api/ai', require('./routes/ai-service')); // AI service route
+app.use('/digital-twin', require('./routes/digital-twin')); // Digital Twin routes
+app.use('/neural-dreamscape', require('./routes/neural-dreamscape')); // Neural Dreamscape routes
 
 app.use('/blog', require('./routes/blog')); // Blog routes
 app.use('/community', require('./routes/community')); // Community routes
