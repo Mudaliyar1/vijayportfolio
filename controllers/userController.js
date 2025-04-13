@@ -13,32 +13,25 @@ module.exports = {
     // Check if this is an admin login attempt during maintenance
     const adminLogin = req.query.admin === 'true';
 
-    // Get flash messages
-    let success_msg = req.flash('success_msg');
-    let error_msg = req.flash('error_msg');
-    let error = req.flash('error');
-
-    // Filter out inappropriate messages
-    if (success_msg && success_msg.includes('OTP verified successfully')) {
-      // Replace with a more appropriate message for login
-      success_msg = ['Your password has been reset successfully. Please log in with your new password.'];
-    }
-
-    // Debug flash messages
+    // Debug flash messages - these are already in res.locals from middleware
     console.log('Login page flash messages:');
-    console.log('success_msg:', success_msg);
-    console.log('error_msg:', error_msg);
-    console.log('error:', error);
+    console.log('success_msg:', res.locals.success_msg);
+    console.log('error_msg:', res.locals.error_msg);
+    console.log('error:', res.locals.error);
+
+    // Filter out inappropriate messages if needed
+    if (res.locals.success_msg && res.locals.success_msg.includes('OTP verified successfully')) {
+      // Replace with a more appropriate message for login
+      res.locals.success_msg = ['Your password has been reset successfully. Please log in with your new password.'];
+    }
 
     res.render('users/login', {
       title: 'Login - FTRAISE AI',
       layout: 'layouts/auth',
       maintenanceMode: req.maintenanceMode || false,
       maintenanceRedirect: req.maintenanceRedirect || false,
-      adminLogin: adminLogin,
-      success_msg: success_msg,
-      error_msg: error_msg,
-      error: error
+      adminLogin: adminLogin
+      // Flash messages are already in res.locals
     });
   },
 
@@ -59,9 +52,9 @@ module.exports = {
 
         // Use the message directly from Passport
         if (info && info.message) {
-          req.flash('error', info.message);
+          req.flash('error_msg', info.message);
         } else {
-          req.flash('error', 'Invalid email or password');
+          req.flash('error_msg', 'Invalid email or password');
         }
         return res.redirect('/users/login');
       }
@@ -258,13 +251,19 @@ module.exports = {
       const { email } = req.body;
       console.log('Forgot password request for email:', email);
 
+      if (!email) {
+        console.log('No email provided');
+        req.flash('error_msg', 'Please enter your email address');
+        return res.redirect('/users/forgot-password');
+      }
+
       // Check if email exists
       const user = await User.findOne({ email });
       console.log('User found:', user ? 'Yes' : 'No');
 
       if (!user) {
         console.log('Email not registered:', email);
-        req.flash('error_msg', 'This email is not registered in our system. You cannot request a password reset for an unregistered email. Please check the email or create a new account.');
+        req.flash('error_msg', 'This email is not registered in our system. Please check the email or create a new account.');
         return res.redirect('/users/forgot-password');
       }
 
@@ -282,15 +281,20 @@ module.exports = {
       });
 
       await passwordReset.save();
+      console.log('Password reset record created:', passwordReset._id);
 
       // Send OTP email
       const emailResult = await sendPasswordResetOTP(user.email, user.username, otp);
 
       // Check if email was sent successfully or using fallback
       if (emailResult.success) {
+        // Clear any previous messages
+        req.flash('error_msg', null);
         req.flash('success_msg', 'An OTP has been sent to your email address');
       } else if (emailResult.fallback) {
         // For development/testing, show the OTP on screen
+        // Clear any previous messages
+        req.flash('error_msg', null);
         req.flash('success_msg', `Development Mode: Your OTP is ${otp}. In production, this would be sent to your email.`);
       } else {
         // In production, don't expose the error details to the user
@@ -299,16 +303,17 @@ module.exports = {
         return res.redirect('/users/forgot-password');
       }
 
-      res.redirect(`/users/reset-password?email=${encodeURIComponent(email)}`);
+      // Redirect to reset password page with email parameter
+      return res.redirect(`/users/reset-password?email=${encodeURIComponent(email)}`);
     } catch (err) {
       console.error('Error in forgot password:', err);
       req.flash('error_msg', 'An error occurred. Please try again later.');
-      res.redirect('/users/forgot-password');
+      return res.redirect('/users/forgot-password');
     }
   },
 
   // Render reset password page
-  getResetPassword: (req, res) => {
+  getResetPassword: async (req, res) => {
     const { email, verified } = req.query;
 
     if (!email) {
@@ -316,26 +321,42 @@ module.exports = {
       return res.redirect('/users/forgot-password');
     }
 
-    // Get flash messages
-    const success_msg = req.flash('success_msg');
-    const error_msg = req.flash('error_msg');
-    const error = req.flash('error');
+    try {
+      // Check if the email exists in the system
+      const user = await User.findOne({ email });
+      if (!user) {
+        req.flash('error_msg', 'This email is not registered in our system');
+        return res.redirect('/users/forgot-password');
+      }
 
-    // Debug flash messages
-    console.log('Reset password page flash messages:');
-    console.log('success_msg:', success_msg);
-    console.log('error_msg:', error_msg);
-    console.log('error:', error);
+      // If this is the verified page (after OTP verification), clear any messages about OTP being sent
+      if (verified === 'true') {
+        // Filter out any messages about OTP being sent
+        if (Array.isArray(res.locals.success_msg)) {
+          res.locals.success_msg = res.locals.success_msg.filter(msg =>
+            !msg.includes('OTP has been sent')
+          );
+        }
+      }
 
-    res.render('users/reset-password', {
-      title: 'Reset Password - FTRAISE AI',
-      layout: 'layouts/auth',
-      email,
-      verified: verified === 'true',
-      success_msg: success_msg,
-      error_msg: error_msg,
-      error: error
-    });
+      // Debug flash messages
+      console.log('Reset password page flash messages:');
+      console.log('success_msg:', res.locals.success_msg);
+      console.log('error_msg:', res.locals.error_msg);
+      console.log('error:', res.locals.error);
+
+      res.render('users/reset-password', {
+        title: 'Reset Password - FTRAISE AI',
+        layout: 'layouts/auth',
+        email,
+        verified: verified === 'true'
+        // Flash messages are already in res.locals
+      });
+    } catch (err) {
+      console.error('Error in getResetPassword:', err);
+      req.flash('error_msg', 'An error occurred. Please try again later.');
+      return res.redirect('/users/forgot-password');
+    }
   },
 
   // Verify OTP
@@ -356,7 +377,7 @@ module.exports = {
 
       if (!user) {
         console.log('User not found for email:', email);
-        req.flash('error_msg', 'User not found');
+        req.flash('error_msg', 'This email is not registered in our system');
         return res.redirect('/users/forgot-password');
       }
 
@@ -381,7 +402,7 @@ module.exports = {
 
       if (!anyOtpExists) {
         console.log('No active OTP found for user');
-        req.flash('error_msg', 'Your OTP has expired. Please request a new OTP.');
+        req.flash('error_msg', 'Your OTP has expired or is invalid. Please request a new OTP.');
         return res.redirect(`/users/forgot-password`);
       }
 
@@ -397,17 +418,21 @@ module.exports = {
       if (!passwordReset) {
         console.log('Invalid OTP entered:', otp);
 
-        // Don't block immediately, just show an error message
-        req.flash('error_msg', 'Invalid OTP. Please check and try again. OTPs are valid for 15 minutes only.');
+        // Create a record of this failed attempt
+        await PasswordReset.updateMany(
+          { userId: user._id, isUsed: false },
+          { $set: { isUsed: true, isBlocked: true } }
+        );
 
-        // Stay on the reset password page with the same email
-        return res.redirect(`/users/reset-password?email=${encodeURIComponent(email)}`);
+        // Show an error message
+        req.flash('error_msg', 'Invalid OTP. For security reasons, this OTP has been blocked. Please request a new OTP.');
+
+        // Redirect to forgot password page
+        return res.redirect('/users/forgot-password');
       }
 
-      // Clear any previous messages
-      req.flash('success_msg', null);
-      req.flash('error_msg', null);
-      req.flash('error', null);
+      // Clear all flash messages
+      req.session.flash = {};
 
       // Set a new success message for OTP verification
       req.flash('success_msg', 'OTP verified successfully. Please set your new password.');

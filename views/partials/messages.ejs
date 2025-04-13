@@ -1,14 +1,52 @@
 <%
 // Define default values for flash messages if they don't exist
 var errors = typeof errors !== 'undefined' ? errors : [];
-var success_msg = typeof success_msg !== 'undefined' ? success_msg : '';
-var error_msg = typeof error_msg !== 'undefined' ? error_msg : '';
-var warning_msg = typeof warning_msg !== 'undefined' ? warning_msg : '';
-var error = typeof error !== 'undefined' ? error : '';
+var success_msg = typeof success_msg !== 'undefined' ? success_msg : [];
+var error_msg = typeof error_msg !== 'undefined' ? error_msg : [];
+var warning_msg = typeof warning_msg !== 'undefined' ? warning_msg : [];
+var error = typeof error !== 'undefined' ? error : [];
 
 // Convert to arrays if they're strings
 if (typeof errors === 'string') errors = [{ msg: errors }];
 if (!Array.isArray(errors)) errors = [];
+
+// Convert success_msg to array if it's a string
+if (typeof success_msg === 'string' && success_msg.trim() !== '') {
+  success_msg = [success_msg];
+} else if (!Array.isArray(success_msg)) {
+  success_msg = [];
+}
+
+// Convert error_msg to array if it's a string
+if (typeof error_msg === 'string' && error_msg.trim() !== '') {
+  error_msg = [error_msg];
+} else if (!Array.isArray(error_msg)) {
+  error_msg = [];
+}
+
+// Convert error to array if it's a string
+if (typeof error === 'string' && error.trim() !== '') {
+  error = [error];
+} else if (!Array.isArray(error)) {
+  error = [];
+}
+
+// Convert warning_msg to array if it's a string
+if (typeof warning_msg === 'string' && warning_msg.trim() !== '') {
+  warning_msg = [warning_msg];
+} else if (!Array.isArray(warning_msg)) {
+  warning_msg = [];
+}
+
+// Remove duplicate messages
+function removeDuplicates(array) {
+  return [...new Set(array)];
+}
+
+success_msg = removeDuplicates(success_msg);
+error_msg = removeDuplicates(error_msg);
+error = removeDuplicates(error);
+warning_msg = removeDuplicates(warning_msg);
 %>
 
 <!-- Flash messages are handled by flash-messages.js -->
@@ -52,85 +90,86 @@ if(Array.isArray(errors) && errors.length > 0){
   <% } }); %>
 <% } %>
 
+<!-- Flash messages are handled by flash-messages.js -->
+
 <%
-// Only show success message if it's explicitly set and not empty
-if(success_msg && typeof success_msg === 'string' && success_msg.trim() !== ''){
+// Show success messages
+if(Array.isArray(success_msg) && success_msg.length > 0){
+  success_msg.forEach(function(msg) {
+    if (msg && typeof msg === 'string' && msg.trim() !== '') {
 %>
   <div class="flash-message bg-green-900/50 border border-green-500 text-white px-4 py-3 rounded-md mb-4 flex items-start justify-between animate-fade-in transition-opacity duration-500">
     <div class="flex items-center">
       <i class="fas fa-check-circle mr-2"></i>
-      <%= success_msg %>
+      <%= msg %>
     </div>
     <button class="text-white hover:text-green-300 focus:outline-none" onclick="this.parentElement.remove()">
       <i class="fas fa-times"></i>
     </button>
   </div>
-<% } %>
+<%
+    }
+  });
+} %>
 
 <%
-// Only show error message if it's explicitly set and not empty
-if(error_msg && typeof error_msg === 'string' && error_msg.trim() !== ''){
+// Show error messages
+if(Array.isArray(error_msg) && error_msg.length > 0){
+  error_msg.forEach(function(msg) {
+    if (msg && typeof msg === 'string' && msg.trim() !== '') {
 %>
   <div class="flash-message bg-red-900/50 border border-red-500 text-white px-4 py-3 rounded-md mb-4 flex items-start justify-between animate-fade-in transition-opacity duration-500">
     <div class="flex items-center">
       <i class="fas fa-exclamation-circle mr-2"></i>
-      <%= error_msg %>
+      <%= msg %>
     </div>
     <button class="text-white hover:text-red-300 focus:outline-none" onclick="this.parentElement.remove()">
       <i class="fas fa-times"></i>
     </button>
   </div>
-<% } %>
+<%
+    }
+  });
+} %>
 
 <%
-// Only show warning message if it's explicitly set and not empty
-if(warning_msg && typeof warning_msg === 'string' && warning_msg.trim() !== ''){
+// Show warning messages
+if(Array.isArray(warning_msg) && warning_msg.length > 0){
+  warning_msg.forEach(function(msg) {
+    if (msg && typeof msg === 'string' && msg.trim() !== '') {
 %>
   <div class="flash-message bg-yellow-900/50 border border-yellow-500 text-white px-4 py-3 rounded-md mb-4 flex items-start justify-between animate-fade-in transition-opacity duration-500">
     <div class="flex items-center">
       <i class="fas fa-exclamation-triangle mr-2"></i>
-      <%= warning_msg %>
+      <%= msg %>
     </div>
     <button class="text-white hover:text-yellow-300 focus:outline-none" onclick="this.parentElement.remove()">
       <i class="fas fa-times"></i>
     </button>
   </div>
-<% } %>
+<%
+    }
+  });
+} %>
 
 <%
-// Handle error messages - can be string or array
-if(error) {
-  if(typeof error === 'string' && error.trim() !== '') {
-    // Single string error
+// Handle error messages from passport
+if(Array.isArray(error) && error.length > 0) {
+  error.forEach(function(msg) {
+    if(msg && typeof msg === 'string' && msg.trim() !== '') {
     %>
     <div class="flash-message bg-red-900/50 border border-red-500 text-white px-4 py-3 rounded-md mb-4 flex items-start justify-between animate-fade-in transition-opacity duration-500">
       <div class="flex items-center">
         <i class="fas fa-exclamation-circle mr-2"></i>
-        <%= error %>
+        <%= msg %>
       </div>
       <button class="text-white hover:text-red-300 focus:outline-none" onclick="this.parentElement.remove()">
         <i class="fas fa-times"></i>
       </button>
     </div>
     <%
-  } else if(Array.isArray(error) && error.length > 0) {
-    // Array of errors
-    error.forEach(function(msg) {
-      if(msg && msg.trim && msg.trim() !== '') {
-        %>
-        <div class="flash-message bg-red-900/50 border border-red-500 text-white px-4 py-3 rounded-md mb-4 flex items-start justify-between animate-fade-in transition-opacity duration-500">
-          <div class="flex items-center">
-            <i class="fas fa-exclamation-circle mr-2"></i>
-            <%= msg %>
-          </div>
-          <button class="text-white hover:text-red-300 focus:outline-none" onclick="this.parentElement.remove()">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-        <%
-      }
-    });
-  }
+    }
+  });
 }
 %>
 

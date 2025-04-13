@@ -546,10 +546,34 @@ module.exports = {
         };
       }
 
+      console.log('Fetching password reset history with query:', query);
+
       // Get password reset history with user info
       const passwordResets = await PasswordReset.find(query)
         .populate('userId', 'username email')
         .sort({ createdAt: -1 });
+
+      console.log(`Found ${passwordResets.length} password reset records`);
+
+      // Debug the first few records
+      if (passwordResets.length > 0) {
+        console.log('Sample reset record:', {
+          id: passwordResets[0]._id,
+          email: passwordResets[0].email,
+          userId: passwordResets[0].userId,
+          isUsed: passwordResets[0].isUsed,
+          createdAt: passwordResets[0].createdAt
+        });
+      }
+
+      // Render the password reset history page
+      res.render('admin/password-resets', {
+        title: 'Password Reset History - FTRAISE AI',
+        passwordResets,
+        search,
+        path: '/admin/password-reset-history',
+        layout: 'layouts/no-footer'
+      });
 
       // Group by user and count attempts
       const userResetCounts = {};

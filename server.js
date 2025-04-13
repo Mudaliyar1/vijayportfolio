@@ -135,18 +135,36 @@ app.use((req, res, next) => {
     req.session.flash = {};
   }
 
-  // Debug flash messages without consuming them
-  console.log('Flash messages in middleware (from session):');
-  console.log('success_msg:', req.flash('success_msg'));
-  console.log('error_msg:', req.flash('error_msg'));
-  console.log('error:', req.flash('error'));
+  // Get flash messages without consuming them for debugging
+  const success_msg_debug = req.flash('success_msg');
+  const error_msg_debug = req.flash('error_msg');
+  const error_debug = req.flash('error');
+  const warning_msg_debug = req.flash('warning_msg');
 
-  // Set locals for all flash message types - this properly consumes the messages
-  res.locals.success_msg = req.flash('success_msg');
-  res.locals.error_msg = req.flash('error_msg');
-  res.locals.warning_msg = req.flash('warning_msg');
-  res.locals.error = req.flash('error');
-  res.locals.errors = req.flash('errors') || [];
+  // Debug flash messages
+  console.log('Flash messages in middleware (from session):');
+  console.log('success_msg:', success_msg_debug);
+  console.log('error_msg:', error_msg_debug);
+  console.log('error:', error_debug);
+
+  // Filter out null values
+  const filteredSuccessMsg = success_msg_debug.filter(msg => msg !== null && msg !== undefined);
+  const filteredErrorMsg = error_msg_debug.filter(msg => msg !== null && msg !== undefined);
+  const filteredError = error_debug.filter(msg => msg !== null && msg !== undefined);
+  const filteredWarningMsg = warning_msg_debug.filter(msg => msg !== null && msg !== undefined);
+
+  // Put them back since flash() consumes the messages
+  filteredSuccessMsg.forEach(msg => req.flash('success_msg', msg));
+  filteredErrorMsg.forEach(msg => req.flash('error_msg', msg));
+  filteredError.forEach(msg => req.flash('error', msg));
+  filteredWarningMsg.forEach(msg => req.flash('warning_msg', msg));
+
+  // Set locals for all flash message types
+  res.locals.success_msg = filteredSuccessMsg;
+  res.locals.error_msg = filteredErrorMsg;
+  res.locals.warning_msg = filteredWarningMsg;
+  res.locals.error = filteredError;
+  res.locals.errors = [];
 
   // Continue to the next middleware
   next();
