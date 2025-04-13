@@ -4,9 +4,9 @@ if (typeof path === 'undefined') {
   path = '/admin';
 }
 %>
-<div class="w-64 bg-dark-200 border-r border-gray-800 min-h-screen block shadow-xl flex flex-col overflow-y-auto">
+<div class="w-64 bg-dark-200 border-r border-gray-800 min-h-screen block shadow-xl flex flex-col overflow-hidden relative">
   <!-- Fixed Header - Always visible -->
-  <div class="flex-shrink-0 p-6 border-b border-gray-800 bg-gradient-to-r from-dark-100 to-dark-200 sticky top-0 z-20">
+  <div class="flex-shrink-0 p-6 border-b border-gray-800 bg-gradient-to-r from-dark-100 to-dark-200 sticky top-0 z-20 shadow-md">
     <div class="flex justify-between items-center">
       <a href="/admin" class="flex flex-col items-center">
         <span class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple">FTRAISE AI</span>
@@ -16,8 +16,8 @@ if (typeof path === 'undefined') {
         </div>
       </a>
 
-      <!-- Close Button (visible only on mobile) -->
-      <button id="admin-sidebar-close" class="text-gray-400 hover:text-white md:hidden">
+      <!-- Close Button (visible on all devices) -->
+      <button id="admin-sidebar-close" class="text-gray-400 hover:text-white">
         <i class="fas fa-times text-lg"></i>
       </button>
     </div>
@@ -30,13 +30,13 @@ if (typeof path === 'undefined') {
   </div>
 
   <!-- Scrollable Navigation -->
-  <nav class="flex-grow overflow-y-auto p-4 custom-scrollbar" style="max-height: calc(100vh - 150px); overflow-y: auto; padding-bottom: 200px; -webkit-overflow-scrolling: touch;">
+  <nav class="flex-grow overflow-y-auto p-4 custom-scrollbar" style="height: calc(100vh - 220px); overflow-y: auto; padding-bottom: 20px; -webkit-overflow-scrolling: touch; max-height: calc(100vh - 220px); margin-bottom: 80px;">
     <!-- Dashboard Section -->
     <div class="mb-6">
       <h3 class="text-xs uppercase text-gray-400 font-semibold px-4 mb-3 flex items-center"><span class="w-1 h-4 bg-neon-blue rounded-full mr-2"></span>Main</h3>
       <ul class="space-y-1">
         <li>
-          <a href="/admin" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin' ? 'bg-gradient-to-r from-neon-blue/20 to-neon-blue/10 text-white border-l-2 border-neon-blue' : 'text-gray-400 hover:bg-dark-100 hover:text-white hover:border-l-2 hover:border-neon-blue/50' %> transition-all duration-200">
+          <a href="/admin" class="flex items-center py-1 px-4 rounded-md <%= path === '/admin' ? 'text-white' : 'text-gray-400' %>">
             <i class="fas fa-tachometer-alt w-5"></i>
             <span class="ml-3">Dashboard</span>
           </a>
@@ -65,6 +65,12 @@ if (typeof path === 'undefined') {
             <i class="fas fa-tachometer-alt w-5"></i>
             <span class="ml-3">Rate Limits</span>
             <span id="pending-requests-badge" class="ml-auto bg-neon-blue text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/password-resets" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/password-resets' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-key w-5"></i>
+            <span class="ml-3">Password Reset History</span>
           </a>
         </li>
       </ul>
@@ -97,6 +103,49 @@ if (typeof path === 'undefined') {
 
 
 
+    <!-- Website Builder Section -->
+    <div class="mb-6">
+      <h3 class="text-xs uppercase text-gray-400 font-semibold px-4 mb-3 flex items-center"><span class="w-1 h-4 bg-neon-blue rounded-full mr-2"></span>Website Builder</h3>
+      <ul class="space-y-1">
+        <li>
+          <a href="/admin/websites" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/websites' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-globe w-5"></i>
+            <span class="ml-3">Websites</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/templates" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/templates' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-layer-group w-5"></i>
+            <span class="ml-3">Templates</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/websites/packages" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/websites/packages' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-box w-5"></i>
+            <span class="ml-3">Packages</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/websites/payments" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/websites/payments' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-credit-card w-5"></i>
+            <span class="ml-3">Payments</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/package-inquiries" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/package-inquiries' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-envelope w-5"></i>
+            <span class="ml-3">Package Inquiries</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/marketing-packages" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/marketing-packages' || path.startsWith('/admin/marketing-packages/') ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-box w-5"></i>
+            <span class="ml-3">Marketing Packages</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
     <!-- System Section -->
     <div class="mb-6">
       <h3 class="text-xs uppercase text-gray-400 font-semibold px-4 mb-3 flex items-center"><span class="w-1 h-4 bg-neon-green rounded-full mr-2"></span>System</h3>
@@ -116,12 +165,13 @@ if (typeof path === 'undefined') {
       </ul>
     </div>
 
-
-
-
+    <!-- Spacer for bottom padding to ensure content doesn't get hidden behind footer -->
+    <div class="h-32"></div>
+    <div class="h-32"></div>
+    <div class="h-32"></div>
   </nav>
 
-  <div class="fixed bottom-0 w-64 p-4 border-t border-gray-800 bg-dark-200">
+  <div class="flex-shrink-0 fixed bottom-0 w-64 p-4 border-t border-gray-800 bg-dark-200 z-20 shadow-lg">
     <div class="flex items-center">
       <img src="<%= user.profilePicture %>" alt="<%= user.username %>" class="w-8 h-8 rounded-full mr-3">
       <div>
@@ -157,7 +207,7 @@ if (typeof path === 'undefined') {
 <div id="mobile-sidebar" class="fixed inset-0 z-30 hidden">
   <div class="absolute inset-0 bg-black/50" id="sidebar-backdrop"></div>
 
-  <div class="absolute top-0 left-0 w-64 bg-dark-200 h-full transform -translate-x-full transition-transform duration-300 ease-in-out" id="sidebar-content">
+  <div class="absolute top-0 left-0 w-64 bg-dark-200 h-full transform -translate-x-full transition-transform duration-300 ease-in-out overflow-hidden flex flex-col" id="sidebar-content">
     <div class="p-4 border-b border-gray-800 flex justify-between items-center">
       <div>
         <span class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple">FTRAISE AI</span>
@@ -175,10 +225,10 @@ if (typeof path === 'undefined') {
       </button>
     </div>
 
-    <nav class="p-4">
+    <nav class="p-4 overflow-y-auto flex-grow custom-scrollbar" style="height: calc(100vh - 220px); max-height: calc(100vh - 220px); margin-bottom: 80px;">
       <ul class="space-y-2">
         <li>
-          <a href="/admin" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+          <a href="/admin" class="flex items-center py-1 px-4 rounded-md <%= path === '/admin' ? 'text-white' : 'text-gray-400' %>">
             <i class="fas fa-tachometer-alt w-5"></i>
             <span class="ml-3">Dashboard</span>
           </a>
@@ -246,10 +296,38 @@ if (typeof path === 'undefined') {
             <span id="mobile-pending-requests-badge" class="ml-auto bg-neon-blue text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
           </a>
         </li>
+        <li>
+          <a href="/admin/password-resets" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/password-resets' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-key w-5"></i>
+            <span class="ml-3">Password Reset History</span>
+          </a>
+        </li>
 
-
-
-
+        <!-- Website Builder Links -->
+        <li>
+          <a href="/admin/websites" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/websites' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-globe w-5"></i>
+            <span class="ml-3">Websites</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/templates" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/templates' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-layer-group w-5"></i>
+            <span class="ml-3">Templates</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/websites/packages" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/websites/packages' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-box w-5"></i>
+            <span class="ml-3">Packages</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/websites/payments" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/websites/payments' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-credit-card w-5"></i>
+            <span class="ml-3">Payments</span>
+          </a>
+        </li>
 
         <!-- Future Links for Template Marketplace -->
         <li>
@@ -267,12 +345,14 @@ if (typeof path === 'undefined') {
           </a>
         </li>
 
-        <!-- Spacer for bottom padding -->
-        <li class="h-96 md:h-[500px]"></li>
+        <!-- Spacer for bottom padding to ensure content doesn't get hidden behind footer -->
+        <li class="h-32 md:h-32"></li>
+        <li class="h-32 md:h-32"></li>
+        <li class="h-32 md:h-32"></li>
       </ul>
     </nav>
 
-    <div class="sticky bottom-0 w-full p-4 border-t border-gray-800 bg-dark-200 mt-auto z-10">
+    <div class="flex-shrink-0 fixed bottom-0 w-64 p-4 border-t border-gray-800 bg-dark-200 z-20 shadow-lg">
       <div class="flex items-center">
         <img src="<%= user.profilePicture %>" alt="<%= user.username %>" class="w-8 h-8 rounded-full mr-3">
         <div>
@@ -299,29 +379,31 @@ if (typeof path === 'undefined') {
 </div>
 
 <script>
-  // Mobile sidebar toggle
+  // Mobile sidebar toggle - for the separate mobile sidebar
   const mobileMenuButton = document.getElementById('mobile-menu-button');
   const mobileSidebar = document.getElementById('mobile-sidebar');
   const sidebarContent = document.getElementById('sidebar-content');
   const closeSidebar = document.getElementById('close-sidebar');
   const sidebarBackdrop = document.getElementById('sidebar-backdrop');
 
-  mobileMenuButton.addEventListener('click', () => {
-    mobileSidebar.classList.remove('hidden');
-    setTimeout(() => {
-      sidebarContent.classList.remove('-translate-x-full');
-    }, 10);
-  });
+  if (mobileMenuButton && mobileSidebar && sidebarContent) {
+    mobileMenuButton.addEventListener('click', () => {
+      mobileSidebar.classList.remove('hidden');
+      setTimeout(() => {
+        sidebarContent.classList.remove('-translate-x-full');
+      }, 10);
+    });
 
-  function hideSidebar() {
-    sidebarContent.classList.add('-translate-x-full');
-    setTimeout(() => {
-      mobileSidebar.classList.add('hidden');
-    }, 300);
+    function hideSidebar() {
+      sidebarContent.classList.add('-translate-x-full');
+      setTimeout(() => {
+        mobileSidebar.classList.add('hidden');
+      }, 300);
+    }
+
+    if (closeSidebar) closeSidebar.addEventListener('click', hideSidebar);
+    if (sidebarBackdrop) sidebarBackdrop.addEventListener('click', hideSidebar);
   }
-
-  closeSidebar.addEventListener('click', hideSidebar);
-  sidebarBackdrop.addEventListener('click', hideSidebar);
 
   // Load pending rate limit requests count
   async function loadPendingRequestsCount() {
@@ -332,13 +414,17 @@ if (typeof path === 'undefined') {
       if (data.success && data.count > 0) {
         // Update desktop badge
         const desktopBadge = document.getElementById('pending-requests-badge');
-        desktopBadge.textContent = data.count;
-        desktopBadge.classList.remove('hidden');
+        if (desktopBadge) {
+          desktopBadge.textContent = data.count;
+          desktopBadge.classList.remove('hidden');
+        }
 
         // Update mobile badge
         const mobileBadge = document.getElementById('mobile-pending-requests-badge');
-        mobileBadge.textContent = data.count;
-        mobileBadge.classList.remove('hidden');
+        if (mobileBadge) {
+          mobileBadge.textContent = data.count;
+          mobileBadge.classList.remove('hidden');
+        }
       }
     } catch (err) {
       console.error('Error loading pending requests count:', err);

@@ -14,6 +14,26 @@ if (!Array.isArray(errors)) errors = [];
 <!-- Flash messages are handled by flash-messages.js -->
 
 <%
+// Check if there are any messages to display
+const hasMessages = (
+  (Array.isArray(errors) && errors.length > 0) ||
+  (success_msg && ((typeof success_msg === 'string' && success_msg.trim() !== '') || (Array.isArray(success_msg) && success_msg.length > 0))) ||
+  (error_msg && ((typeof error_msg === 'string' && error_msg.trim() !== '') || (Array.isArray(error_msg) && error_msg.length > 0))) ||
+  (warning_msg && ((typeof warning_msg === 'string' && warning_msg.trim() !== '') || (Array.isArray(warning_msg) && warning_msg.length > 0))) ||
+  (error && ((typeof error === 'string' && error.trim() !== '') || (Array.isArray(error) && error.length > 0)))
+);
+
+// Show clear all button if there are messages
+if (hasMessages) {
+%>
+<div class="flex justify-end mb-2 flash-messages-clear-all transition-opacity duration-500">
+  <a href="/clear-flash" class="text-sm text-gray-400 hover:text-white flex items-center">
+    <i class="fas fa-trash-alt mr-1"></i> Clear All Messages
+  </a>
+</div>
+<% } %>
+
+<%
 // Only show messages if they're explicitly set and not empty
 if(Array.isArray(errors) && errors.length > 0){
 %>
@@ -78,18 +98,40 @@ if(warning_msg && typeof warning_msg === 'string' && warning_msg.trim() !== ''){
 <% } %>
 
 <%
-// Only show error if it's explicitly set and not empty
-if(error && typeof error === 'string' && error.trim() !== ''){
-%>
-  <div class="flash-message bg-red-900/50 border border-red-500 text-white px-4 py-3 rounded-md mb-4 flex items-start justify-between animate-fade-in transition-opacity duration-500">
-    <div class="flex items-center">
-      <i class="fas fa-exclamation-circle mr-2"></i>
-      <%= error %>
+// Handle error messages - can be string or array
+if(error) {
+  if(typeof error === 'string' && error.trim() !== '') {
+    // Single string error
+    %>
+    <div class="flash-message bg-red-900/50 border border-red-500 text-white px-4 py-3 rounded-md mb-4 flex items-start justify-between animate-fade-in transition-opacity duration-500">
+      <div class="flex items-center">
+        <i class="fas fa-exclamation-circle mr-2"></i>
+        <%= error %>
+      </div>
+      <button class="text-white hover:text-red-300 focus:outline-none" onclick="this.parentElement.remove()">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
-    <button class="text-white hover:text-red-300 focus:outline-none" onclick="this.parentElement.remove()">
-      <i class="fas fa-times"></i>
-    </button>
-  </div>
-<% } %>
+    <%
+  } else if(Array.isArray(error) && error.length > 0) {
+    // Array of errors
+    error.forEach(function(msg) {
+      if(msg && msg.trim && msg.trim() !== '') {
+        %>
+        <div class="flash-message bg-red-900/50 border border-red-500 text-white px-4 py-3 rounded-md mb-4 flex items-start justify-between animate-fade-in transition-opacity duration-500">
+          <div class="flex items-center">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <%= msg %>
+          </div>
+          <button class="text-white hover:text-red-300 focus:outline-none" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <%
+      }
+    });
+  }
+}
+%>
 
 <!-- Flash messages are handled by flash-messages.js -->

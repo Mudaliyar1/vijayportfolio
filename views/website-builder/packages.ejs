@@ -1,0 +1,118 @@
+<!-- Website Builder Packages Page -->
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <!-- Hero Section -->
+  <div class="text-center mb-12">
+    <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
+      Choose Your Website Package
+    </h1>
+    <p class="text-xl text-gray-300 mt-4 max-w-3xl mx-auto">
+      Select the perfect package for your website needs. From free basic sites to premium business solutions.
+    </p>
+  </div>
+
+  <!-- Packages Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+    <% if (packages && packages.length > 0) { %>
+      <% packages.forEach(package => { %>
+        <div class="bg-dark-100/80 backdrop-blur-sm rounded-lg border <%= package.isFree ? 'border-neon-blue/30' : 'border-neon-green/30' %> overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-<%= package.isFree ? 'neon-blue/10' : 'neon-green/10' %> hover:-translate-y-1">
+          <!-- Package Header -->
+          <div class="p-6 <%= package.isFree ? 'bg-neon-blue/10' : 'bg-neon-green/10' %>">
+            <h3 class="text-2xl font-bold <%= package.isFree ? 'text-neon-blue' : 'text-neon-green' %>">
+              <%= package.name %>
+            </h3>
+            <div class="flex items-end mt-2">
+              <span class="text-3xl font-bold text-white">₹<%= package.price %></span>
+              <% if (package.isFree) { %>
+                <span class="ml-2 text-sm text-gray-400">Free Forever</span>
+              <% } %>
+            </div>
+          </div>
+
+          <!-- Package Features -->
+          <div class="p-6">
+            <ul class="space-y-3 mb-6">
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-<%= package.isFree ? 'neon-blue' : 'neon-green' %> mt-1 mr-2"></i>
+                <span><%= package.pagesAllowed %> <%= package.pagesAllowed === 1 ? 'Page' : 'Pages' %> Allowed</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas <%= package.features.aiContent ? 'fa-check-circle text-' + (package.isFree ? 'neon-blue' : 'neon-green') : 'fa-times-circle text-gray-500' %> mt-1 mr-2"></i>
+                <span class="<%= !package.features.aiContent ? 'text-gray-500' : '' %>">AI Content Generation</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas <%= package.features.seo ? 'fa-check-circle text-' + (package.isFree ? 'neon-blue' : 'neon-green') : 'fa-times-circle text-gray-500' %> mt-1 mr-2"></i>
+                <span class="<%= !package.features.seo ? 'text-gray-500' : '' %>">SEO Optimization</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas <%= package.features.fullAi ? 'fa-check-circle text-' + (package.isFree ? 'neon-blue' : 'neon-green') : 'fa-times-circle text-gray-500' %> mt-1 mr-2"></i>
+                <span class="<%= !package.features.fullAi ? 'text-gray-500' : '' %>">Full AI Features</span>
+              </li>
+              <% if (package.templates && package.templates.length > 0) { %>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-<%= package.isFree ? 'neon-blue' : 'neon-green' %> mt-1 mr-2"></i>
+                <span><%= package.templates.length %> <%= package.templates.length === 1 ? 'Template' : 'Templates' %> Included</span>
+              </li>
+              <% } %>
+              <% if (package.defaultTemplate) { %>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-<%= package.isFree ? 'neon-blue' : 'neon-green' %> mt-1 mr-2"></i>
+                <span>Default Template: <%= package.defaultTemplate.name %></span>
+              </li>
+              <% } %>
+            </ul>
+
+            <% if (package.description) { %>
+              <p class="text-gray-400 text-sm mb-6"><%= package.description %></p>
+            <% } %>
+
+            <!-- Select Button -->
+            <form action="/website-builder/packages/select" method="POST">
+              <input type="hidden" name="packageId" value="<%= package._id %>">
+              <button type="submit" class="w-full py-3 px-4 rounded-lg <%= package.isFree ? 'bg-neon-blue hover:bg-neon-blue/90' : 'bg-neon-green hover:bg-neon-green/90' %> text-white font-medium transition-colors">
+                Select <%= package.name %>
+              </button>
+            </form>
+          </div>
+        </div>
+      <% }); %>
+    <% } else { %>
+      <div class="col-span-3 text-center py-12">
+        <p class="text-gray-400">No packages available at the moment. Please check back later.</p>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- FAQ Section -->
+  <div class="bg-dark-100/80 backdrop-blur-sm rounded-lg border border-gray-700 p-8 mb-8">
+    <h2 class="text-2xl font-bold text-white mb-6">Frequently Asked Questions</h2>
+
+    <div class="space-y-6">
+      <div>
+        <h3 class="text-lg font-medium text-white mb-2">What's included in each package?</h3>
+        <p class="text-gray-400">Each package includes access to our drag-and-drop website builder, hosting on our servers, and a custom subdomain. Premium packages include additional pages, AI content generation, and SEO features.</p>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-medium text-white mb-2">Can I upgrade my package later?</h3>
+        <p class="text-gray-400">Yes, you can upgrade your package at any time. Your existing website content will be preserved when you upgrade.</p>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-medium text-white mb-2">How does the payment process work?</h3>
+        <p class="text-gray-400">We use Razorpay for secure payment processing. After selecting a paid package, you'll be directed to complete your payment before you can publish your website.</p>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-medium text-white mb-2">What is AI content generation?</h3>
+        <p class="text-gray-400">Our AI content generation feature uses Cohere AI to help you create professional text content for your website, including headings, paragraphs, and more.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Back to Dashboard Button -->
+<div class="fixed bottom-6 right-6">
+  <a href="/website-builder/dashboard" class="bg-dark-200 hover:bg-dark-300 text-white p-3 rounded-full shadow-lg transition-colors">
+    <i class="fas fa-arrow-left"></i>
+  </a>
+</div>

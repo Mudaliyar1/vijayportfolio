@@ -1,0 +1,89 @@
+<!-- Create Template Page Form -->
+<div>
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Add Page to Template: <%= template.name %></h1>
+    <div class="flex space-x-2">
+      <a href="/admin/templates/<%= template._id %>/pages" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-3 py-2 rounded-md text-sm transition-colors">
+        <i class="fas fa-arrow-left mr-1"></i> Back to Pages
+      </a>
+    </div>
+  </div>
+
+  <div class="bg-dark-100 rounded-lg border border-gray-800 p-6">
+    <form action="/admin/templates/<%= template._id %>/pages/create" method="POST">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div>
+          <div class="mb-4">
+            <label for="title" class="block text-sm font-medium text-gray-300 mb-1">Page Title</label>
+            <input type="text" id="title" name="title" required class="w-full bg-dark-200 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue">
+          </div>
+          
+          <div class="mb-4">
+            <label for="slug" class="block text-sm font-medium text-gray-300 mb-1">Page Slug</label>
+            <input type="text" id="slug" name="slug" class="w-full bg-dark-200 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue">
+            <p class="text-xs text-gray-400 mt-1">Leave empty to generate from title. Use only lowercase letters, numbers, and hyphens.</p>
+          </div>
+        </div>
+        
+        <div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-300 mb-1">Page Type</label>
+            <div class="flex items-center space-x-4">
+              <label class="inline-flex items-center">
+                <input type="radio" name="isHomePage" value="false" checked class="form-radio text-neon-blue">
+                <span class="ml-2 text-white">Regular Page</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input type="radio" name="isHomePage" value="true" class="form-radio text-neon-green">
+                <span class="ml-2 text-white">Homepage</span>
+              </label>
+            </div>
+            <p class="text-xs text-gray-400 mt-1">Setting this as homepage will change any existing homepage to a regular page.</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- HTML Content -->
+      <div class="mb-6">
+        <label for="htmlContent" class="block text-sm font-medium text-gray-300 mb-1">HTML Content</label>
+        <textarea id="htmlContent" name="htmlContent" rows="12" required class="w-full bg-dark-200 border border-gray-700 rounded-md px-3 py-2 text-white font-mono focus:outline-none focus:border-neon-blue"></textarea>
+      </div>
+      
+      <!-- CSS Content -->
+      <div class="mb-6">
+        <label for="cssContent" class="block text-sm font-medium text-gray-300 mb-1">CSS Content</label>
+        <textarea id="cssContent" name="cssContent" rows="8" class="w-full bg-dark-200 border border-gray-700 rounded-md px-3 py-2 text-white font-mono focus:outline-none focus:border-neon-blue"></textarea>
+      </div>
+      
+      <!-- JavaScript Content -->
+      <div class="mb-6">
+        <label for="jsContent" class="block text-sm font-medium text-gray-300 mb-1">JavaScript Content</label>
+        <textarea id="jsContent" name="jsContent" rows="8" class="w-full bg-dark-200 border border-gray-700 rounded-md px-3 py-2 text-white font-mono focus:outline-none focus:border-neon-blue"></textarea>
+      </div>
+      
+      <div class="mt-6 flex justify-end">
+        <button type="submit" class="bg-neon-blue hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors">
+          Add Page
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Auto-generate slug from title
+    const titleInput = document.getElementById('title');
+    const slugInput = document.getElementById('slug');
+    
+    titleInput.addEventListener('input', function() {
+      // Only auto-generate if slug is empty
+      if (!slugInput.value) {
+        slugInput.value = this.value
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+      }
+    });
+  });
+</script>

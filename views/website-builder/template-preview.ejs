@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/style.css">
+  <!-- Favicon -->
+  <link rel="icon" href="/images/favicon.ico">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            },
+            secondary: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              200: '#ddd6fe',
+              300: '#c4b5fd',
+              400: '#a78bfa',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+              800: '#5b21b6',
+              900: '#4c1d95',
+            },
+            dark: {
+              100: '#1e1e2e',
+              200: '#181825',
+              300: '#11111b',
+            },
+            neon: {
+              blue: '#00f2ff',
+              purple: '#8a2be2',
+              pink: '#ff00ff',
+              green: '#00ff9f',
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'glow': 'glow 2s ease-in-out infinite alternate',
+            'float': 'float 6s ease-in-out infinite',
+            'spin-slow': 'spin 3s linear infinite',
+          },
+          keyframes: {
+            glow: {
+              '0%': { 'box-shadow': '0 0 5px rgba(0, 242, 255, 0.5), 0 0 10px rgba(0, 242, 255, 0.3)' },
+              '100%': { 'box-shadow': '0 0 10px rgba(0, 242, 255, 0.8), 0 0 20px rgba(0, 242, 255, 0.5), 0 0 30px rgba(0, 242, 255, 0.3)' }
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' }
+            }
+          },
+          backdropBlur: {
+            xs: '2px',
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="dark bg-dark-300 text-gray-100 min-h-screen flex flex-col">
+  <% if (success_msg && success_msg.length > 0) { %>
+    <div class="bg-green-500/20 border border-green-500/30 text-green-400 px-4 py-3 rounded relative mb-4" role="alert">
+      <span class="block sm:inline"><%= success_msg %></span>
+    </div>
+  <% } %>
+  <% if (error_msg && error_msg.length > 0) { %>
+    <div class="bg-red-500/20 border border-red-500/30 text-red-400 px-4 py-3 rounded relative mb-4" role="alert">
+      <span class="block sm:inline"><%= error_msg %></span>
+    </div>
+  <% } %>
+
+<!-- Template Preview -->
+<div class="template-preview min-h-screen">
+  <!-- Preview Header -->
+  <div class="preview-header fixed top-0 left-0 right-0 bg-dark-100 border-b border-gray-800 p-3 flex justify-between items-center z-50">
+    <div class="flex items-center">
+      <span class="text-white font-semibold mr-4">Preview: <%= template.name %></span>
+      <div class="flex space-x-2">
+        <a href="/website-builder/templates" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-3 py-1 rounded-md text-sm transition-colors">
+          <i class="fas fa-arrow-left mr-1"></i> Back to Templates
+        </a>
+      </div>
+    </div>
+    <div class="flex items-center space-x-2">
+      <% if (template.isPaid) { %>
+        <span class="bg-purple-500/20 text-purple-400 px-3 py-1 rounded-md text-sm">
+          <i class="fas fa-dollar-sign mr-1"></i> Premium: ₹<%= template.price %>
+        </span>
+      <% } else { %>
+        <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-md text-sm">
+          <i class="fas fa-gift mr-1"></i> Free
+        </span>
+      <% } %>
+      <button id="select-template-btn" class="bg-neon-blue hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm transition-colors">
+        <i class="fas fa-check mr-1"></i> Select Template
+      </button>
+    </div>
+  </div>
+
+  <!-- Template Content -->
+  <div class="template-content pt-16 min-h-screen">
+    <!-- Template Navigation -->
+    <% if (pages.length > 1) { %>
+      <div class="template-navigation fixed top-16 left-0 right-0 bg-dark-200 border-b border-gray-800 p-2 flex justify-center items-center z-40">
+        <div class="flex space-x-4">
+          <% pages.forEach(function(page) { %>
+            <a href="/website-builder/templates/<%= template._id %>/preview?page=<%= page._id %>"
+               class="<%= page._id.toString() === currentPage._id.toString() ? 'text-neon-blue font-medium' : 'text-gray-400 hover:text-white' %> transition-colors px-2 py-1">
+              <%= page.title %>
+            </a>
+          <% }); %>
+        </div>
+      </div>
+      <div class="pt-10"></div>
+    <% } %>
+
+    <!-- Render Template Content -->
+    <div class="template-render min-h-screen">
+      <style>
+        /* Apply template CSS */
+        <%= currentPage.cssContent %>
+      </style>
+
+      <!-- Render template HTML content -->
+      <%- currentPage.htmlContent %>
+
+      <!-- Apply template JavaScript -->
+      <script type="text/javascript">
+        // Execute the JavaScript in a proper context
+        (function() {
+          <%= currentPage.jsContent %>
+        })();
+      </script>
+    </div>
+  </div>
+</div>
+
+<!-- Template Selection Modal -->
+<div id="template-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 max-w-md w-full mx-4">
+    <h2 class="text-xl font-semibold mb-4">Create Website from Template</h2>
+    <p class="text-gray-400 mb-6">You are about to create a website using the <span class="text-white"><%= template.name %></span> template.</p>
+
+    <form action="/website-builder/templates/<%= template._id %>/select" method="POST">
+      <div class="mb-4">
+        <label for="website-name" class="block text-sm font-medium text-gray-300 mb-1">Website Name</label>
+        <input type="text" id="website-name" name="name" required class="w-full bg-dark-200 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue">
+      </div>
+
+      <div class="mb-6">
+        <label for="website-description" class="block text-sm font-medium text-gray-300 mb-1">Description</label>
+        <textarea id="website-description" name="description" rows="3" class="w-full bg-dark-200 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue"></textarea>
+      </div>
+
+      <div class="flex justify-end space-x-3">
+        <button type="button" id="cancel-btn" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-4 py-2 rounded-md text-sm transition-colors">
+          Cancel
+        </button>
+        <button type="submit" class="bg-neon-blue hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm transition-colors">
+          Create Website
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('template-modal');
+    const selectBtn = document.getElementById('select-template-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+
+    // Show modal when select button is clicked
+    selectBtn.addEventListener('click', function() {
+      modal.classList.remove('hidden');
+    });
+
+    // Hide modal when cancel button is clicked
+    cancelBtn.addEventListener('click', function() {
+      modal.classList.add('hidden');
+    });
+
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+      }
+    });
+  });
+</script>
+</body>
+</html>

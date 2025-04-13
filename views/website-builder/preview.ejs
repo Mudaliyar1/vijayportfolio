@@ -1,0 +1,197 @@
+<!-- Website Preview -->
+<div class="website-preview" data-id="da35a9a2-9e2c-4f61-a5f5-3616d266b017">
+  <!-- Preview Header -->
+  <% if (isPreview) { %>
+    <div class="preview-header fixed top-0 left-0 right-0 bg-dark-100 border-b border-gray-800 p-3 flex justify-between items-center z-50">
+      <div class="flex items-center">
+        <span class="text-white font-semibold mr-4">Preview: <%= website.name %></span>
+        <div class="flex space-x-2">
+          <a href="/website-builder/editor/<%= website._id %>" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-3 py-1 rounded-md text-sm transition-colors">
+            <i class="fas fa-arrow-left mr-1"></i> Back to Editor
+          </a>
+          <% if (!website.isPaid && !website.packageId.isFree) { %>
+            <a href="/website-builder/payment/<%= website._id %>" class="bg-neon-purple/20 hover:bg-neon-purple/30 text-neon-purple px-3 py-1 rounded-md text-sm transition-colors">
+              <i class="fas fa-credit-card mr-1"></i> Complete Payment
+            </a>
+          <% } else if (!website.isPublished) { %>
+            <a href="/website-builder/publish/<%= website._id %>" class="bg-neon-green/20 hover:bg-neon-green/30 text-neon-green px-3 py-1 rounded-md text-sm transition-colors">
+              <i class="fas fa-globe mr-1"></i> Publish
+            </a>
+          <% } else { %>
+            <a href="/website-builder/unpublish/<%= website._id %>" class="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-500 px-3 py-1 rounded-md text-sm transition-colors">
+              <i class="fas fa-eye-slash mr-1"></i> Unpublish
+            </a>
+          <% } %>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="text-sm text-gray-400">
+          <% if (website.isPaid || website.packageId.isFree) { %>
+            <span class="bg-neon-green/20 text-neon-green text-xs px-2 py-1 rounded">
+              <% if (website.packageId.isFree) { %>Free<% } else { %>Paid<% } %> Package
+            </span>
+          <% } else { %>
+            <span class="bg-yellow-500/20 text-yellow-500 text-xs px-2 py-1 rounded">Payment Required</span>
+          <% } %>
+        </span>
+        <span class="text-sm text-gray-400">
+          <% if (website.isPublished) { %>
+            <span class="bg-neon-green/20 text-neon-green text-xs px-2 py-1 rounded">Published</span>
+          <% } else { %>
+            <span class="bg-gray-500/20 text-gray-400 text-xs px-2 py-1 rounded">Draft</span>
+          <% } %>
+        </span>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Website Content -->
+  <div class="website-content <%= isPreview ? 'pt-16' : '' %>">
+    <!-- Website Header -->
+    <header class="website-header bg-white shadow-md">
+      <div class="container mx-auto px-4 py-4">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center">
+            <h1 class="text-2xl font-bold text-gray-800"><%= website.name %></h1>
+          </div>
+          <nav class="hidden md:block">
+            <ul class="flex space-x-6">
+              <% pages.forEach(function(page) { %>
+                <li>
+                  <a href="<%= isPreview ? `/website-builder/preview/${website._id}?page=${page._id}` : `/${page.slug}` %>"
+                     class="<%= page._id.toString() === currentPage._id.toString() ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-gray-900' %> transition-colors">
+                    <%= page.title %>
+                  </a>
+                </li>
+              <% }); %>
+            </ul>
+          </nav>
+          <div class="md:hidden">
+            <button class="text-gray-600 hover:text-gray-900 focus:outline-none">
+              <i class="fas fa-bars"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="website-main">
+      <div class="container mx-auto px-4 py-8">
+        <% if (elements && elements.length > 0) { %>
+          <% elements.forEach(function(element) { %>
+            <div class="website-element mb-6" data-element-type="<%= element.type %>" <% if (element.styles && element.styles.trim()) { %>style="<%= element.styles %>"<% } %>>
+              <% if (element.type === 'heading') { %>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4"><%= element.content %></h2>
+              <% } else if (element.type === 'paragraph') { %>
+                <p class="text-gray-600 mb-4 leading-relaxed"><%= element.content %></p>
+              <% } else if (element.type === 'text') { %>
+                <span class="block text-gray-600 mb-4"><%= element.content %></span>
+              <% } else if (element.type === 'image') { %>
+                <img src="<%= element.content %>" alt="Image" class="max-w-full h-auto rounded-lg shadow-md mb-4">
+              <% } else if (element.type === 'button') { %>
+                <button class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition-colors mb-4">
+                  <%= element.content %>
+                </button>
+              <% } else if (element.type === 'divider') { %>
+                <hr class="border-gray-200 my-8">
+              <% } else if (element.type === 'spacer') {
+                const spacerHeight = parseInt(element.content || '50');
+              %>
+                <div class="spacer-element" data-height="<%= spacerHeight %>"></div>
+              <% } else if (element.type === 'container') { %>
+                <div class="bg-gray-50 p-6 rounded-lg shadow-sm mb-6">
+                  <%= element.content %>
+                </div>
+              <% } else if (element.type === 'video') { %>
+                <div class="aspect-w-16 aspect-h-9 mb-6">
+                  <iframe class="rounded-lg shadow-md" src="<%= element.content %>" frameborder="0" allowfullscreen></iframe>
+                </div>
+              <% } else if (element.type === 'audio') { %>
+                <div class="mb-4">
+                  <audio controls class="w-full"><source src="<%= element.content %>" type="audio/mpeg">Your browser does not support the audio element.</audio>
+                </div>
+              <% } else if (element.type === 'icon') { %>
+                <div class="text-center mb-4"><%- element.content %></div>
+              <% } else if (element.type === 'list') { %>
+                <ul class="list-disc pl-5 mb-4 text-gray-600"><%- element.content %></ul>
+              <% } else if (element.type === 'gallery') { %>
+                <div class="grid grid-cols-3 gap-2 mb-4"><%- element.content %></div>
+              <% } else if (element.type === 'form' || element.type === 'contact-form' || element.type === 'login-form' || element.type === 'register-form') { %>
+                <div class="form-container"><%- element.content %></div>
+              <% } else if (element.type === 'input' || element.type === 'textarea' || element.type === 'checkbox' || element.type === 'radio' || element.type === 'select') { %>
+                <div class="mb-4"><%- element.content %></div>
+              <% } else if (element.type === 'testimonial') { %>
+                <div class="mb-6"><%- element.content %></div>
+              <% } else if (element.type === 'team') { %>
+                <div class="mb-6"><%- element.content %></div>
+              <% } else if (element.type === 'carousel' || element.type === 'tabs' || element.type === 'accordion' || element.type === 'modal' || element.type === 'pricing' || element.type === 'pricing-table' || element.type === 'progress' || element.type === 'counter' || element.type === 'chart') { %>
+                <div class="mb-6"><%- element.content %></div>
+              <% } else if (element.type === 'embed' || element.type === 'svg' || element.type === 'lottie' || element.type === '360' || element.type === 'file') { %>
+                <div class="mb-6"><%- element.content %></div>
+              <% } else { %>
+                <div class="mb-4"><%- element.content %></div>
+              <% } %>
+            </div>
+          <% }); %>
+        <% } else { %>
+          <div class="text-center py-12">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-2">No Content Yet</h2>
+            <p class="text-gray-500">This page doesn't have any content yet.</p>
+          </div>
+        <% } %>
+      </div>
+    </main>
+
+    <!-- Website Footer -->
+    <footer class="website-footer bg-gray-100 border-t border-gray-200">
+      <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="mb-4 md:mb-0">
+            <p class="text-gray-600">&copy; <%= new Date().getFullYear() %> <%= website.name %>. All rights reserved.</p>
+          </div>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-500 hover:text-gray-700 transition-colors">
+              <i class="fab fa-facebook"></i>
+            </a>
+            <a href="#" class="text-gray-500 hover:text-gray-700 transition-colors">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#" class="text-gray-500 hover:text-gray-700 transition-colors">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="#" class="text-gray-500 hover:text-gray-700 transition-colors">
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<% if (isPreview) { %>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add any preview-specific JavaScript here
+
+    // Set heights for spacer elements
+    const spacerElements = document.querySelectorAll('.spacer-element');
+    spacerElements.forEach(spacer => {
+      const height = parseInt(spacer.dataset.height || '50');
+      spacer.style.height = height + 'px';
+    });
+
+    // Fix form elements
+    const formContainers = document.querySelectorAll('.form-container');
+    formContainers.forEach(container => {
+      // If the container contains a form element, extract it
+      const formElement = container.querySelector('form');
+      if (formElement) {
+        // Replace the container with the form element
+        container.parentNode.replaceChild(formElement, container);
+      }
+    });
+  });
+</script>
+<% } %>

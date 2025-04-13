@@ -1,0 +1,253 @@
+<!-- Package Edit Form -->
+<div class="flex flex-col md:flex-row">
+  <div class="flex-grow p-6 max-w-full">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Edit Package</h1>
+      <a href="/admin/packages" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-3 py-2 rounded-md text-sm transition-colors">
+        <i class="fas fa-arrow-left mr-1"></i> Back to Packages
+      </a>
+    </div>
+
+    <% if(success_msg != ''){ %>
+      <div class="bg-neon-green/10 border-l-4 border-neon-green text-neon-green p-4 mb-6 relative rounded-r-md shadow-md" role="alert">
+        <p><%= success_msg %></p>
+        <button type="button" class="absolute top-0 right-0 mt-2 mr-2 text-neon-green hover:text-white transition-colors" onclick="this.parentElement.remove()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    <% } %>
+
+    <% if(error_msg != ''){ %>
+      <div class="bg-red-500/10 border-l-4 border-red-500 text-red-400 p-4 mb-6 relative rounded-r-md shadow-md" role="alert">
+        <p><%= error_msg %></p>
+        <button type="button" class="absolute top-0 right-0 mt-2 mr-2 text-red-400 hover:text-white transition-colors" onclick="this.parentElement.remove()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    <% } %>
+
+    <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden mb-8">
+      <div class="p-6">
+        <form action="/admin/websites/packages/update" method="POST">
+          <input type="hidden" name="packageId" value="<%= package._id %>">
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- Package Name -->
+            <div>
+              <label for="name" class="block text-gray-300 mb-2">Package Name</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value="<%= package.name %>"
+                class="w-full bg-dark-200 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent"
+                required
+              >
+            </div>
+
+            <!-- Package Price -->
+            <div>
+              <label for="price" class="block text-gray-300 mb-2">Price (₹)</label>
+              <input
+                type="number"
+                id="price"
+                name="price"
+                value="<%= package.price %>"
+                class="w-full bg-dark-200 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent"
+                required
+                min="0"
+              >
+            </div>
+
+            <!-- Pages Allowed -->
+            <div>
+              <label for="pagesAllowed" class="block text-gray-300 mb-2">Pages Allowed</label>
+              <input
+                type="number"
+                id="pagesAllowed"
+                name="pagesAllowed"
+                value="<%= package.pagesAllowed %>"
+                class="w-full bg-dark-200 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent"
+                required
+                min="1"
+              >
+            </div>
+
+            <!-- Package Status -->
+            <div>
+              <label class="block text-gray-300 mb-2">Package Status</label>
+              <div class="flex items-center space-x-4">
+                <div class="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="isFree"
+                    name="isFree"
+                    class="form-checkbox h-5 w-5 text-neon-blue rounded focus:ring-neon-blue"
+                    <%= package.isFree ? 'checked' : '' %>
+                  >
+                  <label for="isFree" class="ml-2 text-gray-300">Free Package</label>
+                </div>
+
+                <div class="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="isActive"
+                    name="isActive"
+                    class="form-checkbox h-5 w-5 text-neon-green rounded focus:ring-neon-green"
+                    <%= package.isActive ? 'checked' : '' %>
+                  >
+                  <label for="isActive" class="ml-2 text-gray-300">Active</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Features -->
+          <div class="mb-6">
+            <label class="block text-gray-300 mb-2">Features</label>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="flex items-center">
+                <input
+                  type="checkbox"
+                  id="aiContent"
+                  name="aiContent"
+                  class="form-checkbox h-5 w-5 text-neon-blue rounded focus:ring-neon-blue"
+                  <%= package.features.aiContent ? 'checked' : '' %>
+                >
+                <label for="aiContent" class="ml-2 text-gray-300">AI Content Generation</label>
+              </div>
+
+              <div class="flex items-center">
+                <input
+                  type="checkbox"
+                  id="seo"
+                  name="seo"
+                  class="form-checkbox h-5 w-5 text-neon-blue rounded focus:ring-neon-blue"
+                  <%= package.features.seo ? 'checked' : '' %>
+                >
+                <label for="seo" class="ml-2 text-gray-300">SEO Optimization</label>
+              </div>
+
+              <div class="flex items-center">
+                <input
+                  type="checkbox"
+                  id="fullAi"
+                  name="fullAi"
+                  class="form-checkbox h-5 w-5 text-neon-blue rounded focus:ring-neon-blue"
+                  <%= package.features.fullAi ? 'checked' : '' %>
+                >
+                <label for="fullAi" class="ml-2 text-gray-300">Full AI Features</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="mb-6">
+            <label for="description" class="block text-gray-300 mb-2">Description <span class="text-xs text-gray-500">(Line breaks will be preserved)</span></label>
+            <textarea
+              id="description"
+              name="description"
+              class="w-full bg-dark-200 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent h-32"
+              placeholder="Press Enter for new lines. Line breaks will be displayed on the website."
+            ><%= package.description %></textarea>
+          </div>
+
+          <!-- Template Selection -->
+          <div class="mb-6">
+            <label class="block text-gray-300 mb-2">Available Templates</label>
+            <div class="bg-dark-300 border border-gray-700 rounded-lg p-4 max-h-60 overflow-y-auto">
+              <% if (templates && templates.length > 0) { %>
+                <% templates.forEach(template => { %>
+                  <div class="flex items-center mb-2 pb-2 border-b border-gray-700 last:border-0 last:mb-0 last:pb-0">
+                    <input
+                      type="checkbox"
+                      id="template-<%= template._id %>"
+                      name="templates[]"
+                      value="<%= template._id %>"
+                      class="form-checkbox h-5 w-5 text-neon-blue rounded focus:ring-neon-blue"
+                      <%= package.templates && package.templates.some(t => t.equals(template._id)) ? 'checked' : '' %>
+                    >
+                    <label for="template-<%= template._id %>" class="ml-2 text-gray-300 flex-grow"><%= template.name %></label>
+                    <span class="text-xs <%= template.isPaid ? 'bg-neon-blue/20 text-neon-blue' : 'bg-neon-green/20 text-neon-green' %> px-2 py-1 rounded">
+                      <%= template.isPaid ? 'Paid' : 'Free' %>
+                    </span>
+                  </div>
+                <% }); %>
+              <% } else { %>
+                <p class="text-gray-400 text-center py-2">No templates available</p>
+              <% } %>
+            </div>
+          </div>
+
+          <!-- Default Template -->
+          <div class="mb-6">
+            <label for="defaultTemplate" class="block text-gray-300 mb-2">Default Template (Optional)</label>
+            <select
+              id="defaultTemplate"
+              name="defaultTemplate"
+              class="w-full bg-dark-200 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent"
+            >
+              <option value="">-- Select a default template --</option>
+              <% if (templates && templates.length > 0) { %>
+                <% templates.forEach(template => { %>
+                  <option value="<%= template._id %>" <%= package.defaultTemplate && package.defaultTemplate.equals(template._id) ? 'selected' : '' %>>
+                    <%= template.name %> (<%= template.isPaid ? 'Paid' : 'Free' %>)
+                  </option>
+                <% }); %>
+              <% } %>
+            </select>
+            <p class="text-gray-400 text-xs mt-1">This template will be automatically applied to new websites created with this package</p>
+          </div>
+
+          <!-- Submit Buttons -->
+          <div class="flex justify-between">
+            <a href="/admin/websites/packages" class="bg-dark-300 hover:bg-dark-400 text-white py-2 px-4 rounded-lg transition-colors">
+              Cancel
+            </a>
+
+            <button type="submit" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white py-2 px-6 rounded-lg shadow-lg shadow-neon-blue/20 hover:shadow-neon-blue/40 transition-all duration-300">
+              Update Package
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Toggle free package logic
+    const isFreeCheckbox = document.getElementById('isFree');
+    const priceInput = document.getElementById('price');
+
+    function updatePriceState() {
+      if (isFreeCheckbox.checked) {
+        // Only set price to 0 if it's a new change to free
+        if (!isFreeCheckbox.hasAttribute('data-was-checked')) {
+          priceInput.value = 0;
+        }
+        // Make it look disabled but still allow form submission
+        priceInput.classList.add('opacity-50');
+        priceInput.classList.add('bg-dark-300');
+      } else {
+        priceInput.classList.remove('opacity-50');
+        priceInput.classList.remove('bg-dark-300');
+      }
+      // Mark the checkbox as having been checked before
+      if (isFreeCheckbox.checked) {
+        isFreeCheckbox.setAttribute('data-was-checked', 'true');
+      } else {
+        isFreeCheckbox.removeAttribute('data-was-checked');
+      }
+    }
+
+    isFreeCheckbox.addEventListener('change', updatePriceState);
+
+    // Initial state
+    if (isFreeCheckbox.checked) {
+      isFreeCheckbox.setAttribute('data-was-checked', 'true');
+    }
+    updatePriceState();
+  });
+</script>

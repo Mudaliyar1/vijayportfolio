@@ -4,6 +4,8 @@ const User = require('../models/User');
 const Chat = require('../models/Chat');
 const Memory = require('../models/Memory');
 const Review = require('../models/Review');
+const PasswordReset = require('../models/PasswordReset');
+const { sendPasswordResetOTP } = require('../utils/emailService');
 
 module.exports = {
   // Render login page
@@ -11,12 +13,32 @@ module.exports = {
     // Check if this is an admin login attempt during maintenance
     const adminLogin = req.query.admin === 'true';
 
+    // Get flash messages
+    let success_msg = req.flash('success_msg');
+    let error_msg = req.flash('error_msg');
+    let error = req.flash('error');
+
+    // Filter out inappropriate messages
+    if (success_msg && success_msg.includes('OTP verified successfully')) {
+      // Replace with a more appropriate message for login
+      success_msg = ['Your password has been reset successfully. Please log in with your new password.'];
+    }
+
+    // Debug flash messages
+    console.log('Login page flash messages:');
+    console.log('success_msg:', success_msg);
+    console.log('error_msg:', error_msg);
+    console.log('error:', error);
+
     res.render('users/login', {
       title: 'Login - FTRAISE AI',
       layout: 'layouts/auth',
       maintenanceMode: req.maintenanceMode || false,
       maintenanceRedirect: req.maintenanceRedirect || false,
-      adminLogin: adminLogin
+      adminLogin: adminLogin,
+      success_msg: success_msg,
+      error_msg: error_msg,
+      error: error
     });
   },
 
@@ -32,7 +54,15 @@ module.exports = {
       }
 
       if (!user) {
-        req.flash('error_msg', info.message);
+        // Debug info object
+        console.log('Authentication failed:', info);
+
+        // Use the message directly from Passport
+        if (info && info.message) {
+          req.flash('error', info.message);
+        } else {
+          req.flash('error', 'Invalid email or password');
+        }
         return res.redirect('/users/login');
       }
 
@@ -210,6 +240,257 @@ module.exports = {
       req.flash('success_msg', 'You are logged out');
       res.redirect('/users/login');
     });
+  },
+
+  // Render forgot password page
+  getForgotPassword: (req, res) => {
+    res.render('users/forgot-password', {
+      title: 'Forgot Password - FTRAISE AI',
+      layout: 'layouts/auth',
+      success_msg: req.flash('success_msg'),
+      error_msg: req.flash('error_msg')
+    });
+  },
+
+  // Handle forgot password request
+  postForgotPassword: async (req, res) => {
+    try {
+      const { email } = req.body;
+      console.log('Forgot password request for email:', email);
+
+      // Check if email exists
+      const user = await User.findOne({ email });
+      console.log('User found:', user ? 'Yes' : 'No');
+
+      if (!user) {
+        console.log('Email not registered:', email);
+        req.flash('error_msg', 'This email is not registered in our system. You cannot request a password reset for an unregistered email. Please check the email or create a new account.');
+        return res.redirect('/users/forgot-password');
+      }
+
+      // Generate a 6-digit OTP
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+      // Delete any existing OTPs for this user
+      await PasswordReset.deleteMany({ userId: user._id });
+
+      // Create a new password reset document
+      const passwordReset = new PasswordReset({
+        userId: user._id,
+        email: user.email,
+        otp
+      });
+
+      await passwordReset.save();
+
+      // Send OTP email
+      const emailResult = await sendPasswordResetOTP(user.email, user.username, otp);
+
+      // Check if email was sent successfully or using fallback
+      if (emailResult.success) {
+        req.flash('success_msg', 'An OTP has been sent to your email address');
+      } else if (emailResult.fallback) {
+        // For development/testing, show the OTP on screen
+        req.flash('success_msg', `Development Mode: Your OTP is ${otp}. In production, this would be sent to your email.`);
+      } else {
+        // In production, don't expose the error details to the user
+        console.error('Failed to send password reset email:', emailResult.error);
+        req.flash('error_msg', 'Unable to send email at this time. Please try again later or contact support.');
+        return res.redirect('/users/forgot-password');
+      }
+
+      res.redirect(`/users/reset-password?email=${encodeURIComponent(email)}`);
+    } catch (err) {
+      console.error('Error in forgot password:', err);
+      req.flash('error_msg', 'An error occurred. Please try again later.');
+      res.redirect('/users/forgot-password');
+    }
+  },
+
+  // Render reset password page
+  getResetPassword: (req, res) => {
+    const { email, verified } = req.query;
+
+    if (!email) {
+      req.flash('error_msg', 'Email is required');
+      return res.redirect('/users/forgot-password');
+    }
+
+    // Get flash messages
+    const success_msg = req.flash('success_msg');
+    const error_msg = req.flash('error_msg');
+    const error = req.flash('error');
+
+    // Debug flash messages
+    console.log('Reset password page flash messages:');
+    console.log('success_msg:', success_msg);
+    console.log('error_msg:', error_msg);
+    console.log('error:', error);
+
+    res.render('users/reset-password', {
+      title: 'Reset Password - FTRAISE AI',
+      layout: 'layouts/auth',
+      email,
+      verified: verified === 'true',
+      success_msg: success_msg,
+      error_msg: error_msg,
+      error: error
+    });
+  },
+
+  // Verify OTP
+  verifyOTP: async (req, res) => {
+    try {
+      const { email, otp } = req.body;
+
+      console.log('Verifying OTP:', { email, otp });
+
+      if (!email || !otp) {
+        console.log('Email or OTP missing');
+        req.flash('error_msg', 'Email and OTP are required');
+        return res.redirect(`/users/reset-password?email=${encodeURIComponent(email)}`);
+      }
+
+      // Find the user
+      const user = await User.findOne({ email });
+
+      if (!user) {
+        console.log('User not found for email:', email);
+        req.flash('error_msg', 'User not found');
+        return res.redirect('/users/forgot-password');
+      }
+
+      // Check if there are any failed attempts for this user
+      const failedAttempt = await PasswordReset.findOne({
+        userId: user._id,
+        isUsed: true,
+        isBlocked: true
+      });
+
+      if (failedAttempt) {
+        console.log('Account blocked due to previous failed attempts');
+        req.flash('error_msg', 'Your account has been temporarily blocked due to too many failed attempts. Please request a new OTP.');
+        return res.redirect('/users/forgot-password');
+      }
+
+      // First check if there's any OTP record for this user
+      const anyOtpExists = await PasswordReset.findOne({
+        userId: user._id,
+        isUsed: false
+      });
+
+      if (!anyOtpExists) {
+        console.log('No active OTP found for user');
+        req.flash('error_msg', 'Your OTP has expired. Please request a new OTP.');
+        return res.redirect(`/users/forgot-password`);
+      }
+
+      // Find the password reset document with the provided OTP
+      const passwordReset = await PasswordReset.findOne({
+        userId: user._id,
+        otp,
+        isUsed: false
+      });
+
+      console.log('Password reset document found:', passwordReset ? 'Yes' : 'No');
+
+      if (!passwordReset) {
+        console.log('Invalid OTP entered:', otp);
+
+        // Don't block immediately, just show an error message
+        req.flash('error_msg', 'Invalid OTP. Please check and try again. OTPs are valid for 15 minutes only.');
+
+        // Stay on the reset password page with the same email
+        return res.redirect(`/users/reset-password?email=${encodeURIComponent(email)}`);
+      }
+
+      // Clear any previous messages
+      req.flash('success_msg', null);
+      req.flash('error_msg', null);
+      req.flash('error', null);
+
+      // Set a new success message for OTP verification
+      req.flash('success_msg', 'OTP verified successfully. Please set your new password.');
+      return res.redirect(`/users/reset-password?email=${encodeURIComponent(email)}&verified=true`);
+    } catch (err) {
+      console.error('Error verifying OTP:', err);
+      req.flash('error_msg', 'An error occurred. Please try again later.');
+      return res.redirect(`/users/reset-password?email=${encodeURIComponent(email)}`);
+    }
+  },
+
+  // Handle reset password request
+  postResetPassword: async (req, res) => {
+    try {
+      const { email, password, password2 } = req.body;
+      let errors = [];
+
+      // Check required fields
+      if (!email || !password || !password2) {
+        errors.push({ msg: 'Please fill in all fields' });
+      }
+
+      // Check passwords match
+      if (password !== password2) {
+        errors.push({ msg: 'Passwords do not match' });
+      }
+
+      // Check password length
+      if (password.length < 6) {
+        errors.push({ msg: 'Password should be at least 6 characters' });
+      }
+
+      if (errors.length > 0) {
+        return res.render('users/reset-password', {
+          title: 'Reset Password - FTRAISE AI',
+          layout: 'layouts/auth',
+          errors,
+          email,
+          verified: true
+        });
+      }
+
+      // Find the user
+      const user = await User.findOne({ email });
+
+      if (!user) {
+        req.flash('error_msg', 'User not found');
+        return res.redirect('/users/forgot-password');
+      }
+
+      // Find the latest password reset document for this user
+      const passwordReset = await PasswordReset.findOne({
+        userId: user._id,
+        isUsed: false
+      }).sort({ createdAt: -1 });
+
+      if (!passwordReset) {
+        req.flash('error_msg', 'Your OTP verification has expired. Please request a new password reset.');
+        return res.redirect('/users/forgot-password');
+      }
+
+      // Mark the OTP as used
+      passwordReset.isUsed = true;
+      await passwordReset.save();
+
+      // Hash the new password
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
+      // Update the user's password
+      user.password = hashedPassword;
+      await user.save();
+
+      // Clear any previous success messages
+      req.flash('success_msg', null);
+      // Set a new success message specifically for password reset
+      req.flash('success_msg', 'Your password has been reset successfully. You can now log in with your new password.');
+      res.redirect('/users/login');
+    } catch (err) {
+      console.error('Error in reset password:', err);
+      req.flash('error_msg', 'An error occurred. Please try again later.');
+      res.redirect('/users/forgot-password');
+    }
   },
 
   // Delete user account

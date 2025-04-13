@@ -1,0 +1,140 @@
+<!-- Payment Details Page -->
+<div class="max-w-3xl mx-auto px-4 py-8">
+  <!-- Hero Section -->
+  <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">
+        Payment Details
+      </h1>
+      <p class="text-gray-400">
+        View detailed information about your payment.
+      </p>
+    </div>
+    <div class="mt-4 md:mt-0">
+      <a href="/website-builder/payment-history" class="bg-dark-300 hover:bg-dark-400 text-white py-2 px-4 rounded-lg transition-colors">
+        <i class="fas fa-arrow-left mr-2"></i> Back to Payment History
+      </a>
+    </div>
+  </div>
+
+  <!-- Payment Details Card -->
+  <div class="bg-dark-100/80 backdrop-blur-sm rounded-lg border border-gray-700 overflow-hidden mb-8">
+    <!-- Payment Header -->
+    <div class="p-6 border-b border-gray-700 flex justify-between items-center">
+      <div>
+        <h2 class="text-xl font-semibold text-white">
+          Payment #<span class="font-mono"><%= payment._id.toString().substr(-6) %></span>
+        </h2>
+        <p class="text-gray-400 text-sm mt-1">
+          <%= new Date(payment.createdAt).toLocaleString() %>
+        </p>
+      </div>
+      <span class="px-3 py-1 rounded-full text-sm font-medium 
+        <%= payment.status === 'captured' ? 'bg-green-500/20 text-green-400' : 
+           payment.status === 'created' ? 'bg-yellow-500/20 text-yellow-400' : 
+           payment.status === 'failed' ? 'bg-red-500/20 text-red-400' : 
+           'bg-blue-500/20 text-blue-400' %>">
+        <%= payment.status.charAt(0).toUpperCase() + payment.status.slice(1) %>
+      </span>
+    </div>
+    
+    <!-- Payment Details -->
+    <div class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div>
+          <h3 class="text-sm font-medium text-gray-400 mb-2">Website</h3>
+          <p class="text-white"><%= payment.websiteId ? payment.websiteId.name : 'N/A' %></p>
+        </div>
+        
+        <div>
+          <h3 class="text-sm font-medium text-gray-400 mb-2">Package</h3>
+          <p class="text-white"><%= payment.packageId ? payment.packageId.name : 'N/A' %></p>
+        </div>
+        
+        <div>
+          <h3 class="text-sm font-medium text-gray-400 mb-2">Amount</h3>
+          <p class="text-white font-medium">₹<%= payment.amount %></p>
+        </div>
+        
+        <div>
+          <h3 class="text-sm font-medium text-gray-400 mb-2">Currency</h3>
+          <p class="text-white"><%= payment.currency %></p>
+        </div>
+      </div>
+      
+      <!-- Razorpay Details -->
+      <div class="bg-dark-200 rounded-lg p-4 mb-6">
+        <h3 class="text-sm font-medium text-gray-400 mb-3">Razorpay Details</h3>
+        
+        <div class="space-y-2">
+          <div class="flex flex-col sm:flex-row sm:justify-between">
+            <span class="text-gray-400 text-sm">Order ID:</span>
+            <span class="font-mono text-sm text-white break-all"><%= payment.razorpayOrderId %></span>
+          </div>
+          
+          <% if (payment.razorpayPaymentId) { %>
+            <div class="flex flex-col sm:flex-row sm:justify-between">
+              <span class="text-gray-400 text-sm">Payment ID:</span>
+              <span class="font-mono text-sm text-white break-all"><%= payment.razorpayPaymentId %></span>
+            </div>
+          <% } %>
+          
+          <% if (payment.paymentMethod) { %>
+            <div class="flex flex-col sm:flex-row sm:justify-between">
+              <span class="text-gray-400 text-sm">Payment Method:</span>
+              <span class="text-sm text-white"><%= payment.paymentMethod %></span>
+            </div>
+          <% } %>
+        </div>
+      </div>
+      
+      <!-- Notes -->
+      <% if (payment.notes) { %>
+        <div class="mb-6">
+          <h3 class="text-sm font-medium text-gray-400 mb-2">Notes</h3>
+          <p class="text-gray-300 text-sm"><%= payment.notes %></p>
+        </div>
+      <% } %>
+      
+      <!-- Actions -->
+      <div class="flex justify-between items-center pt-4 border-t border-gray-700">
+        <div>
+          <% if (payment.status === 'created') { %>
+            <p class="text-yellow-400 text-sm">
+              <i class="fas fa-exclamation-circle mr-1"></i> Payment is pending
+            </p>
+          <% } else if (payment.status === 'captured') { %>
+            <p class="text-green-400 text-sm">
+              <i class="fas fa-check-circle mr-1"></i> Payment completed successfully
+            </p>
+          <% } else if (payment.status === 'failed') { %>
+            <p class="text-red-400 text-sm">
+              <i class="fas fa-times-circle mr-1"></i> Payment failed
+            </p>
+          <% } %>
+        </div>
+        
+        <div>
+          <% if (payment.websiteId) { %>
+            <a href="/website-builder/editor/<%= payment.websiteId._id %>" class="bg-neon-blue hover:bg-neon-blue/90 text-white py-2 px-4 rounded-lg text-sm transition-colors">
+              <i class="fas fa-edit mr-1"></i> Edit Website
+            </a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Support Information -->
+  <div class="bg-dark-100/80 backdrop-blur-sm rounded-lg border border-gray-700 p-6">
+    <h2 class="text-xl font-semibold text-white mb-4">Need Help?</h2>
+    
+    <p class="text-gray-400 mb-4">
+      If you have any questions about this payment or need assistance, please contact our support team.
+    </p>
+    
+    <a href="/policies/contact" class="inline-block bg-dark-300 hover:bg-dark-400 text-white py-2 px-4 rounded-lg transition-colors">
+      <i class="fas fa-headset mr-2"></i> Contact Support
+    </a>
+  </div>
+</div>

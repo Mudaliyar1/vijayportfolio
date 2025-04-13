@@ -1,0 +1,132 @@
+<!-- Website Payment Page -->
+<div class="max-w-3xl mx-auto px-4 py-8">
+  <!-- Hero Section -->
+  <div class="text-center mb-8">
+    <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">
+      Complete Your Payment
+    </h1>
+    <p class="text-gray-400">
+      Pay securely to publish your website and access all features.
+    </p>
+  </div>
+
+  <!-- Website Info -->
+  <div class="bg-dark-100/80 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-8">
+    <h2 class="text-xl font-semibold text-white mb-4">Order Summary</h2>
+
+    <div class="space-y-4 mb-6">
+      <div class="flex justify-between">
+        <span class="text-gray-400">Website:</span>
+        <span class="text-white font-medium"><%= website.name %></span>
+      </div>
+
+      <div class="flex justify-between">
+        <span class="text-gray-400">Package:</span>
+        <span class="text-white font-medium"><%= website.packageId.name %></span>
+      </div>
+
+      <div class="flex justify-between">
+        <span class="text-gray-400">Pages Allowed:</span>
+        <span class="text-white font-medium"><%= website.packageId.pagesAllowed %></span>
+      </div>
+
+      <div class="flex justify-between border-t border-gray-700 pt-4 mt-4">
+        <span class="text-gray-300 font-medium">Total Amount:</span>
+        <span class="text-white font-bold">₹<%= website.packageId.price %></span>
+      </div>
+    </div>
+
+    <!-- Payment Button -->
+    <div class="text-center">
+      <button id="razorpay-button" class="bg-neon-blue hover:bg-neon-blue/90 text-white py-3 px-6 rounded-lg transition-colors">
+        <i class="fas fa-credit-card mr-2"></i> Pay Now
+      </button>
+      <p class="text-gray-500 text-xs mt-2">Secure payment powered by Razorpay</p>
+    </div>
+  </div>
+
+  <!-- Payment Information -->
+  <div class="bg-dark-100/80 backdrop-blur-sm rounded-lg border border-gray-700 p-6">
+    <h2 class="text-xl font-semibold text-white mb-4">Payment Information</h2>
+
+    <div class="space-y-4">
+      <div>
+        <h3 class="text-lg font-medium text-white mb-2">Secure Payment</h3>
+        <p class="text-gray-400 text-sm">Your payment information is securely processed by Razorpay. We do not store your card details.</p>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-medium text-white mb-2">What Happens Next?</h3>
+        <p class="text-gray-400 text-sm">After successful payment, you'll be redirected to the website editor where you can customize your website and publish it when ready.</p>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-medium text-white mb-2">Need Help?</h3>
+        <p class="text-gray-400 text-sm">If you encounter any issues with payment, please <a href="/policies/contact" class="text-neon-blue hover:underline">contact our support team</a>.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Back to Dashboard Button -->
+<div class="fixed bottom-6 right-6">
+  <a href="/website-builder/dashboard" class="bg-dark-200 hover:bg-dark-300 text-white p-3 rounded-full shadow-lg transition-colors">
+    <i class="fas fa-arrow-left"></i>
+  </a>
+</div>
+
+<!-- Razorpay Integration -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  document.getElementById('razorpay-button').addEventListener('click', function() {
+    var options = {
+      key: '<%= razorpayKeyId %>',
+      amount: <%= website.packageId.price * 100 %>, // amount in paise
+      currency: 'INR',
+      name: 'FTRAISE AI',
+      description: '<%= website.packageId.name %> Package',
+      image: '/images/logo.png',
+      order_id: '<%= payment.razorpayOrderId %>',
+      handler: function(response) {
+        // Send payment verification to server
+        fetch('/website-builder/payment/verify', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_signature: response.razorpay_signature,
+            websiteId: '<%= website._id %>'
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Show success message and redirect
+            alert('Payment successful! You can now edit and publish your website.');
+            // Redirect to dashboard instead of editor to ensure the user sees the updated status
+            window.location.href = '/website-builder/dashboard';
+          } else {
+            alert('Payment verification failed. Please try again or contact support.');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred during payment verification. Please try again.');
+        });
+      },
+      prefill: {
+        name: '<%= user.name || user.username %>',
+        email: '<%= user.email %>'
+      },
+      theme: {
+        color: '#3b82f6'
+      }
+    };
+
+    var rzp = new Razorpay(options);
+    rzp.open();
+  });
+</script>

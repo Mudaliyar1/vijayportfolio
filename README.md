@@ -39,7 +39,10 @@ A sleek, futuristic, highly interactive, and fully responsive AI chat website us
    AI_MODEL=cohere
    SESSION_SECRET=your_session_secret
    NODE_ENV=development
+   BREVO_API_KEY=your_brevo_api_key_for_email_service
    ```
+
+   Note: You can also copy the `.env.example` file to `.env` and fill in your actual values.
 
 4. Generate default avatar and favicon:
    - Open `http://localhost:3000/generate-avatar.html` in your browser
@@ -84,6 +87,11 @@ A sleek, futuristic, highly interactive, and fully responsive AI chat website us
    - `AI_API_KEY`: your Cohere API key
    - `AI_MODEL`: command
    - `SESSION_SECRET`: a secure random string
+   - `BREVO_API_KEY`: your Brevo API key for email service
+
+   Note: For Brevo email service to work, you need to authorize your server's IP address in Brevo:
+   - Visit: https://app.brevo.com/security/authorised_ips
+   - For Render deployment: Add all Render outbound IPs from https://render.com/docs/static-outbound-ip-addresses
 
 4. Run the database migration (if needed):
    - Go to the Render dashboard
@@ -109,7 +117,12 @@ A sleek, futuristic, highly interactive, and fully responsive AI chat website us
    heroku config:set AI_API_KEY=your_cohere_api_key
    heroku config:set AI_MODEL=command
    heroku config:set SESSION_SECRET=your_session_secret
+   heroku config:set BREVO_API_KEY=your_brevo_api_key
    ```
+
+   Note: For Brevo email service to work, you need to authorize your server's IP address in Brevo:
+   - Visit: https://app.brevo.com/security/authorised_ips
+   - For Heroku deployment: Add your Heroku app's outbound IPs (you can find these in your Heroku app's settings)
 
 4. Push to Heroku:
    ```
@@ -155,6 +168,15 @@ If you see broken image links:
 1. Verify your MongoDB connection string is correct
 2. Ensure your IP address is whitelisted in MongoDB Atlas
 3. Check that your database user has the correct permissions
+
+### Email Service Issues
+
+1. Verify your Brevo API key is correct in the .env file
+2. Make sure your server's IP address is authorized in Brevo:
+   - Go to https://app.brevo.com/security/authorised_ips
+   - Add your server's IP address to the list of authorized IPs
+3. Check the server logs for any specific error messages from the Brevo API
+4. In development mode, emails will be logged to the console if the API call fails
 
 ## License
 

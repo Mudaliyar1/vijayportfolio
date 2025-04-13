@@ -1,0 +1,134 @@
+<!-- Marketing Packages Admin Page -->
+<div class="flex flex-col md:flex-row">
+
+  <div class="flex-grow p-6 max-w-full">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Marketing Packages</h1>
+      <a href="/admin/marketing-packages/add" class="px-4 py-2 bg-neon-green hover:bg-neon-green/90 text-white rounded-lg transition-colors">
+        <i class="fas fa-plus mr-2"></i> Add New Package
+      </a>
+    </div>
+
+    <!-- Packages Table -->
+    <div class="bg-dark-100 border border-gray-800 rounded-lg overflow-hidden">
+      <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+        <h2 class="text-lg font-medium">All Marketing Packages</h2>
+        <div class="flex space-x-2">
+          <input type="text" id="package-search" placeholder="Search packages..." class="bg-dark-200 border border-gray-700 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-neon-blue">
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-800">
+          <thead class="bg-dark-200">
+            <tr>
+              <th class="py-3 px-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Name</th>
+              <th class="py-3 px-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Price</th>
+              <th class="py-3 px-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Pages</th>
+              <th class="py-3 px-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Features</th>
+              <th class="py-3 px-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+              <th class="py-3 px-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Order</th>
+              <th class="py-3 px-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-800" id="packages-table-body">
+            <% if(packages.length > 0) { %>
+              <% packages.forEach(function(package) { %>
+                <tr class="hover:bg-dark-200/50 transition-colors package-row">
+                  <td class="py-3 px-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-white package-name"><%= package.name %></div>
+                    <div class="text-xs text-gray-400 line-clamp-1"><%= package.description || '' %></div>
+                  </td>
+                  <td class="py-3 px-4 whitespace-nowrap">
+                    <div class="text-sm text-white">₹<%= package.price %></div>
+                    <% if (package.isFree) { %>
+                      <span class="px-2 py-0.5 text-xs rounded-full bg-neon-blue/20 text-neon-blue">Free</span>
+                    <% } %>
+                  </td>
+                  <td class="py-3 px-4 whitespace-nowrap">
+                    <div class="text-sm text-white"><%= package.pagesAllowed %> <%= package.pagesAllowed === 1 ? 'Page' : 'Pages' %></div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div class="flex flex-wrap gap-1">
+                      <% if (package.features.aiContent) { %>
+                        <span class="px-2 py-0.5 text-xs rounded-full bg-neon-purple/20 text-neon-purple">AI Content</span>
+                      <% } %>
+                      <% if (package.features.seo) { %>
+                        <span class="px-2 py-0.5 text-xs rounded-full bg-neon-green/20 text-neon-green">SEO</span>
+                      <% } %>
+                      <% if (package.features.fullAi) { %>
+                        <span class="px-2 py-0.5 text-xs rounded-full bg-neon-blue/20 text-neon-blue">Full AI</span>
+                      <% } %>
+                      <% if (package.features.customFeatures && package.features.customFeatures.length > 0) { %>
+                        <span class="px-2 py-0.5 text-xs rounded-full bg-gray-600/50 text-gray-300">+<%= package.features.customFeatures.length %> more</span>
+                      <% } %>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4 whitespace-nowrap">
+                    <% if(package.isActive) { %>
+                      <span class="px-2 py-1 text-xs rounded-full bg-neon-green/20 text-neon-green">Active</span>
+                    <% } else { %>
+                      <span class="px-2 py-1 text-xs rounded-full bg-red-500/20 text-red-500">Inactive</span>
+                    <% } %>
+                  </td>
+                  <td class="py-3 px-4 whitespace-nowrap">
+                    <div class="text-sm text-white"><%= package.displayOrder %></div>
+                  </td>
+                  <td class="py-3 px-4 whitespace-nowrap">
+                    <div class="flex space-x-2">
+                      <a href="/admin/marketing-packages/edit/<%= package._id %>" class="bg-neon-blue/20 hover:bg-neon-blue/30 text-neon-blue p-1.5 rounded transition-colors" title="Edit Package">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                      <form action="/admin/marketing-packages/<%= package._id %>/delete" method="POST" class="delete-form">
+                        <button type="submit" class="bg-red-500/20 hover:bg-red-500/30 text-red-500 p-1.5 rounded transition-colors" title="Delete Package">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="7" class="py-4 px-4 text-center text-gray-400">No marketing packages found. <a href="/admin/marketing-packages/add" class="text-neon-blue hover:underline">Add your first package</a>.</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Search functionality
+    const searchInput = document.getElementById('package-search');
+    const tableRows = document.querySelectorAll('.package-row');
+
+    searchInput.addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase();
+
+      tableRows.forEach(row => {
+        const name = row.querySelector('.package-name').textContent.toLowerCase();
+        const description = row.querySelector('.package-name').nextElementSibling ? row.querySelector('.package-name').nextElementSibling.textContent.toLowerCase() : '';
+
+        if (name.includes(searchTerm) || description.includes(searchTerm)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+
+    // Confirm delete
+    const deleteForms = document.querySelectorAll('.delete-form');
+    deleteForms.forEach(form => {
+      form.addEventListener('submit', function(e) {
+        if (!confirm('Are you sure you want to delete this package? This action cannot be undone.')) {
+          e.preventDefault();
+        }
+      });
+    });
+  });
+</script>

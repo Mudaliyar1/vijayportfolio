@@ -46,6 +46,8 @@
 
   <h2 class="text-2xl font-bold mb-6 text-center">Login to Your Account</h2>
 
+  <!-- Flash messages are handled by the messages partial in the layout -->
+
   <form action="<%= locals.adminLogin ? '/users/login?bypass=true' : '/users/login' %>" method="POST">
     <div class="mb-4">
       <label for="email" class="block text-gray-300 mb-2">Email</label>
@@ -64,7 +66,7 @@
       </div>
     </div>
 
-    <div class="mb-6">
+    <div class="mb-4">
       <label for="password" class="block text-gray-300 mb-2">Password</label>
       <div class="relative">
         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
@@ -79,6 +81,10 @@
           required
         />
       </div>
+    </div>
+
+    <div class="mb-6 text-right">
+      <a href="/users/forgot-password" class="text-neon-blue hover:underline text-sm">Forgot Password?</a>
     </div>
 
     <button

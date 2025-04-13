@@ -1,0 +1,225 @@
+<%
+// Check if the HTML content starts with <!DOCTYPE html> or <html>
+const isFullHtmlDocument = currentPage.htmlContent &&
+  (currentPage.htmlContent.trim().toLowerCase().startsWith('<!doctype html>') ||
+   currentPage.htmlContent.trim().toLowerCase().startsWith('<html'));
+
+// If it's not a full HTML document, we need to wrap it
+if (!isFullHtmlDocument) {
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/style.css">
+  <!-- Favicon -->
+  <link rel="icon" href="/images/favicon.ico">
+  <style>
+    <%= currentPage.cssContent %>
+  </style>
+</head>
+<body>
+<% } %>
+
+<% if (isPreview && !isFullHtmlDocument) { %>
+<!-- Simple navigation for preview mode -->
+<div style="position: fixed; top: 0; left: 0; right: 0; z-index: 9999; background-color: rgba(31, 41, 55, 0.95); color: white; padding: 8px; font-family: Arial, sans-serif; height: 40px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; height: 100%;">
+    <div style="display: flex; align-items: center;">
+      <span style="font-weight: 600; font-size: 14px;">Preview: <%= website.name %></span>
+    </div>
+    <div style="display: flex; gap: 16px;">
+      <% pages.forEach(function(page) { %>
+        <a href="/website-builder/preview/<%= website._id %>?page=<%= page._id %>"
+           style="<%= page._id.toString() === currentPage._id.toString() ? 'color: #60A5FA; font-weight: 600;' : 'color: #D1D5DB;' %> text-decoration: none; transition: color 0.2s; font-size: 14px;">
+          <%= page.title %>
+        </a>
+      <% }); %>
+    </div>
+  </div>
+</div>
+<div style="margin-top: 50px;"></div>
+<% } %>
+
+<% if (isPreview && isFullHtmlDocument) { %>
+<!-- Floating navigation for preview mode with full HTML documents -->
+<div style="position: fixed; top: 0; left: 0; right: 0; z-index: 9999; background-color: rgba(31, 41, 55, 0.95); color: white; padding: 8px; font-family: Arial, sans-serif; height: 40px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; height: 100%;">
+    <div style="display: flex; align-items: center;">
+      <span style="font-weight: 600; font-size: 14px;">Preview: <%= website.name %></span>
+    </div>
+    <div style="display: flex; gap: 16px;">
+      <% pages.forEach(function(page) { %>
+        <a href="/website-builder/preview/<%= website._id %>?page=<%= page._id %>"
+           style="<%= page._id.toString() === currentPage._id.toString() ? 'color: #60A5FA; font-weight: 600;' : 'color: #D1D5DB;' %> text-decoration: none; transition: color 0.2s; font-size: 14px;">
+          <%= page.title %>
+        </a>
+      <% }); %>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<% if (currentPage.htmlContent && currentPage.htmlContent.trim()) { %>
+  <% if (isFullHtmlDocument) { %>
+    <!-- Render the full HTML document with CSS and JS injected -->
+    <%
+    // Replace relative CSS and JS paths with inline content
+    let modifiedHtml = currentPage.htmlContent;
+
+    // Replace <link rel="stylesheet" href="style.css" /> with inline CSS
+    modifiedHtml = modifiedHtml.replace(
+      /<link\s+rel=["']stylesheet["']\s+href=["']style\.css["']\s*\/?>/i,
+      `<style>
+      ${currentPage.cssContent}
+
+      /* Add margin-top to body when in preview mode */
+      ${isPreview ? 'body { margin-top: 50px; }' : ''}
+      </style>`
+    );
+
+    // Replace <script src="script.js"></script> with inline JS
+    modifiedHtml = modifiedHtml.replace(
+      /<script\s+src=["']script\.js["']><\/script>/i,
+      `<script type="text/javascript">
+        // Execute the JavaScript in a proper context
+        (function() {
+          ${currentPage.jsContent}
+        })();
+      </script>`
+    );
+
+    // Remove any FTRAISE AI header or navigation that might be in the template
+    modifiedHtml = modifiedHtml.replace(/<header[^>]*>.*?<\/header>/is, '');
+    // Remove nav tags
+    modifiedHtml = modifiedHtml.replace(/<nav[^>]*>.*?<\/nav>/is, '');
+    // Remove any FTRAISE AI text
+    modifiedHtml = modifiedHtml.replace(/FTRAISE AI/g, website.name);
+    %>
+    <%- modifiedHtml %>
+  <% } else { %>
+    <!-- Render just the content -->
+    <div class="template-content">
+      <%- currentPage.htmlContent %>
+    </div>
+
+    <script type="text/javascript">
+      // Execute the JavaScript in a proper context
+      (function() {
+        <%= currentPage.jsContent %>
+      })();
+    </script>
+  <% } %>
+  <% } else if (currentPage.content && currentPage.content.trim()) { %>
+    <!-- Legacy content rendering (for websites created with the old editor) -->
+    <div class="container mx-auto px-4 py-8">
+      <% if (elements && elements.length > 0) { %>
+        <% elements.forEach(function(element) { %>
+          <div class="website-element mb-6" data-element-type="<%= element.type %>" <% if (element.styles && element.styles.trim()) { %>style="<%= element.styles %>"<% } %>>
+            <% if (element.type === 'heading') { %>
+              <h2 class="text-3xl font-bold text-gray-800 mb-4"><%= element.content %></h2>
+            <% } else if (element.type === 'paragraph') { %>
+              <p class="text-gray-600 mb-4 leading-relaxed"><%= element.content %></p>
+            <% } else if (element.type === 'text') { %>
+              <span class="block text-gray-600 mb-4"><%= element.content %></span>
+            <% } else if (element.type === 'image') { %>
+              <img src="<%= element.content %>" alt="Image" class="max-w-full h-auto rounded-lg shadow-md mb-4">
+            <% } else if (element.type === 'button') { %>
+              <button class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition-colors mb-4">
+                <%= element.content %>
+              </button>
+            <% } else if (element.type === 'divider') { %>
+              <hr class="border-gray-200 my-8">
+            <% } else if (element.type === 'spacer') {
+              const spacerHeight = parseInt(element.content || '50');
+            %>
+              <div class="spacer-element" data-height="<%= spacerHeight %>"></div>
+            <% } else if (element.type === 'container') { %>
+              <div class="bg-gray-50 p-6 rounded-lg shadow-sm mb-6">
+                <%= element.content %>
+              </div>
+            <% } else if (element.type === 'video') { %>
+              <div class="aspect-w-16 aspect-h-9 mb-6">
+                <iframe class="rounded-lg shadow-md" src="<%= element.content %>" frameborder="0" allowfullscreen></iframe>
+              </div>
+            <% } else if (element.type === 'audio') { %>
+              <div class="mb-4">
+                <audio controls class="w-full"><source src="<%= element.content %>" type="audio/mpeg">Your browser does not support the audio element.</audio>
+              </div>
+            <% } else if (element.type === 'icon') { %>
+              <div class="text-center mb-4"><%- element.content %></div>
+            <% } else if (element.type === 'list') { %>
+              <ul class="list-disc pl-5 mb-4 text-gray-600"><%- element.content %></ul>
+            <% } else if (element.type === 'gallery') { %>
+              <div class="grid grid-cols-3 gap-2 mb-4"><%- element.content %></div>
+            <% } else if (element.type === 'form' || element.type === 'contact-form' || element.type === 'login-form' || element.type === 'register-form') { %>
+              <div class="form-container"><%- element.content %></div>
+            <% } else if (element.type === 'input' || element.type === 'textarea' || element.type === 'checkbox' || element.type === 'radio' || element.type === 'select') { %>
+              <div class="mb-4"><%- element.content %></div>
+            <% } else if (element.type === 'testimonial') { %>
+              <div class="mb-6"><%- element.content %></div>
+            <% } else if (element.type === 'team') { %>
+              <div class="mb-6"><%- element.content %></div>
+            <% } else if (element.type === 'carousel' || element.type === 'tabs' || element.type === 'accordion' || element.type === 'modal' || element.type === 'pricing' || element.type === 'pricing-table' || element.type === 'progress' || element.type === 'counter' || element.type === 'chart') { %>
+              <div class="mb-6"><%- element.content %></div>
+            <% } else if (element.type === 'embed' || element.type === 'svg' || element.type === 'lottie' || element.type === '360' || element.type === 'file') { %>
+              <div class="mb-6"><%- element.content %></div>
+            <% } else { %>
+              <div class="mb-4"><%- element.content %></div>
+            <% } %>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <div class="text-center py-12">
+          <h2 class="text-2xl font-semibold text-gray-700 mb-2">No Content Yet</h2>
+          <p class="text-gray-500">This page doesn't have any content yet.</p>
+        </div>
+      <% } %>
+    </div>
+  <% } else { %>
+    <!-- No content available -->
+    <div class="container mx-auto px-4 py-8">
+      <div class="text-center py-12">
+        <h2 class="text-2xl font-semibold text-gray-700 mb-2">No Content Yet</h2>
+        <p class="text-gray-500">This page doesn't have any content yet.</p>
+      </div>
+    </div>
+  <% } %>
+
+<% if (!isFullHtmlDocument) { %>
+</div>
+<% } %>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Set heights for spacer elements
+    const spacerElements = document.querySelectorAll('.spacer-element');
+    spacerElements.forEach(spacer => {
+      const height = parseInt(spacer.dataset.height || '50');
+      spacer.style.height = height + 'px';
+    });
+
+    // Fix form elements
+    const formContainers = document.querySelectorAll('.form-container');
+    formContainers.forEach(container => {
+      // If the container contains a form element, extract it
+      const formElement = container.querySelector('form');
+      if (formElement) {
+        // Replace the container with the form element
+        container.parentNode.replaceChild(formElement, container);
+      }
+    });
+  });
+</script>
+
+<% if (!isFullHtmlDocument) { %>
+</body>
+</html>
+<% } %>

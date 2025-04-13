@@ -1,0 +1,201 @@
+<!-- Marketing Package Form Page -->
+<div class="flex flex-col md:flex-row">
+
+  <div class="flex-grow p-6 max-w-full">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold"><%= isEdit ? 'Edit' : 'Add' %> Marketing Package</h1>
+      <a href="/admin/marketing-packages" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors">
+        <i class="fas fa-arrow-left mr-2"></i> Back to Packages
+      </a>
+    </div>
+
+    <!-- Package Form -->
+    <div class="bg-dark-100 border border-gray-800 rounded-lg overflow-hidden">
+      <div class="p-4 border-b border-gray-800">
+        <h2 class="text-lg font-medium"><%= isEdit ? 'Edit Package Details' : 'New Package Details' %></h2>
+      </div>
+
+      <div class="p-6">
+        <form action="<%= isEdit ? `/admin/marketing-packages/edit/${package._id}` : '/admin/marketing-packages/add' %>" method="POST" class="space-y-6">
+          <!-- Basic Information -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="name" class="block text-gray-300 mb-2">Package Name <span class="text-red-500">*</span></label>
+              <input type="text" id="name" name="name" required
+                    value="<%= package ? package.name : '' %>"
+                    class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue text-white">
+            </div>
+
+            <div>
+              <label for="price" class="block text-gray-300 mb-2">Price (₹) <span class="text-red-500">*</span></label>
+              <input type="number" id="price" name="price" required min="0"
+                    value="<%= package ? package.price : '0' %>"
+                    class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue text-white">
+            </div>
+
+            <div>
+              <label for="pagesAllowed" class="block text-gray-300 mb-2">Pages Allowed <span class="text-red-500">*</span></label>
+              <input type="number" id="pagesAllowed" name="pagesAllowed" required min="1"
+                    value="<%= package ? package.pagesAllowed : '1' %>"
+                    class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue text-white">
+            </div>
+
+            <div>
+              <label for="displayOrder" class="block text-gray-300 mb-2">Display Order</label>
+              <input type="number" id="displayOrder" name="displayOrder" min="0"
+                    value="<%= package ? package.displayOrder : '0' %>"
+                    class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue text-white">
+              <p class="text-xs text-gray-400 mt-1">Lower numbers appear first. Packages with the same order are sorted by price.</p>
+            </div>
+          </div>
+
+          <div>
+            <label for="description" class="block text-gray-300 mb-2">Description <span class="text-xs text-gray-500">(Line breaks will be preserved)</span></label>
+            <textarea id="description" name="description" rows="5"
+                      class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue text-white"
+                      placeholder="Press Enter for new lines. Line breaks will be displayed on the website."><%= package ? package.description : '' %></textarea>
+          </div>
+
+          <!-- Features -->
+          <div class="border border-gray-700 rounded-lg p-4">
+            <h3 class="text-lg font-medium mb-4">Package Features</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div class="flex items-center">
+                <input type="checkbox" id="aiContent" name="aiContent" class="mr-2"
+                      <%= package && package.features.aiContent ? 'checked' : '' %>>
+                <label for="aiContent" class="text-gray-300">AI Content Generation</label>
+              </div>
+
+              <div class="flex items-center">
+                <input type="checkbox" id="seo" name="seo" class="mr-2"
+                      <%= package && package.features.seo ? 'checked' : '' %>>
+                <label for="seo" class="text-gray-300">SEO Optimization</label>
+              </div>
+
+              <div class="flex items-center">
+                <input type="checkbox" id="fullAi" name="fullAi" class="mr-2"
+                      <%= package && package.features.fullAi ? 'checked' : '' %>>
+                <label for="fullAi" class="text-gray-300">Full AI Integration</label>
+              </div>
+            </div>
+
+            <!-- Custom Features -->
+            <div>
+              <h4 class="text-md font-medium mb-2">Custom Features</h4>
+              <div id="custom-features-container" class="space-y-3 mb-3">
+                <% if (package && package.features.customFeatures && package.features.customFeatures.length > 0) { %>
+                  <% package.features.customFeatures.forEach(function(feature, index) { %>
+                    <div class="custom-feature-row flex items-center space-x-2">
+                      <input type="text" name="customFeatureNames[]" placeholder="Feature name" value="<%= feature.name %>"
+                            class="flex-grow px-4 py-2 bg-dark-200 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue text-white">
+                      <div class="flex items-center">
+                        <input type="checkbox" id="customFeature<%= index %>" name="customFeatureValues[]" class="mr-2"
+                              <%= feature.included ? 'checked' : '' %>>
+                        <label for="customFeature<%= index %>" class="text-gray-300">Included</label>
+                      </div>
+                      <button type="button" class="remove-feature px-2 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-500 rounded transition-colors">
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
+                  <% }); %>
+                <% } %>
+              </div>
+
+              <button type="button" id="add-feature" class="px-3 py-1.5 bg-neon-blue/20 hover:bg-neon-blue/30 text-neon-blue rounded transition-colors text-sm">
+                <i class="fas fa-plus mr-1"></i> Add Custom Feature
+              </button>
+            </div>
+          </div>
+
+          <!-- Options -->
+          <div class="border border-gray-700 rounded-lg p-4">
+            <h3 class="text-lg font-medium mb-4">Package Options</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="flex items-center">
+                <input type="checkbox" id="isFree" name="isFree" class="mr-2"
+                      <%= package && package.isFree ? 'checked' : '' %>>
+                <label for="isFree" class="text-gray-300">Mark as Free Package</label>
+              </div>
+
+              <div class="flex items-center">
+                <input type="checkbox" id="isActive" name="isActive" class="mr-2"
+                      <%= !package || package.isActive ? 'checked' : '' %>>
+                <label for="isActive" class="text-gray-300">Active (visible to users)</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Buttons -->
+          <div class="flex justify-end space-x-3">
+            <a href="/admin/marketing-packages" class="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors">
+              Cancel
+            </a>
+            <button type="submit" class="px-6 py-2 bg-neon-green hover:bg-neon-green/90 text-white rounded-lg transition-colors">
+              <%= isEdit ? 'Update Package' : 'Add Package' %>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const addFeatureBtn = document.getElementById('add-feature');
+    const customFeaturesContainer = document.getElementById('custom-features-container');
+    let featureCount = <%= package && package.features.customFeatures ? package.features.customFeatures.length : 0 %>;
+
+    // Add custom feature
+    addFeatureBtn.addEventListener('click', function() {
+      const featureRow = document.createElement('div');
+      featureRow.className = 'custom-feature-row flex items-center space-x-2';
+      featureRow.innerHTML = `
+        <input type="text" name="customFeatureNames[]" placeholder="Feature name"
+              class="flex-grow px-4 py-2 bg-dark-200 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue text-white">
+        <div class="flex items-center">
+          <input type="checkbox" id="customFeature${featureCount}" name="customFeatureValues[]" class="mr-2">
+          <label for="customFeature${featureCount}" class="text-gray-300">Included</label>
+        </div>
+        <button type="button" class="remove-feature px-2 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-500 rounded transition-colors">
+          <i class="fas fa-times"></i>
+        </button>
+      `;
+
+      customFeaturesContainer.appendChild(featureRow);
+      featureCount++;
+
+      // Add event listener to the new remove button
+      featureRow.querySelector('.remove-feature').addEventListener('click', function() {
+        featureRow.remove();
+      });
+    });
+
+    // Remove custom feature (for existing buttons)
+    document.querySelectorAll('.remove-feature').forEach(button => {
+      button.addEventListener('click', function() {
+        this.closest('.custom-feature-row').remove();
+      });
+    });
+
+    // Price and free package relationship
+    const priceInput = document.getElementById('price');
+    const isFreeCheckbox = document.getElementById('isFree');
+
+    isFreeCheckbox.addEventListener('change', function() {
+      if (this.checked) {
+        priceInput.value = '0';
+      }
+    });
+
+    priceInput.addEventListener('input', function() {
+      if (parseInt(this.value, 10) > 0) {
+        isFreeCheckbox.checked = false;
+      } else if (parseInt(this.value, 10) === 0) {
+        isFreeCheckbox.checked = true;
+      }
+    });
+  });
+</script>

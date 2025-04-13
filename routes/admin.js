@@ -18,6 +18,7 @@ const {
   viewMemory,
   deleteMemory,
   deleteInteraction,
+  getPasswordResetHistory,
 
 } = require('../controllers/adminController');
 
@@ -69,6 +70,9 @@ router.get('/memories', getMemoryManagement);
 router.get('/memories/:id', viewMemory);
 router.delete('/memories/:id', deleteMemory);
 router.delete('/memories/:memoryId/interactions/:interactionIndex', deleteInteraction);
+
+// Password reset history
+router.get('/password-resets', getPasswordResetHistory);
 
 // Review management
 router.get('/reviews', getReviewManagement);

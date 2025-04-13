@@ -1,0 +1,142 @@
+<!-- Website Creation Page -->
+<div class="max-w-3xl mx-auto px-4 py-8">
+  <!-- Hero Section -->
+  <div class="text-center mb-8">
+    <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">
+      Create Your Website
+    </h1>
+    <p class="text-gray-400">
+      Let's get started with your new website. Fill in the basic details below.
+    </p>
+  </div>
+
+  <!-- Selected Package Info -->
+  <div class="bg-dark-100/80 backdrop-blur-sm rounded-lg border <%= selectedPackage.isFree ? 'border-neon-blue/30' : 'border-neon-green/30' %> p-6 mb-8">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-semibold <%= selectedPackage.isFree ? 'text-neon-blue' : 'text-neon-green' %>">
+        Selected Package: <%= selectedPackage.name %>
+      </h2>
+      <span class="text-lg font-bold text-white">₹<%= selectedPackage.price %></span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div>
+        <span class="text-gray-400 text-sm">Pages Allowed:</span>
+        <span class="text-white ml-1"><%= selectedPackage.pagesAllowed %></span>
+      </div>
+
+      <div>
+        <span class="text-gray-400 text-sm">AI Content:</span>
+        <span class="text-white ml-1"><%= selectedPackage.features.aiContent ? 'Yes' : 'No' %></span>
+      </div>
+
+      <div>
+        <span class="text-gray-400 text-sm">SEO Features:</span>
+        <span class="text-white ml-1"><%= selectedPackage.features.seo ? 'Yes' : 'No' %></span>
+      </div>
+
+      <div>
+        <span class="text-gray-400 text-sm">Full AI Features:</span>
+        <span class="text-white ml-1"><%= selectedPackage.features.fullAi ? 'Yes' : 'No' %></span>
+      </div>
+
+      <% if (selectedPackage.templates && selectedPackage.templates.length > 0) { %>
+      <div>
+        <span class="text-gray-400 text-sm">Templates Included:</span>
+        <span class="text-white ml-1"><%= selectedPackage.templates.length %></span>
+      </div>
+      <% } %>
+
+      <% if (selectedPackage.defaultTemplate) { %>
+      <div>
+        <span class="text-gray-400 text-sm">Default Template:</span>
+        <span class="text-white ml-1"><%= selectedPackage.defaultTemplate.name %></span>
+      </div>
+      <% } %>
+    </div>
+
+    <div class="flex justify-end">
+      <a href="/website-builder/packages" class="text-gray-400 hover:text-white text-sm transition-colors">
+        <i class="fas fa-exchange-alt mr-1"></i> Change Package
+      </a>
+    </div>
+  </div>
+
+  <!-- Website Creation Form -->
+  <div class="bg-dark-100/80 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-8">
+    <h2 class="text-xl font-semibold text-white mb-4">Website Details</h2>
+
+    <% if (selectedPackage.defaultTemplate) { %>
+    <div class="bg-neon-blue/10 border border-neon-blue/30 rounded-lg p-4 mb-6">
+      <div class="flex items-start">
+        <i class="fas fa-info-circle text-neon-blue mt-1 mr-2"></i>
+        <div>
+          <p class="text-white">This package includes the <strong><%= selectedPackage.defaultTemplate.name %></strong> template.</p>
+          <p class="text-gray-400 text-sm mt-1">Your website will be created with this template automatically. You can customize it after creation.</p>
+        </div>
+      </div>
+    </div>
+    <% } %>
+
+    <form action="/website-builder/create" method="POST">
+      <div class="mb-4">
+        <label for="name" class="block text-gray-300 mb-2">Website Name</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          class="w-full bg-dark-200 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent"
+          placeholder="My Awesome Website"
+          required
+        >
+        <p class="text-gray-500 text-xs mt-1">This will be the title of your website.</p>
+      </div>
+
+      <div class="mb-6">
+        <label for="description" class="block text-gray-300 mb-2">Website Description</label>
+        <textarea
+          id="description"
+          name="description"
+          rows="4"
+          class="w-full bg-dark-200 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent"
+          placeholder="Describe your website in a few sentences..."
+        ></textarea>
+        <p class="text-gray-500 text-xs mt-1">A brief description of your website. This helps with SEO.</p>
+      </div>
+
+      <div class="flex justify-between">
+        <a href="/website-builder/packages" class="bg-dark-300 hover:bg-dark-400 text-white py-2 px-4 rounded-lg transition-colors">
+          <i class="fas fa-arrow-left mr-2"></i> Back
+        </a>
+
+        <button type="submit" class="bg-neon-blue hover:bg-neon-blue/90 text-white py-2 px-4 rounded-lg transition-colors">
+          Continue <i class="fas fa-arrow-right ml-2"></i>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tips Section -->
+  <div class="bg-dark-100/80 backdrop-blur-sm rounded-lg border border-gray-700 p-6">
+    <h2 class="text-xl font-semibold text-white mb-4">Tips for Success</h2>
+
+    <ul class="space-y-3">
+      <li class="flex items-start">
+        <i class="fas fa-lightbulb text-yellow-400 mt-1 mr-2"></i>
+        <span>Choose a clear, memorable name for your website.</span>
+      </li>
+      <li class="flex items-start">
+        <i class="fas fa-lightbulb text-yellow-400 mt-1 mr-2"></i>
+        <span>Write a concise description that explains what your website offers.</span>
+      </li>
+      <li class="flex items-start">
+        <i class="fas fa-lightbulb text-yellow-400 mt-1 mr-2"></i>
+        <span>After creating your website, you'll be able to customize it with our drag-and-drop editor.</span>
+      </li>
+      <li class="flex items-start">
+        <i class="fas fa-lightbulb text-yellow-400 mt-1 mr-2"></i>
+        <span>You can preview your website before publishing it to make sure everything looks perfect.</span>
+      </li>
+    </ul>
+  </div>
+</div>

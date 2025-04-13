@@ -1,0 +1,202 @@
+<!-- Template-based Website Render -->
+<div class="website-render" data-id="da35a9a2-9e2c-4f61-a5f5-3616d266b017">
+  <!-- Website Content -->
+  <div class="website-content">
+    <!-- Website Header -->
+    <header class="website-header bg-white shadow-md">
+      <div class="container mx-auto px-4 py-4">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center">
+            <h1 class="text-2xl font-bold text-gray-800"><%= website.name %></h1>
+          </div>
+          <nav class="hidden md:block">
+            <ul class="flex space-x-6">
+              <% pages.forEach(function(page) { %>
+                <li>
+                  <a href="/user-site/<%= website.domain %>/<%= page.slug %>"
+                     class="<%= page._id.toString() === currentPage._id.toString() ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-gray-900' %> transition-colors">
+                    <%= page.title %>
+                  </a>
+                </li>
+              <% }); %>
+            </ul>
+          </nav>
+          <div class="md:hidden">
+            <button class="mobile-menu-toggle text-gray-600 hover:text-gray-900 focus:outline-none">
+              <i class="fas fa-bars"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div class="mobile-menu hidden bg-white border-t border-gray-200 py-2">
+        <div class="container mx-auto px-4">
+          <ul class="space-y-2">
+            <% pages.forEach(function(page) { %>
+              <li>
+                <a href="/user-site/<%= website.domain %>/<%= page.slug %>"
+                   class="<%= page._id.toString() === currentPage._id.toString() ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-gray-900' %> block py-2 transition-colors">
+                  <%= page.title %>
+                </a>
+              </li>
+            <% }); %>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="website-main">
+      <% if (currentPage.htmlContent && currentPage.htmlContent.trim()) { %>
+        <!-- Template-based content rendering -->
+        <style>
+          /* Apply template CSS */
+          <%= currentPage.cssContent %>
+        </style>
+
+        <!-- Render template HTML content -->
+        <%- currentPage.htmlContent %>
+
+        <!-- Apply template JavaScript -->
+        <script type="text/javascript">
+          // Execute the JavaScript in a proper context
+          (function() {
+            <%= currentPage.jsContent %>
+          })();
+        </script>
+      <% } else if (currentPage.content && currentPage.content.trim()) { %>
+        <!-- Legacy content rendering (for websites created with the old editor) -->
+        <div class="container mx-auto px-4 py-8">
+          <% if (elements && elements.length > 0) { %>
+            <% elements.forEach(function(element) { %>
+              <div class="website-element mb-6" data-element-type="<%= element.type %>" <% if (element.styles && element.styles.trim()) { %>style="<%= element.styles %>"<% } %>>
+                <% if (element.type === 'heading') { %>
+                  <h2 class="text-3xl font-bold text-gray-800 mb-4"><%= element.content %></h2>
+                <% } else if (element.type === 'paragraph') { %>
+                  <p class="text-gray-600 mb-4 leading-relaxed"><%= element.content %></p>
+                <% } else if (element.type === 'text') { %>
+                  <span class="block text-gray-600 mb-4"><%= element.content %></span>
+                <% } else if (element.type === 'image') { %>
+                  <img src="<%= element.content %>" alt="Image" class="max-w-full h-auto rounded-lg shadow-md mb-4">
+                <% } else if (element.type === 'button') { %>
+                  <button class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition-colors mb-4">
+                    <%= element.content %>
+                  </button>
+                <% } else if (element.type === 'divider') { %>
+                  <hr class="border-gray-200 my-8">
+                <% } else if (element.type === 'spacer') {
+                  const spacerHeight = parseInt(element.content || '50');
+                %>
+                  <div class="spacer-element" data-height="<%= spacerHeight %>"></div>
+                <% } else if (element.type === 'container') { %>
+                  <div class="bg-gray-50 p-6 rounded-lg shadow-sm mb-6">
+                    <%= element.content %>
+                  </div>
+                <% } else if (element.type === 'video') { %>
+                  <div class="aspect-w-16 aspect-h-9 mb-6">
+                    <iframe class="rounded-lg shadow-md" src="<%= element.content %>" frameborder="0" allowfullscreen></iframe>
+                  </div>
+                <% } else if (element.type === 'audio') { %>
+                  <div class="mb-4">
+                    <audio controls class="w-full"><source src="<%= element.content %>" type="audio/mpeg">Your browser does not support the audio element.</audio>
+                  </div>
+                <% } else if (element.type === 'icon') { %>
+                  <div class="text-center mb-4"><%- element.content %></div>
+                <% } else if (element.type === 'list') { %>
+                  <ul class="list-disc pl-5 mb-4 text-gray-600"><%- element.content %></ul>
+                <% } else if (element.type === 'gallery') { %>
+                  <div class="grid grid-cols-3 gap-2 mb-4"><%- element.content %></div>
+                <% } else if (element.type === 'form' || element.type === 'contact-form' || element.type === 'login-form' || element.type === 'register-form') { %>
+                  <div class="form-container"><%- element.content %></div>
+                <% } else if (element.type === 'input' || element.type === 'textarea' || element.type === 'checkbox' || element.type === 'radio' || element.type === 'select') { %>
+                  <div class="mb-4"><%- element.content %></div>
+                <% } else if (element.type === 'testimonial') { %>
+                  <div class="mb-6"><%- element.content %></div>
+                <% } else if (element.type === 'team') { %>
+                  <div class="mb-6"><%- element.content %></div>
+                <% } else if (element.type === 'carousel' || element.type === 'tabs' || element.type === 'accordion' || element.type === 'modal' || element.type === 'pricing' || element.type === 'pricing-table' || element.type === 'progress' || element.type === 'counter' || element.type === 'chart') { %>
+                  <div class="mb-6"><%- element.content %></div>
+                <% } else if (element.type === 'embed' || element.type === 'svg' || element.type === 'lottie' || element.type === '360' || element.type === 'file') { %>
+                  <div class="mb-6"><%- element.content %></div>
+                <% } else { %>
+                  <div class="mb-4"><%- element.content %></div>
+                <% } %>
+              </div>
+            <% }); %>
+          <% } else { %>
+            <div class="text-center py-12">
+              <h2 class="text-2xl font-semibold text-gray-700 mb-2">No Content Yet</h2>
+              <p class="text-gray-500">This page doesn't have any content yet.</p>
+            </div>
+          <% } %>
+        </div>
+      <% } else { %>
+        <!-- No content available -->
+        <div class="container mx-auto px-4 py-8">
+          <div class="text-center py-12">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-2">No Content Yet</h2>
+            <p class="text-gray-500">This page doesn't have any content yet.</p>
+          </div>
+        </div>
+      <% } %>
+    </main>
+
+    <!-- Website Footer -->
+    <footer class="website-footer bg-gray-100 border-t border-gray-200">
+      <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="mb-4 md:mb-0">
+            <p class="text-gray-600">&copy; <%= new Date().getFullYear() %> <%= website.name %>. All rights reserved.</p>
+          </div>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-500 hover:text-gray-700 transition-colors">
+              <i class="fab fa-facebook"></i>
+            </a>
+            <a href="#" class="text-gray-500 hover:text-gray-700 transition-colors">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#" class="text-gray-500 hover:text-gray-700 transition-colors">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="#" class="text-gray-500 hover:text-gray-700 transition-colors">
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Mobile menu toggle
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+    const mobileMenu = document.querySelector('.mobile-menu');
+
+    if (mobileMenuToggle && mobileMenu) {
+      mobileMenuToggle.addEventListener('click', function() {
+        mobileMenu.classList.toggle('hidden');
+      });
+    }
+
+    // Set heights for spacer elements
+    const spacerElements = document.querySelectorAll('.spacer-element');
+    spacerElements.forEach(spacer => {
+      const height = parseInt(spacer.dataset.height || '50');
+      spacer.style.height = height + 'px';
+    });
+
+    // Fix form elements
+    const formContainers = document.querySelectorAll('.form-container');
+    formContainers.forEach(container => {
+      // If the container contains a form element, extract it
+      const formElement = container.querySelector('form');
+      if (formElement) {
+        // Replace the container with the form element
+        container.parentNode.replaceChild(formElement, container);
+      }
+    });
+  });
+</script>

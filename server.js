@@ -130,44 +130,25 @@ app.use(flash());
 
 // Set up flash messages in res.locals
 app.use((req, res, next) => {
-  // Only set flash messages if they exist and are not empty
-  const success_msg = req.flash('success_msg');
-  const error_msg = req.flash('error_msg');
-  const warning_msg = req.flash('warning_msg');
-  const error = req.flash('error');
-  const errors = req.flash('errors');
-
-  // Only set non-empty flash messages
-  if (success_msg && success_msg.length > 0 && success_msg[0] !== '') {
-    res.locals.success_msg = success_msg;
-  } else {
-    res.locals.success_msg = '';
+  // Make sure flash object exists
+  if (!req.session.flash) {
+    req.session.flash = {};
   }
 
-  if (error_msg && error_msg.length > 0 && error_msg[0] !== '') {
-    res.locals.error_msg = error_msg;
-  } else {
-    res.locals.error_msg = '';
-  }
+  // Debug flash messages without consuming them
+  console.log('Flash messages in middleware (from session):');
+  console.log('success_msg:', req.flash('success_msg'));
+  console.log('error_msg:', req.flash('error_msg'));
+  console.log('error:', req.flash('error'));
 
-  if (warning_msg && warning_msg.length > 0 && warning_msg[0] !== '') {
-    res.locals.warning_msg = warning_msg;
-  } else {
-    res.locals.warning_msg = '';
-  }
+  // Set locals for all flash message types - this properly consumes the messages
+  res.locals.success_msg = req.flash('success_msg');
+  res.locals.error_msg = req.flash('error_msg');
+  res.locals.warning_msg = req.flash('warning_msg');
+  res.locals.error = req.flash('error');
+  res.locals.errors = req.flash('errors') || [];
 
-  if (error && error.length > 0 && error[0] !== '') {
-    res.locals.error = error;
-  } else {
-    res.locals.error = '';
-  }
-
-  if (errors && errors.length > 0) {
-    res.locals.errors = errors;
-  } else {
-    res.locals.errors = [];
-  }
-
+  // Continue to the next middleware
   next();
 });
 
@@ -203,9 +184,13 @@ const adminViewData = require('./middleware/adminViewData');
 
 // Admin routes - these should be before maintenance middleware
 app.use('/admin', adminViewData);
+app.use('/admin/templates', require('./routes/admin-templates')); // Admin templates routes - must be before general admin routes
 app.use('/admin', require('./routes/admin'));
 app.use('/admin/images', require('./routes/admin-images'));
 app.use('/admin/rate-limits', require('./routes/admin-rate-limits'));
+app.use('/admin/websites', require('./routes/admin-websites'));
+app.use('/admin/package-inquiries', require('./routes/admin-package-inquiries'));
+app.use('/admin/marketing-packages', require('./routes/admin-marketing-packages'));
 
 
 
@@ -231,6 +216,12 @@ app.use('/api/ai', require('./routes/ai-service')); // AI service route
 
 app.use('/blog', require('./routes/blog')); // Blog routes
 app.use('/community', require('./routes/community')); // Community routes
+app.use('/website-builder', require('./routes/website-builder')); // Website builder routes
+app.use('/user-site', require('./routes/user-site')); // User website routes
+app.use('/website-builder/templates', require('./routes/templates')); // Website templates routes
+
+// Package routes
+app.use('/packages', require('./routes/packages'));
 // Social routes removed as requested
 
 

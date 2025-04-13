@@ -1,0 +1,176 @@
+<!-- Admin Template Dashboard -->
+<div>
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Website Templates</h1>
+    <div class="flex space-x-2">
+      <a href="/admin/templates/create" class="bg-neon-blue hover:bg-blue-600 text-white px-3 py-2 rounded-md text-sm transition-colors">
+        <i class="fas fa-plus mr-1"></i> Add New Template
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-blue transition-colors">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">Total Templates</h3>
+        <div class="w-10 h-10 rounded-full bg-neon-blue/20 flex items-center justify-center">
+          <i class="fas fa-layer-group text-neon-blue"></i>
+        </div>
+      </div>
+      <p class="text-3xl font-bold"><%= totalTemplates %></p>
+      <p class="text-sm text-gray-400 mt-1">Templates in system</p>
+    </div>
+
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-green transition-colors">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">Active</h3>
+        <div class="w-10 h-10 rounded-full bg-neon-green/20 flex items-center justify-center">
+          <i class="fas fa-check text-neon-green"></i>
+        </div>
+      </div>
+      <p class="text-3xl font-bold"><%= activeTemplates %></p>
+      <p class="text-sm text-gray-400 mt-1">Active templates</p>
+    </div>
+
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-purple transition-colors">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">Paid</h3>
+        <div class="w-10 h-10 rounded-full bg-neon-purple/20 flex items-center justify-center">
+          <i class="fas fa-dollar-sign text-neon-purple"></i>
+        </div>
+      </div>
+      <p class="text-3xl font-bold"><%= paidTemplates %></p>
+      <p class="text-sm text-gray-400 mt-1">Paid templates</p>
+    </div>
+
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-yellow-500 transition-colors">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">Free</h3>
+        <div class="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center">
+          <i class="fas fa-gift text-yellow-500"></i>
+        </div>
+      </div>
+      <p class="text-3xl font-bold"><%= freeTemplates %></p>
+      <p class="text-sm text-gray-400 mt-1">Free templates</p>
+    </div>
+  </div>
+
+  <!-- Templates Table -->
+  <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 mb-8">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-semibold">All Templates</h2>
+      <div class="flex items-center space-x-2">
+        <div class="relative">
+          <input type="text" id="template-search" placeholder="Search templates..." class="bg-dark-300 border border-gray-700 rounded-md px-3 py-1 text-sm text-white focus:outline-none focus:border-neon-blue">
+        </div>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-700">
+        <thead class="bg-dark-200">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Template</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Category</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Price</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-dark-100 divide-y divide-gray-700" id="templates-table-body">
+          <% if (templates.length === 0) { %>
+            <tr>
+              <td colspan="5" class="px-6 py-4 text-center text-gray-400">
+                No templates found. <a href="/admin/templates/create" class="text-neon-blue hover:underline">Create your first template</a>.
+              </td>
+            </tr>
+          <% } else { %>
+            <% templates.forEach(template => { %>
+              <tr class="template-row" data-name="<%= template.name.toLowerCase() %>">
+                <td class="px-6 py-4">
+                  <div class="flex items-center">
+                    <img src="<%= template.thumbnail %>" alt="<%= template.name %>" class="w-10 h-10 rounded object-cover mr-3">
+                    <div>
+                      <div class="text-sm font-medium text-white"><%= template.name %></div>
+                      <div class="text-xs text-gray-400"><%= template.description.substring(0, 50) %><%= template.description.length > 50 ? '...' : '' %></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-dark-300 text-gray-300">
+                    <%= template.category %>
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if (template.isPaid) { %>
+                    <span class="text-neon-purple">₹<%= template.price %></span>
+                  <% } else { %>
+                    <span class="text-green-400">Free</span>
+                  <% } %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if (template.isActive) { %>
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                      Active
+                    </span>
+                  <% } else { %>
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                      Inactive
+                    </span>
+                  <% } %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex space-x-3">
+                    <a href="/admin/templates/<%= template._id %>/pages" class="text-neon-blue hover:text-blue-400">
+                      <i class="fas fa-file-alt"></i> Pages
+                    </a>
+                    <a href="/admin/templates/<%= template._id %>/edit" class="text-neon-green hover:text-green-400">
+                      <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <form action="/admin/templates/<%= template._id %>/delete" method="POST" class="inline delete-form">
+                      <button type="submit" class="text-red-500 hover:text-red-400 bg-transparent border-none p-0 cursor-pointer">
+                        <i class="fas fa-trash"></i> Delete
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }); %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Template search functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('template-search');
+    const templateRows = document.querySelectorAll('.template-row');
+    
+    searchInput.addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase().trim();
+      
+      templateRows.forEach(row => {
+        const templateName = row.dataset.name;
+        if (templateName.includes(searchTerm)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+    
+    // Confirm delete
+    const deleteForms = document.querySelectorAll('.delete-form');
+    deleteForms.forEach(form => {
+      form.addEventListener('submit', function(e) {
+        if (!confirm('Are you sure you want to delete this template? This action cannot be undone.')) {
+          e.preventDefault();
+        }
+      });
+    });
+  });
+</script>

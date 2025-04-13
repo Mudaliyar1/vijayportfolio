@@ -1,0 +1,3567 @@
+<!-- Website Builder Editor -->
+<style>
+  /* Mobile touch improvements */
+  .element-item {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    padding: 0.75rem;
+    cursor: grab;
+    transition: all 0.2s ease;
+  }
+
+  .element-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #2d3748; /* dark-600 */
+  }
+
+  .element-item.scale-105 {
+    transform: scale(1.05);
+    z-index: 10;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  @media (min-width: 640px) {
+    .element-item {
+      padding: 0.5rem;
+    }
+  }
+
+  .element-item:active {
+    background-color: #374151; /* dark-400 */
+    transform: scale(0.97);
+  }
+
+  /* Make canvas elements more touch-friendly */
+  .canvas-element {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Canvas drop zone styling */
+  #canvas-container {
+    transition: all 0.2s ease;
+    min-height: 100vh;
+    height: auto !important;
+    position: relative;
+  }
+
+  #canvas-container.border-blue-400 {
+    border-style: dashed;
+    border-width: 2px;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(66, 153, 225, 0.4);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(66, 153, 225, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(66, 153, 225, 0);
+    }
+  }
+
+  /* Element controls */
+  .element-controls {
+    display: flex;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    z-index: 100;
+  }
+
+  .canvas-element:hover .element-controls {
+    opacity: 1;
+  }
+
+  /* Make controls always visible on mobile */
+  @media (max-width: 768px) {
+    .element-controls {
+      opacity: 1;
+    }
+  }
+
+  /* Highlight element being edited */
+  .canvas-element.editing {
+    border: 2px solid #3b82f6 !important;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+  }
+
+  /* Category toggle animations */
+  .category-toggle i {
+    transition: transform 0.3s ease;
+  }
+
+  .category-content {
+    transition: all 0.3s ease;
+    max-height: 250px;
+    overflow-y: auto;
+  }
+
+  /* Make element controls more visible on mobile */
+  @media (max-width: 768px) {
+    .canvas-element:active .element-controls,
+    .canvas-element:focus .element-controls {
+      opacity: 1 !important;
+    }
+
+    /* Improve sidebar scrolling on mobile */
+    .editor-sidebar {
+      height: 100vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Make category content scrollable on mobile */
+    .category-content {
+      max-height: 200px !important;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+</style>
+<div class="website-builder-editor" data-id="c9e977aa-1cef-4617-8ac3-67bc8cc9254e">
+  <% if (!user.isAdmin) { %>
+    <% if (website.unpublishedBy === 'admin' && !website.packageId.isFree) { %>
+    <!-- Admin Unpublished Notification Banner -->
+    <div class="bg-red-500/20 text-red-500 p-3 text-center">
+      <i class="fas fa-exclamation-triangle mr-2"></i>
+      This website was unpublished by an administrator. Payment is required to publish it again.
+      <a href="/website-builder/payment/<%= website._id %>" class="underline hover:text-red-400">Complete payment</a>
+    </div>
+    <% } else if (!website.isPaid && !website.packageId.isFree) { %>
+    <!-- Payment Notification Banner -->
+    <div class="bg-yellow-500/20 text-yellow-500 p-3 text-center">
+      <i class="fas fa-info-circle mr-2"></i>
+      You can build your website now, but payment will be required before publishing.
+      <a href="/website-builder/payment/<%= website._id %>" class="underline hover:text-yellow-400">Complete payment</a>
+    </div>
+    <% } %>
+  <% } else if (user.isAdmin && website.unpublishedBy === 'admin' && !website.packageId.isFree) { %>
+    <!-- Admin Info Banner (only visible to admins) -->
+    <div class="bg-blue-500/20 text-blue-500 p-3 text-center">
+      <i class="fas fa-info-circle mr-2"></i>
+      Note: This website was unpublished by an administrator. Users will need to pay again to publish it.
+    </div>
+  <% } %>
+  <!-- Header -->
+  <div class="editor-header bg-dark-100 border-b border-gray-800 p-4 flex justify-between items-center">
+    <div class="flex items-center">
+      <!-- Hamburger Menu for Mobile -->
+      <button id="sidebar-toggle" class="text-white mr-3 md:hidden">
+        <i class="fas fa-bars text-xl"></i>
+      </button>
+
+      <h1 class="text-xl font-bold mr-4 truncate max-w-[150px] sm:max-w-none"><%= website.name %></h1>
+      <div class="flex space-x-2 flex-wrap">
+        <a href="/website-builder/dashboard" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-3 py-1 rounded-md text-sm transition-colors">
+          <i class="fas fa-arrow-left mr-1"></i> <span class="hidden sm:inline">Dashboard</span>
+        </a>
+        <button id="save-website" class="bg-neon-green/20 hover:bg-neon-green/30 text-neon-green px-3 py-1 rounded-md text-sm transition-colors" type="button" onclick="saveWebsite(event); return false;">
+          <i class="fas fa-save mr-1"></i> <span class="hidden sm:inline">Save</span>
+        </button>
+
+        <script>
+          // Global save function
+          function saveWebsite(e) {
+            console.log('Save button clicked via inline onclick');
+            if (e) {
+              e.preventDefault();
+              e.stopPropagation();
+            }
+
+            // Get the save button
+            const saveBtn = document.getElementById('save-website');
+            if (!saveBtn) {
+              console.error('Save button not found');
+              return false;
+            }
+
+            // Show loading state
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Saving...';
+            saveBtn.disabled = true;
+
+            // Collect all elements from the canvas
+            const elements = [];
+            const canvasElements = document.querySelectorAll('.canvas-element');
+
+            canvasElements.forEach(function(element, index) {
+              const elementType = element.dataset.elementType;
+              const elementContent = element.querySelector('.element-content');
+
+              // Get content and styles (simplified for this direct handler)
+              let content = elementContent.innerHTML || '';
+              let styles = '';
+
+              // Get position styles
+              if (element.style.position === 'absolute') {
+                styles += `position: absolute; left: ${element.style.left}; top: ${element.style.top};`;
+              }
+
+              // Add element to the collection
+              elements.push({
+                type: elementType,
+                content: content,
+                styles: styles,
+                position: index
+              });
+            });
+
+            // Send data to server
+            fetch('/website-builder/editor/<%= website._id %>/save', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                elements: elements,
+                pageId: '<%= currentPage._id %>'
+              })
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                alert('Website saved successfully!');
+              } else {
+                alert('Failed to save website: ' + data.message);
+              }
+            })
+            .catch(error => {
+              console.error('Error saving website:', error);
+              alert('An error occurred while saving the website');
+            })
+            .finally(() => {
+              // Reset button state
+              saveBtn.innerHTML = originalText;
+              saveBtn.disabled = false;
+            });
+
+            return false;
+          }
+        </script>
+        <a href="/website-builder/preview/<%= website._id %>" target="_blank" class="bg-neon-blue/20 hover:bg-neon-blue/30 text-neon-blue px-3 py-1 rounded-md text-sm transition-colors">
+          <i class="fas fa-eye mr-1"></i> <span class="hidden sm:inline">Preview</span>
+        </a>
+        <% if (!website.isPaid && !website.packageId.isFree) { %>
+          <a href="/website-builder/payment/<%= website._id %>" class="bg-neon-purple/20 hover:bg-neon-purple/30 text-neon-purple px-3 py-1 rounded-md text-sm transition-colors">
+            <i class="fas fa-credit-card mr-1"></i> <span class="hidden sm:inline">Payment</span>
+          </a>
+        <% } else if (!website.isPublished) { %>
+          <form action="/website-builder/publish/<%= website._id %>" method="POST" class="inline">
+            <button type="submit" class="bg-neon-green/20 hover:bg-neon-green/30 text-neon-green px-3 py-1 rounded-md text-sm transition-colors">
+              <i class="fas fa-globe mr-1"></i> <span class="hidden sm:inline">Publish</span>
+            </button>
+          </form>
+        <% } else { %>
+          <form action="/website-builder/unpublish/<%= website._id %>" method="POST" class="inline">
+            <button type="submit" class="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-500 px-3 py-1 rounded-md text-sm transition-colors">
+              <i class="fas fa-eye-slash mr-1"></i> <span class="hidden sm:inline">Unpublish</span>
+            </button>
+          </form>
+        <% } %>
+      </div>
+    </div>
+    <div class="flex items-center space-x-2">
+      <span class="text-sm text-gray-400">
+        <% if (website.isPaid || website.packageId.isFree) { %>
+          <span class="bg-neon-green/20 text-neon-green text-xs px-2 py-1 rounded">
+            <% if (website.packageId.isFree) { %>Free<% } else { %>Paid<% } %> Package
+          </span>
+        <% } else { %>
+          <span class="bg-yellow-500/20 text-yellow-500 text-xs px-2 py-1 rounded">Payment Required</span>
+        <% } %>
+      </span>
+      <span class="text-sm text-gray-400">
+        <% if (website.isPublished) { %>
+          <span class="bg-neon-green/20 text-neon-green text-xs px-2 py-1 rounded">Published</span>
+        <% } else { %>
+          <span class="bg-gray-500/20 text-gray-400 text-xs px-2 py-1 rounded">Draft</span>
+        <% } %>
+      </span>
+    </div>
+  </div>
+
+  <!-- Main Editor Area -->
+  <div class="editor-container flex h-[calc(100vh-64px)] relative">
+    <!-- Mobile Overlay -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden md:hidden"></div>
+    <!-- Sidebar -->
+    <div id="editor-sidebar" class="editor-sidebar bg-dark-100 border-r border-gray-800 w-72 flex flex-col overflow-y-auto fixed md:relative z-30 h-[calc(100vh-64px)] transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+      <!-- Sidebar Header with Close Button -->
+      <div class="p-4 border-b border-gray-800 flex justify-between items-center md:hidden">
+        <h2 class="text-lg font-semibold"><%= website.templateId ? 'Template' : 'Elements' %></h2>
+        <button id="sidebar-close" class="text-gray-400 hover:text-white">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Pages Tab -->
+      <div class="p-4 border-b border-gray-800">
+        <h2 class="text-lg font-semibold mb-2">Pages</h2>
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-xs text-gray-400">Package: <%= website.packageId.name %></span>
+          <span class="text-xs text-gray-400"><%= pages.length %> / <%= website.packageId.pagesAllowed %> pages</span>
+        </div>
+        <div class="flex justify-between mb-4">
+          <% if (!website.templateId) { %>
+            <button id="add-page-btn" class="bg-neon-blue/20 hover:bg-neon-blue/30 text-neon-blue px-3 py-1 rounded-md text-sm transition-colors w-full <%= pages.length >= website.packageId.pagesAllowed ? 'opacity-50 cursor-not-allowed' : '' %>">
+              <i class="fas fa-plus mr-1"></i> Add Page
+            </button>
+          <% } else { %>
+            <div class="bg-gray-700/50 text-gray-400 px-3 py-1 rounded-md text-sm w-full text-center cursor-not-allowed">
+              <i class="fas fa-info-circle mr-1"></i> Pages are managed by template
+            </div>
+          <% } %>
+        </div>
+        <ul class="pages-list space-y-2 max-h-[150px] overflow-y-auto -webkit-overflow-scrolling-touch">
+          <% pages.forEach(function(page) { %>
+            <li class="page-item <%= page._id.toString() === currentPage._id.toString() ? 'bg-dark-200' : 'hover:bg-dark-200/50' %> p-2 rounded-md transition-colors">
+              <a href="/website-builder/editor/<%= website._id %>?page=<%= page._id %>" class="flex justify-between items-center">
+                <span class="truncate"><%= page.title %></span>
+                <% if (!page.isHomePage && !website.templateId) { %>
+                  <button class="delete-page-btn text-red-400 hover:text-red-500" data-page-id="<%= page._id %>">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                <% } else if (page.isHomePage) { %>
+                  <span class="text-xs text-neon-green">Home</span>
+                <% } else if (website.templateId) { %>
+                  <span class="text-xs text-gray-400">Template</span>
+                <% } %>
+              </a>
+            </li>
+          <% }); %>
+        </ul>
+      </div>
+
+      <% if (website.templateId) { %>
+      <!-- Template Information -->
+      <div class="p-4 border-b border-gray-800">
+        <h2 class="text-lg font-semibold mb-2">Template Info</h2>
+        <div class="bg-dark-200 rounded-lg p-4">
+          <p class="text-sm text-gray-300 mb-2">This website is using a template-based design. You can edit the HTML, CSS, and JavaScript directly using the editor.</p>
+          <p class="text-sm text-gray-300">Use the tabs in the editor to switch between preview and code editing modes.</p>
+        </div>
+      </div>
+      <% } %>
+
+      <% if (!website.templateId) { %>
+      <!-- Content Elements Tab -->
+      <div class="p-4 border-b border-gray-800">
+        <button class="category-toggle flex justify-between items-center w-full text-lg font-semibold mb-2" onclick="toggleCategory(this); return false;">
+          <span>Content</span>
+          <i class="fas fa-chevron-down transition-transform" style="transform: rotate(-90deg);"></i>
+        </button>
+        <div class="elements-list grid grid-cols-3 sm:grid-cols-2 gap-2 category-content max-h-[250px] overflow-y-auto pr-1 -webkit-overflow-scrolling-touch">
+          <div class="element-item bg-dark-200 hover:bg-dark-300 active:bg-dark-400 p-2 sm:p-2 p-3 rounded-md text-center cursor-grab transition-colors touch-manipulation" data-element-type="heading">
+            <i class="fas fa-heading text-neon-blue"></i>
+            <p class="text-xs mt-1">Heading</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="paragraph">
+            <i class="fas fa-paragraph text-neon-purple"></i>
+            <p class="text-xs mt-1">Paragraph</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="text">
+            <i class="fas fa-font text-teal-400"></i>
+            <p class="text-xs mt-1">Text</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="list">
+            <i class="fas fa-list text-amber-400"></i>
+            <p class="text-xs mt-1">List</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="image">
+            <i class="fas fa-image text-neon-green"></i>
+            <p class="text-xs mt-1">Image</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="gallery">
+            <i class="fas fa-images text-pink-400"></i>
+            <p class="text-xs mt-1">Gallery</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="video">
+            <i class="fas fa-video text-red-400"></i>
+            <p class="text-xs mt-1">Video</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="button">
+            <i class="fas fa-square text-yellow-500"></i>
+            <p class="text-xs mt-1">Button</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="icon">
+            <i class="fas fa-icons text-purple-400"></i>
+            <p class="text-xs mt-1">Icon</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="social">
+            <i class="fas fa-share-alt text-blue-400"></i>
+            <p class="text-xs mt-1">Social</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="map">
+            <i class="fas fa-map-marker-alt text-red-500"></i>
+            <p class="text-xs mt-1">Map</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="countdown">
+            <i class="fas fa-clock text-orange-400"></i>
+            <p class="text-xs mt-1">Countdown</p>
+          </div>
+        </div>
+      </div>
+      <% } %>
+
+      <% if (!website.templateId) { %>
+      <!-- Layout Elements -->
+      <div class="p-4 border-b border-gray-800">
+        <button class="category-toggle flex justify-between items-center w-full text-lg font-semibold mb-2" onclick="toggleCategory(this); return false;">
+          <span>Layout</span>
+          <i class="fas fa-chevron-down transition-transform" style="transform: rotate(-90deg);"></i>
+        </button>
+        <div class="elements-list grid grid-cols-3 sm:grid-cols-2 gap-2 category-content max-h-[250px] overflow-y-auto pr-1 -webkit-overflow-scrolling-touch">
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="section">
+            <i class="fas fa-layer-group text-neon-blue"></i>
+            <p class="text-xs mt-1">Section</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="row">
+            <i class="fas fa-columns text-neon-purple"></i>
+            <p class="text-xs mt-1">Row</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="column">
+            <i class="fas fa-grip-lines-vertical text-neon-green"></i>
+            <p class="text-xs mt-1">Column</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="container">
+            <i class="fas fa-square-full text-neon-blue"></i>
+            <p class="text-xs mt-1">Container</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="spacer">
+            <i class="fas fa-arrows-alt-v text-gray-400"></i>
+            <p class="text-xs mt-1">Spacer</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="divider">
+            <i class="fas fa-minus text-gray-400"></i>
+            <p class="text-xs mt-1">Divider</p>
+          </div>
+        </div>
+      </div>
+      <% } %>
+
+      <% if (!website.templateId) { %>
+      <!-- Form Elements -->
+      <div class="p-4 border-b border-gray-800">
+        <button class="category-toggle flex justify-between items-center w-full text-lg font-semibold mb-2" onclick="toggleCategory(this); return false;">
+          <span>Forms</span>
+          <i class="fas fa-chevron-down transition-transform" style="transform: rotate(-90deg);"></i>
+        </button>
+        <div class="elements-list grid grid-cols-3 sm:grid-cols-2 gap-2 category-content max-h-[250px] overflow-y-auto pr-1 -webkit-overflow-scrolling-touch">
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="form">
+            <i class="fas fa-wpforms text-neon-blue"></i>
+            <p class="text-xs mt-1">Form</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="contact-form">
+            <i class="fas fa-envelope text-neon-blue"></i>
+            <p class="text-xs mt-1">Contact Form</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="login-form">
+            <i class="fas fa-sign-in-alt text-neon-purple"></i>
+            <p class="text-xs mt-1">Login Form</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="register-form">
+            <i class="fas fa-user-plus text-neon-green"></i>
+            <p class="text-xs mt-1">Register Form</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="input">
+            <i class="fas fa-keyboard text-yellow-500"></i>
+            <p class="text-xs mt-1">Input</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="textarea">
+            <i class="fas fa-align-left text-red-400"></i>
+            <p class="text-xs mt-1">Textarea</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="checkbox">
+            <i class="fas fa-check-square text-teal-400"></i>
+            <p class="text-xs mt-1">Checkbox</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="radio">
+            <i class="fas fa-dot-circle text-blue-400"></i>
+            <p class="text-xs mt-1">Radio</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="select">
+            <i class="fas fa-caret-square-down text-pink-400"></i>
+            <p class="text-xs mt-1">Select</p>
+          </div>
+        </div>
+      </div>
+      <% } %>
+
+      <% if (!website.templateId) { %>
+      <!-- Advanced Elements -->
+      <div class="p-4 border-b border-gray-800">
+        <button class="category-toggle flex justify-between items-center w-full text-lg font-semibold mb-2" onclick="toggleCategory(this); return false;">
+          <span>Advanced</span>
+          <i class="fas fa-chevron-down transition-transform" style="transform: rotate(-90deg);"></i>
+        </button>
+        <div class="elements-list grid grid-cols-3 sm:grid-cols-2 gap-2 category-content max-h-[250px] overflow-y-auto pr-1 -webkit-overflow-scrolling-touch">
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="carousel">
+            <i class="fas fa-sliders-h text-neon-blue"></i>
+            <p class="text-xs mt-1">Carousel</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="tabs">
+            <i class="fas fa-folder text-neon-purple"></i>
+            <p class="text-xs mt-1">Tabs</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="accordion">
+            <i class="fas fa-bars text-neon-green"></i>
+            <p class="text-xs mt-1">Accordion</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="modal">
+            <i class="fas fa-window-maximize text-yellow-500"></i>
+            <p class="text-xs mt-1">Modal</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="pricing">
+            <i class="fas fa-tags text-red-400"></i>
+            <p class="text-xs mt-1">Pricing Table</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="testimonial">
+            <i class="fas fa-quote-right text-teal-400"></i>
+            <p class="text-xs mt-1">Testimonial</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="team">
+            <i class="fas fa-users text-blue-400"></i>
+            <p class="text-xs mt-1">Team Member</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="progress">
+            <i class="fas fa-tasks text-pink-400"></i>
+            <p class="text-xs mt-1">Progress Bar</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="counter">
+            <i class="fas fa-sort-numeric-up text-orange-400"></i>
+            <p class="text-xs mt-1">Counter</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="chart">
+            <i class="fas fa-chart-pie text-purple-400"></i>
+            <p class="text-xs mt-1">Chart</p>
+          </div>
+        </div>
+      </div>
+      <% } %>
+
+      <% if (!website.templateId) { %>
+      <!-- Media Elements -->
+      <div class="p-4 border-b border-gray-800">
+        <button class="category-toggle flex justify-between items-center w-full text-lg font-semibold mb-2" onclick="toggleCategory(this); return false;">
+          <span>Media</span>
+          <i class="fas fa-chevron-down transition-transform" style="transform: rotate(-90deg);"></i>
+        </button>
+        <div class="elements-list grid grid-cols-3 sm:grid-cols-2 gap-2 category-content max-h-[250px] overflow-y-auto pr-1 -webkit-overflow-scrolling-touch">
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="audio">
+            <i class="fas fa-volume-up text-neon-blue"></i>
+            <p class="text-xs mt-1">Audio</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="file">
+            <i class="fas fa-file-download text-neon-purple"></i>
+            <p class="text-xs mt-1">File Download</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="embed">
+            <i class="fas fa-code text-neon-green"></i>
+            <p class="text-xs mt-1">Embed Code</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="svg">
+            <i class="fas fa-bezier-curve text-yellow-500"></i>
+            <p class="text-xs mt-1">SVG Shape</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="lottie">
+            <i class="fas fa-film text-red-400"></i>
+            <p class="text-xs mt-1">Lottie Animation</p>
+          </div>
+          <div class="element-item bg-dark-200 hover:bg-dark-300 p-2 rounded-md text-center cursor-grab transition-colors" data-element-type="360">
+            <i class="fas fa-sync-alt text-teal-400"></i>
+            <p class="text-xs mt-1">360° View</p>
+          </div>
+        </div>
+      </div>
+      <% } %>
+    </div>
+
+    <!-- Canvas -->
+    <div class="editor-canvas flex-grow bg-dark-200 overflow-auto w-full" style="height: calc(100vh - 64px);">
+      <% if (website.templateId) { %>
+        <!-- Template-based Website Editor -->
+        <div class="template-mode-notice bg-neon-blue/10 text-neon-blue p-2 text-center">
+          <i class="fas fa-info-circle mr-1"></i>
+          This website is using a template. You can edit the HTML, CSS, and JavaScript directly.
+        </div>
+        <div class="bg-dark-100">
+          <%- include('template-editor') %>
+        </div>
+      <% } else { %>
+        <!-- Regular Drag-and-Drop Editor -->
+        <div id="canvas-container" class="canvas-container min-h-screen w-full max-w-6xl mx-auto bg-white p-4 sm:p-8 shadow-lg text-black" style="min-height: 100vh; height: auto;">
+          <!-- Elements will be added here dynamically -->
+          <% if (elements && elements.length > 0) { %>
+            <% elements.forEach(function(element) { %>
+              <div class="canvas-element relative border-2 border-transparent hover:border-neon-blue rounded-md p-2 mb-4 cursor-move"
+                  data-element-id="<%= element._id %>"
+                  data-element-type="<%= element.type %>"
+                  <% if (element.styles && element.styles.trim()) { %>style="<%= element.styles %>"<% } %>>
+                <% if (element.type === 'heading') { %>
+                  <h2 class="element-content text-black"><%= element.content %></h2>
+                <% } else if (element.type === 'paragraph') { %>
+                  <p class="element-content text-black"><%= element.content %></p>
+                <% } else if (element.type === 'text') { %>
+                  <span class="element-content block text-black"><%= element.content %></span>
+                <% } else if (element.type === 'list') { %>
+                  <ul class="element-content list-disc pl-5 text-black"><%- element.content %></ul>
+                <% } else if (element.type === 'image') { %>
+                  <img src="<%= element.content %>" alt="Image" class="element-content max-w-full h-auto">
+                <% } else if (element.type === 'gallery') { %>
+                  <div class="element-content grid grid-cols-3 gap-2"><%- element.content %></div>
+                <% } else if (element.type === 'button') { %>
+                  <button class="element-content bg-neon-blue hover:bg-neon-blue/90 text-white py-2 px-4 rounded"><%= element.content %></button>
+                <% } else if (element.type === 'icon') { %>
+                  <div class="element-content text-center"><%- element.content %></div>
+                <% } else if (element.type === 'social') { %>
+                  <div class="element-content flex space-x-3"><%- element.content %></div>
+                <% } else if (element.type === 'map') { %>
+                  <div class="element-content"><%- element.content %></div>
+                <% } else if (element.type === 'countdown') { %>
+                  <div class="element-content bg-gray-100 p-4 rounded text-center"><%- element.content %></div>
+                <% } else if (element.type === 'section') { %>
+                  <section class="element-content w-full py-8 bg-gray-50"><%- element.content %></section>
+                <% } else if (element.type === 'row') { %>
+                  <div class="element-content flex flex-wrap -mx-2"><%- element.content %></div>
+                <% } else if (element.type === 'column') { %>
+                  <div class="element-content w-full"><%- element.content %></div>
+                <% } else if (element.type === 'divider') { %>
+                  <hr class="element-content border-gray-300 my-4">
+                <% } else if (element.type === 'spacer') { %>
+                  <div class="element-content spacer-element" data-height="<%= element.content || '50' %>"></div>
+                <% } else if (element.type === 'container') { %>
+                  <div class="element-content bg-gray-100 p-4 rounded"><%= element.content %></div>
+                <% } else if (element.type === 'video') { %>
+                  <div class="element-content">
+                    <iframe width="100%" height="315" src="<%= element.content %>" frameborder="0" allowfullscreen></iframe>
+                  </div>
+                <% } else if (element.type === 'form' || element.type === 'contact-form' || element.type === 'login-form' || element.type === 'register-form') { %>
+                  <form class="element-content bg-gray-50 p-4 rounded"><%- element.content %></form>
+                <% } else if (element.type === 'input' || element.type === 'textarea' || element.type === 'checkbox' || element.type === 'radio' || element.type === 'select') { %>
+                  <div class="element-content mb-4"><%- element.content %></div>
+                <% } else if (element.type === 'carousel' || element.type === 'tabs' || element.type === 'accordion' || element.type === 'modal' || element.type === 'pricing' || element.type === 'pricing-table' || element.type === 'testimonial' || element.type === 'team' || element.type === 'progress' || element.type === 'counter' || element.type === 'chart') { %>
+                  <div class="element-content"><%- element.content %></div>
+                <% } else if (element.type === 'audio') { %>
+                  <div class="element-content">
+                    <audio controls class="w-full"><source src="<%= element.content %>" type="audio/mpeg">Your browser does not support the audio element.</audio>
+                  </div>
+                <% } else if (element.type === 'file' || element.type === 'embed' || element.type === 'svg' || element.type === 'lottie' || element.type === '360') { %>
+                  <div class="element-content"><%- element.content %></div>
+                <% } %>
+                <div class="element-controls absolute top-2 right-2 flex space-x-2 opacity-0 group-hover:opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                  <button class="edit-element bg-neon-blue/20 hover:bg-neon-blue/30 text-neon-blue p-1 md:p-1 p-2 rounded"><i class="fas fa-edit"></i></button>
+                  <button class="delete-element bg-red-500/20 hover:bg-red-500/30 text-red-500 p-1 md:p-1 p-2 rounded"><i class="fas fa-trash"></i></button>
+                </div>
+              </div>
+            <% }); %>
+          <% } else { %>
+            <div class="empty-canvas text-center py-20">
+              <i class="fas fa-paint-brush text-5xl text-gray-300 mb-4"></i>
+              <h3 class="text-xl text-gray-400 mb-2">Your Canvas is Empty</h3>
+              <p class="text-gray-500">Drag elements from the sidebar to start building your page</p>
+            </div>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Properties Panel -->
+    <div id="properties-panel" class="properties-panel bg-dark-100 border-l border-gray-800 w-full sm:w-80 md:w-64 fixed right-0 top-0 bottom-0 z-40 transform translate-x-full transition-transform duration-300 ease-in-out hidden md:hidden overflow-y-auto">
+      <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-dark-200 sticky top-0">
+        <h2 class="text-lg font-semibold">Element Properties</h2>
+        <button id="close-properties" class="text-gray-400 hover:text-white p-2 rounded hover:bg-dark-300">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="properties-content" class="p-4">
+        <!-- Properties will be added here dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Page Modal -->
+  <div id="add-page-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-dark-100 rounded-lg p-6 w-96">
+      <h2 class="text-xl font-bold mb-4">Add New Page</h2>
+      <form id="add-page-form" action="/website-builder/editor/<%= website._id %>/page" method="POST" onsubmit="return refreshAfterSubmit(this);">
+        <div class="mb-4">
+          <label for="page-title" class="block text-gray-300 mb-2">Page Title</label>
+          <input type="text" id="page-title" name="title" class="w-full bg-dark-200 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent" required>
+        </div>
+        <div class="mb-4">
+          <label for="page-slug" class="block text-gray-300 mb-2">Page Slug (optional)</label>
+          <input type="text" id="page-slug" name="slug" class="w-full bg-dark-200 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent" placeholder="e.g. about-us">
+          <p class="text-xs text-gray-500 mt-1">Leave empty to generate automatically from title</p>
+        </div>
+        <div class="flex justify-end space-x-2">
+          <button type="button" id="cancel-add-page" class="bg-dark-300 hover:bg-dark-400 text-white py-2 px-4 rounded-lg transition-colors">
+            Cancel
+          </button>
+          <button type="submit" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white py-2 px-6 rounded-lg shadow-lg shadow-neon-blue/20 hover:shadow-neon-blue/40 transition-all duration-300">
+            Add Page
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Page Confirmation Modal -->
+  <div id="delete-page-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-dark-100 rounded-lg p-6 w-96">
+      <h2 class="text-xl font-bold mb-4">Delete Page</h2>
+      <p class="text-gray-300 mb-4">Are you sure you want to delete this page? This action cannot be undone.</p>
+      <form id="delete-page-form" action="/website-builder/editor/<%= website._id %>/page/" method="POST" onsubmit="return refreshAfterSubmit(this);">
+        <input type="hidden" id="delete-page-id" name="pageId">
+        <div class="flex justify-end space-x-2">
+          <button type="button" id="cancel-delete-page" class="bg-dark-300 hover:bg-dark-400 text-white py-2 px-4 rounded-lg transition-colors">
+            Cancel
+          </button>
+          <button type="submit" class="bg-red-500 hover:bg-red-600 text-white py-2 px-6 rounded-lg transition-colors">
+            Delete
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Inline script to ensure category toggles work -->
+<script>
+  // Global function to toggle categories
+  function toggleCategory(button) {
+    console.log('Toggle category clicked directly');
+    const content = button.nextElementSibling;
+    const icon = button.querySelector('i');
+
+    // Check if this category is currently visible
+    const isVisible = content.style.display === 'grid';
+
+    // Close all categories first
+    document.querySelectorAll('.category-content').forEach(function(c) {
+      c.style.display = 'none';
+    });
+
+    document.querySelectorAll('.category-toggle i').forEach(function(i) {
+      i.style.transform = 'rotate(-90deg)';
+    });
+
+    // If it wasn't visible, make it visible
+    if (!isVisible) {
+      content.style.display = 'grid';
+      if (icon) icon.style.transform = 'rotate(0deg)';
+      console.log('Category opened');
+    } else {
+      console.log('Category closed (all categories are now closed)');
+    }
+  }
+
+  // Initialize all categories to be closed by default
+  function initializeCategories() {
+    console.log('Initializing all categories');
+    // First, make sure all categories are closed
+    document.querySelectorAll('.category-content').forEach(function(content) {
+      content.style.display = 'none';
+    });
+
+    // Make sure all icons are in the closed position
+    document.querySelectorAll('.category-toggle i').forEach(function(icon) {
+      icon.style.transform = 'rotate(-90deg)';
+    });
+
+    // Add click handlers to all category toggles
+    document.querySelectorAll('.category-toggle').forEach(function(toggle) {
+      toggle.onclick = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleCategory(this);
+        return false;
+      };
+    });
+
+    console.log('Categories initialized');
+  }
+
+  // Run initialization immediately
+  initializeCategories();
+
+  // Also run when the DOM is fully loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded - reinitializing categories and drag/drop');
+    initializeCategories();
+
+    // Also initialize drag and drop
+    if (typeof initializeDragAndDrop === 'function' && !window.dragAndDropInitialized) {
+      initializeDragAndDrop();
+      window.dragAndDropInitialized = true;
+      console.log('Drag and drop initialized from DOMContentLoaded');
+    }
+
+    // Direct setup of draggable elements
+    document.querySelectorAll('.element-item').forEach(function(item) {
+      item.setAttribute('draggable', 'true');
+      console.log('Made element draggable:', item.dataset.elementType);
+    });
+  });
+
+  // And run again after a short delay to catch any edge cases
+  setTimeout(initializeCategories, 500);
+
+  // Make all elements draggable and set up save button
+  window.onload = function() {
+    console.log('Window loaded - making all elements draggable and setting up save button');
+
+    // Set up save button with direct event listener
+    const saveBtn = document.getElementById('save-website');
+    if (saveBtn) {
+      console.log('Setting up save button in window.onload');
+      saveBtn.onclick = function(e) {
+        console.log('Save button clicked directly');
+        e.preventDefault();
+        e.stopPropagation();
+        alert('Saving website...');
+
+        // Show loading state
+        const originalText = this.innerHTML;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Saving...';
+        this.disabled = true;
+
+        // Collect all elements from the canvas
+        const elements = [];
+        const canvasElements = document.querySelectorAll('.canvas-element');
+
+        canvasElements.forEach(function(element, index) {
+          const elementType = element.dataset.elementType;
+          const elementContent = element.querySelector('.element-content');
+
+          // Get content and styles (simplified for this direct handler)
+          let content = elementContent.innerHTML || '';
+          let styles = '';
+
+          // Get position styles
+          if (element.style.position === 'absolute') {
+            styles += `position: absolute; left: ${element.style.left}; top: ${element.style.top};`;
+          }
+
+          // Add element to the collection
+          elements.push({
+            type: elementType,
+            content: content,
+            styles: styles,
+            position: index
+          });
+        });
+
+        // Send data to server
+        fetch('/website-builder/editor/<%= website._id %>/save', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            elements: elements,
+            pageId: '<%= currentPage._id %>'
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert('Website saved successfully!');
+          } else {
+            alert('Failed to save website: ' + data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error saving website:', error);
+          alert('An error occurred while saving the website');
+        })
+        .finally(() => {
+          // Reset button state
+          this.innerHTML = originalText;
+          this.disabled = false;
+        });
+
+        return false;
+      };
+    }
+    document.querySelectorAll('.element-item').forEach(function(item) {
+      item.setAttribute('draggable', 'true');
+
+      // Add dragstart event listener
+      item.addEventListener('dragstart', function(e) {
+        console.log('Drag started:', this.dataset.elementType);
+        e.dataTransfer.setData('text/plain', this.dataset.elementType);
+        e.dataTransfer.effectAllowed = 'copy';
+        this.classList.add('opacity-50');
+      });
+
+      // Add dragend event listener
+      item.addEventListener('dragend', function() {
+        console.log('Drag ended');
+        this.classList.remove('opacity-50');
+      });
+    });
+
+    // Set up canvas drop zone
+    const canvas = document.getElementById('canvas-container');
+    if (canvas) {
+      canvas.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.classList.add('bg-gray-100');
+        this.classList.add('border-2');
+        this.classList.add('border-dashed');
+        this.classList.add('border-blue-400');
+      });
+
+      canvas.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.classList.remove('bg-gray-100');
+        this.classList.remove('border-2');
+        this.classList.remove('border-dashed');
+        this.classList.remove('border-blue-400');
+      });
+
+      canvas.addEventListener('drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Remove highlight styles
+        this.classList.remove('bg-gray-100');
+        this.classList.remove('border-2');
+        this.classList.remove('border-dashed');
+        this.classList.remove('border-blue-400');
+
+        // Get drop position
+        const rect = this.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        // Get element type
+        const elementType = e.dataTransfer.getData('text/plain');
+
+        console.log('Element dropped:', elementType, 'at position:', x, y);
+
+        // Create new element
+        if (elementType && typeof createNewElement === 'function') {
+          console.log('Calling createNewElement with:', elementType, x, y);
+          const newElement = createNewElement(elementType, x, y);
+          console.log('New element created:', newElement);
+
+          // Debug check to see if element was added to DOM
+          setTimeout(() => {
+            const elements = document.querySelectorAll('.canvas-element');
+            console.log('Canvas elements after creation:', elements.length);
+          }, 100);
+        } else {
+          console.error('Could not create element. elementType:', elementType, 'createNewElement exists:', typeof createNewElement === 'function');
+        }
+      });
+    }
+  };
+</script>
+
+<script>
+  // Function to handle form submission and refresh
+function refreshAfterSubmit(form) {
+  // Submit the form normally
+  return true;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Force close all categories on page load
+    function forceCloseAllCategories() {
+      console.log('Forcing all categories closed');
+      const categoryContents = document.querySelectorAll('.category-content');
+      categoryContents.forEach(content => {
+        content.classList.remove('open');
+        content.style.display = 'none';
+      });
+
+      const categoryToggles = document.querySelectorAll('.category-toggle');
+      categoryToggles.forEach(toggle => {
+        const icon = toggle.querySelector('i');
+        if (icon) icon.style.transform = 'rotate(-90deg)';
+      });
+    }
+
+    // Call immediately
+    forceCloseAllCategories();
+
+    // And also after a short delay to ensure it works
+    setTimeout(forceCloseAllCategories, 100);
+    setTimeout(forceCloseAllCategories, 500);
+
+    // Set heights for spacer elements
+    function setSpacerHeights() {
+      const spacerElements = document.querySelectorAll('.spacer-element');
+      spacerElements.forEach(spacer => {
+        const height = parseInt(spacer.dataset.height || '50');
+        spacer.style.height = height + 'px';
+      });
+    }
+
+    // Initialize existing elements
+    initializeExistingElements();
+
+    // Set heights for spacer elements
+    setSpacerHeights();
+
+    // Function to ensure canvas grows with content
+    function ensureCanvasGrowsWithContent() {
+      const canvas = document.getElementById('canvas-container');
+      const elements = document.querySelectorAll('.canvas-element');
+
+      if (canvas && elements.length > 0) {
+        // Find the element with the greatest bottom position
+        let maxBottom = 0;
+
+        elements.forEach(element => {
+          const rect = element.getBoundingClientRect();
+          const bottom = element.offsetTop + element.offsetHeight;
+
+          if (bottom > maxBottom) {
+            maxBottom = bottom;
+          }
+        });
+
+        // Add some padding to the bottom
+        const minHeight = maxBottom + 100;
+
+        // Set the canvas height to at least this value
+        if (minHeight > canvas.offsetHeight) {
+          canvas.style.minHeight = minHeight + 'px';
+        }
+      }
+    }
+
+    // Call this function initially and whenever elements are added or moved
+    ensureCanvasGrowsWithContent();
+
+    // Set up a mutation observer to watch for changes to the canvas
+    const canvasObserver = new MutationObserver(function(mutations) {
+      ensureCanvasGrowsWithContent();
+    });
+
+    // Start observing the canvas for changes
+    const canvas = document.getElementById('canvas-container');
+    if (canvas) {
+      canvasObserver.observe(canvas, { childList: true, subtree: true });
+    }
+
+    // Mobile Sidebar Toggle
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebarClose = document.getElementById('sidebar-close');
+    const sidebar = document.getElementById('editor-sidebar');
+    const mobileOverlay = document.getElementById('mobile-overlay');
+    const propertiesPanel = document.getElementById('properties-panel');
+    const closeProperties = document.getElementById('close-properties');
+
+    // Toggle sidebar on hamburger click
+    sidebarToggle.addEventListener('click', function() {
+      sidebar.classList.toggle('-translate-x-full');
+      mobileOverlay.classList.toggle('hidden');
+
+      // Reset scroll position when opening sidebar
+      if (!sidebar.classList.contains('-translate-x-full')) {
+        sidebar.scrollTop = 0;
+
+        // Fix for iOS momentum scrolling
+        setTimeout(() => {
+          sidebar.style.webkitOverflowScrolling = 'touch';
+        }, 100);
+      }
+
+      // If properties panel is open, close it
+      if (!propertiesPanel.classList.contains('translate-x-full') && !propertiesPanel.classList.contains('hidden')) {
+        propertiesPanel.classList.add('translate-x-full');
+      }
+    });
+
+    // Close sidebar on X button click
+    sidebarClose.addEventListener('click', function() {
+      sidebar.classList.add('-translate-x-full');
+      mobileOverlay.classList.add('hidden');
+    });
+
+    // Close sidebar when clicking overlay
+    mobileOverlay.addEventListener('click', function() {
+      sidebar.classList.add('-translate-x-full');
+      propertiesPanel.classList.add('translate-x-full');
+      mobileOverlay.classList.add('hidden');
+    });
+
+    // Show overlay when properties panel is opened on mobile
+    const showPropertiesPanelOnMobile = function() {
+      if (window.innerWidth < 768) { // md breakpoint
+        mobileOverlay.classList.remove('hidden');
+
+        // If sidebar is open, close it
+        if (!sidebar.classList.contains('-translate-x-full')) {
+          sidebar.classList.add('-translate-x-full');
+        }
+      }
+    };
+
+    // Add event listener to detect when properties panel becomes visible
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.target.classList.contains('hidden')) {
+          // Panel was hidden
+        } else {
+          // Panel was shown
+          showPropertiesPanelOnMobile();
+        }
+      });
+    });
+
+    observer.observe(propertiesPanel, { attributes: true, attributeFilter: ['class'] });
+
+    // Update close properties behavior
+    closeProperties.addEventListener('click', function() {
+      if (window.innerWidth < 768) {
+        propertiesPanel.classList.add('translate-x-full');
+        mobileOverlay.classList.add('hidden');
+      } else {
+        propertiesPanel.classList.add('hidden');
+      }
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', function() {
+      if (window.innerWidth >= 768) { // md breakpoint
+        mobileOverlay.classList.add('hidden');
+        if (sidebar.classList.contains('-translate-x-full')) {
+          sidebar.classList.remove('-translate-x-full');
+        }
+      }
+    });
+
+    // Add Page Modal
+    const addPageBtn = document.getElementById('add-page-btn');
+    const addPageModal = document.getElementById('add-page-modal');
+    const cancelAddPage = document.getElementById('cancel-add-page');
+
+    <% if (!website.templateId) { %>
+    if (addPageBtn) {
+      addPageBtn.addEventListener('click', function() {
+        // Check if page limit is reached
+        const pagesCount = parseInt('<%= pages.length %>');
+        const pagesAllowed = parseInt('<%= website.packageId.pagesAllowed %>');
+
+        if (pagesCount >= pagesAllowed) {
+          alert(`You have reached the maximum number of pages (${pagesAllowed}) allowed by your package. Please upgrade to add more pages.`);
+          return;
+        }
+
+        addPageModal.classList.remove('hidden');
+      });
+    }
+    <% } %>
+
+    if (cancelAddPage) {
+      cancelAddPage.addEventListener('click', function() {
+        addPageModal.classList.add('hidden');
+      });
+    }
+
+    // Delete Page Modal
+    const deletePageBtns = document.querySelectorAll('.delete-page-btn');
+    const deletePageModal = document.getElementById('delete-page-modal');
+    const cancelDeletePage = document.getElementById('cancel-delete-page');
+    const deletePageId = document.getElementById('delete-page-id');
+    const deletePageForm = document.getElementById('delete-page-form');
+
+    <% if (!website.templateId) { %>
+    deletePageBtns.forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const pageId = this.dataset.pageId;
+        deletePageId.value = pageId;
+        deletePageForm.action = `/website-builder/editor/<%= website._id %>/page/${pageId}/delete`;
+        deletePageModal.classList.remove('hidden');
+      });
+    });
+    <% } %>
+
+    if (cancelDeletePage) {
+      cancelDeletePage.addEventListener('click', function() {
+        deletePageModal.classList.add('hidden');
+      });
+    }
+
+    // Save Website
+    const saveWebsiteBtn = document.getElementById('save-website');
+    console.log('Save button found:', saveWebsiteBtn);
+
+    // Remove any existing event listeners by cloning
+    const newSaveBtn = saveWebsiteBtn.cloneNode(true);
+    saveWebsiteBtn.parentNode.replaceChild(newSaveBtn, saveWebsiteBtn);
+
+    // Add event listener to the new button
+    newSaveBtn.addEventListener('click', function(e) {
+      console.log('Save button clicked');
+      e.preventDefault();
+      e.stopPropagation();
+      // Show loading state
+      const originalText = this.innerHTML;
+      this.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Saving...';
+      this.disabled = true;
+
+      // Collect all elements from the canvas
+      const elements = [];
+      const canvasElements = document.querySelectorAll('.canvas-element');
+
+      canvasElements.forEach(function(element, index) {
+        const elementType = element.dataset.elementType;
+        const elementContent = element.querySelector('.element-content');
+
+        let content = '';
+        let styles = '';
+
+        // Get content based on element type
+        if (elementType === 'image') {
+          content = elementContent.src;
+        } else if (elementType === 'video') {
+          const iframe = elementContent.querySelector('iframe');
+          content = iframe ? iframe.src : '';
+        } else if (elementType === 'audio') {
+          const source = elementContent.querySelector('source');
+          content = source ? source.src : '';
+        } else if (elementType === 'spacer') {
+          // Get height from data attribute or from style
+          content = elementContent.dataset.height || elementContent.style.height.replace('px', '');
+        } else if (elementType === 'divider') {
+          content = '';
+        } else if (['gallery', 'form', 'input', 'textarea', 'checkbox', 'radio', 'select', 'social',
+                   'map', 'countdown', 'section', 'row', 'column', 'carousel', 'tabs', 'accordion',
+                   'modal', 'pricing', 'pricing-table', 'testimonial', 'team', 'progress', 'counter',
+                   'chart', 'embed', 'svg', 'lottie', '360', 'file', 'contact-form', 'login-form', 'register-form'].includes(elementType)) {
+          content = elementContent.innerHTML;
+        } else {
+          content = elementContent.textContent;
+        }
+
+        // Get styles - capture all inline styles to preserve appearance
+        styles = '';
+
+        // First get the element container styles (for position, etc.)
+        if (element.style && element.style.length) {
+          for (let i = 0; i < element.style.length; i++) {
+            const prop = element.style[i];
+            styles += `${prop}: ${element.style[prop]};`;
+          }
+        }
+
+        // Get position styles if element is positioned absolutely
+        if (element.style.position === 'absolute') {
+          styles += `position: absolute; left: ${element.style.left}; top: ${element.style.top};`;
+        }
+
+        // Get all style properties from the element content
+        const computedStyle = window.getComputedStyle(elementContent);
+        const importantStyles = [
+          'color', 'background-color', 'font-size', 'font-weight', 'font-family',
+          'text-align', 'line-height', 'letter-spacing', 'text-transform',
+          'border', 'border-radius', 'padding', 'margin', 'width', 'height',
+          'display', 'flex-direction', 'justify-content', 'align-items',
+          'gap', 'grid-template-columns', 'box-shadow'
+        ];
+
+        // Add any inline styles that are directly set on the content element
+        for (let i = 0; i < elementContent.style.length; i++) {
+          const prop = elementContent.style[i];
+          styles += `${prop}: ${elementContent.style[prop]};`;
+        }
+
+        // Then add important computed styles that might affect appearance
+        importantStyles.forEach(prop => {
+          // Only add if not already included in inline styles
+          if (!elementContent.style[prop] && computedStyle[prop] &&
+              computedStyle[prop] !== 'none' &&
+              computedStyle[prop] !== 'normal' &&
+              computedStyle[prop] !== 'auto' &&
+              !computedStyle[prop].includes('rgb(0, 0, 0)') && // Skip default black color
+              !computedStyle[prop].includes('rgba(0, 0, 0, 0)')) { // Skip transparent
+
+            // Don't add default values
+            if (!(prop === 'color' && computedStyle[prop] === 'rgb(0, 0, 0)')) {
+              styles += `${prop}: ${computedStyle[prop]};`;
+            }
+          }
+        });
+
+        // Add element to the collection
+        elements.push({
+          type: elementType,
+          content: content,
+          styles: styles,
+          position: index
+        });
+      });
+
+      // Send data to server
+      fetch('/website-builder/editor/<%= website._id %>/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          elements: elements,
+          pageId: '<%= currentPage._id %>'
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Show success message
+          alert('Website saved successfully!');
+        } else {
+          // Show error message
+          alert('Failed to save website: ' + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error saving website:', error);
+        alert('An error occurred while saving the website');
+      })
+      .finally(() => {
+        // Reset button state
+        this.innerHTML = originalText;
+        this.disabled = false;
+      });
+    });
+
+    // Simple direct category toggle functionality
+    function setupCategoryToggles() {
+      console.log('Setting up category toggles with direct approach');
+
+      // First, make sure all categories are closed
+      document.querySelectorAll('.category-content').forEach(content => {
+        content.style.display = 'none';
+      });
+
+      document.querySelectorAll('.category-toggle i').forEach(icon => {
+        icon.style.transform = 'rotate(-90deg)';
+      });
+
+      // Add click handlers directly to each toggle button
+      document.querySelectorAll('.category-toggle').forEach((toggle, index) => {
+        // Remove existing click handlers by cloning
+        const newToggle = toggle.cloneNode(true);
+        if (toggle.parentNode) {
+          toggle.parentNode.replaceChild(newToggle, toggle);
+        }
+
+        // Add click handler to the new toggle
+        newToggle.onclick = function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          console.log(`Category ${index} clicked`);
+
+          // Get the content element and icon
+          const content = this.nextElementSibling;
+          const icon = this.querySelector('i');
+
+          if (!content) {
+            console.error('Content not found');
+            return;
+          }
+
+          // Check if this category is currently visible
+          const isVisible = content.style.display === 'grid';
+
+          // Close all categories first
+          document.querySelectorAll('.category-content').forEach(c => {
+            c.style.display = 'none';
+          });
+
+          document.querySelectorAll('.category-toggle i').forEach(i => {
+            i.style.transform = 'rotate(-90deg)';
+          });
+
+          // If it wasn't visible, make it visible
+          if (!isVisible) {
+            content.style.display = 'grid';
+            if (icon) icon.style.transform = 'rotate(0deg)';
+            console.log(`Category ${index} opened`);
+          } else {
+            console.log(`Category ${index} closed`);
+          }
+        };
+      });
+
+      console.log('Category toggles setup complete');
+    }
+
+    // Initialize category toggles with our new direct approach
+    setupCategoryToggles();
+
+    // Also set up the drag and drop functionality
+    initializeDragAndDrop();
+
+    // Make sure everything is properly initialized after the page is fully loaded
+    window.addEventListener('load', function() {
+      console.log('Window loaded - reinitializing toggles');
+      setupCategoryToggles();
+      initializeDragAndDrop();
+    });
+
+    // Add direct click handlers to each toggle button as a fallback
+    document.querySelectorAll('.category-toggle').forEach((toggle, index) => {
+      toggle.addEventListener('click', function(e) {
+        console.log(`Direct click on category ${index}`);
+        const content = this.nextElementSibling;
+        const icon = this.querySelector('i');
+
+        // Close all other categories
+        document.querySelectorAll('.category-content').forEach(c => {
+          if (c !== content) c.style.display = 'none';
+        });
+
+        document.querySelectorAll('.category-toggle i').forEach(i => {
+          if (i !== icon) i.style.transform = 'rotate(-90deg)';
+        });
+
+        // Toggle this category
+        if (content.style.display === 'none' || content.style.display === '') {
+          content.style.display = 'grid';
+          if (icon) icon.style.transform = 'rotate(0deg)';
+        } else {
+          content.style.display = 'none';
+          if (icon) icon.style.transform = 'rotate(-90deg)';
+        }
+      });
+    });
+
+    // Implement drag and drop functionality for elements
+    function initializeDragAndDrop() {
+      console.log('Initializing drag and drop');
+
+      // Get references to all draggable elements and the canvas
+      const elementItems = document.querySelectorAll('.element-item');
+      const canvasContainer = document.getElementById('canvas-container');
+
+      if (!canvasContainer) {
+        console.error('Canvas container not found');
+        return;
+      }
+
+      // Clear any existing event listeners on the canvas container
+      const newCanvasContainer = canvasContainer.cloneNode(true);
+      if (canvasContainer.parentNode) {
+        canvasContainer.parentNode.replaceChild(newCanvasContainer, canvasContainer);
+      }
+
+      // Update the reference to the new canvas container
+      const updatedCanvasContainer = document.getElementById('canvas-container');
+
+      console.log(`Found ${elementItems.length} draggable elements and canvas container: ${updatedCanvasContainer ? 'yes' : 'no'}`);
+
+      // Make elements draggable
+      elementItems.forEach(function(item) {
+        // Set draggable attribute
+        item.setAttribute('draggable', 'true');
+
+        // Add visual cue that items are draggable
+        item.classList.add('cursor-grab');
+
+        // Add touch-friendly attributes
+        item.style.touchAction = 'none';
+
+        // Add a highlight effect on hover
+        item.addEventListener('mouseover', function() {
+          this.classList.add('shadow-lg');
+          this.classList.add('scale-105');
+        });
+
+        item.addEventListener('mouseout', function() {
+          this.classList.remove('shadow-lg');
+          this.classList.remove('scale-105');
+        });
+
+        // Standard drag and drop for desktop
+        item.addEventListener('dragstart', function(e) {
+          console.log('Drag started:', this.dataset.elementType);
+          e.dataTransfer.setData('text/plain', this.dataset.elementType);
+          e.dataTransfer.effectAllowed = 'copy';
+
+          // Add visual feedback
+          this.classList.add('opacity-50');
+          this.classList.add('cursor-grabbing');
+
+          // Create a drag image
+          const dragImage = this.cloneNode(true);
+          dragImage.style.width = this.offsetWidth + 'px';
+          dragImage.style.height = this.offsetHeight + 'px';
+          dragImage.style.opacity = '0.7';
+          document.body.appendChild(dragImage);
+          e.dataTransfer.setDragImage(dragImage, 0, 0);
+          setTimeout(() => {
+            document.body.removeChild(dragImage);
+          }, 0);
+        });
+
+        item.addEventListener('dragend', function() {
+          console.log('Drag ended');
+          this.classList.remove('opacity-50');
+          this.classList.remove('cursor-grabbing');
+        });
+      });
+
+      // Add touch events for mobile
+      elementItems.forEach(function(item) {
+        let touchStartX, touchStartY;
+        let touchTimeout;
+        let isDragging = false;
+        let ghostElement = null;
+
+        item.addEventListener('touchstart', function(e) {
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+
+          // Set a timeout to determine if this is a tap or a drag
+          touchTimeout = setTimeout(() => {
+            // Create a ghost element for visual feedback
+            ghostElement = document.createElement('div');
+            ghostElement.className = 'fixed z-50 opacity-70 pointer-events-none';
+            ghostElement.innerHTML = this.innerHTML;
+            ghostElement.style.width = this.offsetWidth + 'px';
+            ghostElement.style.height = this.offsetHeight + 'px';
+            ghostElement.style.backgroundColor = getComputedStyle(this).backgroundColor;
+            ghostElement.style.borderRadius = getComputedStyle(this).borderRadius;
+            ghostElement.style.left = (touchStartX - (this.offsetWidth / 2)) + 'px';
+            ghostElement.style.top = (touchStartY - (this.offsetHeight / 2)) + 'px';
+            document.body.appendChild(ghostElement);
+
+            isDragging = true;
+            this.classList.add('opacity-50');
+          }, 200);
+        }, { passive: true });
+
+        item.addEventListener('touchmove', function(e) {
+          if (!isDragging) {
+            // If moved more than 10px, consider it a drag
+            const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
+            const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
+
+            if (deltaX > 10 || deltaY > 10) {
+              clearTimeout(touchTimeout);
+
+              // Create a ghost element for visual feedback if not already created
+              if (!ghostElement) {
+                ghostElement = document.createElement('div');
+                ghostElement.className = 'fixed z-50 opacity-70 pointer-events-none';
+                ghostElement.innerHTML = this.innerHTML;
+                ghostElement.style.width = this.offsetWidth + 'px';
+                ghostElement.style.height = this.offsetHeight + 'px';
+                ghostElement.style.backgroundColor = getComputedStyle(this).backgroundColor;
+                ghostElement.style.borderRadius = getComputedStyle(this).borderRadius;
+                document.body.appendChild(ghostElement);
+
+                isDragging = true;
+                this.classList.add('opacity-50');
+              }
+            }
+          }
+
+          if (isDragging && ghostElement) {
+            // Move the ghost element with the touch
+            ghostElement.style.left = (e.touches[0].clientX - (ghostElement.offsetWidth / 2)) + 'px';
+            ghostElement.style.top = (e.touches[0].clientY - (ghostElement.offsetHeight / 2)) + 'px';
+
+            // Check if over canvas
+            const canvasRect = document.getElementById('canvas-container').getBoundingClientRect();
+            if (e.touches[0].clientX >= canvasRect.left &&
+                e.touches[0].clientX <= canvasRect.right &&
+                e.touches[0].clientY >= canvasRect.top &&
+                e.touches[0].clientY <= canvasRect.bottom) {
+              document.getElementById('canvas-container').classList.add('bg-gray-100');
+            } else {
+              document.getElementById('canvas-container').classList.remove('bg-gray-100');
+            }
+          }
+        }, { passive: true });
+
+        item.addEventListener('touchend', function(e) {
+          clearTimeout(touchTimeout);
+
+          if (isDragging && ghostElement) {
+            // Check if touch ended over canvas
+            const canvasRect = document.getElementById('canvas-container').getBoundingClientRect();
+            const touchX = e.changedTouches[0].clientX;
+            const touchY = e.changedTouches[0].clientY;
+
+            if (touchX >= canvasRect.left &&
+                touchX <= canvasRect.right &&
+                touchY >= canvasRect.top &&
+                touchY <= canvasRect.bottom) {
+              // Calculate position within canvas
+              const x = touchX - canvasRect.left;
+              const y = touchY - canvasRect.top;
+
+              // Create new element
+              createNewElement(this.dataset.elementType, x, y);
+            }
+
+            // Remove ghost element
+            if (ghostElement.parentNode) {
+              ghostElement.parentNode.removeChild(ghostElement);
+            }
+            ghostElement = null;
+
+            // Reset canvas highlight
+            document.getElementById('canvas-container').classList.remove('bg-gray-100');
+          }
+
+          // Reset state
+          isDragging = false;
+          this.classList.remove('opacity-50');
+        }, { passive: true });
+
+        item.addEventListener('touchcancel', function() {
+          clearTimeout(touchTimeout);
+
+          // Remove ghost element
+          if (ghostElement && ghostElement.parentNode) {
+            ghostElement.parentNode.removeChild(ghostElement);
+          }
+          ghostElement = null;
+
+          // Reset state
+          isDragging = false;
+          this.classList.remove('opacity-50');
+          document.getElementById('canvas-container').classList.remove('bg-gray-100');
+        }, { passive: true });
+      });
+
+      // Now set up the canvas as a drop zone
+      // First, remove any existing event listeners
+      canvasContainer.removeEventListener('dragover', handleDragOver);
+      canvasContainer.removeEventListener('dragleave', handleDragLeave);
+      canvasContainer.removeEventListener('drop', handleDrop);
+
+      // Define event handler functions
+      function handleDragOver(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.classList.add('bg-gray-100');
+        this.classList.add('border-2');
+        this.classList.add('border-dashed');
+        this.classList.add('border-blue-400');
+
+        // Set the drop effect
+        e.dataTransfer.dropEffect = 'copy';
+
+        console.log('Dragging over canvas');
+      }
+
+      function handleDragLeave(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.classList.remove('bg-gray-100');
+        this.classList.remove('border-2');
+        this.classList.remove('border-dashed');
+        this.classList.remove('border-blue-400');
+
+        console.log('Dragging left canvas');
+      }
+
+      function handleDrop(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Remove highlight styles
+        this.classList.remove('bg-gray-100');
+        this.classList.remove('border-2');
+        this.classList.remove('border-dashed');
+        this.classList.remove('border-blue-400');
+
+        // Get drop position
+        const rect = this.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        // Get element type
+        const elementType = e.dataTransfer.getData('text/plain');
+
+        console.log('Element dropped:', elementType, 'at position:', x, y);
+
+        // Create new element
+        if (elementType) {
+          const newElement = createNewElement(elementType, x, y);
+          console.log('New element created and added to DOM:', newElement);
+
+          // Force a reflow to ensure the element is rendered
+          void newElement.offsetHeight;
+
+          // Show a success notification
+          const notification = document.createElement('div');
+          notification.className = 'fixed bottom-4 right-4 px-6 py-3 rounded-md text-white bg-green-500 shadow-lg z-50';
+          notification.textContent = `${elementType.charAt(0).toUpperCase() + elementType.slice(1)} element added`;
+          document.body.appendChild(notification);
+
+          setTimeout(() => {
+            notification.style.opacity = '0';
+            setTimeout(() => {
+              notification.remove();
+            }, 300);
+          }, 3000);
+        } else {
+          console.error('No element type found in drop data');
+        }
+      }
+
+      // Add visual cue that canvas is a drop zone
+      canvasContainer.classList.add('drop-zone');
+
+      // Add a helper message to the canvas if it's empty
+      if (!canvasContainer.querySelector('.canvas-element') && !canvasContainer.querySelector('.empty-canvas')) {
+        const emptyMessage = document.createElement('div');
+        emptyMessage.className = 'empty-canvas text-center py-20';
+        emptyMessage.innerHTML = `
+          <i class="fas fa-paint-brush text-5xl text-gray-300 mb-4"></i>
+          <h3 class="text-xl text-gray-400 mb-2">Your Canvas is Empty</h3>
+          <p class="text-gray-500">Drag elements from the sidebar to start building your page</p>
+        `;
+        canvasContainer.appendChild(emptyMessage);
+      }
+
+      // Add event listeners to the canvas
+      canvasContainer.addEventListener('dragover', handleDragOver);
+      canvasContainer.addEventListener('dragleave', handleDragLeave);
+      canvasContainer.addEventListener('drop', handleDrop);
+
+      console.log('Event listeners added to canvas container');
+
+      console.log('Canvas drop zone initialized');
+    }
+
+    // Initialize drag and drop
+    initializeDragAndDrop();
+
+    // Add a global variable to track if drag and drop is initialized
+    window.dragAndDropInitialized = true;
+    console.log('Drag and drop initialized successfully');
+
+    // Function to create new elements
+    function createNewElement(type, x, y) {
+      // Create element container
+      const elementContainer = document.createElement('div');
+      elementContainer.className = 'canvas-element relative border-2 border-transparent hover:border-blue-500 rounded-md p-2 mb-4 cursor-move';
+      elementContainer.dataset.elementType = type;
+
+      // Set position to absolute if x and y are provided
+      if (x !== undefined && y !== undefined) {
+        // Find a non-overlapping position
+        const [adjustedX, adjustedY] = findNonOverlappingPosition(x, y);
+
+        elementContainer.style.position = 'absolute';
+        elementContainer.style.left = adjustedX + 'px';
+        elementContainer.style.top = adjustedY + 'px';
+        console.log('Setting absolute position:', adjustedX, adjustedY, '(original:', x, y, ')');
+      } else {
+        elementContainer.style.position = 'relative';
+        console.log('Setting relative position');
+      }
+
+      // Ensure the element is visible
+      elementContainer.style.display = 'block';
+      elementContainer.style.zIndex = getNextZIndex();
+
+      // Create element content based on type
+      let elementContent;
+      let defaultContent = '';
+
+      switch(type) {
+        // Content Elements
+        case 'heading':
+          defaultContent = 'Your Heading Here';
+          elementContent = document.createElement('h2');
+          elementContent.className = 'text-2xl font-bold element-content text-black';
+          elementContent.textContent = defaultContent;
+          break;
+
+        case 'paragraph':
+          defaultContent = 'Your paragraph text here. Click to edit.';
+          elementContent = document.createElement('p');
+          elementContent.className = 'element-content text-black';
+          elementContent.textContent = defaultContent;
+          break;
+
+        case 'text':
+          defaultContent = 'Simple text element. Click to edit.';
+          elementContent = document.createElement('span');
+          elementContent.className = 'element-content block text-black';
+          elementContent.textContent = defaultContent;
+          break;
+
+        case 'list':
+          elementContent = document.createElement('ul');
+          elementContent.className = 'element-content list-disc pl-5 text-black';
+          elementContent.innerHTML = '<li>List item 1</li><li>List item 2</li><li>List item 3</li>';
+          break;
+
+        case 'image':
+          defaultContent = 'https://via.placeholder.com/800x400';
+          elementContent = document.createElement('img');
+          elementContent.className = 'element-content max-w-full h-auto';
+          elementContent.src = defaultContent;
+          elementContent.alt = 'Image';
+          break;
+
+        case 'gallery':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content grid grid-cols-3 gap-2';
+          elementContent.innerHTML = `
+            <img src="https://via.placeholder.com/300x300" alt="Gallery Image 1" class="w-full h-auto">
+            <img src="https://via.placeholder.com/300x300" alt="Gallery Image 2" class="w-full h-auto">
+            <img src="https://via.placeholder.com/300x300" alt="Gallery Image 3" class="w-full h-auto">
+          `;
+          break;
+
+        case 'video':
+          defaultContent = 'https://www.youtube.com/embed/dQw4w9WgXcQ';
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content';
+          elementContent.innerHTML = `<iframe width="100%" height="315" src="${defaultContent}" frameborder="0" allowfullscreen></iframe>`;
+          break;
+
+        case 'button':
+          defaultContent = 'Click Me';
+          elementContent = document.createElement('button');
+          elementContent.className = 'element-content bg-neon-blue hover:bg-neon-blue/90 text-white py-2 px-4 rounded';
+          elementContent.textContent = defaultContent;
+          break;
+
+        case 'icon':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content text-center';
+          elementContent.innerHTML = '<i class="fas fa-star text-3xl text-yellow-500"></i>';
+          break;
+
+        case 'social':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content flex space-x-3';
+          elementContent.innerHTML = `
+            <a href="#" class="text-blue-600 text-2xl"><i class="fab fa-facebook"></i></a>
+            <a href="#" class="text-blue-400 text-2xl"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="text-pink-600 text-2xl"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="text-blue-800 text-2xl"><i class="fab fa-linkedin"></i></a>
+          `;
+          break;
+
+        case 'map':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content';
+          elementContent.innerHTML = '<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387193.3059353029!2d-74.25986548248684!3d40.69714941774136!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2sin!4v1619427748465!5m2!1sen!2sin" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy"></iframe>';
+          break;
+
+        case 'countdown':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content bg-gray-100 p-4 rounded text-center';
+          elementContent.innerHTML = `
+            <div class="text-lg font-bold mb-2">Countdown Timer</div>
+            <div class="grid grid-cols-4 gap-2">
+              <div class="bg-white p-2 rounded shadow">
+                <div class="text-2xl font-bold">00</div>
+                <div class="text-xs text-gray-500">Days</div>
+              </div>
+              <div class="bg-white p-2 rounded shadow">
+                <div class="text-2xl font-bold">00</div>
+                <div class="text-xs text-gray-500">Hours</div>
+              </div>
+              <div class="bg-white p-2 rounded shadow">
+                <div class="text-2xl font-bold">00</div>
+                <div class="text-xs text-gray-500">Minutes</div>
+              </div>
+              <div class="bg-white p-2 rounded shadow">
+                <div class="text-2xl font-bold">00</div>
+                <div class="text-xs text-gray-500">Seconds</div>
+              </div>
+            </div>
+          `;
+          break;
+
+        // Layout Elements
+        case 'section':
+          elementContent = document.createElement('section');
+          elementContent.className = 'element-content w-full py-8 bg-gray-50';
+          elementContent.innerHTML = '<div class="text-center">Section Content</div>';
+          break;
+
+        case 'row':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content flex flex-wrap -mx-2';
+          elementContent.innerHTML = `
+            <div class="w-1/2 px-2"><div class="bg-gray-100 p-4 rounded">Column 1</div></div>
+            <div class="w-1/2 px-2"><div class="bg-gray-100 p-4 rounded">Column 2</div></div>
+          `;
+          break;
+
+        case 'column':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content w-full';
+          elementContent.innerHTML = '<div class="bg-gray-100 p-4 rounded">Column Content</div>';
+          break;
+
+        case 'container':
+          defaultContent = 'Container content here';
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content bg-gray-100 p-4 rounded';
+          elementContent.textContent = defaultContent;
+          break;
+
+        case 'spacer':
+          defaultContent = '50';
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content spacer-element';
+          elementContent.dataset.height = defaultContent;
+          elementContent.style.height = defaultContent + 'px';
+          break;
+
+        case 'divider':
+          elementContent = document.createElement('hr');
+          elementContent.className = 'element-content border-gray-300 my-4';
+          break;
+
+        // Form Elements
+        case 'form':
+          elementContent = document.createElement('form');
+          elementContent.className = 'element-content bg-gray-50 p-4 rounded';
+          elementContent.innerHTML = `
+            <div class="mb-4">
+              <label class="block text-gray-700 text-sm font-bold mb-2">Name</label>
+              <input type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            <div class="mb-4">
+              <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+              <input type="email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            <div class="mb-4">
+              <label class="block text-gray-700 text-sm font-bold mb-2">Message</label>
+              <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" rows="4"></textarea>
+            </div>
+            <button type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Submit</button>
+          `;
+          break;
+
+        case 'contact-form':
+          elementContent = document.createElement('form');
+          elementContent.className = 'element-content bg-gray-50 p-6 rounded-lg shadow-sm';
+          elementContent.innerHTML = `
+            <h3 class="text-xl font-bold mb-4 text-gray-800">Contact Us</h3>
+            <p class="mb-6 text-gray-600">Fill out the form below and we'll get back to you as soon as possible.</p>
+            <div class="mb-4">
+              <label class="block text-gray-700 text-sm font-bold mb-2" for="name">Full Name</label>
+              <input type="text" id="name" name="name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+            <div class="mb-4">
+              <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Email Address</label>
+              <input type="email" id="email" name="email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+            <div class="mb-4">
+              <label class="block text-gray-700 text-sm font-bold mb-2" for="subject">Subject</label>
+              <input type="text" id="subject" name="subject" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+            <div class="mb-6">
+              <label class="block text-gray-700 text-sm font-bold mb-2" for="message">Message</label>
+              <textarea id="message" name="message" rows="5" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+            </div>
+            <div class="flex items-center justify-between">
+              <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline transition duration-300">
+                Send Message
+              </button>
+              <p class="text-xs text-gray-500">* All fields are required</p>
+            </div>
+          `;
+          break;
+
+        case 'login-form':
+          elementContent = document.createElement('form');
+          elementContent.className = 'element-content bg-gray-50 p-6 rounded-lg shadow-sm max-w-md mx-auto';
+          elementContent.innerHTML = `
+            <h3 class="text-xl font-bold mb-4 text-center text-gray-800">Login to Your Account</h3>
+            <div class="mb-4">
+              <label class="block text-gray-700 text-sm font-bold mb-2" for="login-email">Email Address</label>
+              <input type="email" id="login-email" name="email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+            <div class="mb-6">
+              <label class="block text-gray-700 text-sm font-bold mb-2" for="login-password">Password</label>
+              <input type="password" id="login-password" name="password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+              <p class="text-xs text-right mt-1">
+                <a href="#" class="text-blue-500 hover:text-blue-700">Forgot password?</a>
+              </p>
+            </div>
+            <div class="mb-6">
+              <button type="submit" class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300">
+                Sign In
+              </button>
+            </div>
+            <p class="text-center text-sm text-gray-600">
+              Don't have an account? <a href="#" class="text-blue-500 hover:text-blue-700">Sign up</a>
+            </p>
+          `;
+          break;
+
+        case 'register-form':
+          elementContent = document.createElement('form');
+          elementContent.className = 'element-content bg-gray-50 p-6 rounded-lg shadow-sm max-w-md mx-auto';
+          elementContent.innerHTML = `
+            <h3 class="text-xl font-bold mb-4 text-center text-gray-800">Create an Account</h3>
+            <div class="mb-4">
+              <label class="block text-gray-700 text-sm font-bold mb-2" for="register-name">Full Name</label>
+              <input type="text" id="register-name" name="name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+            <div class="mb-4">
+              <label class="block text-gray-700 text-sm font-bold mb-2" for="register-email">Email Address</label>
+              <input type="email" id="register-email" name="email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+            <div class="mb-4">
+              <label class="block text-gray-700 text-sm font-bold mb-2" for="register-password">Password</label>
+              <input type="password" id="register-password" name="password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+            <div class="mb-6">
+              <label class="block text-gray-700 text-sm font-bold mb-2" for="register-confirm-password">Confirm Password</label>
+              <input type="password" id="register-confirm-password" name="confirm_password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+            <div class="mb-6">
+              <label class="flex items-center">
+                <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600" required>
+                <span class="ml-2 text-sm text-gray-700">I agree to the <a href="#" class="text-blue-500 hover:text-blue-700">Terms of Service</a> and <a href="#" class="text-blue-500 hover:text-blue-700">Privacy Policy</a></span>
+              </label>
+            </div>
+            <div class="mb-6">
+              <button type="submit" class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300">
+                Create Account
+              </button>
+            </div>
+            <p class="text-center text-sm text-gray-600">
+              Already have an account? <a href="#" class="text-blue-500 hover:text-blue-700">Sign in</a>
+            </p>
+          `;
+          break;
+
+        case 'input':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content mb-4';
+          elementContent.innerHTML = `
+            <label class="block text-gray-700 text-sm font-bold mb-2">Input Field</label>
+            <input type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          `;
+          break;
+
+        case 'textarea':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content mb-4';
+          elementContent.innerHTML = `
+            <label class="block text-gray-700 text-sm font-bold mb-2">Textarea</label>
+            <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" rows="4"></textarea>
+          `;
+          break;
+
+        case 'checkbox':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content mb-4';
+          elementContent.innerHTML = `
+            <label class="flex items-center">
+              <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600">
+              <span class="ml-2 text-gray-700">Checkbox option</span>
+            </label>
+          `;
+          break;
+
+        case 'radio':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content mb-4';
+          elementContent.innerHTML = `
+            <div class="block text-gray-700 text-sm font-bold mb-2">Radio Options</div>
+            <div class="mt-2">
+              <label class="inline-flex items-center">
+                <input type="radio" class="form-radio h-5 w-5 text-blue-600" name="radio-group" value="1" checked>
+                <span class="ml-2 text-gray-700">Option 1</span>
+              </label>
+            </div>
+            <div class="mt-2">
+              <label class="inline-flex items-center">
+                <input type="radio" class="form-radio h-5 w-5 text-blue-600" name="radio-group" value="2">
+                <span class="ml-2 text-gray-700">Option 2</span>
+              </label>
+            </div>
+          `;
+          break;
+
+        case 'select':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content mb-4';
+          elementContent.innerHTML = `
+            <label class="block text-gray-700 text-sm font-bold mb-2">Select Option</label>
+            <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+              <option>Option 1</option>
+              <option>Option 2</option>
+              <option>Option 3</option>
+            </select>
+          `;
+          break;
+
+        // Advanced Elements
+        case 'carousel':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content';
+          elementContent.innerHTML = `
+            <div class="relative">
+              <div class="overflow-hidden rounded-lg">
+                <div class="flex">
+                  <div class="w-full flex-shrink-0">
+                    <img src="https://via.placeholder.com/800x400?text=Slide+1" alt="Slide 1" class="w-full h-auto">
+                  </div>
+                </div>
+              </div>
+              <button class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <button class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+          `;
+          break;
+
+        case 'tabs':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content';
+          elementContent.innerHTML = `
+            <div class="mb-4">
+              <div class="flex border-b border-gray-300">
+                <button class="px-4 py-2 text-blue-600 border-b-2 border-blue-600">Tab 1</button>
+                <button class="px-4 py-2 text-gray-600 hover:text-blue-600">Tab 2</button>
+                <button class="px-4 py-2 text-gray-600 hover:text-blue-600">Tab 3</button>
+              </div>
+              <div class="p-4 bg-white">
+                <p>Tab 1 content goes here. Click to edit.</p>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'accordion':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content';
+          elementContent.innerHTML = `
+            <div class="border rounded overflow-hidden">
+              <div class="border-b">
+                <button class="flex justify-between items-center w-full p-4 text-left bg-gray-100 hover:bg-gray-200">
+                  <span class="font-medium">Accordion Item 1</span>
+                  <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="p-4 bg-white">
+                  <p>Content for accordion item 1. Click to edit.</p>
+                </div>
+              </div>
+              <div>
+                <button class="flex justify-between items-center w-full p-4 text-left bg-gray-100 hover:bg-gray-200">
+                  <span class="font-medium">Accordion Item 2</span>
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'modal':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content';
+          elementContent.innerHTML = `
+            <div class="text-center">
+              <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Open Modal
+              </button>
+              <div class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <div class="bg-white rounded-lg p-6 max-w-md mx-auto">
+                  <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium">Modal Title</h3>
+                    <button class="text-gray-500 hover:text-gray-700">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                  <div class="mb-4">
+                    <p>Modal content goes here. Click to edit.</p>
+                  </div>
+                  <div class="flex justify-end">
+                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'pricing':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content';
+          elementContent.innerHTML = `
+            <div class="grid grid-cols-3 gap-4">
+              <div class="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                <div class="p-6 bg-gray-50 border-b">
+                  <h3 class="text-xl font-bold mb-1">Basic</h3>
+                  <p class="text-gray-500 mb-4">For individuals</p>
+                  <div class="text-3xl font-bold mb-4">$9.99<span class="text-sm font-normal text-gray-500">/month</span></div>
+                </div>
+                <div class="p-6">
+                  <ul class="space-y-3">
+                    <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Feature 1</li>
+                    <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Feature 2</li>
+                    <li class="flex items-center text-gray-500"><i class="fas fa-times text-red-500 mr-2"></i> Feature 3</li>
+                  </ul>
+                  <button class="w-full mt-6 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+                    Get Started
+                  </button>
+                </div>
+              </div>
+              <!-- More pricing tiers would go here -->
+            </div>
+          `;
+          break;
+
+        // Media Elements
+        case 'audio':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content';
+          elementContent.innerHTML = `
+            <audio controls class="w-full">
+              <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+              Your browser does not support the audio element.
+            </audio>
+          `;
+          break;
+
+        case 'file':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content';
+          elementContent.innerHTML = `
+            <a href="#" class="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded">
+              <i class="fas fa-download mr-2"></i> Download File
+            </a>
+          `;
+          break;
+
+        case 'embed':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content';
+          elementContent.innerHTML = `
+            <div class="border p-4 bg-gray-50 rounded">
+              <p class="text-center text-gray-500">Embed code will appear here</p>
+              <!-- Placeholder for embed code -->
+            </div>
+          `;
+          break;
+
+        case 'svg':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content';
+          elementContent.innerHTML = `
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">
+              <circle cx="100" cy="100" r="80" fill="#6366F1" />
+              <path d="M100 50 L150 150 L50 150 Z" fill="#F472B6" />
+            </svg>
+          `;
+          break;
+
+        case 'lottie':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content';
+          elementContent.innerHTML = `
+            <div class="border p-4 bg-gray-50 rounded text-center">
+              <i class="fas fa-film text-4xl text-blue-500 mb-2"></i>
+              <p>Lottie Animation Placeholder</p>
+              <p class="text-sm text-gray-500">Actual animation will appear here</p>
+            </div>
+          `;
+          break;
+
+        case '360':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content';
+          elementContent.innerHTML = `
+            <div class="border p-4 bg-gray-50 rounded text-center">
+              <i class="fas fa-sync-alt text-4xl text-blue-500 mb-2"></i>
+              <p>360° View Placeholder</p>
+              <p class="text-sm text-gray-500">Interactive 360° view will appear here</p>
+            </div>
+          `;
+          break;
+
+        case 'testimonial':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content';
+          elementContent.innerHTML = `
+            <div class="bg-gray-50 p-6 rounded-lg border">
+              <div class="text-yellow-500 flex mb-4">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+              <p class="italic mb-4">"This product has completely transformed how we work. Highly recommended for anyone looking to improve their workflow."</p>
+              <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-gray-300 mr-3"></div>
+                <div>
+                  <p class="font-medium">Jane Smith</p>
+                  <p class="text-sm text-gray-500">CEO, Company Name</p>
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'team':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content';
+          elementContent.innerHTML = `
+            <div class="text-center">
+              <div class="w-32 h-32 rounded-full bg-gray-300 mx-auto mb-4"></div>
+              <h3 class="text-xl font-medium mb-1">John Doe</h3>
+              <p class="text-gray-500 mb-3">Co-Founder & CEO</p>
+              <p class="text-sm mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</p>
+              <div class="flex justify-center space-x-3">
+                <a href="#" class="text-blue-600"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-blue-800"><i class="fab fa-linkedin"></i></a>
+                <a href="#" class="text-gray-600"><i class="fas fa-envelope"></i></a>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'progress':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content';
+          elementContent.innerHTML = `
+            <div class="mb-4">
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">Progress</span>
+                <span class="text-sm font-medium">75%</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div class="bg-blue-600 h-2.5 rounded-full" style="width: 75%"></div>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'counter':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content';
+          elementContent.innerHTML = `
+            <div class="text-center">
+              <div class="text-4xl font-bold text-blue-600 mb-2">1,234</div>
+              <p class="text-gray-500">Happy Customers</p>
+            </div>
+          `;
+          break;
+
+        case 'chart':
+          elementContent = document.createElement('div');
+          elementContent.className = 'element-content';
+          elementContent.innerHTML = `
+            <div class="border p-4 bg-gray-50 rounded text-center">
+              <i class="fas fa-chart-pie text-4xl text-blue-500 mb-2"></i>
+              <p>Chart Placeholder</p>
+              <p class="text-sm text-gray-500">Interactive chart will appear here</p>
+            </div>
+          `;
+          break;
+      }
+
+      // Add element content to container
+      elementContainer.appendChild(elementContent);
+
+      // Add element controls
+      const controlsDiv = document.createElement('div');
+      controlsDiv.className = 'element-controls absolute top-2 right-2 flex space-x-2 bg-white/80 p-1 rounded shadow-md z-50';
+
+      const editBtn = document.createElement('button');
+      editBtn.className = 'edit-element bg-blue-500 hover:bg-blue-600 text-white p-2 rounded cursor-pointer';
+      editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+      editBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Edit button clicked for element type:', elementContainer.dataset.elementType);
+        editElement(elementContainer);
+      });
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'delete-element bg-red-500 hover:bg-red-600 text-white p-2 rounded cursor-pointer';
+      deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+      deleteBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Delete button clicked for element');
+        elementContainer.remove();
+
+        // Show a notification that the element was deleted
+        const notification = document.createElement('div');
+        notification.className = 'fixed bottom-4 right-4 px-6 py-3 rounded-md text-white bg-green-500 shadow-lg z-50';
+        notification.textContent = 'Element deleted successfully';
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+          notification.style.opacity = '0';
+          setTimeout(() => {
+            notification.remove();
+          }, 300);
+        }, 3000);
+      });
+
+      controlsDiv.appendChild(editBtn);
+      controlsDiv.appendChild(deleteBtn);
+      elementContainer.appendChild(controlsDiv);
+
+      // Add element to canvas
+      if (document.querySelector('.empty-canvas')) {
+        document.querySelector('.empty-canvas').remove();
+      }
+
+      // Get a fresh reference to the canvas container
+      const canvas = document.getElementById('canvas-container');
+      if (!canvas) {
+        console.error('Canvas container not found when trying to add element');
+        return elementContainer;
+      }
+
+      // Add the element to the canvas
+      console.log('Adding element to canvas:', elementContainer);
+      canvas.appendChild(elementContainer);
+
+      // Make sure the element is visible
+      elementContainer.style.display = 'block';
+
+      // Debug check
+      console.log('Canvas children count:', canvas.children.length);
+      console.log('Element added with type:', type, 'at position:', x, y);
+
+      // Make element editable
+      elementContent.addEventListener('click', function(e) {
+        e.stopPropagation(); // Stop event from bubbling up
+        editElement(elementContainer);
+      });
+
+      // Add double-click event for immediate editing
+      elementContent.addEventListener('dblclick', function(e) {
+        e.stopPropagation();
+        editElement(elementContainer);
+        // Focus on the content input field
+        setTimeout(() => {
+          const contentInput = document.getElementById('element-content');
+          if (contentInput) contentInput.focus();
+        }, 100);
+      });
+
+      // Also make the container clickable to edit
+      elementContainer.addEventListener('click', function(e) {
+        // Don't trigger if clicking on controls
+        if (!e.target.closest('.element-controls')) {
+          console.log('Container clicked, editing element');
+          editElement(this);
+          // Bring this element to the front
+          this.style.zIndex = getNextZIndex();
+        }
+      });
+
+      // The edit and delete buttons already have event listeners from when they were created
+
+      // Make element draggable within canvas
+      makeElementDraggable(elementContainer);
+
+      // Ensure canvas grows with content
+      if (typeof ensureCanvasGrowsWithContent === 'function') {
+        setTimeout(ensureCanvasGrowsWithContent, 100);
+      }
+
+      return elementContainer;
+    }
+
+    // Function to make elements draggable within canvas
+    function makeElementDraggable(element) {
+      element.setAttribute('draggable', 'true');
+
+      // Add touch-friendly attributes
+      element.style.touchAction = 'none'; // Prevent scrolling while dragging on touch devices
+
+      // Standard drag and drop for desktop
+      element.addEventListener('dragstart', function(e) {
+        e.dataTransfer.setData('application/element-id', element.id || 'temp-' + Date.now());
+        this.classList.add('opacity-50');
+      });
+
+      element.addEventListener('dragend', function() {
+        this.classList.remove('opacity-50');
+      });
+
+      // Touch events for mobile
+      let isDragging = false;
+      let startX, startY, startTop, startLeft;
+      let initialScrollY;
+
+      element.addEventListener('touchstart', function(e) {
+        // Don't handle touch events on edit/delete buttons
+        if (e.target.closest('.element-controls')) {
+          return;
+        }
+
+        // Store initial position
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        startTop = element.offsetTop;
+        startLeft = element.offsetLeft;
+        initialScrollY = window.scrollY;
+
+        // Mark as potentially starting a drag
+        isDragging = true;
+
+        // Add visual feedback
+        setTimeout(() => {
+          if (isDragging) {
+            this.classList.add('opacity-50');
+            this.style.zIndex = '1000';
+          }
+        }, 100);
+      }, { passive: false });
+
+      element.addEventListener('touchmove', function(e) {
+        if (!isDragging) return;
+
+        // Prevent page scrolling
+        e.preventDefault();
+
+        const touch = e.touches[0];
+        const deltaX = touch.clientX - startX;
+        const deltaY = touch.clientY - startY + (window.scrollY - initialScrollY);
+
+        // Move the element
+        element.style.position = 'relative';
+        element.style.top = (startTop + deltaY) + 'px';
+        element.style.left = (startLeft + deltaX) + 'px';
+      }, { passive: false });
+
+      element.addEventListener('touchend', function() {
+        if (!isDragging) return;
+
+        // Reset visual state
+        this.classList.remove('opacity-50');
+        this.style.zIndex = '';
+
+        // Reset dragging state
+        isDragging = false;
+      });
+
+      // Cancel drag if touch moves to another element
+      element.addEventListener('touchcancel', function() {
+        if (!isDragging) return;
+
+        // Reset visual state
+        this.classList.remove('opacity-50');
+        this.style.zIndex = '';
+
+        // Reset dragging state
+        isDragging = false;
+      });
+    }
+
+    // Function to find a non-overlapping position
+    function findNonOverlappingPosition(x, y) {
+      const canvas = document.getElementById('canvas-container');
+      if (!canvas) return [x, y];
+
+      const existingElements = canvas.querySelectorAll('.canvas-element');
+      if (!existingElements.length) return [x, y];
+
+      // Start with the original position
+      let adjustedX = x;
+      let adjustedY = y;
+
+      // Define minimum distance between elements
+      const minDistance = 30;
+
+      // Check if the position overlaps with any existing element
+      let overlapping = true;
+      let attempts = 0;
+      const maxAttempts = 20; // Prevent infinite loops
+
+      // Try different positions in a grid pattern
+      const gridSize = 150; // Size of grid cells
+
+      while (overlapping && attempts < maxAttempts) {
+        overlapping = false;
+
+        // Check against each existing element
+        existingElements.forEach(existingElement => {
+          if (existingElement.style.position !== 'absolute') return;
+
+          const rect = existingElement.getBoundingClientRect();
+          const canvasRect = canvas.getBoundingClientRect();
+
+          // Convert to canvas-relative coordinates
+          const elementLeft = rect.left - canvasRect.left;
+          const elementTop = rect.top - canvasRect.top;
+          const elementRight = elementLeft + rect.width;
+          const elementBottom = elementTop + rect.height;
+
+          // Approximate size of new element
+          const newElementWidth = 150;
+          const newElementHeight = 80;
+
+          // Check if positions overlap
+          if (adjustedX < elementRight + minDistance &&
+              adjustedX + newElementWidth + minDistance > elementLeft &&
+              adjustedY < elementBottom + minDistance &&
+              adjustedY + newElementHeight + minDistance > elementTop) {
+
+            // Overlap detected, try a new position in a grid pattern
+            const row = Math.floor(attempts / 4);
+            const col = attempts % 4;
+
+            // Try positions in a grid pattern
+            adjustedX = (col * gridSize) + 20;
+            adjustedY = (row * gridSize) + 20;
+
+            overlapping = true;
+            return; // Exit this forEach callback to recheck with new position
+          }
+        });
+
+        attempts++;
+      }
+
+      // Make sure we're not positioning too far to the right
+      if (adjustedX > canvas.clientWidth - 200) {
+        adjustedX = Math.min(adjustedX, canvas.clientWidth - 200);
+      }
+
+      return [adjustedX, adjustedY];
+    }
+
+    // Function to get the next z-index
+    let currentZIndex = 1;
+    function getNextZIndex() {
+      return currentZIndex++;
+    }
+
+    // Function to edit elements
+    window.editElement = function(element) {
+      if (!element) {
+        console.error('No element provided to editElement function');
+        return;
+      }
+
+      const elementType = element.dataset.elementType;
+      const elementContent = element.querySelector('.element-content');
+
+      if (!elementType || !elementContent) {
+        console.error('Invalid element provided to editElement function', element);
+        return;
+      }
+
+      console.log('Editing element of type:', elementType);
+
+      // Highlight the element being edited
+      document.querySelectorAll('.canvas-element').forEach(el => {
+        el.classList.remove('editing');
+        el.style.border = '2px solid transparent';
+      });
+
+      // Add a visible editing indicator
+      element.classList.add('editing');
+      element.style.border = '2px solid #3b82f6'; // Blue border
+
+      // Bring this element to the front
+      element.style.zIndex = getNextZIndex();
+
+      // Show properties panel
+      const propertiesPanel = document.getElementById('properties-panel');
+      const propertiesContent = document.getElementById('properties-content');
+
+      // Handle mobile vs desktop differently
+      if (window.innerWidth < 768) { // md breakpoint
+        propertiesPanel.classList.remove('hidden');
+        propertiesPanel.classList.remove('translate-x-full');
+        // Show the mobile overlay
+        document.getElementById('mobile-overlay').classList.remove('hidden');
+      } else {
+        propertiesPanel.classList.remove('hidden');
+        propertiesPanel.classList.remove('translate-x-full');
+      }
+
+      // Bring the element being edited to the front
+      element.style.zIndex = getNextZIndex();
+
+      // Scroll to top of properties panel
+      propertiesPanel.scrollTop = 0;
+
+      // Update the panel title to show what element is being edited
+      const panelTitle = propertiesPanel.querySelector('h2');
+      if (panelTitle) {
+        panelTitle.textContent = `Edit ${elementType.charAt(0).toUpperCase() + elementType.slice(1)} Element`;
+      }
+
+      propertiesContent.innerHTML = '';
+
+      // Create properties form based on element type
+      const form = document.createElement('form');
+      form.className = 'properties-form';
+
+      // Add content field
+      if (elementType !== 'divider') {
+        // Create a function to add a form field
+        const addFormField = (id, label, type, value, options = {}) => {
+          const group = document.createElement('div');
+          group.className = 'mb-4';
+
+          const fieldLabel = document.createElement('label');
+          fieldLabel.className = 'block text-gray-300 mb-2';
+          fieldLabel.textContent = label;
+          fieldLabel.htmlFor = id;
+
+          let input;
+
+          if (type === 'textarea') {
+            input = document.createElement('textarea');
+            input.rows = options.rows || 4;
+          } else if (type === 'select') {
+            input = document.createElement('select');
+            if (options.options) {
+              options.options.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt.value;
+                option.textContent = opt.text;
+                if (opt.value === value) option.selected = true;
+                input.appendChild(option);
+              });
+            }
+          } else if (type === 'color') {
+            // Create a color picker with preview
+            const colorContainer = document.createElement('div');
+            colorContainer.className = 'flex items-center';
+
+            input = document.createElement('input');
+            input.type = 'color';
+            input.className = 'h-8 w-12 mr-2';
+
+            const textInput = document.createElement('input');
+            textInput.type = 'text';
+            textInput.className = 'w-full bg-dark-200 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue';
+            textInput.value = value || '#000000';
+            input.value = value || '#000000';
+
+            // Sync the inputs
+            input.addEventListener('input', () => {
+              textInput.value = input.value;
+            });
+
+            textInput.addEventListener('input', () => {
+              if (/^#[0-9A-F]{6}$/i.test(textInput.value)) {
+                input.value = textInput.value;
+              }
+            });
+
+            colorContainer.appendChild(input);
+            colorContainer.appendChild(textInput);
+
+            group.appendChild(fieldLabel);
+            group.appendChild(colorContainer);
+            form.appendChild(group);
+
+            // Set ID on the text input for retrieval
+            textInput.id = id;
+            return;
+          } else if (type === 'file') {
+            // Create a file input with preview
+            const fileContainer = document.createElement('div');
+            fileContainer.className = 'flex flex-col';
+
+            // Create a URL input field
+            const urlInput = document.createElement('input');
+            urlInput.type = 'text';
+            urlInput.className = 'w-full bg-dark-200 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue mb-2';
+            urlInput.value = value || '';
+            urlInput.placeholder = 'Enter URL or upload a file';
+            urlInput.id = id;
+
+            // Create a file input
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = options.accept || '*/*';
+            fileInput.className = 'hidden';
+
+            // Create a button to trigger file input
+            const fileButton = document.createElement('button');
+            fileButton.type = 'button';
+            fileButton.className = 'bg-dark-300 hover:bg-dark-400 text-white py-2 px-4 rounded-md text-sm';
+            fileButton.textContent = 'Choose File';
+            fileButton.addEventListener('click', () => {
+              fileInput.click();
+            });
+
+            // Add preview if it's an image
+            if (options.accept && options.accept.includes('image')) {
+              const preview = document.createElement('div');
+              preview.className = 'mt-2';
+
+              if (value) {
+                const img = document.createElement('img');
+                img.src = value;
+                img.className = 'max-h-32 max-w-full rounded';
+                preview.appendChild(img);
+              }
+
+              fileInput.addEventListener('change', () => {
+                if (fileInput.files && fileInput.files[0]) {
+                  // For demo purposes, we'll just show a preview
+                  // In a real app, you'd upload the file to a server
+                  const reader = new FileReader();
+                  reader.onload = function(e) {
+                    preview.innerHTML = '';
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'max-h-32 max-w-full rounded';
+                    preview.appendChild(img);
+
+                    // Update the URL input with a placeholder
+                    urlInput.value = e.target.result;
+                  };
+                  reader.readAsDataURL(fileInput.files[0]);
+                }
+              });
+
+              fileContainer.appendChild(urlInput);
+              fileContainer.appendChild(fileButton);
+              fileContainer.appendChild(fileInput);
+              fileContainer.appendChild(preview);
+            } else {
+              fileInput.addEventListener('change', () => {
+                if (fileInput.files && fileInput.files[0]) {
+                  // For demo purposes, just show the filename
+                  urlInput.value = 'File selected: ' + fileInput.files[0].name;
+                }
+              });
+
+              fileContainer.appendChild(urlInput);
+              fileContainer.appendChild(fileButton);
+              fileContainer.appendChild(fileInput);
+            }
+
+            group.appendChild(fieldLabel);
+            group.appendChild(fileContainer);
+            form.appendChild(group);
+            return;
+          } else {
+            input = document.createElement('input');
+            input.type = type;
+
+            if (type === 'number') {
+              if (options.min !== undefined) input.min = options.min;
+              if (options.max !== undefined) input.max = options.max;
+              if (options.step !== undefined) input.step = options.step;
+            }
+          }
+
+          input.id = id;
+          input.value = value;
+          input.className = 'w-full bg-dark-200 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue';
+
+          if (options.placeholder) input.placeholder = options.placeholder;
+
+          group.appendChild(fieldLabel);
+          group.appendChild(input);
+          form.appendChild(group);
+        };
+
+        // Create element-specific editing fields based on element type
+        switch(elementType) {
+          // Text elements
+          case 'heading':
+            addFormField('element-content', 'Heading Text', 'text', elementContent.textContent);
+            addFormField('heading-level', 'Heading Level', 'select', '2', {
+              options: [
+                { value: '1', text: 'H1 - Main Heading' },
+                { value: '2', text: 'H2 - Section Heading' },
+                { value: '3', text: 'H3 - Subsection Heading' },
+                { value: '4', text: 'H4 - Minor Heading' },
+                { value: '5', text: 'H5 - Small Heading' },
+                { value: '6', text: 'H6 - Tiny Heading' }
+              ]
+            });
+            addFormField('heading-color', 'Text Color', 'color', elementContent.style.color || '#000000');
+            break;
+
+          case 'paragraph':
+            addFormField('element-content', 'Paragraph Text', 'textarea', elementContent.textContent);
+            addFormField('text-color', 'Text Color', 'color', elementContent.style.color || '#000000');
+            break;
+
+          case 'text':
+            addFormField('element-content', 'Text Content', 'text', elementContent.textContent);
+            addFormField('text-color', 'Text Color', 'color', elementContent.style.color || '#000000');
+            break;
+
+          case 'list':
+            // Extract list items and format them as one item per line
+            const listItems = elementContent.querySelectorAll('li');
+            let listContent = '';
+            listItems.forEach(item => {
+              listContent += item.textContent + '\n';
+            });
+
+            addFormField('element-content', 'List Items (one per line)', 'textarea', listContent);
+            addFormField('list-type', 'List Type', 'select', elementContent.tagName === 'UL' ? 'unordered' : 'ordered', {
+              options: [
+                { value: 'unordered', text: 'Bullet Points (Unordered)' },
+                { value: 'ordered', text: 'Numbered List (Ordered)' }
+              ]
+            });
+            break;
+
+          // Media elements
+          case 'image':
+            addFormField('element-content', 'Image URL', 'file', elementContent.src || elementContent.querySelector('img')?.src || '', {
+              accept: 'image/*'
+            });
+            addFormField('image-alt', 'Alt Text (for accessibility)', 'text', elementContent.alt || elementContent.querySelector('img')?.alt || '');
+            break;
+
+          case 'video':
+            addFormField('element-content', 'Video URL (YouTube, Vimeo, etc.)', 'text', elementContent.querySelector('iframe')?.src || '');
+            addFormField('video-title', 'Video Title', 'text', elementContent.querySelector('iframe')?.title || '');
+            break;
+
+          case 'audio':
+            addFormField('element-content', 'Audio URL', 'file', elementContent.querySelector('audio source')?.src || '', {
+              accept: 'audio/*'
+            });
+            break;
+
+          case 'gallery':
+            // Extract image URLs from gallery
+            const galleryImages = elementContent.querySelectorAll('img');
+            let galleryUrls = '';
+            galleryImages.forEach(img => {
+              galleryUrls += img.src + '\n';
+            });
+
+            addFormField('element-content', 'Image URLs (one per line)', 'textarea', galleryUrls);
+            addFormField('gallery-columns', 'Number of Columns', 'number', '3', {
+              min: 1,
+              max: 6
+            });
+            break;
+
+          // Interactive elements
+          case 'button':
+            addFormField('element-content', 'Button Text', 'text', elementContent.textContent);
+            addFormField('button-url', 'Button Link URL', 'text', elementContent.href || '#');
+            addFormField('button-color', 'Button Color', 'color', getComputedStyle(elementContent).backgroundColor || '#3B82F6');
+            addFormField('button-text-color', 'Button Text Color', 'color', getComputedStyle(elementContent).color || '#FFFFFF');
+            break;
+
+          case 'icon':
+            // Extract icon class
+            const iconElement = elementContent.querySelector('i');
+            const iconClass = iconElement ? Array.from(iconElement.classList).find(cls => cls.startsWith('fa-')) : '';
+
+            addFormField('icon-type', 'Icon Type', 'text', iconClass || 'fa-star', {
+              placeholder: 'e.g., fa-star, fa-heart, fa-user'
+            });
+            addFormField('icon-color', 'Icon Color', 'color', iconElement?.style.color || '#3B82F6');
+            addFormField('icon-size', 'Icon Size', 'select', '3x', {
+              options: [
+                { value: '1x', text: 'Small' },
+                { value: '2x', text: 'Medium' },
+                { value: '3x', text: 'Large' },
+                { value: '4x', text: 'Extra Large' },
+                { value: '5x', text: 'Huge' }
+              ]
+            });
+            break;
+
+          // Layout elements
+          case 'spacer':
+            addFormField('element-content', 'Height (pixels)', 'number', elementContent.style.height?.replace('px', '') || '50', {
+              min: 10,
+              max: 500,
+              step: 10
+            });
+            break;
+
+          // Advanced elements
+          case 'testimonial':
+            const testimonialText = elementContent.querySelector('p.italic')?.textContent || '';
+            const testimonialAuthor = elementContent.querySelector('.font-medium')?.textContent || '';
+            const testimonialRole = elementContent.querySelector('.text-sm.text-gray-500')?.textContent || '';
+
+            addFormField('testimonial-text', 'Testimonial Text', 'textarea', testimonialText);
+            addFormField('testimonial-author', 'Author Name', 'text', testimonialAuthor);
+            addFormField('testimonial-role', 'Author Role/Company', 'text', testimonialRole);
+            addFormField('testimonial-image', 'Author Image URL', 'file', '', {
+              accept: 'image/*'
+            });
+            break;
+
+          // Form elements
+          case 'contact-form':
+            addFormField('element-content', 'Form HTML', 'textarea', elementContent.innerHTML, {
+              rows: 12
+            });
+            addFormField('form-action', 'Form Action URL', 'text', elementContent.getAttribute('action') || '#', {
+              placeholder: 'e.g., /contact or https://formspree.io/f/your-form-id'
+            });
+            addFormField('form-method', 'Form Method', 'select', elementContent.getAttribute('method') || 'POST', {
+              options: [
+                { value: 'POST', text: 'POST' },
+                { value: 'GET', text: 'GET' }
+              ]
+            });
+            break;
+
+          case 'login-form':
+            addFormField('element-content', 'Form HTML', 'textarea', elementContent.innerHTML, {
+              rows: 12
+            });
+            addFormField('form-action', 'Form Action URL', 'text', elementContent.getAttribute('action') || '/login', {
+              placeholder: 'e.g., /login'
+            });
+            addFormField('redirect-url', 'Redirect After Login', 'text', '', {
+              placeholder: 'e.g., /dashboard'
+            });
+            break;
+
+          case 'register-form':
+            addFormField('element-content', 'Form HTML', 'textarea', elementContent.innerHTML, {
+              rows: 12
+            });
+            addFormField('form-action', 'Form Action URL', 'text', elementContent.getAttribute('action') || '/register', {
+              placeholder: 'e.g., /register'
+            });
+            addFormField('redirect-url', 'Redirect After Registration', 'text', '', {
+              placeholder: 'e.g., /login'
+            });
+            break;
+
+          // For other complex elements, provide HTML editing
+          case 'carousel':
+          case 'tabs':
+          case 'accordion':
+          case 'modal':
+          case 'pricing':
+          case 'team':
+          case 'progress':
+          case 'counter':
+          case 'chart':
+          case 'embed':
+          case 'svg':
+          case 'lottie':
+          case '360':
+          case 'file':
+            addFormField('element-content', 'HTML Content (Advanced)', 'textarea', elementContent.innerHTML, {
+              rows: 8
+            });
+            break;
+
+          // Default for any other elements
+          default:
+            addFormField('element-content', 'Content', 'text', elementContent.textContent || '');
+            break;
+        }
+      }
+
+      // Add style fields (simplified for now)
+      const styleGroup = document.createElement('div');
+      styleGroup.className = 'mb-4';
+
+      const styleLabel = document.createElement('label');
+      styleLabel.className = 'block text-gray-300 mb-2';
+      styleLabel.textContent = 'Styles';
+
+      // Add alignment options
+      const alignmentDiv = document.createElement('div');
+      alignmentDiv.className = 'flex space-x-2 mb-2';
+
+      const alignLeftBtn = document.createElement('button');
+      alignLeftBtn.type = 'button';
+      alignLeftBtn.className = 'bg-dark-200 hover:bg-dark-300 text-gray-300 p-2 rounded';
+      alignLeftBtn.innerHTML = '<i class="fas fa-align-left"></i>';
+      alignLeftBtn.addEventListener('click', function() {
+        elementContent.style.textAlign = 'left';
+      });
+
+      const alignCenterBtn = document.createElement('button');
+      alignCenterBtn.type = 'button';
+      alignCenterBtn.className = 'bg-dark-200 hover:bg-dark-300 text-gray-300 p-2 rounded';
+      alignCenterBtn.innerHTML = '<i class="fas fa-align-center"></i>';
+      alignCenterBtn.addEventListener('click', function() {
+        elementContent.style.textAlign = 'center';
+      });
+
+      const alignRightBtn = document.createElement('button');
+      alignRightBtn.type = 'button';
+      alignRightBtn.className = 'bg-dark-200 hover:bg-dark-300 text-gray-300 p-2 rounded';
+      alignRightBtn.innerHTML = '<i class="fas fa-align-right"></i>';
+      alignRightBtn.addEventListener('click', function() {
+        elementContent.style.textAlign = 'right';
+      });
+
+      alignmentDiv.appendChild(alignLeftBtn);
+      alignmentDiv.appendChild(alignCenterBtn);
+      alignmentDiv.appendChild(alignRightBtn);
+
+      styleGroup.appendChild(styleLabel);
+      styleGroup.appendChild(alignmentDiv);
+      form.appendChild(styleGroup);
+
+      // Add apply button
+      const applyBtn = document.createElement('button');
+      applyBtn.type = 'button';
+      applyBtn.className = 'w-full bg-gradient-to-r from-neon-blue to-neon-purple text-white py-2 px-4 rounded-md shadow-lg shadow-neon-blue/20 hover:shadow-neon-blue/40 transition-all duration-300';
+      applyBtn.textContent = 'Apply Changes';
+      applyBtn.addEventListener('click', function() {
+        // Apply changes based on element type
+        if (elementType !== 'divider') {
+          // Helper function to get form field value
+          const getFieldValue = (id) => {
+            const field = document.getElementById(id);
+            return field ? field.value : null;
+          };
+
+          // Apply changes based on element type
+          switch(elementType) {
+            // Text elements
+            case 'heading':
+              const headingText = getFieldValue('element-content');
+              const headingLevel = getFieldValue('heading-level');
+              const headingColor = getFieldValue('heading-color');
+
+              // Create a new heading element with the right level
+              const newHeading = document.createElement(`h${headingLevel}`);
+              newHeading.textContent = headingText;
+              newHeading.className = 'element-content text-black';
+              if (headingColor) newHeading.style.color = headingColor;
+
+              // Replace the old element content with the new heading
+              element.replaceChild(newHeading, elementContent);
+              break;
+
+            case 'paragraph':
+              const paragraphText = getFieldValue('element-content');
+              const paragraphColor = getFieldValue('text-color');
+
+              elementContent.textContent = paragraphText;
+              if (paragraphColor) elementContent.style.color = paragraphColor;
+              break;
+
+            case 'text':
+              const textContent = getFieldValue('element-content');
+              const textColor = getFieldValue('text-color');
+
+              elementContent.textContent = textContent;
+              if (textColor) elementContent.style.color = textColor;
+              break;
+
+            case 'list':
+              const listContent = getFieldValue('element-content');
+              const listType = getFieldValue('list-type');
+
+              // Create a new list element of the right type
+              const newList = document.createElement(listType === 'ordered' ? 'ol' : 'ul');
+              newList.className = 'element-content list-disc pl-5 text-black';
+
+              // Add list items
+              const items = listContent.split('\n').filter(item => item.trim() !== '');
+              items.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item.trim();
+                newList.appendChild(li);
+              });
+
+              // Replace the old element content with the new list
+              element.replaceChild(newList, elementContent);
+              break;
+
+            // Media elements
+            case 'image':
+              const imageUrl = getFieldValue('element-content');
+              const imageAlt = getFieldValue('image-alt');
+
+              if (elementContent.tagName === 'IMG') {
+                elementContent.src = imageUrl;
+                elementContent.alt = imageAlt || '';
+              } else {
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = imageAlt || '';
+                img.className = 'element-content max-w-full h-auto';
+                element.replaceChild(img, elementContent);
+              }
+              break;
+
+            case 'video':
+              const videoUrl = getFieldValue('element-content');
+              const videoTitle = getFieldValue('video-title');
+
+              elementContent.innerHTML = `<iframe width="100%" height="315" src="${videoUrl}" title="${videoTitle || 'Video'}" frameborder="0" allowfullscreen></iframe>`;
+              break;
+
+            case 'audio':
+              const audioUrl = getFieldValue('element-content');
+
+              elementContent.innerHTML = `<audio controls class="w-full"><source src="${audioUrl}" type="audio/mpeg">Your browser does not support the audio element.</audio>`;
+              break;
+
+            case 'gallery':
+              const galleryUrls = getFieldValue('element-content');
+              const galleryColumns = getFieldValue('gallery-columns');
+
+              // Create a new gallery container
+              const newGallery = document.createElement('div');
+              newGallery.className = `element-content grid grid-cols-${galleryColumns} gap-2`;
+
+              // Add images to gallery
+              const images = galleryUrls.split('\n').filter(url => url.trim() !== '');
+              images.forEach(url => {
+                const img = document.createElement('img');
+                img.src = url.trim();
+                img.alt = 'Gallery Image';
+                img.className = 'w-full h-auto';
+                newGallery.appendChild(img);
+              });
+
+              // Replace the old element content with the new gallery
+              element.replaceChild(newGallery, elementContent);
+              break;
+
+            // Interactive elements
+            case 'button':
+              const buttonText = getFieldValue('element-content');
+              const buttonUrl = getFieldValue('button-url');
+              const buttonColor = getFieldValue('button-color');
+              const buttonTextColor = getFieldValue('button-text-color');
+
+              elementContent.textContent = buttonText;
+              elementContent.href = buttonUrl;
+              elementContent.style.backgroundColor = buttonColor;
+              elementContent.style.color = buttonTextColor;
+              break;
+
+            case 'icon':
+              const iconType = getFieldValue('icon-type');
+              const iconColor = getFieldValue('icon-color');
+              const iconSize = getFieldValue('icon-size');
+
+              // Create a new icon element
+              const newIconContainer = document.createElement('div');
+              newIconContainer.className = 'element-content text-center';
+
+              const newIcon = document.createElement('i');
+              newIcon.className = `fas ${iconType} fa-${iconSize}`;
+              newIcon.style.color = iconColor;
+
+              newIconContainer.appendChild(newIcon);
+              element.replaceChild(newIconContainer, elementContent);
+              break;
+
+            // Layout elements
+            case 'spacer':
+              const spacerHeight = getFieldValue('element-content');
+              elementContent.style.height = spacerHeight + 'px';
+              break;
+
+            // Advanced elements
+            case 'testimonial':
+              const testimonialText = getFieldValue('testimonial-text');
+              const testimonialAuthor = getFieldValue('testimonial-author');
+              const testimonialRole = getFieldValue('testimonial-role');
+              const testimonialImage = getFieldValue('testimonial-image');
+
+              // Create a new testimonial element
+              const newTestimonial = document.createElement('div');
+              newTestimonial.className = 'element-content';
+              newTestimonial.innerHTML = `
+                <div class="bg-gray-50 p-6 rounded-lg border">
+                  <div class="text-yellow-500 flex mb-4">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                  </div>
+                  <p class="italic mb-4">${testimonialText}</p>
+                  <div class="flex items-center">
+                    ${testimonialImage ? `<img src="${testimonialImage}" alt="${testimonialAuthor}" class="w-10 h-10 rounded-full mr-3 object-cover">` : `<div class="w-10 h-10 rounded-full bg-gray-300 mr-3"></div>`}
+                    <div>
+                      <p class="font-medium">${testimonialAuthor}</p>
+                      <p class="text-sm text-gray-500">${testimonialRole}</p>
+                    </div>
+                  </div>
+                </div>
+              `;
+
+              element.replaceChild(newTestimonial, elementContent);
+              break;
+
+            // Form elements
+            case 'form':
+              const basicFormContent = getFieldValue('element-content');
+              elementContent.innerHTML = basicFormContent;
+              break;
+
+            case 'contact-form':
+              const contactFormContent = getFieldValue('element-content');
+              const contactFormAction = getFieldValue('form-action');
+              const contactFormMethod = getFieldValue('form-method');
+
+              elementContent.innerHTML = contactFormContent;
+              if (contactFormAction) elementContent.setAttribute('action', contactFormAction);
+              if (contactFormMethod) elementContent.setAttribute('method', contactFormMethod);
+              break;
+
+            case 'login-form':
+              const loginFormContent = getFieldValue('element-content');
+              const loginFormAction = getFieldValue('form-action');
+              const loginRedirectUrl = getFieldValue('redirect-url');
+
+              elementContent.innerHTML = loginFormContent;
+              if (loginFormAction) elementContent.setAttribute('action', loginFormAction);
+              if (loginRedirectUrl) {
+                // Add a hidden field for redirect URL
+                const redirectField = document.createElement('input');
+                redirectField.type = 'hidden';
+                redirectField.name = 'redirect';
+                redirectField.value = loginRedirectUrl;
+                elementContent.appendChild(redirectField);
+              }
+              break;
+
+            case 'register-form':
+              const registerFormContent = getFieldValue('element-content');
+              const registerFormAction = getFieldValue('form-action');
+              const registerRedirectUrl = getFieldValue('redirect-url');
+
+              elementContent.innerHTML = registerFormContent;
+              if (registerFormAction) elementContent.setAttribute('action', registerFormAction);
+              if (registerRedirectUrl) {
+                // Add a hidden field for redirect URL
+                const redirectField = document.createElement('input');
+                redirectField.type = 'hidden';
+                redirectField.name = 'redirect';
+                redirectField.value = registerRedirectUrl;
+                elementContent.appendChild(redirectField);
+              }
+              break;
+
+            case 'input':
+            case 'textarea':
+            case 'checkbox':
+            case 'radio':
+            case 'select':
+              const formFieldContent = getFieldValue('element-content');
+              elementContent.innerHTML = formFieldContent;
+              break;
+
+            // For other complex elements, apply HTML content directly
+            case 'carousel':
+            case 'tabs':
+            case 'accordion':
+            case 'modal':
+            case 'pricing':
+            case 'pricing-table':
+            case 'team':
+            case 'progress':
+            case 'counter':
+            case 'chart':
+            case 'embed':
+            case 'svg':
+            case 'lottie':
+            case '360':
+            case 'file':
+              const advancedContent = getFieldValue('element-content');
+              elementContent.innerHTML = advancedContent;
+              break;
+
+            // Default for any other elements
+            default:
+              const defaultContent = getFieldValue('element-content');
+              elementContent.textContent = defaultContent;
+              break;
+          }
+        }
+      });
+
+      form.appendChild(applyBtn);
+      propertiesContent.appendChild(form);
+    }
+
+    // Function to initialize existing elements
+    function initializeExistingElements() {
+      // Get a reference to the canvas container
+      const canvasContainer = document.getElementById('canvas-container');
+      if (!canvasContainer) {
+        console.error('Canvas container not found in initializeExistingElements');
+        return;
+      }
+
+      // Re-add drop event listeners to the canvas
+      canvasContainer.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('bg-gray-100');
+      });
+
+      canvasContainer.addEventListener('dragleave', function() {
+        this.classList.remove('bg-gray-100');
+      });
+
+      canvasContainer.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('bg-gray-100');
+
+        const elementType = e.dataTransfer.getData('text/plain');
+        if (elementType) {
+          const rect = this.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          console.log('Drop detected in initializeExistingElements, creating element:', elementType);
+          const newElement = createNewElement(elementType, x, y);
+          console.log('Element created:', newElement);
+        }
+      });
+
+      // Now add event listeners to all elements
+      const existingElements = document.querySelectorAll('.canvas-element');
+
+      existingElements.forEach(function(element) {
+        // Add edit controls if they don't exist
+        if (!element.querySelector('.element-controls')) {
+          const controls = document.createElement('div');
+          controls.className = 'element-controls absolute top-1 right-1 flex space-x-1 bg-white/80 p-1 rounded shadow-md z-10';
+          controls.innerHTML = `
+            <button class="edit-element bg-blue-500 hover:bg-blue-600 text-white rounded p-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+              </svg>
+            </button>
+            <button class="delete-element bg-red-500 hover:bg-red-600 text-white rounded p-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          `;
+          element.appendChild(controls);
+        }
+
+        // Make element content editable
+        const elementContent = element.querySelector('.element-content');
+        if (elementContent) {
+          // Force a new element to remove any existing event listeners
+          const newElementContent = elementContent.cloneNode(true);
+          elementContent.parentNode.replaceChild(newElementContent, elementContent);
+
+          // Add click event listener with stopPropagation
+          newElementContent.addEventListener('click', function(e) {
+            e.stopPropagation(); // Stop event from bubbling up
+            editElement(element);
+          });
+
+          // Add double-click event for immediate editing
+          newElementContent.addEventListener('dblclick', function(e) {
+            e.stopPropagation();
+            editElement(element);
+            // Focus on the content input field
+            setTimeout(() => {
+              const contentInput = document.getElementById('element-content');
+              if (contentInput) contentInput.focus();
+            }, 100);
+          });
+        }
+
+        // Make the container clickable to edit
+        element.onclick = function(e) {
+          // Don't trigger if clicking on controls
+          if (!e.target.closest('.element-controls')) {
+            console.log('Existing element container clicked');
+            editElement(this);
+            // Bring this element to the front
+            this.style.zIndex = getNextZIndex();
+          }
+        };
+
+        // Add event listeners to edit button
+        const editBtn = element.querySelector('.edit-element');
+        if (editBtn) {
+          // Force a new button to remove any existing event listeners
+          const newEditBtn = editBtn.cloneNode(true);
+          editBtn.parentNode.replaceChild(newEditBtn, editBtn);
+
+          newEditBtn.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation(); // Stop event from bubbling up
+            console.log('Edit button clicked for existing element');
+            editElement(element);
+          };
+        }
+
+        // Add event listeners to delete button
+        const deleteBtn = element.querySelector('.delete-element');
+        if (deleteBtn) {
+          // Force a new button to remove any existing event listeners
+          const newDeleteBtn = deleteBtn.cloneNode(true);
+          deleteBtn.parentNode.replaceChild(newDeleteBtn, deleteBtn);
+
+          newDeleteBtn.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation(); // Stop event from bubbling up
+            console.log('Delete button clicked for existing element');
+            element.remove();
+
+            // Show a notification that the element was deleted
+            const notification = document.createElement('div');
+            notification.className = 'fixed bottom-4 right-4 px-6 py-3 rounded-md text-white bg-green-500 shadow-lg z-50';
+            notification.textContent = 'Element deleted successfully';
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+              notification.style.opacity = '0';
+              setTimeout(() => {
+                notification.remove();
+              }, 300);
+            }, 3000);
+          };
+        }
+
+        // Make element draggable within canvas
+        makeElementDraggable(element);
+      });
+    }
+
+    // Close properties panel
+    document.getElementById('close-properties').onclick = function() {
+      document.getElementById('properties-panel').classList.add('hidden');
+      document.getElementById('mobile-overlay').classList.add('hidden');
+
+      // Remove editing highlight from all elements
+      document.querySelectorAll('.canvas-element').forEach(el => {
+        el.classList.remove('editing');
+        el.style.border = '2px solid transparent';
+      });
+    };
+  });
+</script>

@@ -25,6 +25,21 @@ router.post('/register', ensureGuest, userController.postRegister);
 // Logout handle
 router.get('/logout', ensureAuthenticated, userController.logout);
 
+// Forgot password page
+router.get('/forgot-password', ensureGuest, userController.getForgotPassword);
+
+// Forgot password handle
+router.post('/forgot-password', ensureGuest, userController.postForgotPassword);
+
+// Reset password page
+router.get('/reset-password', ensureGuest, userController.getResetPassword);
+
+// Verify OTP handle
+router.post('/verify-otp', ensureGuest, userController.verifyOTP);
+
+// Reset password handle
+router.post('/reset-password', ensureGuest, userController.postResetPassword);
+
 // Delete account
 router.delete('/delete', ensureAuthenticated, userController.deleteAccount);
 

@@ -8,6 +8,8 @@ const Review = require('../models/Review');
 const Image = require('../models/Image');
 
 
+const PasswordReset = require('../models/PasswordReset');
+
 module.exports = {
   // Render admin dashboard
   getDashboard: async (req, res) => {
@@ -527,4 +529,73 @@ module.exports = {
   },
 
 
+  // Render password reset history page
+  getPasswordResetHistory: async (req, res) => {
+    try {
+      // Get search query
+      const { search } = req.query;
+
+      // Build query
+      let query = {};
+      if (search) {
+        query = {
+          $or: [
+            { email: { $regex: search, $options: 'i' } },
+            { otp: { $regex: search, $options: 'i' } }
+          ]
+        };
+      }
+
+      // Get password reset history with user info
+      const passwordResets = await PasswordReset.find(query)
+        .populate('userId', 'username email')
+        .sort({ createdAt: -1 });
+
+      // Group by user and count attempts
+      const userResetCounts = {};
+      passwordResets.forEach(reset => {
+        const userId = reset.userId ? reset.userId._id.toString() : 'unknown';
+        if (!userResetCounts[userId]) {
+          userResetCounts[userId] = {
+            user: reset.userId || { username: 'Unknown', email: reset.email },
+            email: reset.email,
+            count: 0,
+            lastAttempt: reset.createdAt
+          };
+        }
+        userResetCounts[userId].count++;
+        if (new Date(reset.createdAt) > new Date(userResetCounts[userId].lastAttempt)) {
+          userResetCounts[userId].lastAttempt = reset.createdAt;
+        }
+      });
+
+      // Check if this is an AJAX request
+      const isAjax = req.query.ajax === 'true';
+
+      if (isAjax) {
+        // For AJAX requests, render only the partial view
+        res.render('admin/password-resets', {
+          title: 'Password Reset History - FTRAISE AI', // Include title even for AJAX requests
+          passwordResets,
+          userResetCounts: Object.values(userResetCounts),
+          search: search || '',
+          layout: false // Don't use a layout for AJAX responses
+        });
+      } else {
+        // For regular requests, render the full page
+        res.render('admin/password-resets', {
+          title: 'Password Reset History - FTRAISE AI',
+          passwordResets,
+          userResetCounts: Object.values(userResetCounts),
+          search: search || '',
+          path: '/admin/password-resets',
+          layout: 'layouts/no-footer'
+        });
+      }
+    } catch (err) {
+      console.error('Error loading password reset history:', err);
+      req.flash('error_msg', 'An error occurred while loading password reset history');
+      res.redirect('/admin');
+    }
+  }
 };

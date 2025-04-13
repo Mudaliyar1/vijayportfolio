@@ -15,7 +15,7 @@
             <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
           </div>
           <div class="flex gap-2 w-full md:w-auto">
-            <a href="/admin/packages/create" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white py-2 px-4 rounded-md flex items-center shadow-lg shadow-neon-blue/20 hover:shadow-neon-blue/40 transition-all duration-300 w-full md:w-auto justify-center">
+            <a href="/admin/websites/packages/create" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white py-2 px-4 rounded-md flex items-center shadow-lg shadow-neon-blue/20 hover:shadow-neon-blue/40 transition-all duration-300 w-full md:w-auto justify-center">
               <i class="fas fa-plus mr-2"></i> Add New Package
             </a>
             <button id="bulk-delete-packages" type="button" class="bg-red-500/20 text-red-400 py-2 px-4 rounded-md flex items-center hover:bg-red-500/30 transition-all duration-300 w-full md:w-auto justify-center">
@@ -56,12 +56,12 @@
       <div class="mb-4 border-b border-gray-800">
         <ul class="flex flex-wrap -mb-px text-sm font-medium text-center">
           <li class="mr-2">
-            <a href="/admin/packages" class="inline-block p-4 <%= !showDeleted ? 'text-neon-blue border-b-2 border-neon-blue' : 'text-gray-400 hover:text-gray-300' %> rounded-t-lg">
+            <a href="/admin/websites/packages" class="inline-block p-4 <%= !showDeleted ? 'text-neon-blue border-b-2 border-neon-blue' : 'text-gray-400 hover:text-gray-300' %> rounded-t-lg">
               Active Packages (<%= packages.length %>)
             </a>
           </li>
           <li class="mr-2">
-            <a href="/admin/packages?showDeleted=true" class="inline-block p-4 <%= showDeleted ? 'text-neon-blue border-b-2 border-neon-blue' : 'text-gray-400 hover:text-gray-300' %> rounded-t-lg">
+            <a href="/admin/websites/packages?showDeleted=true" class="inline-block p-4 <%= showDeleted ? 'text-neon-blue border-b-2 border-neon-blue' : 'text-gray-400 hover:text-gray-300' %> rounded-t-lg">
               Deleted Packages (<%= deletedPackages.length %>)
             </a>
           </li>
@@ -109,7 +109,7 @@
                     </td>
                     <td class="py-3 px-4">
                       <div class="flex space-x-2">
-                        <a href="/admin/packages/view/<%= package._id %>" class="text-gray-500 hover:text-gray-400">
+                        <a href="/admin/websites/packages/view/<%= package._id %>" class="text-gray-500 hover:text-gray-400">
                           View
                         </a>
                       </div>
@@ -132,7 +132,7 @@
                   <td class="py-3 px-4 text-sm">₹<%= package.price %></td>
                   <td class="py-3 px-4 text-sm"><%= package.maxPages %></td>
                   <td class="py-3 px-4 text-sm">
-                    <a href="/admin/packages/view/<%= package._id %>" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white text-xs px-3 py-1 rounded transition-colors inline-flex items-center">
+                    <a href="/admin/websites/packages/view/<%= package._id %>" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white text-xs px-3 py-1 rounded transition-colors inline-flex items-center">
                       <i class="fas fa-eye mr-1"></i> View Details
                     </a>
                   </td>
@@ -145,15 +145,15 @@
                   </td>
                   <td class="py-3 px-4 text-sm">
                     <div class="flex space-x-2">
-                      <a href="/admin/packages/edit/<%= package._id %>" class="bg-neon-purple/20 hover:bg-neon-purple/30 text-neon-purple p-1.5 rounded transition-colors inline-flex items-center" title="Edit Package" data-bs-toggle="tooltip">
+                      <a href="/admin/websites/packages/edit/<%= package._id %>" class="bg-neon-purple/20 hover:bg-neon-purple/30 text-neon-purple p-1.5 rounded transition-colors inline-flex items-center" title="Edit Package" data-bs-toggle="tooltip">
                         <i class="fas fa-edit"></i>
                       </a>
-                      <form action="/admin/packages/<%= package._id %>/toggle-free" method="POST">
+                      <form action="/admin/websites/packages/<%= package._id %>/toggle-free" method="POST">
                         <button type="submit" class="<%= package.isFree ? 'bg-neon-blue/20 hover:bg-neon-blue/30 text-neon-blue' : 'bg-neon-green/20 hover:bg-neon-green/30 text-neon-green' %> p-1.5 rounded transition-colors" title="<%= package.isFree ? 'Make Paid' : 'Make Free' %>" data-bs-toggle="tooltip">
                           <i class="fas fa-<%= package.isFree ? 'dollar-sign' : 'gift' %>"></i>
                         </button>
                       </form>
-                      <form action="/admin/packages/<%= package._id %>/delete" method="POST" class="delete-form">
+                      <form action="/admin/websites/packages/<%= package._id %>/delete" method="POST" class="delete-form">
                         <button type="submit" class="bg-red-500/20 hover:bg-red-500/30 text-red-500 p-1.5 rounded transition-colors" title="Delete Package" data-bs-toggle="tooltip">
                           <i class="fas fa-trash"></i>
                         </button>
@@ -234,7 +234,7 @@
           // Create a form to submit the selected package IDs
           const form = document.createElement('form');
           form.method = 'POST';
-          form.action = '/admin/packages/bulk-delete';
+          form.action = '/admin/websites/packages/bulk-delete';
 
           // Add selected package IDs
           selectedPackages.forEach(function(id) {

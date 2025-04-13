@@ -1,0 +1,158 @@
+<!-- Template Selection Page -->
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-2xl font-bold">Choose a Website Template</h1>
+    <a href="/website-builder/dashboard" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-3 py-2 rounded-md text-sm transition-colors">
+      <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
+    </a>
+  </div>
+
+  <!-- Free Templates Section -->
+  <div class="mb-12">
+    <h2 class="text-xl font-semibold mb-6 flex items-center">
+      <span class="bg-green-500/20 text-green-400 px-2 py-1 rounded text-sm mr-3">Free</span>
+      Free Templates
+    </h2>
+
+    <% if (freeTemplates.length === 0) { %>
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-8 text-center">
+        <i class="fas fa-exclamation-circle text-4xl text-gray-500 mb-3"></i>
+        <p class="text-gray-400">No free templates available at the moment.</p>
+      </div>
+    <% } else { %>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <% freeTemplates.forEach(template => { %>
+          <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden hover:border-neon-blue transition-colors">
+            <div class="relative">
+              <img src="<%= template.thumbnail %>" alt="<%= template.name %>" class="w-full h-48 object-cover">
+              <div class="absolute top-3 left-3">
+                <span class="bg-green-500/80 text-white px-2 py-1 rounded text-xs">Free</span>
+              </div>
+              <div class="absolute top-3 right-3">
+                <span class="bg-dark-900/80 text-white px-2 py-1 rounded text-xs"><%= template.category %></span>
+              </div>
+            </div>
+            <div class="p-4">
+              <h3 class="text-lg font-semibold mb-2"><%= template.name %></h3>
+              <p class="text-gray-400 text-sm mb-4 h-12 overflow-hidden"><%= template.description.substring(0, 100) %><%= template.description.length > 100 ? '...' : '' %></p>
+              <div class="flex justify-between items-center">
+                <a href="/website-builder/templates/<%= template._id %>/preview" class="text-neon-blue hover:text-blue-400">
+                  <i class="fas fa-eye mr-1"></i> Preview
+                </a>
+                <button class="select-template-btn bg-neon-green hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm transition-colors" data-template-id="<%= template._id %>" data-template-name="<%= template.name %>">
+                  Select
+                </button>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Paid Templates Section -->
+  <div>
+    <h2 class="text-xl font-semibold mb-6 flex items-center">
+      <span class="bg-purple-500/20 text-purple-400 px-2 py-1 rounded text-sm mr-3">Premium</span>
+      Premium Templates
+    </h2>
+
+    <% if (paidTemplates.length === 0) { %>
+      <div class="bg-dark-100 rounded-lg border border-gray-800 p-8 text-center">
+        <i class="fas fa-exclamation-circle text-4xl text-gray-500 mb-3"></i>
+        <p class="text-gray-400">No premium templates available at the moment.</p>
+      </div>
+    <% } else { %>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <% paidTemplates.forEach(template => { %>
+          <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden hover:border-neon-purple transition-colors">
+            <div class="relative">
+              <img src="<%= template.thumbnail %>" alt="<%= template.name %>" class="w-full h-48 object-cover">
+              <div class="absolute top-3 left-3">
+                <span class="bg-purple-500/80 text-white px-2 py-1 rounded text-xs">₹<%= template.price %></span>
+              </div>
+              <div class="absolute top-3 right-3">
+                <span class="bg-dark-900/80 text-white px-2 py-1 rounded text-xs"><%= template.category %></span>
+              </div>
+            </div>
+            <div class="p-4">
+              <h3 class="text-lg font-semibold mb-2"><%= template.name %></h3>
+              <p class="text-gray-400 text-sm mb-4 h-12 overflow-hidden"><%= template.description.substring(0, 100) %><%= template.description.length > 100 ? '...' : '' %></p>
+              <div class="flex justify-between items-center">
+                <a href="/website-builder/templates/<%= template._id %>/preview" class="text-neon-blue hover:text-blue-400">
+                  <i class="fas fa-eye mr-1"></i> Preview
+                </a>
+                <button class="select-template-btn bg-neon-purple hover:bg-purple-600 text-white px-3 py-1 rounded-md text-sm transition-colors" data-template-id="<%= template._id %>" data-template-name="<%= template.name %>">
+                  Select
+                </button>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- Template Selection Modal -->
+<div id="template-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 max-w-md w-full mx-4">
+    <h2 class="text-xl font-semibold mb-4">Create Website from Template</h2>
+    <p class="text-gray-400 mb-6">You are about to create a website using the <span id="template-name" class="text-white"></span> template.</p>
+
+    <form id="template-form" action="" method="POST">
+      <div class="mb-4">
+        <label for="website-name" class="block text-sm font-medium text-gray-300 mb-1">Website Name</label>
+        <input type="text" id="website-name" name="name" required class="w-full bg-dark-200 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue">
+      </div>
+
+      <div class="mb-6">
+        <label for="website-description" class="block text-sm font-medium text-gray-300 mb-1">Description</label>
+        <textarea id="website-description" name="description" rows="3" class="w-full bg-dark-200 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-neon-blue"></textarea>
+      </div>
+
+      <div class="flex justify-end space-x-3">
+        <button type="button" id="cancel-btn" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-4 py-2 rounded-md text-sm transition-colors">
+          Cancel
+        </button>
+        <button type="submit" class="bg-neon-blue hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm transition-colors">
+          Create Website
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('template-modal');
+    const templateForm = document.getElementById('template-form');
+    const templateName = document.getElementById('template-name');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const selectBtns = document.querySelectorAll('.select-template-btn');
+
+    // Show modal when select button is clicked
+    selectBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const templateId = this.dataset.templateId;
+        const name = this.dataset.templateName;
+
+        templateForm.action = `/website-builder/templates/${templateId}/select`;
+        templateName.textContent = name;
+        modal.classList.remove('hidden');
+      });
+    });
+
+    // Hide modal when cancel button is clicked
+    cancelBtn.addEventListener('click', function() {
+      modal.classList.add('hidden');
+    });
+
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+      }
+    });
+  });
+</script>

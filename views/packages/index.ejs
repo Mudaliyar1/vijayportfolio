@@ -1,0 +1,410 @@
+<!-- Packages Index Page -->
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <!-- Hero Section -->
+  <div class="text-center mb-12">
+    <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
+      Our Website Packages
+    </h1>
+    <p class="text-xl text-gray-300 mt-4 max-w-3xl mx-auto">
+      Choose the perfect package for your business needs. From basic websites to premium solutions with advanced features.
+    </p>
+  </div>
+
+  <!-- Packages Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+    <% if (packages && packages.length > 0) { %>
+      <% packages.forEach(package => { %>
+        <div class="bg-dark-100/80 backdrop-blur-sm rounded-lg border <%= package.isFree ? 'border-neon-blue/30' : 'border-neon-green/30' %> overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-<%= package.isFree ? 'neon-blue/10' : 'neon-green/10' %> hover:-translate-y-1">
+          <!-- Package Header -->
+          <div class="p-6 <%= package.isFree ? 'bg-neon-blue/10' : 'bg-neon-green/10' %>">
+            <h3 class="text-2xl font-bold <%= package.isFree ? 'text-neon-blue' : 'text-neon-green' %>">
+              <%= package.name %>
+            </h3>
+            <div class="flex items-end mt-2">
+              <span class="text-3xl font-bold text-white">₹<%= package.price %></span>
+              <% if (package.isFree) { %>
+                <span class="ml-2 text-sm bg-neon-blue/20 text-neon-blue px-2 py-1 rounded">Free</span>
+              <% } %>
+            </div>
+          </div>
+
+          <!-- Package Features -->
+          <div class="p-6">
+            <ul class="space-y-3 mb-6">
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-<%= package.isFree ? 'neon-blue' : 'neon-green' %> mt-1 mr-2"></i>
+                <span><%= package.pagesAllowed %> <%= package.pagesAllowed === 1 ? 'Page' : 'Pages' %> Allowed</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas <%= package.features.aiContent ? 'fa-check-circle text-' + (package.isFree ? 'neon-blue' : 'neon-green') : 'fa-times-circle text-gray-500' %> mt-1 mr-2"></i>
+                <span class="<%= !package.features.aiContent ? 'text-gray-500' : '' %>">AI Content Generation</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas <%= package.features.seo ? 'fa-check-circle text-' + (package.isFree ? 'neon-blue' : 'neon-green') : 'fa-times-circle text-gray-500' %> mt-1 mr-2"></i>
+                <span class="<%= !package.features.seo ? 'text-gray-500' : '' %>">SEO Optimization</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas <%= package.features.fullAi ? 'fa-check-circle text-' + (package.isFree ? 'neon-blue' : 'neon-green') : 'fa-times-circle text-gray-500' %> mt-1 mr-2"></i>
+                <span class="<%= !package.features.fullAi ? 'text-gray-500' : '' %>">Full AI Integration</span>
+              </li>
+            </ul>
+
+            <% if (package.description) { %>
+              <p class="text-gray-400 text-sm mb-6 line-clamp-2 overflow-hidden">
+                <%= package.description %>
+              </p>
+            <% } %>
+
+            <!-- View Details Button -->
+            <a href="/packages/<%= package._id %>" class="w-full py-3 px-4 rounded-lg <%= package.isFree ? 'bg-neon-blue hover:bg-neon-blue/90' : 'bg-neon-green hover:bg-neon-green/90' %> text-white font-medium transition-colors block text-center">
+              View Details
+            </a>
+          </div>
+        </div>
+      <% }); %>
+    <% } else { %>
+      <div class="col-span-3 text-center py-12">
+        <p class="text-gray-400">No packages available at the moment. Please check back later.</p>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- AI Package Selector -->
+  <div class="bg-dark-100/80 backdrop-blur-sm rounded-lg border border-neon-purple/30 p-6 mb-12 relative overflow-hidden">
+    <!-- Background Effect -->
+    <div class="absolute -top-20 -right-20 w-64 h-64 bg-neon-purple/10 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-neon-blue/10 rounded-full blur-3xl"></div>
+
+    <div class="relative z-10">
+      <div class="flex items-center mb-4">
+        <div class="bg-neon-purple/20 p-2 rounded-full mr-3">
+          <i class="fas fa-robot text-neon-purple text-xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-neon-purple">AI Package Finder</h2>
+      </div>
+      <p class="text-gray-300 mb-6 ml-12">Let our AI help you find the perfect package based on your budget and preferences.</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="bg-dark-200/50 backdrop-blur-sm rounded-lg p-6 border border-gray-800/50 shadow-lg">
+          <form id="ai-recommendation-form" class="space-y-6">
+            <!-- Budget Slider -->
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <label for="budget" class="text-gray-300 font-medium">Your Budget</label>
+                <span id="budget-value" class="text-neon-purple font-bold text-xl">₹1000</span>
+              </div>
+              <div class="relative mt-4 mb-6">
+                <div class="absolute h-1 bg-gradient-to-r from-neon-blue to-neon-purple rounded-full w-full"></div>
+                <input type="range" id="budget" name="budget" min="0" max="<%= maxPrice %>" step="<%= Math.min(500, Math.ceil(maxPrice/10)) %>" value="<%= Math.min(1000, maxPrice/2) %>"
+                      class="w-full h-6 bg-transparent appearance-none cursor-pointer relative z-10">
+                <div class="flex justify-between text-xs text-gray-400 mt-1">
+                  <span>₹0</span>
+                  <span>₹<%= maxPrice.toLocaleString() %></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Preferences -->
+            <div>
+              <label class="block text-gray-300 font-medium mb-3">Your Preferences</label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="preference-option" data-value="ai-content">
+                  <input type="checkbox" id="ai-content" name="preferences" value="ai-content" class="hidden preference-checkbox">
+                  <label for="ai-content" class="flex items-center p-3 bg-dark-300/50 border border-gray-700 rounded-lg cursor-pointer transition-all hover:border-neon-purple/50">
+                    <div class="preference-icon mr-3 w-6 h-6 flex items-center justify-center rounded-full border border-gray-600 text-gray-400">
+                      <i class="fas fa-check text-xs opacity-0"></i>
+                    </div>
+                    <span class="text-gray-300">AI Content Generation</span>
+                  </label>
+                </div>
+
+                <div class="preference-option" data-value="seo">
+                  <input type="checkbox" id="seo" name="preferences" value="seo" class="hidden preference-checkbox">
+                  <label for="seo" class="flex items-center p-3 bg-dark-300/50 border border-gray-700 rounded-lg cursor-pointer transition-all hover:border-neon-purple/50">
+                    <div class="preference-icon mr-3 w-6 h-6 flex items-center justify-center rounded-full border border-gray-600 text-gray-400">
+                      <i class="fas fa-check text-xs opacity-0"></i>
+                    </div>
+                    <span class="text-gray-300">SEO Optimization</span>
+                  </label>
+                </div>
+
+                <div class="preference-option" data-value="full-ai">
+                  <input type="checkbox" id="full-ai" name="preferences" value="full-ai" class="hidden preference-checkbox">
+                  <label for="full-ai" class="flex items-center p-3 bg-dark-300/50 border border-gray-700 rounded-lg cursor-pointer transition-all hover:border-neon-purple/50">
+                    <div class="preference-icon mr-3 w-6 h-6 flex items-center justify-center rounded-full border border-gray-600 text-gray-400">
+                      <i class="fas fa-check text-xs opacity-0"></i>
+                    </div>
+                    <span class="text-gray-300">Full AI Integration</span>
+                  </label>
+                </div>
+
+                <div class="preference-option" data-value="multiple-pages">
+                  <input type="checkbox" id="multiple-pages" name="preferences" value="multiple-pages" class="hidden preference-checkbox">
+                  <label for="multiple-pages" class="flex items-center p-3 bg-dark-300/50 border border-gray-700 rounded-lg cursor-pointer transition-all hover:border-neon-purple/50">
+                    <div class="preference-icon mr-3 w-6 h-6 flex items-center justify-center rounded-full border border-gray-600 text-gray-400">
+                      <i class="fas fa-check text-xs opacity-0"></i>
+                    </div>
+                    <span class="text-gray-300">Multiple Pages</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-neon-blue to-neon-purple hover:from-neon-purple hover:to-neon-blue text-white font-medium transition-all duration-300 shadow-lg hover:shadow-neon-purple/20">
+              <i class="fas fa-magic mr-2"></i> Get AI Recommendation
+            </button>
+          </form>
+        </div>
+
+        <div id="recommendation-result" class="hidden bg-dark-200/50 backdrop-blur-sm rounded-lg p-6 border border-gray-800/50 shadow-lg relative overflow-hidden">
+          <!-- Result Background Effect -->
+          <div class="absolute -top-10 -right-10 w-40 h-40 bg-neon-green/10 rounded-full blur-3xl"></div>
+
+          <div class="relative z-10">
+            <div class="flex items-center mb-4">
+              <div class="bg-neon-green/20 p-2 rounded-full mr-3">
+                <i class="fas fa-check text-neon-green"></i>
+              </div>
+              <h3 class="text-xl font-bold text-white">Our Recommendation</h3>
+            </div>
+
+            <div id="recommendation-content" class="mb-4"></div>
+
+            <a id="recommendation-link" href="#" class="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-blue hover:to-neon-green text-white font-medium transition-all duration-300 shadow-lg hover:shadow-neon-green/20 flex items-center justify-center">
+              <i class="fas fa-eye mr-2"></i> View Package Details
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ Section -->
+  <div class="bg-dark-100/80 backdrop-blur-sm rounded-lg border border-gray-800 p-6">
+    <h2 class="text-2xl font-bold text-white mb-6">Frequently Asked Questions</h2>
+
+    <div class="space-y-6">
+      <div>
+        <h3 class="text-lg font-medium text-white mb-2">What's included in each package?</h3>
+        <p class="text-gray-400">Each package includes a professionally designed website, hosting on our servers, and ongoing support. Premium packages include additional pages, AI content generation, and SEO features.</p>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-medium text-white mb-2">How long does it take to build my website?</h3>
+        <p class="text-gray-400">Once you select a package and provide your requirements, we typically deliver a first draft within 3-5 business days. The complete website is usually ready within 1-2 weeks, depending on the complexity.</p>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-medium text-white mb-2">Can I customize my package?</h3>
+        <p class="text-gray-400">Yes, we offer customization options for all packages. Contact us with your specific requirements, and we'll create a tailored solution for your business.</p>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-medium text-white mb-2">Do you offer ongoing maintenance?</h3>
+        <p class="text-gray-400">Yes, all packages include basic maintenance. For more extensive updates and changes, we offer additional maintenance packages.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const budgetSlider = document.getElementById('budget');
+    const budgetValue = document.getElementById('budget-value');
+    const aiRecommendationForm = document.getElementById('ai-recommendation-form');
+    const recommendationResult = document.getElementById('recommendation-result');
+    const recommendationContent = document.getElementById('recommendation-content');
+    const recommendationLink = document.getElementById('recommendation-link');
+    const preferenceCheckboxes = document.querySelectorAll('.preference-checkbox');
+
+    // Set initial budget value
+    budgetValue.textContent = `₹${budgetSlider.value}`;
+
+    // Initialize preference checkboxes
+    preferenceCheckboxes.forEach(checkbox => {
+      const label = checkbox.nextElementSibling;
+      const icon = label.querySelector('.preference-icon');
+
+      // Set initial state
+      updatePreferenceStyle(checkbox, label, icon);
+
+      // Add change event listener
+      checkbox.addEventListener('change', function() {
+        updatePreferenceStyle(this, label, icon);
+      });
+    });
+
+    // Function to update preference style
+    function updatePreferenceStyle(checkbox, label, icon) {
+      if (checkbox.checked) {
+        label.classList.add('border-neon-purple', 'bg-neon-purple/10');
+        label.classList.remove('border-gray-700', 'bg-dark-300/50');
+        icon.classList.add('bg-neon-purple/20', 'border-neon-purple');
+        icon.classList.remove('border-gray-600');
+        icon.querySelector('i').classList.add('text-neon-purple');
+        icon.querySelector('i').classList.remove('text-gray-400', 'opacity-0');
+      } else {
+        label.classList.remove('border-neon-purple', 'bg-neon-purple/10');
+        label.classList.add('border-gray-700', 'bg-dark-300/50');
+        icon.classList.remove('bg-neon-purple/20', 'border-neon-purple');
+        icon.classList.add('border-gray-600');
+        icon.querySelector('i').classList.remove('text-neon-purple');
+        icon.querySelector('i').classList.add('text-gray-400', 'opacity-0');
+      }
+    }
+
+    // Update budget value display with animation
+    budgetSlider.addEventListener('input', function() {
+      // Animate the budget value change
+      const currentValue = parseInt(budgetValue.textContent.replace('₹', ''));
+      const targetValue = parseInt(this.value);
+      const step = (targetValue - currentValue) / 10;
+      let currentStep = 0;
+
+      function animateValue() {
+        currentStep++;
+        const newValue = Math.round(currentValue + (step * currentStep));
+        budgetValue.textContent = `₹${newValue}`;
+
+        if (currentStep < 10) {
+          requestAnimationFrame(animateValue);
+        } else {
+          budgetValue.textContent = `₹${targetValue}`;
+        }
+      }
+
+      if (currentValue !== targetValue) {
+        requestAnimationFrame(animateValue);
+      }
+    });
+
+    // Handle form submission
+    aiRecommendationForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      // Get form data
+      const formData = new FormData(this);
+      const budget = formData.get('budget');
+      const preferences = formData.getAll('preferences');
+
+      try {
+        // Show loading state with animation
+        recommendationContent.innerHTML = `
+          <div class="flex flex-col items-center justify-center py-6">
+            <div class="relative w-16 h-16 mb-4">
+              <div class="absolute top-0 left-0 w-full h-full border-4 border-neon-purple/20 rounded-full"></div>
+              <div class="absolute top-0 left-0 w-full h-full border-t-4 border-neon-purple rounded-full animate-spin"></div>
+              <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+                <i class="fas fa-robot text-neon-purple"></i>
+              </div>
+            </div>
+            <p class="text-gray-300 text-center">Our AI is analyzing your preferences...</p>
+            <div class="mt-3 text-xs text-gray-400">This will just take a moment</div>
+          </div>
+        `;
+        recommendationResult.classList.remove('hidden');
+
+        // Add entrance animation
+        recommendationResult.classList.add('animate-fade-in');
+
+        // Send request to server
+        const response = await fetch('/packages/ai-recommendation', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ budget, preferences })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Display recommendation with enhanced UI
+          const pkg = data.package;
+          recommendationContent.innerHTML = `
+            <div class="p-4 bg-gradient-to-r ${pkg.isFree ? 'from-neon-blue/10 to-transparent' : 'from-neon-green/10 to-transparent'} rounded-lg mb-4 border-l-2 ${pkg.isFree ? 'border-neon-blue' : 'border-neon-green'}">
+              <div class="flex items-center mb-2">
+                <div class="${pkg.isFree ? 'bg-neon-blue/20' : 'bg-neon-green/20'} p-1.5 rounded-full mr-2">
+                  <i class="fas fa-crown ${pkg.isFree ? 'text-neon-blue' : 'text-neon-green'}"></i>
+                </div>
+                <h4 class="text-lg font-bold ${pkg.isFree ? 'text-neon-blue' : 'text-neon-green'}">${pkg.name}</h4>
+              </div>
+              <p class="text-2xl font-bold text-white mb-2">₹${pkg.price}</p>
+              <p class="text-gray-300 text-sm mb-3">${pkg.description || 'Perfect package based on your requirements.'}</p>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
+                <div class="flex items-center p-2 bg-dark-300/30 rounded">
+                  <i class="fas fa-file-alt ${pkg.isFree ? 'text-neon-blue' : 'text-neon-green'} mr-2"></i>
+                  <span>${pkg.pagesAllowed} ${pkg.pagesAllowed === 1 ? 'Page' : 'Pages'}</span>
+                </div>
+
+                <div class="flex items-center p-2 ${pkg.features.aiContent ? 'bg-dark-300/30' : 'bg-dark-300/10'} rounded">
+                  <i class="fas ${pkg.features.aiContent ? 'fa-check-circle ' + (pkg.isFree ? 'text-neon-blue' : 'text-neon-green') : 'fa-times-circle text-gray-500'} mr-2"></i>
+                  <span class="${!pkg.features.aiContent ? 'text-gray-500' : ''}">AI Content</span>
+                </div>
+
+                <div class="flex items-center p-2 ${pkg.features.seo ? 'bg-dark-300/30' : 'bg-dark-300/10'} rounded">
+                  <i class="fas ${pkg.features.seo ? 'fa-check-circle ' + (pkg.isFree ? 'text-neon-blue' : 'text-neon-green') : 'fa-times-circle text-gray-500'} mr-2"></i>
+                  <span class="${!pkg.features.seo ? 'text-gray-500' : ''}">SEO</span>
+                </div>
+
+                <div class="flex items-center p-2 ${pkg.features.fullAi ? 'bg-dark-300/30' : 'bg-dark-300/10'} rounded">
+                  <i class="fas ${pkg.features.fullAi ? 'fa-check-circle ' + (pkg.isFree ? 'text-neon-blue' : 'text-neon-green') : 'fa-times-circle text-gray-500'} mr-2"></i>
+                  <span class="${!pkg.features.fullAi ? 'text-gray-500' : ''}">Full AI</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-dark-300/30 p-3 rounded-lg border border-gray-700 mb-4">
+              <div class="flex items-center mb-2">
+                <i class="fas fa-lightbulb text-yellow-400 mr-2"></i>
+                <span class="text-white font-medium">AI Recommendation</span>
+              </div>
+              <p class="text-gray-300 text-sm">Based on your budget of ₹${budget} and selected preferences, this package offers the best value for your needs.</p>
+            </div>
+          `;
+
+          // Update link and show it
+          recommendationLink.href = `/packages/${pkg.id}`;
+          recommendationLink.classList.remove('hidden');
+        } else {
+          // Display error with enhanced UI
+          recommendationContent.innerHTML = `
+            <div class="bg-red-900/20 border border-red-500/30 rounded-lg p-4 text-center">
+              <div class="bg-red-500/20 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3">
+                <i class="fas fa-exclamation-triangle text-red-400 text-2xl"></i>
+              </div>
+              <h4 class="text-white font-medium mb-2">No Matching Packages</h4>
+              <p class="text-gray-400">${data.message}</p>
+              <div class="mt-4 p-3 bg-dark-300/30 rounded-lg text-sm text-gray-300">
+                <i class="fas fa-info-circle mr-1 text-neon-blue"></i>
+                Try adjusting your budget or preferences to find a suitable package.
+              </div>
+            </div>
+          `;
+          recommendationLink.classList.add('hidden');
+        }
+      } catch (err) {
+        console.error('Error getting recommendation:', err);
+        recommendationContent.innerHTML = `
+          <div class="bg-red-900/20 border border-red-500/30 rounded-lg p-4 text-center">
+            <div class="bg-red-500/20 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3">
+              <i class="fas fa-times text-red-400 text-2xl"></i>
+            </div>
+            <h4 class="text-white font-medium mb-2">Something Went Wrong</h4>
+            <p class="text-gray-400">Failed to get recommendation. Please try again later.</p>
+            <button id="retry-button" class="mt-4 px-4 py-2 bg-dark-300 hover:bg-dark-200 rounded-lg text-white transition-colors">
+              <i class="fas fa-redo mr-2"></i> Try Again
+            </button>
+          </div>
+        `;
+        recommendationLink.classList.add('hidden');
+
+        // Add retry button functionality
+        document.getElementById('retry-button').addEventListener('click', function() {
+          aiRecommendationForm.dispatchEvent(new Event('submit'));
+        });
+      }
+    });
+  });
+</script>

@@ -8,19 +8,21 @@ module.exports = function(passport) {
       try {
         // Match user
         const user = await User.findOne({ email: email });
-        
+
         if (!user) {
-          return done(null, false, { message: 'That email is not registered' });
+          console.log('Login failed: Email not registered');
+          return done(null, false, { message: 'This email is not registered. Please check your email or create an account.' });
         }
 
         // Match password
         bcrypt.compare(password, user.password, (err, isMatch) => {
           if (err) throw err;
-          
+
           if (isMatch) {
             return done(null, user);
           } else {
-            return done(null, false, { message: 'Password incorrect' });
+            console.log('Login failed: Incorrect password');
+            return done(null, false, { message: 'Incorrect password. Please try again or use the forgot password option.' });
           }
         });
       } catch (err) {

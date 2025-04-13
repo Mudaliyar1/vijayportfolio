@@ -1,0 +1,606 @@
+<!-- Package Inquiries Admin Page -->
+<div class="flex flex-col md:flex-row">
+  <div class="flex-grow p-6 max-w-full">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+      <h1 class="text-2xl font-bold">Package Inquiries</h1>
+      <div class="flex items-center gap-4 flex-wrap">
+        <a href="/admin/package-inquiries?repair=true" class="px-4 py-2 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-500 rounded-lg transition-colors text-sm">
+          <i class="fas fa-wrench mr-1"></i> Repair All Inquiries
+        </a>
+        <a href="/admin/package-inquiries?repair=true&specific=67fbc0bb3b57a651c91e7e10" class="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-500 rounded-lg transition-colors text-sm">
+          <i class="fas fa-tools mr-1"></i> Fix Problematic Inquiry
+        </a>
+        <a href="/admin/package-inquiries?force=true" class="px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-500 rounded-lg transition-colors text-sm">
+          <i class="fas fa-sync-alt mr-1"></i> Force Refresh
+        </a>
+        <span class="text-sm text-gray-400">Welcome, <%= user.username %></span>
+      </div>
+    </div>
+
+    <% if (locals.repairMode) { %>
+      <div class="bg-yellow-500/10 border-l-4 border-yellow-500 text-yellow-500 p-4 mb-6 relative rounded-r-md shadow-md" role="alert">
+        <p><i class="fas fa-info-circle mr-2"></i> Repair mode completed. Any issues with package references have been fixed.</p>
+        <a href="/admin/package-inquiries" class="absolute top-0 right-0 mt-2 mr-2 text-yellow-500 hover:text-white transition-colors">
+          <i class="fas fa-times"></i>
+        </a>
+      </div>
+    <% } %>
+
+    <% if (locals.forceRefresh) { %>
+      <div class="bg-blue-500/10 border-l-4 border-blue-500 text-blue-400 p-4 mb-6 relative rounded-r-md shadow-md" role="alert">
+        <p><i class="fas fa-sync-alt mr-2"></i> Force refresh completed. All inquiries have been reloaded from the database.</p>
+        <a href="/admin/package-inquiries" class="absolute top-0 right-0 mt-2 mr-2 text-blue-400 hover:text-white transition-colors">
+          <i class="fas fa-times"></i>
+        </a>
+      </div>
+    <% } %>
+
+    <% if(typeof success_msg !== 'undefined' && success_msg.length > 0){ %>
+      <div class="bg-green-500/10 border-l-4 border-green-500 text-green-400 p-4 mb-6 relative rounded-r-md shadow-md" role="alert">
+        <% if (Array.isArray(success_msg)) { %>
+          <% success_msg.forEach(msg => { %>
+            <p><i class="fas fa-check-circle mr-2"></i> <%= msg %></p>
+          <% }); %>
+        <% } else { %>
+          <p><i class="fas fa-check-circle mr-2"></i> <%= success_msg %></p>
+        <% } %>
+        <button type="button" class="absolute top-0 right-0 mt-2 mr-2 text-green-400 hover:text-white transition-colors" onclick="this.parentElement.remove()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    <% } %>
+
+    <% if(typeof error_msg !== 'undefined' && error_msg.length > 0){ %>
+      <div class="bg-red-500/10 border-l-4 border-red-500 text-red-400 p-4 mb-6 relative rounded-r-md shadow-md" role="alert">
+        <% if (Array.isArray(error_msg)) { %>
+          <% error_msg.forEach(msg => { %>
+            <p><i class="fas fa-exclamation-circle mr-2"></i> <%= msg %></p>
+          <% }); %>
+        <% } else { %>
+          <p><i class="fas fa-exclamation-circle mr-2"></i> <%= error_msg %></p>
+        <% } %>
+        <button type="button" class="absolute top-0 right-0 mt-2 mr-2 text-red-400 hover:text-white transition-colors" onclick="this.parentElement.remove()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    <% } %>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+      <div class="bg-dark-100 border border-gray-800 rounded-lg p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-400 text-sm">Total Inquiries</p>
+            <h3 class="text-2xl font-bold text-white"><%= inquiries.length %></h3>
+          </div>
+          <div class="bg-neon-blue/20 p-3 rounded-full">
+            <i class="fas fa-envelope text-neon-blue"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-dark-100 border border-gray-800 rounded-lg p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-400 text-sm">New Inquiries</p>
+            <h3 class="text-2xl font-bold text-white"><%= inquiries.filter(i => i.status === 'new').length %></h3>
+          </div>
+          <div class="bg-neon-green/20 p-3 rounded-full">
+            <i class="fas fa-bell text-neon-green"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-dark-100 border border-gray-800 rounded-lg p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-400 text-sm">Approved</p>
+            <h3 class="text-2xl font-bold text-white"><%= inquiries.filter(i => i.status === 'approved').length %></h3>
+          </div>
+          <div class="bg-yellow-500/20 p-3 rounded-full">
+            <i class="fas fa-thumbs-up text-yellow-500"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-dark-100 border border-gray-800 rounded-lg p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-400 text-sm">Completed</p>
+            <h3 class="text-2xl font-bold text-white"><%= inquiries.filter(i => i.status === 'completed').length %></h3>
+          </div>
+          <div class="bg-neon-purple/20 p-3 rounded-full">
+            <i class="fas fa-check-circle text-neon-purple"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inquiries Table -->
+    <div class="bg-dark-100 border border-gray-800 rounded-lg overflow-hidden">
+      <div class="p-4 border-b border-gray-800 flex flex-col md:flex-row md:justify-between md:items-center space-y-2 md:space-y-0">
+        <h2 class="text-lg font-medium">Recent Inquiries</h2>
+        <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+          <input type="text" id="inquiry-search" placeholder="Search inquiries..." class="bg-dark-200 border border-gray-700 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-neon-blue">
+          <div class="flex space-x-2">
+            <select id="status-filter" class="bg-dark-200 border border-gray-700 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-neon-blue">
+              <option value="all">All Statuses</option>
+              <option value="new">New</option>
+              <option value="contacted">Contacted</option>
+              <option value="approved">Approved</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <button id="show-duplicates" class="px-3 py-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-md text-sm transition-colors">
+              <i class="fas fa-clone mr-1"></i> Show Duplicates
+            </button>
+            <button id="refresh-inquiries" class="px-3 py-1 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-md text-sm transition-colors">
+              <i class="fas fa-sync-alt mr-1"></i> Refresh
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-800">
+          <thead class="bg-dark-200">
+            <tr>
+              <th class="py-3 px-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Name</th>
+              <th class="py-3 px-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Contact</th>
+              <th class="py-3 px-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Package</th>
+              <th class="py-3 px-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Budget</th>
+              <th class="py-3 px-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Date</th>
+              <th class="py-3 px-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+              <th class="py-3 px-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-800" id="inquiries-table-body">
+            <% if(inquiries.length > 0) { %>
+              <% inquiries.forEach(function(inquiry) { %>
+                <tr class="hover:bg-dark-200/50 transition-colors inquiry-row">
+                  <td class="py-3 px-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-white inquiry-name">
+                      <%= inquiry.name %>
+                      <%
+                        // Count how many inquiries have the same email
+                        const sameEmailCount = inquiries.filter(i => i.email === inquiry.email).length;
+                        if (sameEmailCount > 1) {
+                      %>
+                        <span class="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-blue-500/20 text-blue-400" title="<%= sameEmailCount %> inquiries from this email">
+                          <%= sameEmailCount %>
+                        </span>
+                      <% } %>
+                    </div>
+                    <div class="hidden inquiry-message"><%= inquiry.message %></div>
+                    <div class="hidden inquiry-preferences"><%= inquiry.preferences ? inquiry.preferences.join(', ') : '' %></div>
+                  </td>
+                  <td class="py-3 px-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-300 inquiry-email"><%= inquiry.email %></div>
+                    <div class="text-sm text-gray-400 inquiry-phone"><%= inquiry.phone %></div>
+                  </td>
+                  <td class="py-3 px-4 whitespace-nowrap">
+                    <div class="text-sm text-white inquiry-package">
+                      <% if (inquiry.packageId && typeof inquiry.packageId === 'object' && inquiry.packageId.name) { %>
+                        <%= inquiry.packageId.name %>
+                      <% } else { %>
+                        <span class="text-yellow-500">Package Unavailable</span>
+                      <% } %>
+                    </div>
+                    <div class="text-xs text-gray-400">
+                      <% if (inquiry.packageId && typeof inquiry.packageId === 'object' && inquiry.packageId.price) { %>
+                        ₹<%= inquiry.packageId.price %>
+                      <% } else { %>
+                        <span class="text-yellow-500">Price Unknown</span>
+                      <% } %>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4 whitespace-nowrap">
+                    <div class="text-sm text-white">₹<%= inquiry.budget %></div>
+                  </td>
+                  <td class="py-3 px-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-300"><%= new Date(inquiry.createdAt).toLocaleDateString() %></div>
+                    <div class="text-xs text-gray-400"><%= new Date(inquiry.createdAt).toLocaleTimeString() %></div>
+                  </td>
+                  <td class="py-3 px-4 whitespace-nowrap">
+                    <% if(inquiry.status === 'new') { %>
+                      <span class="px-2 py-1 text-xs rounded-full bg-neon-blue/20 text-neon-blue">New</span>
+                    <% } else if(inquiry.status === 'contacted') { %>
+                      <span class="px-2 py-1 text-xs rounded-full bg-neon-purple/20 text-neon-purple">Contacted</span>
+                    <% } else if(inquiry.status === 'approved') { %>
+                      <span class="px-2 py-1 text-xs rounded-full bg-yellow-500/20 text-yellow-500">Approved</span>
+                    <% } else if(inquiry.status === 'completed') { %>
+                      <span class="px-2 py-1 text-xs rounded-full bg-neon-green/20 text-neon-green">Completed</span>
+                    <% } else if(inquiry.status === 'cancelled') { %>
+                      <span class="px-2 py-1 text-xs rounded-full bg-red-500/20 text-red-500">Cancelled</span>
+                    <% } %>
+                  </td>
+                  <td class="py-3 px-4 whitespace-nowrap">
+                    <div class="flex space-x-2">
+                      <button class="view-inquiry-btn bg-neon-blue/20 hover:bg-neon-blue/30 text-neon-blue p-1.5 rounded transition-colors" data-id="<%= inquiry._id %>" title="View Details">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                      <button class="update-status-btn bg-neon-purple/20 hover:bg-neon-purple/30 text-neon-purple p-1.5 rounded transition-colors" data-id="<%= inquiry._id %>" title="Update Status">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <form action="/admin/package-inquiries/<%= inquiry._id %>/delete" method="POST" class="delete-form">
+                        <button type="submit" class="bg-red-500/20 hover:bg-red-500/30 text-red-500 p-1.5 rounded transition-colors" title="Delete Inquiry">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="7" class="py-4 px-4 text-center text-gray-400">No inquiries found</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- View Inquiry Modal -->
+<div id="view-inquiry-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-100 rounded-lg max-w-2xl w-full mx-4 overflow-hidden">
+    <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+      <h3 class="text-lg font-medium text-white">Inquiry Details</h3>
+      <button id="close-view-modal" class="text-gray-400 hover:text-white">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="p-6" id="inquiry-details-content">
+      <!-- Content will be loaded dynamically -->
+    </div>
+  </div>
+</div>
+
+<!-- Update Status Modal -->
+<div id="update-status-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-100 rounded-lg max-w-md w-full mx-4 overflow-hidden">
+    <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+      <h3 class="text-lg font-medium text-white">Update Inquiry Status</h3>
+      <button id="close-status-modal" class="text-gray-400 hover:text-white">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="p-6">
+      <form action="/admin/package-inquiries/update-status" method="POST" id="update-status-form">
+        <input type="hidden" name="inquiryId" id="status-inquiry-id">
+
+        <div class="mb-4">
+          <label for="status" class="block text-gray-300 mb-2">Status</label>
+          <select id="status" name="status" class="w-full px-4 py-2 bg-dark-200 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-purple text-white">
+            <option value="new">New</option>
+            <option value="contacted">Contacted</option>
+            <option value="approved">Approved</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div class="flex justify-end">
+          <button type="button" id="cancel-status-update" class="px-4 py-2 bg-gray-700 text-white rounded-lg mr-2">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-neon-purple hover:bg-neon-purple/90 text-white rounded-lg">Update Status</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Search and filter functionality
+    const searchInput = document.getElementById('inquiry-search');
+    const statusFilter = document.getElementById('status-filter');
+    const showDuplicatesBtn = document.getElementById('show-duplicates');
+    const tableRows = document.querySelectorAll('.inquiry-row');
+
+    // Refresh button functionality
+    const refreshBtn = document.getElementById('refresh-inquiries');
+    refreshBtn.addEventListener('click', function() {
+      // Add spinning animation to the refresh icon
+      const icon = this.querySelector('i');
+      icon.classList.add('fa-spin');
+      this.disabled = true;
+
+      // Reload the page
+      window.location.reload();
+    });
+
+    // Function to apply all filters
+    function applyFilters() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const statusValue = statusFilter.value;
+      const showOnlyDuplicates = showDuplicatesBtn.classList.contains('active');
+
+      // Create a map to track emails for duplicate detection
+      const emailCounts = {};
+      if (showOnlyDuplicates) {
+        tableRows.forEach(row => {
+          const email = row.querySelector('.inquiry-email').textContent.toLowerCase();
+          emailCounts[email] = (emailCounts[email] || 0) + 1;
+        });
+      }
+
+      tableRows.forEach(row => {
+        const name = row.querySelector('.inquiry-name').textContent.toLowerCase();
+        const email = row.querySelector('.inquiry-email').textContent.toLowerCase();
+        const phone = row.querySelector('.inquiry-phone').textContent.toLowerCase();
+
+        // Safely get package name
+        let packageName = '';
+        try {
+          const packageElement = row.querySelector('.inquiry-package');
+          if (packageElement) {
+            packageName = packageElement.textContent.toLowerCase();
+          }
+        } catch (e) {
+          console.error('Error getting package name for search:', e);
+        }
+
+        const status = row.querySelector('td:nth-child(6) span').textContent.toLowerCase();
+
+        // Check search term
+        const matchesSearch = name.includes(searchTerm) ||
+                             email.includes(searchTerm) ||
+                             phone.includes(searchTerm) ||
+                             packageName.includes(searchTerm);
+
+        // Check status filter
+        const matchesStatus = statusValue === 'all' || status.toLowerCase().includes(statusValue.toLowerCase());
+
+        // Check duplicates filter
+        const isDuplicate = !showOnlyDuplicates || (emailCounts[email] > 1);
+
+        // Show row only if it matches all active filters
+        if (matchesSearch && matchesStatus && isDuplicate) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    // Apply filters on search input
+    searchInput.addEventListener('input', applyFilters);
+
+    // Apply filters on status change
+    statusFilter.addEventListener('change', applyFilters);
+
+    // Toggle duplicates filter
+    showDuplicatesBtn.addEventListener('click', function() {
+      this.classList.toggle('active');
+      if (this.classList.contains('active')) {
+        this.classList.remove('bg-blue-500/20', 'hover:bg-blue-500/30', 'text-blue-400');
+        this.classList.add('bg-blue-500', 'hover:bg-blue-600', 'text-white');
+      } else {
+        this.classList.add('bg-blue-500/20', 'hover:bg-blue-500/30', 'text-blue-400');
+        this.classList.remove('bg-blue-500', 'hover:bg-blue-600', 'text-white');
+      }
+      applyFilters();
+    });
+
+    // View Inquiry Modal
+    const viewModal = document.getElementById('view-inquiry-modal');
+    const viewButtons = document.querySelectorAll('.view-inquiry-btn');
+    const closeViewModal = document.getElementById('close-view-modal');
+    const inquiryDetailsContent = document.getElementById('inquiry-details-content');
+
+    viewButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const inquiryId = this.getAttribute('data-id');
+        const row = this.closest('tr');
+
+        // Get data from the row
+        const name = row.querySelector('.inquiry-name').textContent.trim();
+        const email = row.querySelector('.inquiry-email').textContent.trim();
+        const phone = row.querySelector('.inquiry-phone').textContent.trim();
+
+        // Handle package data safely
+        let packageName = 'Package Unavailable';
+        let packagePrice = 'Price Unknown';
+        try {
+          const packageElement = row.querySelector('.inquiry-package');
+          if (packageElement) {
+            packageName = packageElement.textContent.trim();
+            const priceElement = packageElement.nextElementSibling;
+            if (priceElement) {
+              packagePrice = priceElement.textContent.trim();
+            }
+          }
+        } catch (e) {
+          console.error('Error getting package data:', e);
+        }
+
+        const budget = row.querySelector('td:nth-child(4) div').textContent.trim();
+        const date = row.querySelector('td:nth-child(5) div').textContent.trim();
+        const time = row.querySelector('td:nth-child(5) div:nth-child(2)').textContent.trim();
+        const status = row.querySelector('td:nth-child(6) span').textContent.trim();
+
+        // Check if this user has multiple inquiries
+        const userEmail = email.toLowerCase();
+        const multipleInquiries = Array.from(tableRows).filter(r => {
+          return r.querySelector('.inquiry-email').textContent.toLowerCase() === userEmail;
+        });
+
+        // Populate modal content
+        inquiryDetailsContent.innerHTML = `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <h4 class="text-sm font-medium text-gray-400 mb-1">Name</h4>
+              <p class="text-white">${name}</p>
+            </div>
+            <div>
+              <h4 class="text-sm font-medium text-gray-400 mb-1">Status</h4>
+              <p class="text-white">${status}</p>
+            </div>
+            <div>
+              <h4 class="text-sm font-medium text-gray-400 mb-1">Email</h4>
+              <p class="text-white">
+                ${email}
+                ${multipleInquiries.length > 1 ? `<span class="ml-2 px-2 py-0.5 text-xs rounded-full bg-blue-500/20 text-blue-400">${multipleInquiries.length} inquiries</span>` : ''}
+              </p>
+            </div>
+            <div>
+              <h4 class="text-sm font-medium text-gray-400 mb-1">Phone</h4>
+              <p class="text-white">${phone}</p>
+            </div>
+            <div>
+              <h4 class="text-sm font-medium text-gray-400 mb-1">Package</h4>
+              <p class="text-white">${packageName} (${packagePrice})</p>
+            </div>
+            <div>
+              <h4 class="text-sm font-medium text-gray-400 mb-1">Budget</h4>
+              <p class="text-white">${budget}</p>
+            </div>
+            <div>
+              <h4 class="text-sm font-medium text-gray-400 mb-1">Date</h4>
+              <p class="text-white">${date} at ${time}</p>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <h4 class="text-sm font-medium text-gray-400 mb-1">Message</h4>
+            <p class="text-white bg-dark-200 p-3 rounded-lg whitespace-pre-line">
+              ${row.querySelector('.inquiry-message') ? row.querySelector('.inquiry-message').textContent.trim() || 'No message provided' : 'No message provided'}
+            </p>
+          </div>
+
+          <div class="mb-6">
+            <h4 class="text-sm font-medium text-gray-400 mb-1">Preferences</h4>
+            <p class="text-white bg-dark-200 p-3 rounded-lg">
+              ${row.querySelector('.inquiry-preferences') ? (row.querySelector('.inquiry-preferences').textContent.trim() || 'No preferences specified') : 'No preferences specified'}
+            </p>
+          </div>
+
+          ${multipleInquiries.length > 1 ? `
+          <div class="mb-6">
+            <h4 class="text-sm font-medium text-gray-400 mb-1">Other Inquiries from this User</h4>
+            <div class="bg-dark-200 p-3 rounded-lg">
+              <ul class="space-y-2">
+                ${multipleInquiries.map(r => {
+                  const otherInquiryId = r.querySelector('.view-inquiry-btn').getAttribute('data-id');
+                  if (otherInquiryId === inquiryId) return ''; // Skip current inquiry
+
+                  // Get package data safely
+                  let otherPackage = 'Package Unavailable';
+                  try {
+                    const packageElement = r.querySelector('.inquiry-package');
+                    if (packageElement) {
+                      otherPackage = packageElement.textContent.trim();
+                    }
+                  } catch (e) {
+                    console.error('Error getting other package data:', e);
+                  }
+
+                  const otherDate = r.querySelector('td:nth-child(5) div').textContent.trim();
+                  const otherStatus = r.querySelector('td:nth-child(6) span').textContent.trim();
+
+                  return `
+                    <li class="flex items-center justify-between border-b border-gray-700 pb-2 last:border-0 last:pb-0">
+                      <div>
+                        <span class="text-white">${otherPackage}</span>
+                        <span class="text-gray-400 text-xs ml-2">${otherDate}</span>
+                      </div>
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xs px-2 py-0.5 rounded-full ${otherStatus.toLowerCase() === 'new' ? 'bg-neon-blue/20 text-neon-blue' :
+                                                                      otherStatus.toLowerCase() === 'contacted' ? 'bg-neon-purple/20 text-neon-purple' :
+                                                                      otherStatus.toLowerCase() === 'approved' ? 'bg-yellow-500/20 text-yellow-500' :
+                                                                      otherStatus.toLowerCase() === 'completed' ? 'bg-neon-green/20 text-neon-green' :
+                                                                      'bg-red-500/20 text-red-500'}">
+                          ${otherStatus}
+                        </span>
+                        <button class="view-other-inquiry px-2 py-1 bg-neon-blue/20 hover:bg-neon-blue/30 text-neon-blue rounded text-xs" data-id="${otherInquiryId}">
+                          View
+                        </button>
+                      </div>
+                    </li>
+                  `;
+                }).join('')}
+              </ul>
+            </div>
+          </div>
+          ` : ''}
+
+          <div class="flex justify-end space-x-2">
+            <button class="px-4 py-2 bg-neon-purple hover:bg-neon-purple/90 text-white rounded-lg update-status-from-view" data-id="${inquiryId}">
+              Update Status
+            </button>
+            <a href="mailto:${email}" class="px-4 py-2 bg-neon-blue hover:bg-neon-blue/90 text-white rounded-lg">
+              Send Email
+            </a>
+          </div>
+        `;
+
+        // Show modal
+        viewModal.classList.remove('hidden');
+
+        // Add event listener to update status button in view modal
+        document.querySelector('.update-status-from-view').addEventListener('click', function() {
+          viewModal.classList.add('hidden');
+          document.getElementById('status-inquiry-id').value = this.getAttribute('data-id');
+          updateStatusModal.classList.remove('hidden');
+        });
+
+        // Add event listeners to view other inquiry buttons
+        document.querySelectorAll('.view-other-inquiry').forEach(button => {
+          button.addEventListener('click', function() {
+            const otherInquiryId = this.getAttribute('data-id');
+            // Find the corresponding view button in the table and click it
+            document.querySelector(`.view-inquiry-btn[data-id="${otherInquiryId}"]`).click();
+          });
+        });
+      });
+    });
+
+    closeViewModal.addEventListener('click', function() {
+      viewModal.classList.add('hidden');
+    });
+
+    // Update Status Modal
+    const updateStatusModal = document.getElementById('update-status-modal');
+    const updateStatusButtons = document.querySelectorAll('.update-status-btn');
+    const closeStatusModal = document.getElementById('close-status-modal');
+    const cancelStatusUpdate = document.getElementById('cancel-status-update');
+
+    updateStatusButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const inquiryId = this.getAttribute('data-id');
+        document.getElementById('status-inquiry-id').value = inquiryId;
+        updateStatusModal.classList.remove('hidden');
+      });
+    });
+
+    closeStatusModal.addEventListener('click', function() {
+      updateStatusModal.classList.add('hidden');
+    });
+
+    cancelStatusUpdate.addEventListener('click', function() {
+      updateStatusModal.classList.add('hidden');
+    });
+
+    // Close modals when clicking outside
+    window.addEventListener('click', function(event) {
+      if (event.target === viewModal) {
+        viewModal.classList.add('hidden');
+      }
+      if (event.target === updateStatusModal) {
+        updateStatusModal.classList.add('hidden');
+      }
+    });
+
+    // Confirm delete
+    const deleteForms = document.querySelectorAll('.delete-form');
+    deleteForms.forEach(form => {
+      form.addEventListener('submit', function(e) {
+        if (!confirm('Are you sure you want to delete this inquiry? This action cannot be undone.')) {
+          e.preventDefault();
+        }
+      });
+    });
+  });
+</script>
