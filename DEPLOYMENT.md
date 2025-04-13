@@ -17,7 +17,7 @@ This guide provides instructions for deploying the FTRAISE AI application to Ren
 Add the following environment variables in your Render dashboard:
 
 - `NODE_ENV`: Set to `production`
-- `BREVO_API_KEY`: Your Brevo API key (currently: `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`)
+- `BREVO_API_KEY`: Your Brevo API key (get this from your Brevo account dashboard)
 - `MONGODB_URI`: Your MongoDB connection string
 - `SESSION_SECRET`: A secure random string for session encryption
 
@@ -79,7 +79,19 @@ If emails are not being sent:
 
 ## Security Considerations
 
-- The Brevo API key should be kept secure and only stored in environment variables
-- In production, OTPs are never displayed on screen (only sent via email)
-- All password reset tokens expire after 15 minutes
-- Used OTPs cannot be reused for security
+- **API Keys**: Never commit API keys to your repository. Always use environment variables.
+  - The Brevo API key should only be stored in your Render dashboard or .env file (locally)
+  - If you accidentally commit an API key, consider it compromised and generate a new one immediately
+
+- **Password Reset Security**:
+  - In production, OTPs are never displayed on screen (only sent via email)
+  - All password reset tokens expire after 15 minutes
+  - Used OTPs cannot be reused for security
+
+- **Environment Variables**:
+  - Use a .env.example file to document required variables without actual values
+  - Never commit the actual .env file to your repository
+
+- **IP Restrictions**:
+  - Brevo requires authorizing server IP addresses for enhanced security
+  - This prevents unauthorized use of your API key even if it's compromised
