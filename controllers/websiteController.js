@@ -6,18 +6,37 @@ const User = require('../models/User');
 const Payment = require('../models/Payment');
 const WebsiteTemplate = require('../models/WebsiteTemplate');
 const TemplatePage = require('../models/TemplatePage');
-const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const cohere = require('cohere-ai');
 
 // Initialize Cohere client
 cohere.init(process.env.COHERE_API_KEY);
 
-// Initialize Razorpay
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET
-});
+// Initialize Razorpay with error handling
+let Razorpay;
+let razorpay;
+
+try {
+  Razorpay = require('razorpay');
+  razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+  });
+  console.log('Razorpay initialized successfully');
+} catch (error) {
+  console.error('Failed to initialize Razorpay:', error.message);
+  console.error('Payment functionality will be limited. Please ensure razorpay package is installed.');
+
+  // Create a mock Razorpay for fallback
+  razorpay = {
+    orders: {
+      create: async () => {
+        console.error('Razorpay module not available. Cannot create real orders.');
+        return { id: 'mock_order_' + Date.now(), amount: 0, currency: 'INR' };
+      }
+    }
+  };
+}
 
 module.exports = {
   // Get website builder dashboard

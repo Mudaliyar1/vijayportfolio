@@ -9,8 +9,8 @@ This guide provides instructions for deploying the FTRAISE AI application to Ren
 3. Configure the following settings:
    - **Name**: ftraise-ai (or your preferred name)
    - **Environment**: Node
-   - **Build Command**: `npm install`
-   - **Start Command**: `node app.js`
+   - **Build Command**: `npm run build`
+   - **Start Command**: `node server.js`
 
 ## Environment Variables
 
@@ -20,6 +20,9 @@ Add the following environment variables in your Render dashboard:
 - `BREVO_API_KEY`: Your Brevo API key (get this from your Brevo account dashboard)
 - `MONGODB_URI`: Your MongoDB connection string
 - `SESSION_SECRET`: A secure random string for session encryption
+- `RAZORPAY_KEY_ID`: Your Razorpay Key ID (get this from your Razorpay dashboard)
+- `RAZORPAY_KEY_SECRET`: Your Razorpay Key Secret (get this from your Razorpay dashboard)
+- `COHERE_API_KEY`: Your Cohere API key (for AI content generation)
 
 ## Configuring Brevo for Email Sending
 
@@ -70,12 +73,24 @@ After deployment, test the password reset functionality:
 
 ## Troubleshooting
 
+### Email Issues
+
 If emails are not being sent:
 
 1. Check the server logs in your Render dashboard
 2. Verify that all Render IP addresses are authorized in Brevo
 3. Confirm that the Brevo API key is correctly set in the environment variables
 4. Ensure your Brevo account is active and has available email credits
+
+### Payment Issues
+
+If Razorpay payments are not working:
+
+1. Check the server logs for any Razorpay-related errors
+2. Verify that both `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` are correctly set in environment variables
+3. Ensure your Razorpay account is active and properly configured
+4. For testing, use Razorpay test mode credentials
+5. If you see a "Module not found" error for Razorpay, ensure the deployment has completed the build process with all dependencies installed
 
 ## Security Considerations
 

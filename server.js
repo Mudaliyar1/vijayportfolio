@@ -253,4 +253,18 @@ app.use((err, req, res, next) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+
+  // Log API key status
+  if (process.env.BREVO_API_KEY) {
+    console.log('Brevo API key is configured');
+  } else {
+    console.log('Brevo API key is not configured - email functionality will not work');
+  }
+
+  // Log Cohere API key status
+  if (process.env.COHERE_API_KEY) {
+    console.log(`Using Cohere API key: ${process.env.COHERE_API_KEY.substring(0, 5)}...`);
+  } else {
+    console.log('Cohere API key is not configured - AI functionality will not work');
+  }
 });

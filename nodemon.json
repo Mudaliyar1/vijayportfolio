@@ -1,0 +1,26 @@
+{
+  "restartable": "rs",
+  "ignore": [
+    ".git",
+    "node_modules/**/node_modules",
+    "public/uploads",
+    "public/images"
+  ],
+  "verbose": true,
+  "execMap": {
+    "js": "node"
+  },
+  "watch": [
+    "server.js",
+    "controllers/",
+    "models/",
+    "routes/",
+    "utils/",
+    "middleware/",
+    "config/"
+  ],
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "ext": "js,json,ejs"
+}

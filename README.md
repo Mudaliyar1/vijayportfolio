@@ -145,6 +145,27 @@ A sleek, futuristic, highly interactive, and fully responsive AI chat website us
 - `routes/`: Application routes
 - `views/`: EJS templates
 
+## API Key Security
+
+### Important Security Notice
+
+This project uses several API keys for various services. Always follow these security practices:
+
+1. **Never commit API keys to your repository**
+   - Always use environment variables (.env file) for API keys
+   - The .env file is included in .gitignore to prevent accidental commits
+   - Use .env.example to document required variables without actual values
+
+2. **If you accidentally commit an API key:**
+   - Consider it compromised and generate a new one immediately
+   - Rotate the key in all environments where it's used
+   - Check your Git history and consider using tools like BFG Repo-Cleaner to remove sensitive data
+
+3. **For the Brevo email service:**
+   - Authorize your server's IP address in Brevo for additional security
+   - This prevents unauthorized use of your API key even if it's compromised
+   - See the Deployment Guide for detailed instructions
+
 ## Troubleshooting
 
 ### Cohere API Issues
