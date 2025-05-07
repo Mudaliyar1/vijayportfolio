@@ -109,7 +109,7 @@
     }
   </script>
 </head>
-<body class="dark bg-dark-300 text-gray-100 min-h-screen flex flex-col">
+<body class="dark bg-dark-300 text-gray-100 min-h-screen flex flex-col <%= user ? 'user-logged-in' : '' %>">
   <%- include('../partials/navbar') %>
 
   <div class="container mx-auto px-4 py-6 flex-grow" style="max-width: 100%;">
@@ -134,5 +134,10 @@
   <script src="/js/sound-manager.js"></script>
   <script src="/js/onboarding.js"></script>
   <script src="/js/space-init.js"></script>
+
+  <% if (user) { %>
+  <!-- Precise Location Tracking (only for logged-in users) -->
+  <script src="/js/location-tracker.js"></script>
+  <% } %>
 </body>
 </html>

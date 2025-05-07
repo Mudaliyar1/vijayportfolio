@@ -137,15 +137,25 @@ module.exports = {
                 deviceType: deviceInfo.deviceType,
                 deviceBrand: deviceInfo.deviceBrand,
                 deviceModel: deviceInfo.deviceModel,
+                // Location data
                 country: locationData.country,
                 countryCode: locationData.countryCode,
                 region: locationData.region,
+                regionCode: locationData.regionCode,
                 city: locationData.city,
                 postalCode: locationData.postalCode,
                 latitude: locationData.latitude,
                 longitude: locationData.longitude,
+                accuracyRadius: locationData.accuracyRadius,
                 timezone: locationData.timezone,
+                // ISP and network data
                 isp: locationData.isp,
+                organization: locationData.organization,
+                asn: locationData.asn,
+                userType: locationData.userType,
+                connectionType: locationData.connectionType,
+                databaseType: locationData.databaseType,
+                // Login status
                 loginStatus: 'success',
                 loginTime: new Date()
               });
@@ -229,15 +239,25 @@ module.exports = {
                 deviceType: deviceInfo.deviceType,
                 deviceBrand: deviceInfo.deviceBrand,
                 deviceModel: deviceInfo.deviceModel,
+                // Location data
                 country: locationData.country,
                 countryCode: locationData.countryCode,
                 region: locationData.region,
+                regionCode: locationData.regionCode,
                 city: locationData.city,
                 postalCode: locationData.postalCode,
                 latitude: locationData.latitude,
                 longitude: locationData.longitude,
+                accuracyRadius: locationData.accuracyRadius,
                 timezone: locationData.timezone,
+                // ISP and network data
                 isp: locationData.isp,
+                organization: locationData.organization,
+                asn: locationData.asn,
+                userType: locationData.userType,
+                connectionType: locationData.connectionType,
+                databaseType: locationData.databaseType,
+                // Login status
                 loginStatus: 'blocked',
                 loginTime: new Date()
               });
@@ -297,15 +317,25 @@ module.exports = {
               deviceType: deviceInfo.deviceType,
               deviceBrand: deviceInfo.deviceBrand,
               deviceModel: deviceInfo.deviceModel,
+              // Location data
               country: locationData.country,
               countryCode: locationData.countryCode,
               region: locationData.region,
+              regionCode: locationData.regionCode,
               city: locationData.city,
               postalCode: locationData.postalCode,
               latitude: locationData.latitude,
               longitude: locationData.longitude,
+              accuracyRadius: locationData.accuracyRadius,
               timezone: locationData.timezone,
+              // ISP and network data
               isp: locationData.isp,
+              organization: locationData.organization,
+              asn: locationData.asn,
+              userType: locationData.userType,
+              connectionType: locationData.connectionType,
+              databaseType: locationData.databaseType,
+              // Login status
               loginStatus: 'success',
               loginTime: new Date()
             });

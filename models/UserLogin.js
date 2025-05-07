@@ -63,6 +63,10 @@ const UserLoginSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  regionCode: {
+    type: String,
+    default: ''
+  },
   city: {
     type: String,
     default: ''
@@ -79,13 +83,39 @@ const UserLoginSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  accuracyRadius: {
+    type: Number,
+    default: 1000 // Default accuracy radius in km
+  },
   timezone: {
     type: String,
     default: ''
   },
+  // ISP and network data
   isp: {
     type: String,
     default: 'Unknown'
+  },
+  organization: {
+    type: String,
+    default: ''
+  },
+  asn: {
+    type: String,
+    default: ''
+  },
+  userType: {
+    type: String,
+    default: ''
+  },
+  connectionType: {
+    type: String,
+    default: ''
+  },
+  databaseType: {
+    type: String,
+    enum: ['None', 'Free', 'Commercial'],
+    default: 'None'
   },
   loginStatus: {
     type: String,

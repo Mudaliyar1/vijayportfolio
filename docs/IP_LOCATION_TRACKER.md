@@ -13,7 +13,7 @@ The IP & Location Tracker feature provides administrators with detailed informat
 - Login status (success, failed, blocked)
 - Login time
 
-This feature uses the MaxMind GeoLite2 database to provide geolocation data without requiring an external API.
+This feature uses the MaxMind GeoIP databases to provide geolocation data without requiring an external API. It supports both the free GeoLite2 database and the commercial GeoIP2 database for higher accuracy.
 
 ## How It Works
 
@@ -37,15 +37,29 @@ The feature requires the following packages:
 npm install maxmind @maxmind/geoip2-node
 ```
 
-### 2. Download GeoLite2 Databases
+### 2. Download GeoIP Databases
 
-You need to download the GeoLite2 databases from MaxMind:
+You have two options for the GeoIP databases:
+
+#### Option A: Free GeoLite2 Databases (Lower Accuracy)
 
 1. Create a free account at [MaxMind](https://www.maxmind.com/en/geolite2/signup)
 2. Download the GeoLite2 City and GeoLite2 ASN databases in MMDB format
 3. Place the database files in the `data` directory of your project:
    - `data/GeoLite2-City.mmdb`
    - `data/GeoLite2-ASN.mmdb`
+
+#### Option B: Commercial GeoIP2 Databases (Higher Accuracy)
+
+For more accurate geolocation (down to a few kilometers or less in many areas):
+
+1. Purchase a subscription to [MaxMind GeoIP2](https://www.maxmind.com/en/geoip2-databases)
+2. Download the GeoIP2 City and GeoIP2 ISP databases in MMDB format
+3. Place the database files in the `data` directory of your project:
+   - `data/GeoIP2-City.mmdb`
+   - `data/GeoIP2-ISP.mmdb`
+
+The system will automatically detect which database you're using and provide the appropriate level of detail.
 
 ### 3. Restart the Server
 

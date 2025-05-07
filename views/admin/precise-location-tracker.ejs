@@ -1,0 +1,690 @@
+<div class="flex flex-col md:flex-row">
+  <div class="flex-grow p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Precise Location Tracker</h1>
+      <div class="flex space-x-2">
+        <button id="refreshMapBtn" class="bg-neon-blue text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors flex items-center">
+          <i class="fas fa-sync-alt mr-2"></i> Refresh Map
+        </button>
+        <a href="/admin/ip-tracker" class="bg-gray-700 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition-colors flex items-center">
+          <i class="fas fa-arrow-left mr-2"></i> Back to IP Tracker
+        </a>
+      </div>
+    </div>
+
+    <!-- User Selection -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 mb-8">
+      <h2 class="text-xl font-semibold mb-4">Select User</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label for="userSelect" class="block text-gray-300 mb-2">User</label>
+          <select
+            id="userSelect"
+            class="w-full bg-dark-200 border border-gray-700 rounded-md py-2 px-3 text-white focus:outline-none focus:border-neon-blue transition-colors"
+          >
+            <option value="">Select a user...</option>
+            <!-- User options will be populated via JavaScript -->
+          </select>
+        </div>
+        
+        <div>
+          <label for="timeRange" class="block text-gray-300 mb-2">Time Range</label>
+          <select
+            id="timeRange"
+            class="w-full bg-dark-200 border border-gray-700 rounded-md py-2 px-3 text-white focus:outline-none focus:border-neon-blue transition-colors"
+          >
+            <option value="latest">Latest Location</option>
+            <option value="today">Today</option>
+            <option value="yesterday">Yesterday</option>
+            <option value="week">Last 7 Days</option>
+            <option value="month">Last 30 Days</option>
+            <option value="custom">Custom Range...</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- Custom Date Range (hidden by default) -->
+      <div id="customDateRange" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 hidden">
+        <div>
+          <label for="startDate" class="block text-gray-300 mb-2">Start Date</label>
+          <input
+            type="date"
+            id="startDate"
+            class="w-full bg-dark-200 border border-gray-700 rounded-md py-2 px-3 text-white focus:outline-none focus:border-neon-blue transition-colors"
+          >
+        </div>
+        
+        <div>
+          <label for="endDate" class="block text-gray-300 mb-2">End Date</label>
+          <input
+            type="date"
+            id="endDate"
+            class="w-full bg-dark-200 border border-gray-700 rounded-md py-2 px-3 text-white focus:outline-none focus:border-neon-blue transition-colors"
+          >
+        </div>
+      </div>
+      
+      <div class="flex justify-end mt-4">
+        <button id="trackUserBtn" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white py-2 px-6 rounded-md hover:opacity-90 transition-opacity">
+          Track User
+        </button>
+      </div>
+    </div>
+
+    <!-- Map Container -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden">
+      <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+        <h2 class="text-xl font-semibold">Live Location Map</h2>
+        <div id="locationStatus" class="text-gray-400">No user selected</div>
+      </div>
+
+      <div id="mapContainer" class="h-[500px] w-full bg-gray-800 flex items-center justify-center">
+        <div id="map" class="h-full w-full"></div>
+        <div id="mapPlaceholder" class="text-center">
+          <i class="fas fa-map-marked-alt text-5xl text-gray-600 mb-4"></i>
+          <p class="text-gray-500">Select a user to view their location</p>
+        </div>
+      </div>
+      
+      <!-- Location Details -->
+      <div id="locationDetails" class="p-4 border-t border-gray-800 hidden">
+        <h3 class="font-semibold mb-2">Location Details</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <p class="text-gray-400 text-sm">Coordinates</p>
+            <p id="coordinates" class="font-mono">-</p>
+          </div>
+          <div>
+            <p class="text-gray-400 text-sm">Accuracy</p>
+            <p id="accuracy">-</p>
+          </div>
+          <div>
+            <p class="text-gray-400 text-sm">Last Updated</p>
+            <p id="timestamp">-</p>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <div>
+            <p class="text-gray-400 text-sm">Speed</p>
+            <p id="speed">-</p>
+          </div>
+          <div>
+            <p class="text-gray-400 text-sm">Heading</p>
+            <p id="heading">-</p>
+          </div>
+          <div>
+            <p class="text-gray-400 text-sm">Altitude</p>
+            <p id="altitude">-</p>
+          </div>
+        </div>
+        
+        <div class="mt-4">
+          <p class="text-gray-400 text-sm">Address</p>
+          <p id="address" class="text-white">Resolving address...</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Location History -->
+    <div id="locationHistoryContainer" class="bg-dark-100 rounded-lg border border-gray-800 mt-8 hidden">
+      <div class="p-4 border-b border-gray-800">
+        <h2 class="text-xl font-semibold">Location History</h2>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-dark-200 border-b border-gray-800">
+              <th class="py-3 px-4 text-left">Time</th>
+              <th class="py-3 px-4 text-left">Coordinates</th>
+              <th class="py-3 px-4 text-left">Accuracy</th>
+              <th class="py-3 px-4 text-left">Speed</th>
+              <th class="py-3 px-4 text-left">Source</th>
+              <th class="py-3 px-4 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="locationHistoryBody">
+            <!-- Location history will be populated via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Load Google Maps API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places"></script>
+
+<!-- Load our precise location tracking script -->
+<script src="/js/precise-location.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Elements
+    const userSelect = document.getElementById('userSelect');
+    const timeRange = document.getElementById('timeRange');
+    const customDateRange = document.getElementById('customDateRange');
+    const startDate = document.getElementById('startDate');
+    const endDate = document.getElementById('endDate');
+    const trackUserBtn = document.getElementById('trackUserBtn');
+    const refreshMapBtn = document.getElementById('refreshMapBtn');
+    const mapContainer = document.getElementById('mapContainer');
+    const mapPlaceholder = document.getElementById('mapPlaceholder');
+    const locationStatus = document.getElementById('locationStatus');
+    const locationDetails = document.getElementById('locationDetails');
+    const locationHistoryContainer = document.getElementById('locationHistoryContainer');
+    const locationHistoryBody = document.getElementById('locationHistoryBody');
+    
+    // Map variables
+    let map = null;
+    let userMarker = null;
+    let locationHistoryPath = null;
+    let selectedUserId = null;
+    let refreshInterval = null;
+    
+    // Initialize the map
+    function initMap() {
+      // Hide placeholder, show map
+      mapPlaceholder.style.display = 'none';
+      document.getElementById('map').style.display = 'block';
+      
+      // Create map centered on a default location (will be updated)
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: 0, lng: 0 },
+        zoom: 15,
+        styles: [
+          { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
+          { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
+          { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
+          {
+            featureType: 'administrative.locality',
+            elementType: 'labels.text.fill',
+            stylers: [{ color: '#d59563' }]
+          },
+          {
+            featureType: 'poi',
+            elementType: 'labels.text.fill',
+            stylers: [{ color: '#d59563' }]
+          },
+          {
+            featureType: 'poi.park',
+            elementType: 'geometry',
+            stylers: [{ color: '#263c3f' }]
+          },
+          {
+            featureType: 'poi.park',
+            elementType: 'labels.text.fill',
+            stylers: [{ color: '#6b9a76' }]
+          },
+          {
+            featureType: 'road',
+            elementType: 'geometry',
+            stylers: [{ color: '#38414e' }]
+          },
+          {
+            featureType: 'road',
+            elementType: 'geometry.stroke',
+            stylers: [{ color: '#212a37' }]
+          },
+          {
+            featureType: 'road',
+            elementType: 'labels.text.fill',
+            stylers: [{ color: '#9ca5b3' }]
+          },
+          {
+            featureType: 'road.highway',
+            elementType: 'geometry',
+            stylers: [{ color: '#746855' }]
+          },
+          {
+            featureType: 'road.highway',
+            elementType: 'geometry.stroke',
+            stylers: [{ color: '#1f2835' }]
+          },
+          {
+            featureType: 'road.highway',
+            elementType: 'labels.text.fill',
+            stylers: [{ color: '#f3d19c' }]
+          },
+          {
+            featureType: 'transit',
+            elementType: 'geometry',
+            stylers: [{ color: '#2f3948' }]
+          },
+          {
+            featureType: 'transit.station',
+            elementType: 'labels.text.fill',
+            stylers: [{ color: '#d59563' }]
+          },
+          {
+            featureType: 'water',
+            elementType: 'geometry',
+            stylers: [{ color: '#17263c' }]
+          },
+          {
+            featureType: 'water',
+            elementType: 'labels.text.fill',
+            stylers: [{ color: '#515c6d' }]
+          },
+          {
+            featureType: 'water',
+            elementType: 'labels.text.stroke',
+            stylers: [{ color: '#17263c' }]
+          }
+        ]
+      });
+    }
+    
+    // Load users for the dropdown
+    function loadUsers() {
+      fetch('/api/users')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Clear existing options
+            userSelect.innerHTML = '<option value="">Select a user...</option>';
+            
+            // Add user options
+            data.users.forEach(user => {
+              const option = document.createElement('option');
+              option.value = user._id;
+              option.textContent = `${user.username} (${user.email})`;
+              userSelect.appendChild(option);
+            });
+          }
+        })
+        .catch(error => console.error('Error loading users:', error));
+    }
+    
+    // Get date range based on selection
+    function getDateRange() {
+      const now = new Date();
+      let startDateTime, endDateTime;
+      
+      switch (timeRange.value) {
+        case 'latest':
+          // Just the latest point, no date range needed
+          return null;
+        case 'today':
+          startDateTime = new Date(now.setHours(0, 0, 0, 0));
+          endDateTime = new Date();
+          break;
+        case 'yesterday':
+          startDateTime = new Date(now);
+          startDateTime.setDate(startDateTime.getDate() - 1);
+          startDateTime.setHours(0, 0, 0, 0);
+          
+          endDateTime = new Date(now);
+          endDateTime.setDate(endDateTime.getDate() - 1);
+          endDateTime.setHours(23, 59, 59, 999);
+          break;
+        case 'week':
+          startDateTime = new Date(now);
+          startDateTime.setDate(startDateTime.getDate() - 7);
+          endDateTime = new Date();
+          break;
+        case 'month':
+          startDateTime = new Date(now);
+          startDateTime.setDate(startDateTime.getDate() - 30);
+          endDateTime = new Date();
+          break;
+        case 'custom':
+          if (!startDate.value) return null;
+          startDateTime = new Date(startDate.value);
+          endDateTime = endDate.value ? new Date(endDate.value) : new Date();
+          break;
+        default:
+          return null;
+      }
+      
+      return {
+        startDate: startDateTime.toISOString().split('T')[0],
+        endDate: endDateTime.toISOString().split('T')[0]
+      };
+    }
+    
+    // Track user location
+    function trackUser() {
+      const userId = userSelect.value;
+      
+      if (!userId) {
+        alert('Please select a user to track');
+        return;
+      }
+      
+      selectedUserId = userId;
+      
+      // Initialize map if not already done
+      if (!map) {
+        initMap();
+      }
+      
+      // Clear any existing interval
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
+      }
+      
+      // Show loading state
+      locationStatus.textContent = 'Loading location data...';
+      locationStatus.className = 'text-yellow-400';
+      
+      // Get date range
+      const dateRange = getDateRange();
+      
+      // Fetch location data based on selection
+      if (timeRange.value === 'latest') {
+        // Just get the latest location
+        fetchLatestLocation(userId);
+        
+        // Set up auto-refresh for latest location
+        refreshInterval = setInterval(() => {
+          fetchLatestLocation(userId);
+        }, 10000); // Refresh every 10 seconds
+      } else {
+        // Get location history
+        fetchLocationHistory(userId, dateRange);
+      }
+    }
+    
+    // Fetch latest location for a user
+    function fetchLatestLocation(userId) {
+      fetch(`/api/precise-location/latest/${userId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Update map with location
+            updateMapWithLocation(data.location);
+            
+            // Show location details
+            showLocationDetails(data.location);
+            
+            // Hide location history
+            locationHistoryContainer.classList.add('hidden');
+            
+            // Update status
+            locationStatus.textContent = 'Live tracking active';
+            locationStatus.className = 'text-green-400';
+          } else {
+            // Show error
+            locationStatus.textContent = data.message || 'No location data available';
+            locationStatus.className = 'text-red-400';
+            
+            // Hide details
+            locationDetails.classList.add('hidden');
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching location:', error);
+          locationStatus.textContent = 'Error fetching location data';
+          locationStatus.className = 'text-red-400';
+        });
+    }
+    
+    // Fetch location history for a user
+    function fetchLocationHistory(userId, dateRange) {
+      let url = `/api/precise-location/history/${userId}?limit=100`;
+      
+      if (dateRange) {
+        url += `&startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`;
+      }
+      
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success && data.locations.length > 0) {
+            // Update map with location history
+            updateMapWithLocationHistory(data.locations);
+            
+            // Show location details for the most recent point
+            showLocationDetails(data.locations[0]);
+            
+            // Show location history table
+            showLocationHistory(data.locations);
+            
+            // Update status
+            locationStatus.textContent = `Showing ${data.locations.length} location points`;
+            locationStatus.className = 'text-blue-400';
+          } else {
+            // Show error
+            locationStatus.textContent = 'No location history available for the selected time range';
+            locationStatus.className = 'text-yellow-400';
+            
+            // Hide details and history
+            locationDetails.classList.add('hidden');
+            locationHistoryContainer.classList.add('hidden');
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching location history:', error);
+          locationStatus.textContent = 'Error fetching location history';
+          locationStatus.className = 'text-red-400';
+        });
+    }
+    
+    // Update map with a single location
+    function updateMapWithLocation(location) {
+      const position = {
+        lat: location.latitude,
+        lng: location.longitude
+      };
+      
+      // Center map on the location
+      map.setCenter(position);
+      
+      // Create or update marker
+      if (!userMarker) {
+        userMarker = new google.maps.Marker({
+          position: position,
+          map: map,
+          title: location.username,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 10,
+            fillColor: '#4285F4',
+            fillOpacity: 1,
+            strokeColor: '#FFFFFF',
+            strokeWeight: 2
+          }
+        });
+        
+        // Add accuracy circle
+        if (location.accuracy) {
+          new google.maps.Circle({
+            map: map,
+            center: position,
+            radius: location.accuracy,
+            fillColor: '#4285F4',
+            fillOpacity: 0.2,
+            strokeColor: '#4285F4',
+            strokeOpacity: 0.5,
+            strokeWeight: 1
+          });
+        }
+      } else {
+        userMarker.setPosition(position);
+      }
+    }
+    
+    // Update map with location history
+    function updateMapWithLocationHistory(locations) {
+      // Clear existing markers and paths
+      if (userMarker) {
+        userMarker.setMap(null);
+        userMarker = null;
+      }
+      
+      if (locationHistoryPath) {
+        locationHistoryPath.setMap(null);
+        locationHistoryPath = null;
+      }
+      
+      // Create path coordinates
+      const pathCoordinates = locations.map(loc => ({
+        lat: loc.latitude,
+        lng: loc.longitude
+      }));
+      
+      // Create path
+      locationHistoryPath = new google.maps.Polyline({
+        path: pathCoordinates,
+        geodesic: true,
+        strokeColor: '#FF0000',
+        strokeOpacity: 1.0,
+        strokeWeight: 2
+      });
+      
+      locationHistoryPath.setMap(map);
+      
+      // Add markers for each point
+      locations.forEach((location, index) => {
+        const position = {
+          lat: location.latitude,
+          lng: location.longitude
+        };
+        
+        // Different icon for first (most recent) point
+        const icon = index === 0 ? {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 10,
+          fillColor: '#4285F4',
+          fillOpacity: 1,
+          strokeColor: '#FFFFFF',
+          strokeWeight: 2
+        } : {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 6,
+          fillColor: '#FF0000',
+          fillOpacity: 0.7,
+          strokeColor: '#FFFFFF',
+          strokeWeight: 1
+        };
+        
+        const marker = new google.maps.Marker({
+          position: position,
+          map: map,
+          title: new Date(location.timestamp).toLocaleString(),
+          icon: icon
+        });
+        
+        // Add click listener
+        marker.addListener('click', () => {
+          showLocationDetails(location);
+        });
+      });
+      
+      // Fit map to show all points
+      const bounds = new google.maps.LatLngBounds();
+      pathCoordinates.forEach(coord => bounds.extend(coord));
+      map.fitBounds(bounds);
+    }
+    
+    // Show location details
+    function showLocationDetails(location) {
+      // Show details container
+      locationDetails.classList.remove('hidden');
+      
+      // Update details
+      document.getElementById('coordinates').textContent = `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`;
+      document.getElementById('accuracy').textContent = location.accuracy ? `±${location.accuracy.toFixed(1)} meters` : 'Unknown';
+      document.getElementById('timestamp').textContent = new Date(location.timestamp).toLocaleString();
+      document.getElementById('speed').textContent = location.speed ? `${(location.speed * 3.6).toFixed(1)} km/h` : 'Unknown';
+      document.getElementById('heading').textContent = location.heading ? `${location.heading.toFixed(1)}°` : 'Unknown';
+      document.getElementById('altitude').textContent = location.altitude ? `${location.altitude.toFixed(1)} meters` : 'Unknown';
+      
+      // Reverse geocode to get address
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ location: { lat: location.latitude, lng: location.longitude } }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          document.getElementById('address').textContent = results[0].formatted_address;
+        } else {
+          document.getElementById('address').textContent = 'Address not available';
+        }
+      });
+    }
+    
+    // Show location history table
+    function showLocationHistory(locations) {
+      // Show history container
+      locationHistoryContainer.classList.remove('hidden');
+      
+      // Clear existing rows
+      locationHistoryBody.innerHTML = '';
+      
+      // Add rows for each location
+      locations.forEach(location => {
+        const row = document.createElement('tr');
+        row.className = 'border-b border-gray-800 hover:bg-dark-200 transition-colors';
+        
+        // Format time
+        const time = new Date(location.timestamp).toLocaleString();
+        
+        // Format coordinates
+        const coords = `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`;
+        
+        // Format accuracy
+        const accuracy = location.accuracy ? `±${location.accuracy.toFixed(1)} m` : 'Unknown';
+        
+        // Format speed
+        const speed = location.speed ? `${(location.speed * 3.6).toFixed(1)} km/h` : 'Unknown';
+        
+        row.innerHTML = `
+          <td class="py-3 px-4">${time}</td>
+          <td class="py-3 px-4 font-mono text-xs">${coords}</td>
+          <td class="py-3 px-4">${accuracy}</td>
+          <td class="py-3 px-4">${speed}</td>
+          <td class="py-3 px-4">${location.source}</td>
+          <td class="py-3 px-4">
+            <button class="text-neon-blue hover:text-neon-purple transition-colors view-on-map" data-index="${locations.indexOf(location)}">
+              <i class="fas fa-map-marker-alt"></i>
+            </button>
+          </td>
+        `;
+        
+        locationHistoryBody.appendChild(row);
+      });
+      
+      // Add click listeners to view-on-map buttons
+      document.querySelectorAll('.view-on-map').forEach(button => {
+        button.addEventListener('click', () => {
+          const index = parseInt(button.getAttribute('data-index'));
+          const location = locations[index];
+          
+          // Center map on this location
+          map.setCenter({ lat: location.latitude, lng: location.longitude });
+          map.setZoom(18);
+          
+          // Show details for this location
+          showLocationDetails(location);
+        });
+      });
+    }
+    
+    // Event listeners
+    timeRange.addEventListener('change', () => {
+      // Show/hide custom date range
+      if (timeRange.value === 'custom') {
+        customDateRange.classList.remove('hidden');
+      } else {
+        customDateRange.classList.add('hidden');
+      }
+    });
+    
+    trackUserBtn.addEventListener('click', trackUser);
+    
+    refreshMapBtn.addEventListener('click', () => {
+      if (selectedUserId) {
+        trackUser();
+      }
+    });
+    
+    // Set max date for date inputs to today
+    const today = new Date().toISOString().split('T')[0];
+    startDate.max = today;
+    endDate.max = today;
+    
+    // Initialize by loading users
+    loadUsers();
+  });
+</script>

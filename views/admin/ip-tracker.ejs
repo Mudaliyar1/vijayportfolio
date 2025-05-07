@@ -3,6 +3,7 @@
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold">IP & Location Tracker</h1>
       <div class="flex space-x-2">
+
         <a href="/admin/ip-tracker/export/csv<%= search || country || status || startDate || endDate ? '?' : '' %><%= search ? `search=${search}&` : '' %><%= country ? `country=${country}&` : '' %><%= status ? `status=${status}&` : '' %><%= startDate ? `startDate=${startDate}&` : '' %><%= endDate ? `endDate=${endDate}` : '' %>" class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors flex items-center">
           <i class="fas fa-file-csv mr-2"></i> Export CSV
         </a>
@@ -170,18 +171,45 @@
                       <% if (record.countryCode) { %>
                         <img src="https://flagcdn.com/16x12/<%= record.countryCode.toLowerCase() %>.png" alt="<%= record.country %> flag" class="mr-2" width="16" height="12">
                       <% } %>
-                      <span><%= record.city %>, <%= record.region %>, <%= record.country %></span>
+                      <span><%= record.city %>, <%= record.region %><%= record.regionCode ? ` (${record.regionCode})` : '' %>, <%= record.country %></span>
                     </div>
                     <div class="text-xs text-gray-500 mt-1">
                       <% if (record.latitude && record.longitude) { %>
                         <a href="https://www.google.com/maps?q=<%= record.latitude %>,<%= record.longitude %>" target="_blank" class="text-neon-blue hover:underline">
                           <i class="fas fa-map-marker-alt mr-1"></i> <%= record.latitude.toFixed(4) %>, <%= record.longitude.toFixed(4) %>
+                          <% if (record.accuracyRadius) { %>
+                            <span class="text-gray-500">(±<%= record.accuracyRadius %> km)</span>
+                          <% } %>
                         </a>
                       <% } %>
                     </div>
                     <div class="text-xs text-gray-500 mt-1">
-                      <i class="fas fa-network-wired mr-1"></i> <%= record.isp %>
+                      <i class="fas fa-network-wired mr-1"></i>
+                      <%= record.isp %>
+                      <% if (record.organization && record.organization !== record.isp) { %>
+                        / <%= record.organization %>
+                      <% } %>
+                      <% if (record.asn) { %>
+                        <span class="text-xs text-gray-600 ml-1"><%= record.asn %></span>
+                      <% } %>
                     </div>
+                    <% if (record.connectionType || record.userType) { %>
+                      <div class="text-xs text-gray-500 mt-1">
+                        <% if (record.connectionType) { %>
+                          <span class="bg-dark-300 text-gray-400 px-1 py-0.5 rounded text-xs mr-1"><%= record.connectionType %></span>
+                        <% } %>
+                        <% if (record.userType) { %>
+                          <span class="bg-dark-300 text-gray-400 px-1 py-0.5 rounded text-xs"><%= record.userType %></span>
+                        <% } %>
+                      </div>
+                    <% } %>
+                    <% if (record.databaseType && record.databaseType !== 'None') { %>
+                      <div class="text-xs text-gray-600 mt-1">
+                        <span class="<%= record.databaseType === 'Commercial' ? 'text-green-400' : 'text-yellow-400' %>">
+                          <i class="fas fa-database mr-1"></i> <%= record.databaseType %> DB
+                        </span>
+                      </div>
+                    <% } %>
                   </td>
                   <td class="py-3 px-4">
                     <div>
