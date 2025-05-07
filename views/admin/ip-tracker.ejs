@@ -1,0 +1,292 @@
+<div class="flex flex-col md:flex-row">
+  <div class="flex-grow p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">IP & Location Tracker</h1>
+      <div class="flex space-x-2">
+        <a href="/admin/ip-tracker/export/csv<%= search || country || status || startDate || endDate ? '?' : '' %><%= search ? `search=${search}&` : '' %><%= country ? `country=${country}&` : '' %><%= status ? `status=${status}&` : '' %><%= startDate ? `startDate=${startDate}&` : '' %><%= endDate ? `endDate=${endDate}` : '' %>" class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors flex items-center">
+          <i class="fas fa-file-csv mr-2"></i> Export CSV
+        </a>
+        <a href="/admin/ip-tracker/export/pdf<%= search || country || status || startDate || endDate ? '?' : '' %><%= search ? `search=${search}&` : '' %><%= country ? `country=${country}&` : '' %><%= status ? `status=${status}&` : '' %><%= startDate ? `startDate=${startDate}&` : '' %><%= endDate ? `endDate=${endDate}` : '' %>" class="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors flex items-center">
+          <i class="fas fa-file-pdf mr-2"></i> Export PDF
+        </a>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 mb-8">
+      <h2 class="text-xl font-semibold mb-4">Search & Filter</h2>
+
+      <form action="/admin/ip-tracker" method="GET" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Search -->
+          <div>
+            <label for="search" class="block text-gray-300 mb-2">Search</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                <i class="fas fa-search"></i>
+              </span>
+              <input
+                type="text"
+                id="search"
+                name="search"
+                value="<%= search %>"
+                class="w-full bg-dark-200 border border-gray-700 rounded-md py-2 pl-10 pr-3 text-white focus:outline-none focus:border-neon-blue transition-colors"
+                placeholder="Username, IP, Location, ISP..."
+              >
+            </div>
+          </div>
+
+          <!-- Country -->
+          <div>
+            <label for="country" class="block text-gray-300 mb-2">Country</label>
+            <select
+              id="country"
+              name="country"
+              class="w-full bg-dark-200 border border-gray-700 rounded-md py-2 px-3 text-white focus:outline-none focus:border-neon-blue transition-colors"
+            >
+              <option value="">All Countries</option>
+              <% countries.sort().forEach(c => { %>
+                <option value="<%= c %>" <%= country === c ? 'selected' : '' %>><%= c %></option>
+              <% }); %>
+            </select>
+          </div>
+
+          <!-- Status -->
+          <div>
+            <label for="status" class="block text-gray-300 mb-2">Login Status</label>
+            <select
+              id="status"
+              name="status"
+              class="w-full bg-dark-200 border border-gray-700 rounded-md py-2 px-3 text-white focus:outline-none focus:border-neon-blue transition-colors"
+            >
+              <option value="">All Statuses</option>
+              <option value="success" <%= status === 'success' ? 'selected' : '' %>>Success</option>
+              <option value="failed" <%= status === 'failed' ? 'selected' : '' %>>Failed</option>
+              <option value="blocked" <%= status === 'blocked' ? 'selected' : '' %>>Blocked</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Date Range -->
+          <div>
+            <label for="startDate" class="block text-gray-300 mb-2">Start Date</label>
+            <input
+              type="date"
+              id="startDate"
+              name="startDate"
+              value="<%= startDate %>"
+              class="w-full bg-dark-200 border border-gray-700 rounded-md py-2 px-3 text-white focus:outline-none focus:border-neon-blue transition-colors"
+            >
+          </div>
+
+          <div>
+            <label for="endDate" class="block text-gray-300 mb-2">End Date</label>
+            <input
+              type="date"
+              id="endDate"
+              name="endDate"
+              value="<%= endDate %>"
+              class="w-full bg-dark-200 border border-gray-700 rounded-md py-2 px-3 text-white focus:outline-none focus:border-neon-blue transition-colors"
+            >
+          </div>
+        </div>
+
+        <div class="flex justify-end space-x-2">
+          <a href="/admin/ip-tracker" class="bg-gray-700 text-white py-2 px-6 rounded-md hover:bg-gray-600 transition-colors">
+            Reset
+          </a>
+          <button type="submit" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white py-2 px-6 rounded-md hover:opacity-90 transition-opacity">
+            Apply Filters
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <% if (!geoIpStatus) { %>
+    <!-- GeoIP Database Warning -->
+    <div class="bg-yellow-900/30 border border-yellow-700 rounded-lg p-4 mb-6 flex items-start">
+      <div class="text-yellow-500 mr-3 mt-1">
+        <i class="fas fa-exclamation-triangle text-xl"></i>
+      </div>
+      <div>
+        <h3 class="text-yellow-400 font-semibold mb-1">GeoIP Database Not Found</h3>
+        <p class="text-yellow-300/80 text-sm mb-2">
+          The MaxMind GeoLite2 databases are not available. Location information will show as "Unknown".
+        </p>
+        <p class="text-yellow-300/80 text-sm">
+          To enable geolocation:
+          <ol class="list-decimal list-inside ml-2 mt-1 space-y-1">
+            <li>Create a free account at <a href="https://www.maxmind.com/en/geolite2/signup" target="_blank" class="text-neon-blue hover:underline">MaxMind</a></li>
+            <li>Download the GeoLite2 City and ASN databases in MMDB format</li>
+            <li>Place the files in the <code class="bg-dark-300 px-1 py-0.5 rounded">data</code> directory as:
+              <ul class="list-disc list-inside ml-4 mt-1">
+                <li><code class="bg-dark-300 px-1 py-0.5 rounded">GeoLite2-City.mmdb</code></li>
+                <li><code class="bg-dark-300 px-1 py-0.5 rounded">GeoLite2-ASN.mmdb</code></li>
+              </ul>
+            </li>
+            <li>Restart the server</li>
+          </ol>
+        </p>
+      </div>
+    </div>
+    <% } %>
+
+    <!-- Login Records Table -->
+    <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden">
+      <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+        <h2 class="text-xl font-semibold">Login Records</h2>
+        <span class="text-gray-500 text-sm"><%= totalCount %> records found</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-dark-200 border-b border-gray-800">
+              <th class="py-3 px-4 text-left">Username</th>
+              <th class="py-3 px-4 text-left">IP Address</th>
+              <th class="py-3 px-4 text-left">Location</th>
+              <th class="py-3 px-4 text-left">Device</th>
+              <th class="py-3 px-4 text-left">Login Time</th>
+              <th class="py-3 px-4 text-left">Status</th>
+              <th class="py-3 px-4 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (loginRecords.length > 0) { %>
+              <% loginRecords.forEach(record => { %>
+                <tr class="border-b border-gray-800 hover:bg-dark-200 transition-colors">
+                  <td class="py-3 px-4">
+                    <%= record.username %>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div class="font-mono text-xs"><%= record.ipAddress %></div>
+                    <% if (record.forwardedIp) { %>
+                      <div class="text-xs text-gray-500 mt-1">Forwarded: <%= record.forwardedIp %></div>
+                    <% } %>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div class="flex items-center">
+                      <% if (record.countryCode) { %>
+                        <img src="https://flagcdn.com/16x12/<%= record.countryCode.toLowerCase() %>.png" alt="<%= record.country %> flag" class="mr-2" width="16" height="12">
+                      <% } %>
+                      <span><%= record.city %>, <%= record.region %>, <%= record.country %></span>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1">
+                      <% if (record.latitude && record.longitude) { %>
+                        <a href="https://www.google.com/maps?q=<%= record.latitude %>,<%= record.longitude %>" target="_blank" class="text-neon-blue hover:underline">
+                          <i class="fas fa-map-marker-alt mr-1"></i> <%= record.latitude.toFixed(4) %>, <%= record.longitude.toFixed(4) %>
+                        </a>
+                      <% } %>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1">
+                      <i class="fas fa-network-wired mr-1"></i> <%= record.isp %>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div>
+                      <span class="<%= record.deviceType.toLowerCase() === 'mobile' ? 'text-green-400' : (record.deviceType.toLowerCase() === 'tablet' ? 'text-blue-400' : 'text-gray-400') %>">
+                        <i class="fas <%= record.deviceType.toLowerCase() === 'mobile' ? 'fa-mobile-alt' : (record.deviceType.toLowerCase() === 'tablet' ? 'fa-tablet-alt' : 'fa-desktop') %> mr-1"></i>
+                        <%= record.deviceType %>
+                      </span>
+                    </div>
+                    <div class="text-xs text-gray-400 mt-1">
+                      <i class="fas fa-browser mr-1"></i> <%= record.browser %> <%= record.browserVersion %>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1">
+                      <i class="fas fa-laptop-code mr-1"></i> <%= record.operatingSystem %> <%= record.osVersion %>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div><%= new Date(record.loginTime).toLocaleDateString() %></div>
+                    <div class="text-xs text-gray-500"><%= new Date(record.loginTime).toLocaleTimeString() %></div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <span class="px-2 py-1 rounded-full text-xs
+                      <%= record.loginStatus === 'success' ? 'bg-green-500/20 text-green-400' :
+                         record.loginStatus === 'blocked' ? 'bg-yellow-500/20 text-yellow-400' :
+                         'bg-red-500/20 text-red-400' %>">
+                      <%= record.loginStatus.charAt(0).toUpperCase() + record.loginStatus.slice(1) %>
+                    </span>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div class="flex space-x-2">
+                      <a href="https://www.google.com/maps?q=<%= record.latitude %>,<%= record.longitude %>" target="_blank" class="text-neon-blue hover:text-neon-purple transition-colors" title="View on Map">
+                        <i class="fas fa-map-marked-alt"></i>
+                      </a>
+                      <a href="https://whatismyipaddress.com/ip/<%= record.ipAddress %>" target="_blank" class="text-neon-blue hover:text-neon-purple transition-colors" title="IP Lookup">
+                        <i class="fas fa-search-location"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="7" class="py-8 text-center">
+                  <div class="flex flex-col items-center justify-center space-y-3">
+                    <div class="text-gray-500">
+                      <i class="fas fa-search text-3xl mb-2"></i>
+                      <p>No login records found</p>
+                    </div>
+                    <p class="text-gray-600 text-sm max-w-md">
+                      Login records will appear here when users log in to the system. Try logging in with different accounts to see the tracking in action.
+                    </p>
+                    <p class="text-gray-600 text-sm max-w-md mt-2">
+                      <i class="fas fa-info-circle text-blue-400 mr-1"></i>
+                      If maintenance mode is active, login attempts will be recorded in both the maintenance log and the IP tracker.
+                    </p>
+                  </div>
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <% if (totalPages > 1) { %>
+        <div class="p-4 border-t border-gray-800 flex justify-between items-center">
+          <div>
+            <span class="text-gray-500">Page <%= currentPage %> of <%= totalPages %></span>
+          </div>
+          <div class="flex space-x-2">
+            <% if (currentPage > 1) { %>
+              <a href="/admin/ip-tracker?page=<%= currentPage - 1 %><%= search ? `&search=${search}` : '' %><%= country ? `&country=${country}` : '' %><%= status ? `&status=${status}` : '' %><%= startDate ? `&startDate=${startDate}` : '' %><%= endDate ? `&endDate=${endDate}` : '' %>" class="bg-dark-200 text-white py-2 px-4 rounded-md hover:bg-dark-300 transition-colors">
+                Previous
+              </a>
+            <% } %>
+            <% if (currentPage < totalPages) { %>
+              <a href="/admin/ip-tracker?page=<%= currentPage + 1 %><%= search ? `&search=${search}` : '' %><%= country ? `&country=${country}` : '' %><%= status ? `&status=${status}` : '' %><%= startDate ? `&startDate=${startDate}` : '' %><%= endDate ? `&endDate=${endDate}` : '' %>" class="bg-dark-200 text-white py-2 px-4 rounded-md hover:bg-dark-300 transition-colors">
+                Next
+              </a>
+            <% } %>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Initialize date pickers with default values if not set
+  document.addEventListener('DOMContentLoaded', function() {
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+
+    // Set max date to today for both inputs
+    const today = new Date().toISOString().split('T')[0];
+    startDateInput.max = today;
+    endDateInput.max = today;
+
+    // Ensure end date is not before start date
+    startDateInput.addEventListener('change', function() {
+      endDateInput.min = this.value;
+    });
+
+    // Ensure start date is not after end date
+    endDateInput.addEventListener('change', function() {
+      startDateInput.max = this.value || today;
+    });
+  });
+</script>

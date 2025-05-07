@@ -255,8 +255,8 @@
                   </td>
                   <td class="py-3 px-4">
                     <div>
-                      <span class="<%= attempt.deviceType.toLowerCase() === 'smartphone' ? 'text-green-400' : (attempt.deviceType.toLowerCase() === 'tablet' ? 'text-blue-400' : 'text-gray-400') %>">
-                        <i class="fas <%= attempt.deviceType.toLowerCase() === 'smartphone' ? 'fa-mobile-alt' : (attempt.deviceType.toLowerCase() === 'tablet' ? 'fa-tablet-alt' : 'fa-desktop') %> mr-1"></i>
+                      <span class="<%= attempt.deviceType.toLowerCase() === 'mobile' ? 'text-green-400' : (attempt.deviceType.toLowerCase() === 'tablet' ? 'text-blue-400' : 'text-gray-400') %>">
+                        <i class="fas <%= attempt.deviceType.toLowerCase() === 'mobile' ? 'fa-mobile-alt' : (attempt.deviceType.toLowerCase() === 'tablet' ? 'fa-tablet-alt' : 'fa-desktop') %> mr-1"></i>
                         <%= attempt.deviceType %>
                       </span>
                     </div>
@@ -372,14 +372,11 @@
         let matchesDevice = true;
         if (deviceFilterValue !== 'all') {
           if (deviceFilterValue === 'Mobile') {
-            matchesDevice = device.toLowerCase().includes('smartphone') || device.toLowerCase().includes('mobile');
+            matchesDevice = device.toLowerCase().includes('mobile');
           } else if (deviceFilterValue === 'Tablet') {
             matchesDevice = device.toLowerCase().includes('tablet');
           } else if (deviceFilterValue === 'Desktop') {
-            matchesDevice = device.toLowerCase().includes('desktop') ||
-                           (!device.toLowerCase().includes('smartphone') &&
-                            !device.toLowerCase().includes('mobile') &&
-                            !device.toLowerCase().includes('tablet'));
+            matchesDevice = device.toLowerCase().includes('desktop');
           } else {
             matchesDevice = device.toLowerCase().includes(deviceFilterValue.toLowerCase());
           }

@@ -232,6 +232,7 @@ app.use('/admin/rate-limits', require('./routes/admin-rate-limits'));
 app.use('/admin/websites', require('./routes/admin-websites'));
 app.use('/admin/package-inquiries', require('./routes/admin-package-inquiries'));
 app.use('/admin/marketing-packages', require('./routes/admin-marketing-packages'));
+app.use('/admin/ip-tracker', require('./routes/admin-ip-tracker')); // IP tracker routes
 
 
 
@@ -291,6 +292,18 @@ app.use((err, req, res, next) => {
     title: '500 - Server Error',
     user: req.user
   });
+});
+
+// Initialize GeoIP database
+const { initGeoIpDatabases } = require('./utils/geoIpUtils');
+initGeoIpDatabases().then(success => {
+  if (success) {
+    console.log('GeoIP databases initialized successfully');
+  } else {
+    console.warn('GeoIP databases not found or failed to initialize');
+    console.warn('IP geolocation will return default values');
+    console.warn('Download the GeoLite2 databases from MaxMind and place them in the data directory');
+  }
 });
 
 // Start server

@@ -23,6 +23,7 @@
   "author": "ftraise59/vijay",
   "license": "ISC",
   "dependencies": {
+    "@maxmind/geoip2-node": "^6.1.0",
     "archiver": "^7.0.1",
     "axios": "^1.8.4",
     "bcryptjs": "^2.4.3",
@@ -40,6 +41,8 @@
     "express-session": "^1.17.3",
     "express-useragent": "^1.0.15",
     "framer-motion": "^10.15.1",
+    "json2csv": "^6.0.0-alpha.2",
+    "maxmind": "^4.3.25",
     "method-override": "^3.0.0",
     "moment-timezone": "^0.5.48",
     "mongoose": "^7.4.3",

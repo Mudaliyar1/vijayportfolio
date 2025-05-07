@@ -11,6 +11,53 @@ module.exports = function(passport) {
 
         if (!user) {
           console.log('Login failed: Email not registered');
+
+          // Record the failed login attempt
+          try {
+            const UserLogin = require('../models/UserLogin');
+            const { getRealIpAddress } = require('../utils/ipUtils');
+            const { parseUserAgent } = require('../utils/deviceUtils');
+            const { getIpLocation } = require('../utils/geoIpUtils');
+
+            const req = arguments[3]; // Access the request object
+            if (req) {
+              const userAgentString = req.headers['user-agent'] || 'Unknown';
+              const ipAddress = getRealIpAddress(req);
+              const forwardedIp = req.headers['x-forwarded-for'] || '';
+              const deviceInfo = parseUserAgent(userAgentString);
+              const locationData = getIpLocation(ipAddress);
+
+              const loginRecord = new UserLogin({
+                username: email,
+                ipAddress: ipAddress,
+                forwardedIp: forwardedIp,
+                userAgent: userAgentString,
+                browser: deviceInfo.browser,
+                browserVersion: deviceInfo.browserVersion,
+                operatingSystem: deviceInfo.operatingSystem,
+                osVersion: deviceInfo.osVersion,
+                deviceType: deviceInfo.deviceType,
+                deviceBrand: deviceInfo.deviceBrand,
+                deviceModel: deviceInfo.deviceModel,
+                country: locationData.country,
+                countryCode: locationData.countryCode,
+                region: locationData.region,
+                city: locationData.city,
+                postalCode: locationData.postalCode,
+                latitude: locationData.latitude,
+                longitude: locationData.longitude,
+                timezone: locationData.timezone,
+                isp: locationData.isp,
+                loginStatus: 'failed',
+                loginTime: new Date()
+              });
+
+              loginRecord.save().catch(err => console.error('Error recording failed login:', err));
+            }
+          } catch (err) {
+            console.error('Error recording failed login attempt:', err);
+          }
+
           return done(null, false, { message: 'This email is not registered. Please check your email or create an account.' });
         }
 
@@ -22,6 +69,54 @@ module.exports = function(passport) {
             return done(null, user);
           } else {
             console.log('Login failed: Incorrect password');
+
+            // Record the failed login attempt
+            try {
+              const UserLogin = require('../models/UserLogin');
+              const { getRealIpAddress } = require('../utils/ipUtils');
+              const { parseUserAgent } = require('../utils/deviceUtils');
+              const { getIpLocation } = require('../utils/geoIpUtils');
+
+              const req = arguments[3]; // Access the request object
+              if (req) {
+                const userAgentString = req.headers['user-agent'] || 'Unknown';
+                const ipAddress = getRealIpAddress(req);
+                const forwardedIp = req.headers['x-forwarded-for'] || '';
+                const deviceInfo = parseUserAgent(userAgentString);
+                const locationData = getIpLocation(ipAddress);
+
+                const loginRecord = new UserLogin({
+                  username: user.email,
+                  userId: user._id,
+                  ipAddress: ipAddress,
+                  forwardedIp: forwardedIp,
+                  userAgent: userAgentString,
+                  browser: deviceInfo.browser,
+                  browserVersion: deviceInfo.browserVersion,
+                  operatingSystem: deviceInfo.operatingSystem,
+                  osVersion: deviceInfo.osVersion,
+                  deviceType: deviceInfo.deviceType,
+                  deviceBrand: deviceInfo.deviceBrand,
+                  deviceModel: deviceInfo.deviceModel,
+                  country: locationData.country,
+                  countryCode: locationData.countryCode,
+                  region: locationData.region,
+                  city: locationData.city,
+                  postalCode: locationData.postalCode,
+                  latitude: locationData.latitude,
+                  longitude: locationData.longitude,
+                  timezone: locationData.timezone,
+                  isp: locationData.isp,
+                  loginStatus: 'failed',
+                  loginTime: new Date()
+                });
+
+                loginRecord.save().catch(err => console.error('Error recording failed login:', err));
+              }
+            } catch (err) {
+              console.error('Error recording failed login attempt:', err);
+            }
+
             return done(null, false, { message: 'Incorrect password. Please try again or use the forgot password option.' });
           }
         });

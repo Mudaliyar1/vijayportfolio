@@ -152,20 +152,24 @@ module.exports = {
           const ipAddress = getRealIpAddress(req);
           const forwardedIp = req.headers['x-forwarded-for'] || '';
 
-          // Create a simplified login attempt record
+          // Parse user agent to get device and browser info
+          const { parseUserAgent } = require('../utils/deviceUtils');
+          const deviceInfo = parseUserAgent(userAgentString);
+
+          // Create the login attempt record with detailed device info
           const loginAttempt = new MaintenanceLoginAttempt({
             username: req.user.email,
             userId: req.user._id,
             ipAddress: ipAddress,
             forwardedIp: forwardedIp,
             userAgent: userAgentString,
-            browser: 'Unknown', // Simplified
-            browserVersion: '',
-            operatingSystem: 'Unknown', // Simplified
-            osVersion: '',
-            deviceType: 'Unknown', // Simplified
-            deviceBrand: '',
-            deviceModel: '',
+            browser: deviceInfo.browser,
+            browserVersion: deviceInfo.browserVersion,
+            operatingSystem: deviceInfo.operatingSystem,
+            osVersion: deviceInfo.osVersion,
+            deviceType: deviceInfo.deviceType,
+            deviceBrand: deviceInfo.deviceBrand,
+            deviceModel: deviceInfo.deviceModel,
             status: 'blocked',
             reason: 'Non-admin user during maintenance',
             timestamp: new Date() // Ensure timestamp is set to now
@@ -210,19 +214,23 @@ module.exports = {
             const ipAddress = getRealIpAddress(req);
             const forwardedIp = req.headers['x-forwarded-for'] || '';
 
-            // Log the attempt with simplified information
+            // Parse user agent to get device and browser info
+            const { parseUserAgent } = require('../utils/deviceUtils');
+            const deviceInfo = parseUserAgent(userAgentString);
+
+            // Log the attempt with detailed device information
             const loginAttempt = new MaintenanceLoginAttempt({
               username: email,
               ipAddress: ipAddress,
               forwardedIp: forwardedIp,
               userAgent: userAgentString,
-              browser: 'Unknown', // Simplified
-              browserVersion: '',
-              operatingSystem: 'Unknown', // Simplified
-              osVersion: '',
-              deviceType: 'Unknown', // Simplified
-              deviceBrand: '',
-              deviceModel: '',
+              browser: deviceInfo.browser,
+              browserVersion: deviceInfo.browserVersion,
+              operatingSystem: deviceInfo.operatingSystem,
+              osVersion: deviceInfo.osVersion,
+              deviceType: deviceInfo.deviceType,
+              deviceBrand: deviceInfo.deviceBrand,
+              deviceModel: deviceInfo.deviceModel,
               status: 'passed',
               reason: 'Admin login during maintenance',
               timestamp: new Date() // Ensure timestamp is set to now
@@ -263,19 +271,23 @@ module.exports = {
         const ipAddress = getRealIpAddress(req);
         const forwardedIp = req.headers['x-forwarded-for'] || '';
 
-        // Log the attempt with simplified information
+        // Parse user agent to get device and browser info
+        const { parseUserAgent } = require('../utils/deviceUtils');
+        const deviceInfo = parseUserAgent(userAgentString);
+
+        // Log the attempt with detailed device information
         const loginAttempt = new MaintenanceLoginAttempt({
           username: email || 'Unknown',
           ipAddress: ipAddress,
           forwardedIp: forwardedIp,
           userAgent: userAgentString,
-          browser: 'Unknown', // Simplified
-          browserVersion: '',
-          operatingSystem: 'Unknown', // Simplified
-          osVersion: '',
-          deviceType: 'Unknown', // Simplified
-          deviceBrand: '',
-          deviceModel: '',
+          browser: deviceInfo.browser,
+          browserVersion: deviceInfo.browserVersion,
+          operatingSystem: deviceInfo.operatingSystem,
+          osVersion: deviceInfo.osVersion,
+          deviceType: deviceInfo.deviceType,
+          deviceBrand: deviceInfo.deviceBrand,
+          deviceModel: deviceInfo.deviceModel,
           status: 'failed',
           reason: 'Non-admin user during maintenance',
           timestamp: new Date() // Ensure timestamp is set to now

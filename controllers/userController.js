@@ -103,6 +103,60 @@ module.exports = {
               user.role = 'admin';
             }
 
+            // Record the admin login in the UserLogin collection for IP tracking
+            try {
+              const UserLogin = require('../models/UserLogin');
+
+              // Get user agent string
+              const userAgentString = req.headers['user-agent'] || 'Unknown';
+
+              // Get IP addresses
+              const { getRealIpAddress } = require('../utils/ipUtils');
+              const ipAddress = getRealIpAddress(req);
+              const forwardedIp = req.headers['x-forwarded-for'] || '';
+
+              // Parse user agent to get device and browser info
+              const { parseUserAgent } = require('../utils/deviceUtils');
+              const deviceInfo = parseUserAgent(userAgentString);
+
+              // Get location data
+              const { getIpLocation } = require('../utils/geoIpUtils');
+              const locationData = getIpLocation(ipAddress);
+
+              // Create the login record
+              const loginRecord = new UserLogin({
+                username: user.email,
+                userId: user._id,
+                ipAddress: ipAddress,
+                forwardedIp: forwardedIp,
+                userAgent: userAgentString,
+                browser: deviceInfo.browser,
+                browserVersion: deviceInfo.browserVersion,
+                operatingSystem: deviceInfo.operatingSystem,
+                osVersion: deviceInfo.osVersion,
+                deviceType: deviceInfo.deviceType,
+                deviceBrand: deviceInfo.deviceBrand,
+                deviceModel: deviceInfo.deviceModel,
+                country: locationData.country,
+                countryCode: locationData.countryCode,
+                region: locationData.region,
+                city: locationData.city,
+                postalCode: locationData.postalCode,
+                latitude: locationData.latitude,
+                longitude: locationData.longitude,
+                timezone: locationData.timezone,
+                isp: locationData.isp,
+                loginStatus: 'success',
+                loginTime: new Date()
+              });
+
+              // Save the login record
+              await loginRecord.save();
+              console.log('Recorded admin login for:', user.email, '(maintenance mode)');
+            } catch (err) {
+              console.error('Error recording admin login:', err);
+            }
+
             // Force bypass maintenance mode for admin
             req.maintenanceBypass = true;
 
@@ -121,9 +175,10 @@ module.exports = {
             // Non-admin during maintenance mode
             console.log('Non-admin logged in during maintenance, logging out');
 
-            // Record the login attempt in the maintenance log
+            // Record the login attempt in both maintenance log and user logins
             try {
               const MaintenanceLoginAttempt = require('../models/MaintenanceLoginAttempt');
+              const UserLogin = require('../models/UserLogin');
 
               // Get user agent string
               const userAgentString = req.headers['user-agent'] || 'Unknown';
@@ -133,30 +188,69 @@ module.exports = {
               const ipAddress = getRealIpAddress(req);
               const forwardedIp = req.headers['x-forwarded-for'] || '';
 
-              // Create a simplified login attempt record
+              // Parse user agent to get device and browser info
+              const { parseUserAgent } = require('../utils/deviceUtils');
+              const deviceInfo = parseUserAgent(userAgentString);
+
+              // Get location data
+              const { getIpLocation } = require('../utils/geoIpUtils');
+              const locationData = getIpLocation(ipAddress);
+
+              // Create the maintenance login attempt record
               const loginAttempt = new MaintenanceLoginAttempt({
                 username: user.email,
                 userId: user._id,
                 ipAddress: ipAddress,
                 forwardedIp: forwardedIp,
                 userAgent: userAgentString,
-                browser: 'Unknown', // Simplified
-                browserVersion: '',
-                operatingSystem: 'Unknown', // Simplified
-                osVersion: '',
-                deviceType: 'Unknown', // Simplified
-                deviceBrand: '',
-                deviceModel: '',
+                browser: deviceInfo.browser,
+                browserVersion: deviceInfo.browserVersion,
+                operatingSystem: deviceInfo.operatingSystem,
+                osVersion: deviceInfo.osVersion,
+                deviceType: deviceInfo.deviceType,
+                deviceBrand: deviceInfo.deviceBrand,
+                deviceModel: deviceInfo.deviceModel,
                 status: 'blocked',
                 reason: 'Non-admin user during maintenance',
                 timestamp: new Date() // Ensure timestamp is set to now
               });
 
-              // Save the login attempt
-              await loginAttempt.save();
-              console.log('Recorded maintenance login attempt for:', user.email);
+              // Also create a record in the UserLogin collection for IP tracking
+              const userLoginRecord = new UserLogin({
+                username: user.email,
+                userId: user._id,
+                ipAddress: ipAddress,
+                forwardedIp: forwardedIp,
+                userAgent: userAgentString,
+                browser: deviceInfo.browser,
+                browserVersion: deviceInfo.browserVersion,
+                operatingSystem: deviceInfo.operatingSystem,
+                osVersion: deviceInfo.osVersion,
+                deviceType: deviceInfo.deviceType,
+                deviceBrand: deviceInfo.deviceBrand,
+                deviceModel: deviceInfo.deviceModel,
+                country: locationData.country,
+                countryCode: locationData.countryCode,
+                region: locationData.region,
+                city: locationData.city,
+                postalCode: locationData.postalCode,
+                latitude: locationData.latitude,
+                longitude: locationData.longitude,
+                timezone: locationData.timezone,
+                isp: locationData.isp,
+                loginStatus: 'blocked',
+                loginTime: new Date()
+              });
+
+              // Save both records
+              await Promise.all([
+                loginAttempt.save(),
+                userLoginRecord.save()
+              ]);
+
+              console.log('Recorded login attempt for:', user.email, '(maintenance mode)');
             } catch (err) {
-              console.error('Error recording maintenance login attempt:', err);
+              console.error('Error recording login attempt:', err);
             }
 
             return req.logout(function(err) {
@@ -168,6 +262,60 @@ module.exports = {
         } else {
           // Normal operation (no maintenance mode)
           console.log('Normal login, redirecting to chat');
+
+          // Record the login in the user logins log with location data
+          try {
+            const UserLogin = require('../models/UserLogin');
+
+            // Get user agent string
+            const userAgentString = req.headers['user-agent'] || 'Unknown';
+
+            // Get IP addresses
+            const { getRealIpAddress } = require('../utils/ipUtils');
+            const ipAddress = getRealIpAddress(req);
+            const forwardedIp = req.headers['x-forwarded-for'] || '';
+
+            // Parse user agent to get device and browser info
+            const { parseUserAgent } = require('../utils/deviceUtils');
+            const deviceInfo = parseUserAgent(userAgentString);
+
+            // Get location data
+            const { getIpLocation } = require('../utils/geoIpUtils');
+            const locationData = getIpLocation(ipAddress);
+
+            // Create the login record with detailed device and location info
+            const loginRecord = new UserLogin({
+              username: user.email,
+              userId: user._id,
+              ipAddress: ipAddress,
+              forwardedIp: forwardedIp,
+              userAgent: userAgentString,
+              browser: deviceInfo.browser,
+              browserVersion: deviceInfo.browserVersion,
+              operatingSystem: deviceInfo.operatingSystem,
+              osVersion: deviceInfo.osVersion,
+              deviceType: deviceInfo.deviceType,
+              deviceBrand: deviceInfo.deviceBrand,
+              deviceModel: deviceInfo.deviceModel,
+              country: locationData.country,
+              countryCode: locationData.countryCode,
+              region: locationData.region,
+              city: locationData.city,
+              postalCode: locationData.postalCode,
+              latitude: locationData.latitude,
+              longitude: locationData.longitude,
+              timezone: locationData.timezone,
+              isp: locationData.isp,
+              loginStatus: 'success',
+              loginTime: new Date()
+            });
+
+            // Save the login record
+            await loginRecord.save();
+            console.log('Recorded successful login for:', user.email);
+          } catch (err) {
+            console.error('Error recording login:', err);
+          }
 
           // Ensure session is saved before redirecting
           return req.session.save((err) => {
