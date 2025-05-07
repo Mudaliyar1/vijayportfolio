@@ -33,6 +33,14 @@ router.get('/privacy', (req, res) => {
   });
 });
 
+// Cookie Policy
+router.get('/cookies', (req, res) => {
+  res.render('policies/cookies', {
+    title: 'Cookie Policy - FTRAISE AI',
+    user: req.user
+  });
+});
+
 // Contact Us
 router.get('/contact', (req, res) => {
   res.render('policies/contact', {

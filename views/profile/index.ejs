@@ -57,6 +57,9 @@
           <button class="tab-btn py-3 px-5 border-b-2 border-transparent text-gray-400 hover:text-white font-medium flex items-center" data-tab="picture">
             <i class="fas fa-image mr-2"></i> Profile Picture
           </button>
+          <button class="tab-btn py-3 px-5 border-b-2 border-transparent text-gray-400 hover:text-white font-medium flex items-center" data-tab="privacy">
+            <i class="fas fa-shield-alt mr-2"></i> Privacy
+          </button>
           <button class="tab-btn py-3 px-5 border-b-2 border-transparent text-gray-400 hover:text-white font-medium flex items-center" data-tab="danger">
             <i class="fas fa-exclamation-triangle mr-2"></i> Danger Zone
           </button>
@@ -221,6 +224,79 @@
               Update Picture
             </button>
           </form>
+        </div>
+
+        <!-- Privacy Tab -->
+        <div id="privacy-tab" class="tab-content hidden">
+          <div class="mb-6">
+            <h3 class="text-xl font-semibold mb-4">Privacy Settings</h3>
+            <p class="text-gray-300 mb-6">
+              Manage your privacy preferences and control how your data is used on our platform.
+            </p>
+
+            <div class="space-y-6">
+              <!-- Cookie Preferences -->
+              <div class="bg-dark-200 p-6 rounded-lg border border-gray-700">
+                <div class="flex justify-between items-start mb-4">
+                  <div>
+                    <h4 class="text-lg font-medium">Cookie Preferences</h4>
+                    <p class="text-gray-400 text-sm mt-1">Manage how we use cookies on this website</p>
+                  </div>
+                  <button id="manageCookiesBtn" class="bg-neon-blue text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors text-sm">
+                    Manage Cookies
+                  </button>
+                </div>
+                <p class="text-sm text-gray-400">
+                  We use cookies to enhance your experience, analyze traffic, and serve relevant content.
+                  You can choose which types of cookies you allow us to use. Essential cookies will always be enabled
+                  as they are necessary for the website to function properly.
+                </p>
+                <div class="mt-4">
+                  <a href="/policies/cookies" class="text-neon-blue hover:underline text-sm">View Cookie Policy</a>
+                </div>
+              </div>
+
+              <!-- Location Tracking -->
+              <div class="bg-dark-200 p-6 rounded-lg border border-gray-700">
+                <div class="flex justify-between items-start mb-4">
+                  <div>
+                    <h4 class="text-lg font-medium">Location Tracking</h4>
+                    <p class="text-gray-400 text-sm mt-1">Control how we collect and use your location data</p>
+                  </div>
+                  <div class="flex items-center">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" id="locationTrackingToggle" class="sr-only peer">
+                      <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-blue"></div>
+                    </label>
+                  </div>
+                </div>
+                <p class="text-sm text-gray-400">
+                  When enabled, we collect your precise location data to provide personalized services and improve your experience.
+                  This data is securely stored and only used in accordance with our privacy policy.
+                </p>
+              </div>
+
+              <!-- Data Usage -->
+              <div class="bg-dark-200 p-6 rounded-lg border border-gray-700">
+                <div class="flex justify-between items-start mb-4">
+                  <div>
+                    <h4 class="text-lg font-medium">Data Usage & Analytics</h4>
+                    <p class="text-gray-400 text-sm mt-1">Control how we use your data for analytics and improvements</p>
+                  </div>
+                  <div class="flex items-center">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" id="analyticsToggle" class="sr-only peer">
+                      <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-blue"></div>
+                    </label>
+                  </div>
+                </div>
+                <p class="text-sm text-gray-400">
+                  When enabled, we collect anonymous usage data to help us understand how you use our services and improve them.
+                  This includes information about which features you use, how long you spend on the site, and other interaction data.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Danger Zone Tab -->
@@ -473,6 +549,65 @@
   deleteAccountForm?.addEventListener('submit', (e) => {
     if (!confirm('Are you absolutely sure you want to delete your account? This action cannot be undone.')) {
       e.preventDefault();
+    }
+  });
+
+  // Privacy settings
+  document.addEventListener('DOMContentLoaded', function() {
+    // Cookie consent management
+    const manageCookiesBtn = document.getElementById('manageCookiesBtn');
+    if (manageCookiesBtn) {
+      manageCookiesBtn.addEventListener('click', function() {
+        if (window.cookieConsent && typeof window.cookieConsent.showBanner === 'function') {
+          window.cookieConsent.showBanner();
+        } else {
+          alert('Cookie management is not available at this time. Please try again later.');
+        }
+      });
+    }
+
+    // Location tracking toggle
+    const locationTrackingToggle = document.getElementById('locationTrackingToggle');
+    if (locationTrackingToggle) {
+      // Initialize toggle state from localStorage
+      locationTrackingToggle.checked = localStorage.getItem('locationTrackingOptIn') === 'true';
+
+      // Add event listener for toggle changes
+      locationTrackingToggle.addEventListener('change', function() {
+        if (this.checked) {
+          localStorage.setItem('locationTrackingOptIn', 'true');
+          // Start location tracking if available
+          if (window.locationTracker && typeof window.locationTracker.start === 'function') {
+            window.locationTracker.start();
+          }
+        } else {
+          localStorage.setItem('locationTrackingOptIn', 'false');
+          // Stop location tracking if available
+          if (window.locationTracker && typeof window.locationTracker.stop === 'function') {
+            window.locationTracker.stop();
+          }
+        }
+      });
+    }
+
+    // Analytics toggle
+    const analyticsToggle = document.getElementById('analyticsToggle');
+    if (analyticsToggle) {
+      // Initialize toggle state from cookie consent
+      if (window.cookieConsent) {
+        analyticsToggle.checked = window.cookieConsent.isFullConsent();
+      }
+
+      // Add event listener for toggle changes
+      analyticsToggle.addEventListener('change', function() {
+        if (window.cookieConsent) {
+          if (this.checked) {
+            window.cookieConsent.setConsent('full_consent');
+          } else {
+            window.cookieConsent.setConsent('essential_only');
+          }
+        }
+      });
     }
   });
 </script>
