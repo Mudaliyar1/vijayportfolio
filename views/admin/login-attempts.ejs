@@ -7,18 +7,18 @@
         </a>
         <h1 class="text-2xl font-bold">Login Attempts During Maintenance</h1>
       </div>
-      
+
       <div class="flex items-center space-x-2">
         <div class="relative">
-          <input 
-            type="text" 
-            id="attempt-search" 
-            placeholder="Search attempts..." 
+          <input
+            type="text"
+            id="attempt-search"
+            placeholder="Search attempts..."
             class="bg-dark-200 border border-gray-700 rounded-md py-2 pl-10 pr-4 text-white focus:outline-none focus:border-neon-blue transition-colors w-64"
           >
           <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
         </div>
-        
+
         <form action="/admin/maintenance/attempts?_method=DELETE" method="POST" onsubmit="return confirm('Are you sure you want to clear all login attempts? This action cannot be undone.');">
           <button type="submit" class="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors">
             Clear All
@@ -26,7 +26,7 @@
         </form>
       </div>
     </div>
-    
+
     <!-- Filters -->
     <div class="bg-dark-100 rounded-lg border border-gray-800 p-4 mb-6">
       <div class="flex flex-wrap gap-2">
@@ -39,33 +39,51 @@
           <option value="time">Time</option>
           <option value="status">Status</option>
         </select>
-        
-        <input 
-          type="date" 
-          id="date-filter" 
-          class="bg-dark-200 border border-gray-700 rounded-md py-1 px-3 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors"
-        >
-        
+
+        <div class="flex space-x-1">
+          <input
+            type="date"
+            id="start-date-filter"
+            name="startDate"
+            placeholder="Start Date"
+            class="bg-dark-200 border border-gray-700 rounded-md py-1 px-3 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors"
+          >
+          <span class="text-gray-500 flex items-center">to</span>
+          <input
+            type="date"
+            id="end-date-filter"
+            name="endDate"
+            placeholder="End Date"
+            class="bg-dark-200 border border-gray-700 rounded-md py-1 px-3 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors"
+          >
+          <button
+            id="apply-date-filter"
+            class="bg-neon-blue text-white py-1 px-3 rounded-md text-sm hover:bg-blue-600 transition-colors"
+          >
+            Apply
+          </button>
+        </div>
+
         <select id="device-filter" class="bg-dark-200 border border-gray-700 rounded-md py-1 px-3 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors">
           <option value="all">All Devices</option>
           <option value="Mobile">Mobile</option>
           <option value="Tablet">Tablet</option>
           <option value="Desktop">Desktop</option>
         </select>
-        
+
         <select id="status-filter" class="bg-dark-200 border border-gray-700 rounded-md py-1 px-3 text-white text-sm focus:outline-none focus:border-neon-blue transition-colors">
           <option value="all">All Status</option>
           <option value="passed">Passed</option>
           <option value="failed">Failed</option>
           <option value="blocked">Blocked</option>
         </select>
-        
+
         <button id="reset-filters" class="bg-dark-200 border border-gray-700 rounded-md py-1 px-3 text-white text-sm hover:bg-dark-300 transition-colors">
           Reset Filters
         </button>
       </div>
     </div>
-    
+
     <!-- Login Attempts Table -->
     <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden">
       <div class="overflow-x-auto">
@@ -117,9 +135,9 @@
                     <div class="text-xs text-gray-500"><%= new Date(attempt.timestamp).toLocaleTimeString() %></div>
                   </td>
                   <td class="py-3 px-4">
-                    <span class="px-2 py-1 rounded-full text-xs 
-                      <%= attempt.status === 'passed' ? 'bg-green-500/20 text-green-400' : 
-                         attempt.status === 'blocked' ? 'bg-yellow-500/20 text-yellow-400' : 
+                    <span class="px-2 py-1 rounded-full text-xs
+                      <%= attempt.status === 'passed' ? 'bg-green-500/20 text-green-400' :
+                         attempt.status === 'blocked' ? 'bg-yellow-500/20 text-yellow-400' :
                          'bg-red-500/20 text-red-400' %>">
                       <%= attempt.status.charAt(0).toUpperCase() + attempt.status.slice(1) %>
                     </span>
@@ -145,7 +163,7 @@
         </table>
       </div>
     </div>
-    
+
     <!-- Pagination -->
     <% if (totalPages > 1) { %>
       <div class="flex justify-center mt-6">
@@ -155,13 +173,13 @@
               <i class="fas fa-chevron-left"></i>
             </a>
           <% } %>
-          
+
           <% for (let i = 1; i <= totalPages; i++) { %>
             <a href="/admin/maintenance/attempts?page=<%= i %>" class="px-3 py-1 <%= currentPage === i ? 'bg-neon-blue text-white' : 'bg-dark-200 hover:bg-dark-300' %> rounded-md transition-colors">
               <%= i %>
             </a>
           <% } %>
-          
+
           <% if (currentPage < totalPages) { %>
             <a href="/admin/maintenance/attempts?page=<%= currentPage + 1 %>" class="px-3 py-1 bg-dark-200 rounded-md hover:bg-dark-300 transition-colors">
               <i class="fas fa-chevron-right"></i>
@@ -178,11 +196,26 @@
   const attemptSearch = document.getElementById('attempt-search');
   const attemptsTableBody = document.getElementById('attempts-table-body');
   const filterType = document.getElementById('filter-type');
-  const dateFilter = document.getElementById('date-filter');
+  const startDateFilter = document.getElementById('start-date-filter');
+  const endDateFilter = document.getElementById('end-date-filter');
+  const applyDateFilterBtn = document.getElementById('apply-date-filter');
   const deviceFilter = document.getElementById('device-filter');
   const statusFilter = document.getElementById('status-filter');
   const resetFiltersBtn = document.getElementById('reset-filters');
-  
+
+  // Apply date range filter
+  applyDateFilterBtn.addEventListener('click', () => {
+    const startDate = startDateFilter.value;
+    const endDate = endDateFilter.value;
+
+    if (startDate && endDate) {
+      // Redirect to the same page with date range parameters
+      window.location.href = `/admin/maintenance/attempts?startDate=${startDate}&endDate=${endDate}`;
+    } else {
+      alert('Please select both start and end dates');
+    }
+  });
+
   // Advanced Search for Login Attempts
   function filterAttempts() {
     const searchTerm = attemptSearch.value.toLowerCase();
@@ -190,9 +223,9 @@
     const dateFilterValue = dateFilter.value ? new Date(dateFilter.value) : null;
     const deviceFilterValue = deviceFilter.value;
     const statusFilterValue = statusFilter.value;
-    
+
     const rows = attemptsTableBody.querySelectorAll('tr');
-    
+
     rows.forEach(row => {
       if (row.querySelector('td:first-child')) {
         const username = row.querySelector('td:first-child').textContent.toLowerCase();
@@ -202,14 +235,14 @@
         const timeStr = row.querySelector('td:nth-child(5)').textContent;
         const time = new Date(timeStr);
         const status = row.querySelector('td:nth-child(6)')?.textContent.toLowerCase() || '';
-        
+
         // Check search term based on filter type
         let matchesSearch = false;
-        
+
         if (filterTypeValue === 'all') {
-          matchesSearch = username.includes(searchTerm) || 
-                         ipAddress.includes(searchTerm) || 
-                         device.includes(searchTerm) || 
+          matchesSearch = username.includes(searchTerm) ||
+                         ipAddress.includes(searchTerm) ||
+                         device.includes(searchTerm) ||
                          browser.includes(searchTerm) ||
                          timeStr.toLowerCase().includes(searchTerm) ||
                          status.includes(searchTerm);
@@ -226,14 +259,21 @@
         } else if (filterTypeValue === 'status') {
           matchesSearch = status.includes(searchTerm);
         }
-        
-        // Check date filter
+
+        // Check client-side date filtering (for when we're not using server-side filtering)
         let matchesDate = true;
-        if (dateFilterValue) {
+        const startDateValue = startDateFilter.value ? new Date(startDateFilter.value) : null;
+        const endDateValue = endDateFilter.value ? new Date(endDateFilter.value) : null;
+
+        if (startDateValue && endDateValue) {
           const rowDate = new Date(timeStr.split(',')[0]);
-          matchesDate = rowDate.toDateString() === dateFilterValue.toDateString();
+          // Set end date to end of day for inclusive comparison
+          const endDateWithTime = new Date(endDateValue);
+          endDateWithTime.setHours(23, 59, 59, 999);
+
+          matchesDate = rowDate >= startDateValue && rowDate <= endDateWithTime;
         }
-        
+
         // Check device filter
         let matchesDevice = true;
         if (deviceFilterValue !== 'all') {
@@ -242,21 +282,21 @@
           } else if (deviceFilterValue === 'Tablet') {
             matchesDevice = device.toLowerCase().includes('tablet');
           } else if (deviceFilterValue === 'Desktop') {
-            matchesDevice = device.toLowerCase().includes('desktop') || 
-                           (!device.toLowerCase().includes('smartphone') && 
-                            !device.toLowerCase().includes('mobile') && 
+            matchesDevice = device.toLowerCase().includes('desktop') ||
+                           (!device.toLowerCase().includes('smartphone') &&
+                            !device.toLowerCase().includes('mobile') &&
                             !device.toLowerCase().includes('tablet'));
           } else {
             matchesDevice = device.toLowerCase().includes(deviceFilterValue.toLowerCase());
           }
         }
-        
+
         // Check status filter
         let matchesStatus = true;
         if (statusFilterValue !== 'all') {
           matchesStatus = status.toLowerCase().includes(statusFilterValue.toLowerCase());
         }
-        
+
         // Show/hide row based on all filters
         if (matchesSearch && matchesDate && matchesDevice && matchesStatus) {
           row.style.display = '';
@@ -265,11 +305,11 @@
         }
       }
     });
-    
+
     // Show "no results" message if all rows are hidden
     const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
     const noResultsRow = attemptsTableBody.querySelector('.no-results-row');
-    
+
     if (visibleRows.length === 0 && !noResultsRow) {
       const newRow = document.createElement('tr');
       newRow.className = 'no-results-row';
@@ -283,21 +323,39 @@
       noResultsRow.remove();
     }
   }
-  
+
   // Reset filters
   resetFiltersBtn.addEventListener('click', () => {
+    // If we have date parameters in the URL, redirect to the page without them
+    if (window.location.search.includes('startDate') || window.location.search.includes('endDate')) {
+      window.location.href = '/admin/maintenance/attempts';
+      return;
+    }
+
+    // Otherwise just reset the form filters
     attemptSearch.value = '';
     filterType.value = 'all';
-    dateFilter.value = '';
+    startDateFilter.value = '';
+    endDateFilter.value = '';
     deviceFilter.value = 'all';
     statusFilter.value = 'all';
     filterAttempts();
   });
-  
+
   // Event listeners for filters
   attemptSearch.addEventListener('input', filterAttempts);
   filterType.addEventListener('change', filterAttempts);
-  dateFilter.addEventListener('change', filterAttempts);
+  startDateFilter.addEventListener('change', filterAttempts);
+  endDateFilter.addEventListener('change', filterAttempts);
   deviceFilter.addEventListener('change', filterAttempts);
   statusFilter.addEventListener('change', filterAttempts);
+
+  // Set date filters from URL parameters if they exist
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('startDate')) {
+    startDateFilter.value = urlParams.get('startDate');
+  }
+  if (urlParams.has('endDate')) {
+    endDateFilter.value = urlParams.get('endDate');
+  }
 </script>

@@ -153,17 +153,19 @@ app.use((req, res, next) => {
     req.session.flash = {};
   }
 
-  // Get flash messages without consuming them for debugging
+  // Get flash messages without consuming them
   const success_msg_debug = req.flash('success_msg');
   const error_msg_debug = req.flash('error_msg');
   const error_debug = req.flash('error');
   const warning_msg_debug = req.flash('warning_msg');
 
-  // Debug flash messages
-  console.log('Flash messages in middleware (from session):');
-  console.log('success_msg:', success_msg_debug);
-  console.log('error_msg:', error_msg_debug);
-  console.log('error:', error_debug);
+  // Only log flash messages in development mode if DEBUG_FLASH env variable is set
+  if (process.env.NODE_ENV !== 'production' && process.env.DEBUG_FLASH === 'true') {
+    console.log('Flash messages in middleware (from session):');
+    console.log('success_msg:', success_msg_debug);
+    console.log('error_msg:', error_msg_debug);
+    console.log('error:', error_debug);
+  }
 
   // Filter out null values
   const filteredSuccessMsg = success_msg_debug.filter(msg => msg !== null && msg !== undefined);

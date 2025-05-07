@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const MaintenanceMode = require('../models/MaintenanceMode');
 const MaintenanceLoginAttempt = require('../models/MaintenanceLoginAttempt');
 const MaintenanceHistory = require('../models/MaintenanceHistory');
@@ -30,16 +31,34 @@ module.exports = {
 
         // Create a maintenance history record
         try {
-          await MaintenanceHistory.create({
-            action: 'auto_disable',
-            details: 'Maintenance mode automatically disabled due to end time passing',
-            previousSettings: {
-              isEnabled: true,
-              startTime: maintenanceSettings.startTime,
-              endTime: maintenanceSettings.endTime,
-              message: maintenanceSettings.message
-            }
-          });
+          // Find the most recent history that doesn't have an actual end time
+          const lastHistory = await MaintenanceHistory.findOne({
+            actualEndTime: null
+          }).sort({ startTime: -1 });
+
+          if (lastHistory) {
+            // Update the existing history record
+            const now = new Date();
+            lastHistory.actualEndTime = now;
+            lastHistory.status = 'completed';
+            await lastHistory.save();
+            console.log('Updated maintenance history record for auto-disable');
+          } else {
+            // If no existing record found, create a minimal record with all required fields
+            await MaintenanceHistory.create({
+              reason: 'Auto Disabled',
+              message: 'Maintenance mode automatically disabled due to end time passing',
+              startTime: maintenanceSettings.startTime || new Date(Date.now() - 3600000), // 1 hour ago if no start time
+              endTime: maintenanceSettings.endTime || new Date(),
+              durationUnit: maintenanceSettings.durationUnit || 'hours',
+              durationValue: maintenanceSettings.durationValue || 1,
+              adminId: maintenanceSettings.updatedBy || new mongoose.Types.ObjectId('000000000000000000000000'), // Use a default ObjectId
+              status: 'completed',
+              actualEndTime: new Date(),
+              notes: 'Automatically disabled by system'
+            });
+            console.log('Created new maintenance history record for auto-disable');
+          }
         } catch (historyErr) {
           console.error('Error creating maintenance history record:', historyErr);
         }
@@ -121,8 +140,44 @@ module.exports = {
         return next();
       }
 
-      // If a non-admin user is logged in, log them out
+      // If a non-admin user is logged in, log them out and record the attempt
       if (req.isAuthenticated() && !req.user.isAdmin) {
+        // Record the login attempt in the maintenance log
+        try {
+          // Get user agent string
+          const userAgentString = req.headers['user-agent'] || 'Unknown';
+
+          // Get IP addresses
+          const { getRealIpAddress } = require('../utils/ipUtils');
+          const ipAddress = getRealIpAddress(req);
+          const forwardedIp = req.headers['x-forwarded-for'] || '';
+
+          // Create a simplified login attempt record
+          const loginAttempt = new MaintenanceLoginAttempt({
+            username: req.user.email,
+            userId: req.user._id,
+            ipAddress: ipAddress,
+            forwardedIp: forwardedIp,
+            userAgent: userAgentString,
+            browser: 'Unknown', // Simplified
+            browserVersion: '',
+            operatingSystem: 'Unknown', // Simplified
+            osVersion: '',
+            deviceType: 'Unknown', // Simplified
+            deviceBrand: '',
+            deviceModel: '',
+            status: 'blocked',
+            reason: 'Non-admin user during maintenance',
+            timestamp: new Date() // Ensure timestamp is set to now
+          });
+
+          // Save the login attempt
+          await loginAttempt.save();
+          console.log('Recorded maintenance access attempt for:', req.user.email);
+        } catch (err) {
+          console.error('Error recording maintenance access attempt:', err);
+        }
+
         return req.logout(function(err) {
           if (err) {
             console.error('Error during logout:', err);
@@ -147,47 +202,30 @@ module.exports = {
 
           // Log successful admin login attempt
           try {
-            // Get detailed device information
-            const userAgentString = req.headers['user-agent'];
-            const deviceInfo = deviceDetector.parse(userAgentString);
+            // Get user agent string
+            const userAgentString = req.headers['user-agent'] || 'Unknown';
 
             // Get IP addresses
-            const ipAddress = req.connection.remoteAddress || '0.0.0.0';
+            const { getRealIpAddress } = require('../utils/ipUtils');
+            const ipAddress = getRealIpAddress(req);
             const forwardedIp = req.headers['x-forwarded-for'] || '';
 
-            // Determine device type, brand, and model
-            let deviceType = 'Desktop';
-            let deviceBrand = '';
-            let deviceModel = '';
-
-            if (deviceInfo.device) {
-              deviceType = deviceInfo.device.type || 'Unknown';
-              deviceBrand = deviceInfo.device.brand || '';
-              deviceModel = deviceInfo.device.model || '';
-            }
-
-            // Get browser and OS details
-            const agent = useragent.parse(userAgentString);
-            const browser = deviceInfo.client?.name || agent.family;
-            const browserVersion = deviceInfo.client?.version || agent.toVersion();
-            const operatingSystem = deviceInfo.os?.name || agent.os.family;
-            const osVersion = deviceInfo.os?.version || agent.os.toVersion();
-
-            // Log the attempt with detailed information
+            // Log the attempt with simplified information
             const loginAttempt = new MaintenanceLoginAttempt({
               username: email,
               ipAddress: ipAddress,
               forwardedIp: forwardedIp,
               userAgent: userAgentString,
-              browser: browser,
-              browserVersion: browserVersion,
-              operatingSystem: operatingSystem,
-              osVersion: osVersion,
-              deviceType: deviceType,
-              deviceBrand: deviceBrand,
-              deviceModel: deviceModel,
+              browser: 'Unknown', // Simplified
+              browserVersion: '',
+              operatingSystem: 'Unknown', // Simplified
+              osVersion: '',
+              deviceType: 'Unknown', // Simplified
+              deviceBrand: '',
+              deviceModel: '',
               status: 'passed',
-              reason: 'Admin login during maintenance'
+              reason: 'Admin login during maintenance',
+              timestamp: new Date() // Ensure timestamp is set to now
             });
 
             await loginAttempt.save();
@@ -217,54 +255,37 @@ module.exports = {
 
         console.log('Non-admin login attempt during maintenance:', email);
 
-        // Get detailed device information
-        const userAgentString = req.headers['user-agent'];
-        const deviceInfo = deviceDetector.parse(userAgentString);
+        // Get user agent string
+        const userAgentString = req.headers['user-agent'] || 'Unknown';
 
         // Get IP addresses
-        const ipAddress = req.connection.remoteAddress || '0.0.0.0';
+        const { getRealIpAddress } = require('../utils/ipUtils');
+        const ipAddress = getRealIpAddress(req);
         const forwardedIp = req.headers['x-forwarded-for'] || '';
 
-        // Determine device type, brand, and model
-        let deviceType = 'Desktop';
-        let deviceBrand = '';
-        let deviceModel = '';
-
-        if (deviceInfo.device) {
-          deviceType = deviceInfo.device.type || 'Unknown';
-          deviceBrand = deviceInfo.device.brand || '';
-          deviceModel = deviceInfo.device.model || '';
-        }
-
-        // Get browser and OS details
-        const browser = deviceInfo.client?.name || agent.family;
-        const browserVersion = deviceInfo.client?.version || agent.toVersion();
-        const operatingSystem = deviceInfo.os?.name || agent.os.family;
-        const osVersion = deviceInfo.os?.version || agent.os.toVersion();
-
-        // Log the attempt with detailed information
+        // Log the attempt with simplified information
         const loginAttempt = new MaintenanceLoginAttempt({
           username: email || 'Unknown',
           ipAddress: ipAddress,
           forwardedIp: forwardedIp,
           userAgent: userAgentString,
-          browser: browser,
-          browserVersion: browserVersion,
-          operatingSystem: operatingSystem,
-          osVersion: osVersion,
-          deviceType: deviceType,
-          deviceBrand: deviceBrand,
-          deviceModel: deviceModel,
+          browser: 'Unknown', // Simplified
+          browserVersion: '',
+          operatingSystem: 'Unknown', // Simplified
+          osVersion: '',
+          deviceType: 'Unknown', // Simplified
+          deviceBrand: '',
+          deviceModel: '',
           status: 'failed',
-          reason: 'Non-admin user during maintenance'
+          reason: 'Non-admin user during maintenance',
+          timestamp: new Date() // Ensure timestamp is set to now
         });
 
         await loginAttempt.save();
         console.log('Logged maintenance login attempt:', {
           username: email,
-          device: `${deviceBrand} ${deviceModel}`,
-          browser: `${browser} ${browserVersion}`,
-          os: `${operatingSystem} ${osVersion}`
+          ipAddress: ipAddress,
+          timestamp: new Date()
         });
 
         // Set error message for non-admin login attempts
@@ -320,19 +341,28 @@ module.exports = {
       // Get current maintenance settings
       const maintenanceSettings = await MaintenanceMode.findOne().sort({ updatedAt: -1 });
 
-      // Get limited login attempts for the main page (just the most recent 5)
-      const loginAttempts = await MaintenanceLoginAttempt.find()
+      // Get limited login attempts for the main page (most recent 10)
+      // We'll show all recent login attempts, not just from the current period
+      let loginAttemptsQuery = {};
+
+      // For debugging, log if there's an active maintenance period
+      if (maintenanceSettings && maintenanceSettings.isEnabled && maintenanceSettings.startTime) {
+        console.log('Active maintenance period since:', maintenanceSettings.startTime);
+      }
+
+      // Get the 10 most recent login attempts
+      const loginAttempts = await MaintenanceLoginAttempt.find(loginAttemptsQuery)
         .sort({ timestamp: -1 })
-        .limit(5);
+        .limit(10);
 
       // Get total count of login attempts
       const totalLoginAttempts = await MaintenanceLoginAttempt.countDocuments();
 
-      // Get limited maintenance history for the main page (just the most recent 3)
+      // Get limited maintenance history for the main page (most recent 5)
       const maintenanceHistory = await MaintenanceHistory.find()
         .sort({ startTime: -1 })
         .populate('adminId', 'username')
-        .limit(3);
+        .limit(5);
 
       // Get total count of maintenance history records
       const totalMaintenanceHistory = await MaintenanceHistory.countDocuments();
@@ -349,13 +379,16 @@ module.exports = {
         console.log('No maintenance history records found');
 
         // Create a sample history record if none exist
-        if (req.user && req.user.isAdmin) {
+        if (req.user && req.user._id) {
           try {
             const startTime = new Date();
             startTime.setHours(startTime.getHours() - 2); // 2 hours ago
 
             const endTime = new Date();
             endTime.setHours(endTime.getHours() - 1); // 1 hour ago
+
+            // Ensure we have a valid admin ID
+            const adminId = req.user._id || new mongoose.Types.ObjectId('000000000000000000000000');
 
             const historyRecord = new MaintenanceHistory({
               reason: 'System Update',
@@ -366,7 +399,7 @@ module.exports = {
               durationValue: 1,
               actualEndTime: endTime,
               status: 'completed',
-              adminId: req.user._id,
+              adminId: adminId,
               loginAttempts: 0,
               notes: 'Initial maintenance record'
             });
@@ -439,11 +472,40 @@ module.exports = {
       const limit = parseInt(req.query.limit) || 20;
       const skip = (page - 1) * limit;
 
-      // Get total count for pagination
-      const totalCount = await MaintenanceLoginAttempt.countDocuments();
+      // Get current maintenance settings
+      const maintenanceSettings = await MaintenanceMode.findOne().sort({ updatedAt: -1 });
 
-      // Get login attempts with pagination
-      const loginAttempts = await MaintenanceLoginAttempt.find()
+      // Prepare query - filter by date range if specified
+      let query = {};
+
+      // Check if "all" parameter is provided
+      if (req.query.all === 'true') {
+        // Show all records, no filtering
+        console.log('Showing all login attempts');
+      }
+      // Check if date filter is provided in query params
+      else if (req.query.startDate && req.query.endDate) {
+        const startDate = new Date(req.query.startDate);
+        const endDate = new Date(req.query.endDate);
+        endDate.setHours(23, 59, 59, 999); // Set to end of day
+
+        query.timestamp = {
+          $gte: startDate,
+          $lte: endDate
+        };
+        console.log('Filtering login attempts by date range:', startDate, 'to', endDate);
+      }
+      // If no date filter but maintenance is active, show current period
+      else if (maintenanceSettings && maintenanceSettings.isEnabled && maintenanceSettings.startTime) {
+        query.timestamp = { $gte: maintenanceSettings.startTime };
+        console.log('Filtering login attempts since:', maintenanceSettings.startTime);
+      }
+
+      // Get total count for pagination with the query
+      const totalCount = await MaintenanceLoginAttempt.countDocuments(query);
+
+      // Get login attempts with pagination and query
+      const loginAttempts = await MaintenanceLoginAttempt.find(query)
         .sort({ timestamp: -1 })
         .skip(skip)
         .limit(limit);
@@ -631,36 +693,63 @@ module.exports = {
     try {
       const historyId = req.params.id;
 
-      await MaintenanceHistory.findByIdAndDelete(historyId);
+      // Check if the ID is valid
+      if (!historyId || historyId === 'bulk-delete') {
+        req.flash('error_msg', 'Invalid maintenance history ID');
+        return res.redirect('/admin/maintenance/history');
+      }
+
+      const result = await MaintenanceHistory.findByIdAndDelete(historyId);
+
+      if (!result) {
+        req.flash('error_msg', 'Maintenance history record not found');
+        return res.redirect('/admin/maintenance/history');
+      }
 
       req.flash('success_msg', 'Maintenance history record deleted successfully');
-      res.redirect('/admin/maintenance');
+      res.redirect('/admin/maintenance/history');
     } catch (err) {
       console.error('Error deleting maintenance history:', err);
       req.flash('error_msg', 'An error occurred while deleting the maintenance history record');
-      res.redirect('/admin/maintenance');
+      res.redirect('/admin/maintenance/history');
     }
   },
 
   // Admin: Bulk delete maintenance history records
   bulkDeleteMaintenanceHistory: async (req, res) => {
     try {
-      const { ids } = req.body;
+      // Debug the request body
+      console.log('Bulk delete request body:', req.body);
 
-      if (!ids || !Array.isArray(ids) || ids.length === 0) {
-        req.flash('error_msg', 'No records selected for deletion');
-        return res.redirect('/admin/maintenance');
+      // Try different possible field names for the IDs
+      let ids = req.body['ids[]'] || req.body.ids || [];
+
+      console.log('Extracted ids:', ids);
+
+      // Convert to array if it's a single value
+      if (!Array.isArray(ids)) {
+        ids = ids ? [ids] : [];
       }
+
+      console.log('Processed ids array:', ids);
+
+      if (!ids || ids.length === 0) {
+        console.log('No ids found in request');
+        req.flash('error_msg', 'No records selected for deletion');
+        return res.redirect('/admin/maintenance/history');
+      }
+
+      console.log('Bulk deleting maintenance history records:', ids);
 
       // Delete all selected records
       const result = await MaintenanceHistory.deleteMany({ _id: { $in: ids } });
 
       req.flash('success_msg', `${result.deletedCount} maintenance history records deleted successfully`);
-      res.redirect('/admin/maintenance');
+      res.redirect('/admin/maintenance/history');
     } catch (err) {
       console.error('Error bulk deleting maintenance history:', err);
       req.flash('error_msg', 'An error occurred while deleting the maintenance history records');
-      res.redirect('/admin/maintenance');
+      res.redirect('/admin/maintenance/history');
     }
   }
 };

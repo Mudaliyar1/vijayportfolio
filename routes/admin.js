@@ -88,7 +88,7 @@ router.post('/maintenance', updateMaintenanceSettings);
 router.delete('/maintenance/attempts/:id', deleteLoginAttempt);
 router.delete('/maintenance/attempts', clearLoginAttempts);
 router.delete('/maintenance/history/:id', deleteMaintenanceHistory);
-router.delete('/maintenance/history/bulk-delete', bulkDeleteMaintenanceHistory);
+router.post('/maintenance/history/bulk-delete', bulkDeleteMaintenanceHistory);
 
 
 

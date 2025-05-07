@@ -169,11 +169,16 @@
         <h2 class="text-xl font-semibold">Login Attempts During Maintenance</h2>
         <div class="flex items-center space-x-2">
           <span class="text-gray-500 text-sm"><%= loginAttempts.length %> of <%= totalLoginAttempts %> records</span>
-          <% if (totalLoginAttempts > loginAttempts.length) { %>
-            <a href="/admin/maintenance/attempts" class="text-neon-blue hover:underline flex items-center">
+          <div class="flex space-x-2">
+            <% if (maintenance && maintenance.isEnabled && maintenance.startTime) { %>
+              <a href="/admin/maintenance/attempts" class="text-neon-blue hover:underline flex items-center">
+                Current Period <i class="fas fa-clock ml-2"></i>
+              </a>
+            <% } %>
+            <a href="/admin/maintenance/attempts?all=true" class="text-neon-blue hover:underline flex items-center">
               View All <i class="fas fa-arrow-right ml-2"></i>
             </a>
-          <% } %>
+          </div>
 
           <div class="relative">
             <input

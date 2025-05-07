@@ -120,6 +120,45 @@ module.exports = {
           } else {
             // Non-admin during maintenance mode
             console.log('Non-admin logged in during maintenance, logging out');
+
+            // Record the login attempt in the maintenance log
+            try {
+              const MaintenanceLoginAttempt = require('../models/MaintenanceLoginAttempt');
+
+              // Get user agent string
+              const userAgentString = req.headers['user-agent'] || 'Unknown';
+
+              // Get IP addresses
+              const { getRealIpAddress } = require('../utils/ipUtils');
+              const ipAddress = getRealIpAddress(req);
+              const forwardedIp = req.headers['x-forwarded-for'] || '';
+
+              // Create a simplified login attempt record
+              const loginAttempt = new MaintenanceLoginAttempt({
+                username: user.email,
+                userId: user._id,
+                ipAddress: ipAddress,
+                forwardedIp: forwardedIp,
+                userAgent: userAgentString,
+                browser: 'Unknown', // Simplified
+                browserVersion: '',
+                operatingSystem: 'Unknown', // Simplified
+                osVersion: '',
+                deviceType: 'Unknown', // Simplified
+                deviceBrand: '',
+                deviceModel: '',
+                status: 'blocked',
+                reason: 'Non-admin user during maintenance',
+                timestamp: new Date() // Ensure timestamp is set to now
+              });
+
+              // Save the login attempt
+              await loginAttempt.save();
+              console.log('Recorded maintenance login attempt for:', user.email);
+            } catch (err) {
+              console.error('Error recording maintenance login attempt:', err);
+            }
+
             return req.logout(function(err) {
               if (err) { console.error('Error during logout:', err); }
               req.flash('error_msg', 'Only administrators can access the site during maintenance.');
