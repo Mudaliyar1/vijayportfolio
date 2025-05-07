@@ -68,6 +68,11 @@ module.exports = {
           return next(err);
         }
 
+        // Log successful login
+        console.log('User logged in successfully:', user.email);
+        console.log('Session ID:', req.sessionID);
+        console.log('Is authenticated:', req.isAuthenticated());
+
         // Check if maintenance mode is active
         const MaintenanceMode = require('../models/MaintenanceMode');
         const maintenanceSettings = await MaintenanceMode.findOne().sort({ updatedAt: -1 });
@@ -124,7 +129,14 @@ module.exports = {
         } else {
           // Normal operation (no maintenance mode)
           console.log('Normal login, redirecting to chat');
-          return res.redirect('/chat');
+
+          // Ensure session is saved before redirecting
+          return req.session.save((err) => {
+            if (err) {
+              console.error('Error saving session after login:', err);
+            }
+            return res.redirect('/chat');
+          });
         }
       });
     })(req, res, next);

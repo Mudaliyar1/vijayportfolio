@@ -125,7 +125,7 @@
 
 
 
-        <% if (typeof user !== 'undefined' && user) { %>
+        <% if (typeof user !== 'undefined' && user && user._id) { %>
           <div class="relative">
             <button class="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors focus:outline-none dropdown-btn" data-dropdown-id="profile-dropdown">
               <img src="<%= user.profilePicture %>" alt="<%= user.username %>" class="w-8 h-8 rounded-full object-cover border border-neon-blue">
@@ -160,6 +160,13 @@
         <% } else { %>
           <a href="/users/login" class="px-4 py-2 rounded-md bg-gradient-to-r from-neon-blue to-neon-purple text-white hover:opacity-90 transition-opacity">Login</a>
           <a href="/users/register" class="px-4 py-2 rounded-md border border-neon-blue text-white hover:bg-neon-blue/10 transition-colors">Register</a>
+        <% } %>
+        <!-- Debug info for session issues (only visible in development) -->
+        <% if (process.env.NODE_ENV !== 'production') { %>
+          <div class="hidden debug-info text-xs text-gray-500 mt-1">
+            Session: <%= typeof req !== 'undefined' && req.sessionID ? 'Valid' : 'Invalid' %>
+            Auth: <%= typeof user !== 'undefined' && user ? 'Yes' : 'No' %>
+          </div>
         <% } %>
       </div>
 
@@ -239,7 +246,7 @@
 
 
 
-        <% if (user) { %>
+        <% if (typeof user !== 'undefined' && user && user._id) { %>
           <div class="border-t border-gray-800 my-2 pt-2">
             <div class="flex items-center space-x-2 mb-3">
               <img src="<%= user.profilePicture %>" alt="<%= user.username %>" class="w-8 h-8 rounded-full object-cover border border-neon-blue">

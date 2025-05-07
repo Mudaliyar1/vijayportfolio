@@ -100,13 +100,31 @@ app.use(session({
   cookie: {
     maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days in milliseconds
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    // Only use secure cookies if we're behind a proxy with HTTPS
+    secure: process.env.NODE_ENV === 'production' && process.env.SECURE_COOKIES === 'true',
+    // Add sameSite attribute for better security and compatibility
+    sameSite: 'lax',
     // Ensure the cookie is always set
-    expires: new Date(Date.now() + (14 * 24 * 60 * 60 * 1000))
+    expires: new Date(Date.now() + (14 * 24 * 60 * 60 * 1000)),
+    // Set path to root to ensure cookie is available throughout the site
+    path: '/'
   },
   // Add error handling for session
   unset: 'destroy',
-  rolling: true // Reset the cookie expiration on each request
+  rolling: true, // Reset the cookie expiration on each request
+  // Ensure proper session serialization
+  serialize: function(session) {
+    return JSON.stringify(session);
+  },
+  // Ensure proper session deserialization
+  unserialize: function(sessionData) {
+    try {
+      return JSON.parse(sessionData);
+    } catch (err) {
+      console.error('Error deserializing session:', err);
+      return {};
+    }
+  }
 }));
 
 // Add session error handling middleware

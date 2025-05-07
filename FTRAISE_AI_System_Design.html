@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FTRAISE AI - System Design Documentation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2563eb;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #1e40af;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #3b82f6;
+            margin-top: 25px;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .toc {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .toc a {
+            text-decoration: none;
+            color: #3b82f6;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        .page-break {
+            page-break-after: always;
+        }
+        .download-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #2563eb;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        .download-btn:hover {
+            background-color: #1e40af;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        @media print {
+            .download-btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="download-btn" id="downloadBtn">Download as PDF</button>
+    <h1>FTRAISE AI - System Design Documentation</h1>
+
+    <div class="toc">
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#introduction">1. Introduction</a></li>
+            <li><a href="#system-overview">2. System Overview</a></li>
+            <li><a href="#uml-diagrams">3. UML Diagrams</a>
+                <ul>
+                    <li><a href="#use-case-diagram">3.1 Use Case Diagram</a></li>
+                    <li><a href="#class-diagram">3.2 Class Diagram</a></li>
+                    <li><a href="#sequence-diagram">3.3 Sequence Diagram</a></li>
+                </ul>
+            </li>
+            <li><a href="#er-diagram">4. ER Diagram</a></li>
+            <li><a href="#module-descriptions">5. Module Descriptions</a>
+                <ul>
+                    <li><a href="#user-management-module">5.1 User Management Module</a></li>
+                    <li><a href="#authentication-authorization-module">5.2 Authentication & Authorization Module</a></li>
+                    <li><a href="#ai-chat-module">5.3 AI Chat Module</a></li>
+                    <li><a href="#image-generation-module">5.4 Image Generation Module</a></li>
+                    <li><a href="#digital-twin-module">5.5 Digital Twin Module</a></li>
+                    <li><a href="#neural-dreamscape-module">5.6 Neural Dreamscape Module</a></li>
+                    <li><a href="#website-builder-module">5.7 Website Builder Module</a></li>
+                    <li><a href="#admin-dashboard-module">5.8 Admin Dashboard Module</a></li>
+                    <li><a href="#memory-learning-module">5.9 Memory & Learning Module</a></li>
+                    <li><a href="#rate-limiting-security-module">5.10 Rate Limiting & Security Module</a></li>
+                </ul>
+            </li>
+            <li><a href="#system-architecture">6. System Architecture</a></li>
+            <li><a href="#security-considerations">7. Security Considerations</a></li>
+            <li><a href="#scalability-considerations">8. Scalability Considerations</a></li>
+            <li><a href="#conclusion">9. Conclusion</a></li>
+        </ul>
+    </div>
+
+    <div class="page-break"></div>
+
+    <h2 id="introduction">1. Introduction</h2>
+    <p>FTRAISE AI is a futuristic AI chat website that provides users with an immersive experience through AI-powered chat, image generation, digital twins, neural dreamscapes, and website building capabilities. This document outlines the system design, architecture, and modules that make up the FTRAISE AI platform.</p>
+
+    <h2 id="system-overview">2. System Overview</h2>
+    <p>FTRAISE AI is built using the following technologies:</p>
+    <ul>
+        <li><strong>Frontend</strong>: EJS, Tailwind CSS, Framer Motion</li>
+        <li><strong>Backend</strong>: Node.js, Express</li>
+        <li><strong>Database</strong>: MongoDB</li>
+        <li><strong>AI Integration</strong>: Cohere AI API, Hugging Face API</li>
+    </ul>
+    <p>The system is designed to be modular, secure, and scalable, with a focus on providing a seamless user experience. The platform includes features for both registered users and guests, with different rate limits and capabilities for each.</p>
+
+    <div class="page-break"></div>
+
+    <h2 id="uml-diagrams">3. UML Diagrams</h2>
+
+    <h3 id="use-case-diagram">3.1 Use Case Diagram</h3>
+    <pre>
++-------------------------------------------------------------+
+|                      FTRAISE AI System                       |
++-------------------------------------------------------------+
+                            ^
+                            |
+        +-------------------+-------------------+
+        |                   |                   |
++---------------+  +----------------+  +----------------+
+|    Guest      |  | Registered User |  |     Admin     |
++---------------+  +----------------+  +----------------+
+| - View Home   |  | - Login        |  | - Manage Users |
+| - Register    |  | - Chat with AI |  | - View Chats   |
+| - Limited Chat|  | - Generate     |  | - Manage       |
+|   with AI     |  |   Images       |  |   Memories     |
+| - Limited     |  | - Create       |  | - View         |
+|   Image       |  |   Digital Twin |  |   Password     |
+|   Generation  |  | - Create Neural|  |   Resets       |
+|               |  |   Dreamscape   |  | - Manage       |
+|               |  | - Build Website|  |   Website      |
+|               |  | - View Profile |  |   Templates    |
+|               |  | - Update       |  | - Manage       |
+|               |  |   Profile      |  |   Maintenance  |
+|               |  | - Change       |  |   Mode         |
+|               |  |   Password     |  | - View         |
+|               |  | - Logout       |  |   Analytics    |
++---------------+  +----------------+  +----------------+
+    </pre>
+
+    <div class="page-break"></div>
+
+    <h3 id="class-diagram">3.2 Class Diagram</h3>
+    <pre>
++-------------+       +-------------+       +-------------+
+|    User     |       |    Chat     |       |   Memory    |
++-------------+       +-------------+       +-------------+
+| id          |<----->| id          |       | id          |
+| username    |       | userId      |<----->| userId      |
+| email       |       | guestId     |       | guestId     |
+| password    |       | title       |       | interactions|
+| role        |       | messages    |       | learning    |
+| profilePic  |       | createdAt   |       | progress    |
+| chatRateLimit|      | updatedAt   |       | createdAt   |
+| imageRateLimit|     +-------------+       | updatedAt   |
+| digitalTwin |                             +-------------+
++-------------+
+      ^
+      |
+      |
++-------------+       +-------------+       +-------------+
+| DigitalTwin |       |    Image    |       |NeuralDreamscape|
++-------------+       +-------------+       +-------------+
+| id          |       | id          |       | id          |
+| userId      |<----->| userId      |       | userId      |
+| name        |       | guestId     |       | title       |
+| personality |       | type        |       | description |
+| interests   |       | prompt      |       | isPublic    |
+| expertise   |       | style       |       | canvasData  |
+| trainingData|       | imagePath   |       | themes      |
+| isPublic    |       | createdAt   |       | aiInsights  |
++-------------+       +-------------+       +-------------+
+                                                  ^
+                                                  |
+                                                  v
++-------------+       +-------------+       +-------------+
+|   Website   |       |WebsitePage  |       |NeuralConnection|
++-------------+       +-------------+       +-------------+
+| id          |       | id          |       | id          |
+| userId      |<----->| websiteId   |       | sourceDreamscapeId|
+| packageId   |       | title       |       | targetDreamscapeId|
+| templateId  |       | slug        |       | strength    |
+| name        |       | content     |       | type        |
+| domain      |       | isHomePage  |       | description |
+| status      |       | order       |       | isAiSuggested|
+| isPublished |       | createdAt   |       +-------------+
++-------------+       +-------------+
+    </pre>
+
+    <div class="page-break"></div>
+
+    <h3 id="sequence-diagram">3.3 Sequence Diagram</h3>
+    <p><strong>AI Chat Interaction</strong></p>
+    <pre>
++--------+          +--------+          +--------+          +--------+
+|  User  |          | Server |          |Cohere AI|          |Database|
++--------+          +--------+          +--------+          +--------+
+    |                   |                   |                   |
+    | Send Message      |                   |                   |
+    |------------------>|                   |                   |
+    |                   | Check Rate Limit  |                   |
+    |                   |------------------>|                   |
+    |                   |                   |                   |
+    |                   | Enhance Prompt    |                   |
+    |                   |-------------------|                   |
+    |                   |                   |                   |
+    |                   | Generate Response |                   |
+    |                   |------------------>|                   |
+    |                   |                   |                   |
+    |                   | AI Response       |                   |
+    |                   |<------------------|                   |
+    |                   |                   |                   |
+    |                   | Save Chat         |                   |
+    |                   |---------------------------------->|   |
+    |                   |                   |                   |
+    |                   | Update Memory     |                   |
+    |                   |---------------------------------->|   |
+    |                   |                   |                   |
+    | Return Response   |                   |                   |
+    |<------------------|                   |                   |
+    |                   |                   |                   |
+    </pre>
+
+    <div class="page-break"></div>
+
+    <h2 id="er-diagram">4. ER Diagram</h2>
+    <pre>
++-------------+       +-------------+       +-------------+
+|    User     |       |    Chat     |       |   Memory    |
++-------------+       +-------------+       +-------------+
+| _id         |<----->| _id         |       | _id         |
+| username    |       | userId      |<----->| userId      |
+| email       |       | guestId     |       | guestId     |
+| password    |       | title       |       | interactions|
+| role        |       | messages    |       | learning    |
+| profilePic  |       | createdAt   |       | progress    |
+| chatRateLimit|      | updatedAt   |       | createdAt   |
+| imageRateLimit|     +-------------+       | updatedAt   |
+| digitalTwin |                             +-------------+
++-------------+
+      ^
+      |
+      |
++-------------+       +-------------+       +-------------+
+| DigitalTwin |       |    Image    |       |NeuralDreamscape|
++-------------+       +-------------+       +-------------+
+| _id         |       | _id         |       | _id         |
+| userId      |<----->| userId      |       | userId      |
+| name        |       | guestId     |       | title       |
+| personality |       | type        |       | description |
+| interests   |       | prompt      |       | isPublic    |
+| expertise   |       | style       |       | canvasData  |
+| trainingData|       | imagePath   |       | themes      |
+| isPublic    |       | createdAt   |       | aiInsights  |
++-------------+       +-------------+       +-------------+
+                                                  ^
+                                                  |
+                                                  v
++-------------+       +-------------+       +-------------+
+|   Website   |       |WebsitePage  |       |NeuralConnection|
++-------------+       +-------------+       +-------------+
+| _id         |       | _id         |       | _id         |
+| userId      |<----->| websiteId   |       | sourceDreamscapeId|
+| packageId   |       | title       |       | targetDreamscapeId|
+| templateId  |       | slug        |       | strength    |
+| name        |       | content     |       | type        |
+| domain      |       | isHomePage  |       | description |
+| status      |       | order       |       | isAiSuggested|
+| isPublished |       | createdAt   |       +-------------+
++-------------+       +-------------+
+
++-------------+       +-------------+       +-------------+
+|   Package   |       |WebsiteTemplate|     |WebsiteElement|
++-------------+       +-------------+       +-------------+
+| _id         |       | _id         |       | _id         |
+| name        |<----->| name        |       | pageId      |
+| price       |       | description |       | type        |
+| isFree      |       | thumbnail   |       | content     |
+| pagesAllowed|       | html        |       | style       |
+| features    |       | css         |       | attributes  |
+| templates   |       | js          |       | order       |
+| description |       | isActive    |       | createdAt   |
++-------------+       +-------------+       +-------------+
+
++-------------+       +-------------+       +-------------+
+|GuestUser    |       |PasswordReset|       |Payment      |
++-------------+       +-------------+       +-------------+
+| _id         |       | _id         |       | _id         |
+| ipAddress   |       | userId      |       | userId      |
+| requestsCount|      | email       |       | websiteId   |
+| lastRequestTime|    | otp         |       | packageId   |
+| createdAt   |       | isUsed      |       | amount      |
++-------------+       | isBlocked   |       | status      |
+                      | createdAt   |       | createdAt   |
+                      +-------------+       +-------------+
+    </pre>
+
+    <div class="page-break"></div>
+
+    <h2 id="module-descriptions">5. Module Descriptions</h2>
+
+    <h3 id="user-management-module">5.1 User Management Module</h3>
+    <p><strong>Purpose:</strong><br>
+    The User Management Module handles all aspects of user accounts, including registration, profile management, and user data storage.</p>
+
+    <p><strong>Components:</strong></p>
+    <ol>
+        <li><strong>User Registration</strong>: Allows new users to create accounts with username, email, and password.</li>
+        <li><strong>Profile Management</strong>: Enables users to update their profile information, including username, email, and profile picture.</li>
+        <li><strong>User Roles</strong>: Manages different user roles (user, admin) and their respective permissions.</li>
+        <li><strong>Guest User Tracking</strong>: Tracks guest users by IP address for rate limiting purposes.</li>
+    </ol>
+
+    <p><strong>Interactions:</strong></p>
+    <ul>
+        <li>Interacts with the Authentication Module for login/logout functionality.</li>
+        <li>Provides user data to the AI Chat Module for personalized interactions.</li>
+        <li>Supplies user information to the Admin Dashboard for user management.</li>
+    </ul>
+
+    <h3 id="authentication-authorization-module">5.2 Authentication & Authorization Module</h3>
+    <p><strong>Purpose:</strong><br>
+    This module handles user authentication, authorization, and security-related functionality.</p>
+
+    <p><strong>Components:</strong></p>
+    <ol>
+        <li><strong>Login System</strong>: Manages user login using Passport.js with local strategy.</li>
+        <li><strong>Session Management</strong>: Handles user sessions using express-session and MongoDB session store.</li>
+        <li><strong>Password Management</strong>: Includes password hashing, reset functionality, and OTP verification.</li>
+        <li><strong>Role-based Access Control</strong>: Restricts access to certain features based on user roles.</li>
+    </ol>
+
+    <p><strong>Interactions:</strong></p>
+    <ul>
+        <li>Works closely with the User Management Module for user data.</li>
+        <li>Provides authentication status to all protected routes.</li>
+        <li>Interacts with the Admin Dashboard for maintenance mode bypass.</li>
+    </ul>
+
+    <div class="page-break"></div>
+
+    <h3 id="ai-chat-module">5.3 AI Chat Module</h3>
+    <p><strong>Purpose:</strong><br>
+    The AI Chat Module provides the core AI conversation functionality using Cohere AI.</p>
+
+    <p><strong>Components:</strong></p>
+    <ol>
+        <li><strong>Chat Interface</strong>: Provides a user-friendly interface for interacting with the AI.</li>
+        <li><strong>Prompt Enhancement</strong>: Uses advanced prompt engineering to improve AI responses.</li>
+        <li><strong>Chat History</strong>: Stores and manages user conversation history.</li>
+        <li><strong>Rate Limiting</strong>: Enforces different rate limits for guests (5 total requests) and registered users (8 requests per 3 minutes).</li>
+    </ol>
+
+    <p><strong>Interactions:</strong></p>
+    <ul>
+        <li>Integrates with Cohere AI API for generating responses.</li>
+        <li>Stores chat data in the database through the Chat model.</li>
+        <li>Updates the Memory Module with interaction data for learning.</li>
+        <li>Subject to rate limiting from the Rate Limiting Module.</li>
+    </ul>
+
+    <h3 id="image-generation-module">5.4 Image Generation Module</h3>
+    <p><strong>Purpose:</strong><br>
+    This module enables AI-powered image generation from text prompts or reference images.</p>
+
+    <p><strong>Components:</strong></p>
+    <ol>
+        <li><strong>Image Generation Interface</strong>: Provides a user interface for generating images.</li>
+        <li><strong>Prompt Enhancement</strong>: Improves image prompts for better results.</li>
+        <li><strong>Image Storage</strong>: Manages the storage and retrieval of generated images.</li>
+        <li><strong>Style Selection</strong>: Allows users to select different artistic styles for image generation.</li>
+    </ol>
+
+    <p><strong>Interactions:</strong></p>
+    <ul>
+        <li>Integrates with Hugging Face API for image generation.</li>
+        <li>Falls back to other image sources if primary generation fails.</li>
+        <li>Subject to rate limiting from the Rate Limiting Module.</li>
+        <li>Stores image data in the database through the Image model.</li>
+    </ul>
+
+    <div class="page-break"></div>
+
+    <h3 id="digital-twin-module">5.5 Digital Twin Module</h3>
+    <p><strong>Purpose:</strong><br>
+    The Digital Twin Module allows users to create AI representations of themselves that others can interact with.</p>
+
+    <p><strong>Components:</strong></p>
+    <ol>
+        <li><strong>Twin Creation</strong>: Enables users to create and configure their digital twin.</li>
+        <li><strong>Personality Configuration</strong>: Allows setting personality traits, interests, and expertise.</li>
+        <li><strong>Training Interface</strong>: Provides a way to train the twin with custom responses.</li>
+        <li><strong>Twin Browsing</strong>: Lets users browse and interact with other users' public twins.</li>
+    </ol>
+
+    <p><strong>Interactions:</strong></p>
+    <ul>
+        <li>Uses Cohere AI for generating twin responses.</li>
+        <li>Stores twin data in the database through the DigitalTwin model.</li>
+        <li>Interacts with the User Management Module for user data.</li>
+    </ul>
+
+    <h3 id="neural-dreamscape-module">5.6 Neural Dreamscape Module</h3>
+    <p><strong>Purpose:</strong><br>
+    This module provides a collaborative mind visualization tool where users can create visual representations of thoughts and connect with others.</p>
+
+    <p><strong>Components:</strong></p>
+    <ol>
+        <li><strong>Dreamscape Creation</strong>: Allows users to create visual representations of thoughts.</li>
+        <li><strong>Canvas Interface</strong>: Provides a canvas for creating dreamscapes.</li>
+        <li><strong>AI Insights</strong>: Generates insights about dreamscapes using Cohere AI.</li>
+        <li><strong>Connection Suggestions</strong>: Suggests connections between dreamscapes.</li>
+    </ol>
+
+    <p><strong>Interactions:</strong></p>
+    <ul>
+        <li>Uses Cohere AI for generating insights and connection suggestions.</li>
+        <li>Stores dreamscape data in the database through the NeuralDreamscape model.</li>
+        <li>Manages connections through the NeuralConnection model.</li>
+    </ul>
+
+    <div class="page-break"></div>
+
+    <h3 id="website-builder-module">5.7 Website Builder Module</h3>
+    <p><strong>Purpose:</strong><br>
+    The Website Builder Module enables users to create websites through templates or custom designs.</p>
+
+    <p><strong>Components:</strong></p>
+    <ol>
+        <li><strong>Template Selection</strong>: Allows users to choose from pre-designed templates.</li>
+        <li><strong>Page Editor</strong>: Provides tools for editing website pages.</li>
+        <li><strong>Element Management</strong>: Manages different website elements (text, images, etc.).</li>
+        <li><strong>Domain Management</strong>: Handles website domains and publishing.</li>
+        <li><strong>Package Management</strong>: Manages different website packages with varying features.</li>
+    </ol>
+
+    <p><strong>Interactions:</strong></p>
+    <ul>
+        <li>Stores website data in the database through the Website, WebsitePage, and WebsiteElement models.</li>
+        <li>Interacts with the Payment Module for package purchases.</li>
+        <li>Uses templates from the WebsiteTemplate model.</li>
+    </ul>
+
+    <h3 id="admin-dashboard-module">5.8 Admin Dashboard Module</h3>
+    <p><strong>Purpose:</strong><br>
+    The Admin Dashboard Module provides administrative tools for managing the platform.</p>
+
+    <p><strong>Components:</strong></p>
+    <ol>
+        <li><strong>User Management</strong>: Allows admins to view, edit, and delete users.</li>
+        <li><strong>Chat Management</strong>: Provides access to user chats for monitoring.</li>
+        <li><strong>Memory Management</strong>: Enables viewing and managing AI memory data.</li>
+        <li><strong>Password Reset Management</strong>: Tracks password reset requests.</li>
+        <li><strong>Maintenance Mode</strong>: Allows enabling/disabling maintenance mode.</li>
+        <li><strong>Website Template Management</strong>: Manages website templates.</li>
+    </ol>
+
+    <p><strong>Interactions:</strong></p>
+    <ul>
+        <li>Accesses data from various models (User, Chat, Memory, etc.).</li>
+        <li>Provides administrative functions that affect all modules.</li>
+        <li>Restricted to users with admin role.</li>
+    </ul>
+
+    <div class="page-break"></div>
+
+    <h3 id="memory-learning-module">5.9 Memory & Learning Module</h3>
+    <p><strong>Purpose:</strong><br>
+    This module manages the AI's memory and learning capabilities for personalized interactions.</p>
+
+    <p><strong>Components:</strong></p>
+    <ol>
+        <li><strong>Interaction Storage</strong>: Stores user-AI interactions.</li>
+        <li><strong>Language Detection</strong>: Identifies languages used in conversations.</li>
+        <li><strong>Topic Tracking</strong>: Tracks discussion topics for better context.</li>
+        <li><strong>Learning Progress</strong>: Monitors the AI's learning progress for each user.</li>
+    </ol>
+
+    <p><strong>Interactions:</strong></p>
+    <ul>
+        <li>Stores memory data in the database through the Memory model.</li>
+        <li>Provides context to the AI Chat Module for better responses.</li>
+        <li>Accessible through the Admin Dashboard for management.</li>
+    </ul>
+
+    <h3 id="rate-limiting-security-module">5.10 Rate Limiting & Security Module</h3>
+    <p><strong>Purpose:</strong><br>
+    This module handles rate limiting and security features to protect the platform.</p>
+
+    <p><strong>Components:</strong></p>
+    <ol>
+        <li><strong>Chat Rate Limiting</strong>: Enforces limits on chat requests (8 per 3 minutes for registered users, 5 total for guests).</li>
+        <li><strong>Image Generation Rate Limiting</strong>: Limits image generation requests (1 per window for registered users).</li>
+        <li><strong>Request Tracking</strong>: Tracks request counts and window times.</li>
+        <li><strong>Security Middleware</strong>: Implements various security measures.</li>
+    </ol>
+
+    <p><strong>Interactions:</strong></p>
+    <ul>
+        <li>Affects the AI Chat and Image Generation modules.</li>
+        <li>Uses user data from the User Management Module.</li>
+        <li>Tracks guest users through the GuestUser model.</li>
+    </ul>
+
+    <div class="page-break"></div>
+
+    <h2 id="system-architecture">6. System Architecture</h2>
+    <p>FTRAISE AI follows a Model-View-Controller (MVC) architecture:</p>
+    <ol>
+        <li><strong>Models</strong>: MongoDB schemas that define the data structure (User, Chat, Memory, etc.).</li>
+        <li><strong>Views</strong>: EJS templates that render the user interface.</li>
+        <li><strong>Controllers</strong>: Node.js/Express handlers that process requests and interact with models.</li>
+    </ol>
+    <p>The system also employs middleware for cross-cutting concerns like authentication, rate limiting, and error handling.</p>
+
+    <p><strong>Key Components:</strong></p>
+    <ul>
+        <li><strong>Express Server</strong>: Handles HTTP requests and routing.</li>
+        <li><strong>MongoDB Database</strong>: Stores all application data.</li>
+        <li><strong>Passport.js</strong>: Manages authentication.</li>
+        <li><strong>Cohere AI Integration</strong>: Provides AI capabilities for chat and insights.</li>
+        <li><strong>Hugging Face Integration</strong>: Powers image generation.</li>
+        <li><strong>Express Session</strong>: Manages user sessions.</li>
+    </ul>
+
+    <h2 id="security-considerations">7. Security Considerations</h2>
+    <ol>
+        <li><strong>Password Security</strong>: Passwords are hashed using bcrypt before storage.</li>
+        <li><strong>API Key Protection</strong>: All API keys are stored in environment variables, not in code.</li>
+        <li><strong>Rate Limiting</strong>: Prevents abuse through strict rate limits.</li>
+        <li><strong>Session Security</strong>: Sessions are secured with HTTP-only cookies.</li>
+        <li><strong>Input Validation</strong>: All user inputs are validated before processing.</li>
+        <li><strong>Role-based Access</strong>: Different features are restricted based on user roles.</li>
+        <li><strong>Error Handling</strong>: Proper error handling prevents information leakage.</li>
+    </ol>
+
+    <div class="page-break"></div>
+
+    <h2 id="scalability-considerations">8. Scalability Considerations</h2>
+    <ol>
+        <li><strong>Database Indexing</strong>: Key fields are indexed for faster queries.</li>
+        <li><strong>Connection Pooling</strong>: MongoDB connections are pooled for efficiency.</li>
+        <li><strong>Modular Design</strong>: The system is designed with modularity for easier scaling.</li>
+        <li><strong>Stateless Architecture</strong>: The server is largely stateless, allowing for horizontal scaling.</li>
+        <li><strong>Caching</strong>: Session data is cached to reduce database load.</li>
+        <li><strong>Timeout Handling</strong>: API requests have timeouts to prevent hanging connections.</li>
+        <li><strong>Fallback Mechanisms</strong>: Multiple fallbacks for critical features like image generation.</li>
+    </ol>
+
+    <h2 id="conclusion">9. Conclusion</h2>
+    <p>FTRAISE AI is a comprehensive platform that combines AI chat, image generation, digital twins, neural dreamscapes, and website building into a cohesive user experience. The modular design allows for easy maintenance and future expansion, while the security and scalability considerations ensure a robust and reliable system.</p>
+
+    <p>The platform leverages cutting-edge AI technologies through Cohere AI and Hugging Face integrations, providing users with powerful tools for creativity and communication. The different user roles and rate limiting ensure fair usage and protect the system from abuse.</p>
+
+    <p>This system design documentation provides a high-level overview of the platform's architecture, components, and interactions, serving as a reference for understanding and further developing the FTRAISE AI system.</p>
+
+    <script>
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            // Hide the download button during PDF generation
+            this.style.display = 'none';
+
+            const element = document.body;
+            const options = {
+                margin: [10, 10, 10, 10],
+                filename: 'FTRAISE_AI_System_Design.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Generate PDF
+            html2pdf().set(options).from(element).save().then(function() {
+                // Show the button again after PDF is generated
+                document.getElementById('downloadBtn').style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
