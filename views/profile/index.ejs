@@ -608,6 +608,13 @@
           }
         }
       });
+
+      // Listen for cookie consent changes to update toggle
+      document.addEventListener('cookieConsentChange', function(event) {
+        if (window.cookieConsent) {
+          analyticsToggle.checked = window.cookieConsent.isFullConsent();
+        }
+      });
     }
   });
 </script>

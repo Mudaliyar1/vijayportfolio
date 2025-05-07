@@ -1,11 +1,20 @@
-<div class="container mx-auto px-4 py-8 max-w-4xl bg-gray-900">
-  <h1 class="text-3xl font-bold mb-8 text-white">Cancellation and Refund Policy</h1>
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple">
+      Cancellation and Refund Policy
+    </h1>
+    <p class="text-gray-400">Last Updated: <%= new Date().toLocaleDateString() %></p>
+  </div>
 
-  <div class="bg-white rounded-lg shadow-md p-6 mb-8 text-black">
-    <p class="mb-4">Last Updated: <%= new Date().toLocaleDateString() %></p>
+  <%- include('../partials/policy-nav', {currentPage: 'refund'}) %>
+
+  <div class="bg-dark-200 rounded-lg border border-gray-700 shadow-xl overflow-hidden">
+    <div class="p-6 prose prose-invert max-w-none">
+
 
     <h2 class="text-xl font-semibold mb-4">1. Cancellation Policy</h2>
-    <p class="mb-4">At FTRAISE AI, we understand that circumstances may change. Our cancellation policy is designed to be fair and transparent.</p>
+    <p class="mb-4">At FTRAISE AI, we understand that circumstances may change. Our cancellation policy is designed to be fair and transparent while protecting both our users and our services. This policy applies to all services offered through our platform at <a href="/" class="text-neon-blue hover:text-neon-purple transition-colors">https://ftraiseai.onrender.com/</a>.</p>
+    <p class="mb-4">We encourage you to carefully review this policy before making any purchases or subscribing to our services.</p>
 
     <h3 class="text-lg font-medium mb-2">1.1. Subscription Cancellation</h3>
     <p class="mb-4">You may cancel your subscription at any time through your account dashboard. Upon cancellation:</p>
@@ -26,12 +35,15 @@
     <p class="mb-4">We strive to ensure your satisfaction with our services. Our refund policy is as follows:</p>
 
     <h3 class="text-lg font-medium mb-2">2.1. Eligibility for Refunds</h3>
-    <p class="mb-4">You may be eligible for a refund in the following circumstances:</p>
-    <ul class="list-disc pl-6 mb-4">
-      <li><strong>Technical Issues:</strong> If you experience significant technical issues with our service that we are unable to resolve within a reasonable time frame.</li>
-      <li><strong>Service Not as Described:</strong> If our service materially fails to meet the specifications described at the time of purchase.</li>
-      <li><strong>Double Charging:</strong> If you were charged multiple times for the same service.</li>
+    <p class="mb-4">You may be eligible for a refund in the following specific circumstances:</p>
+    <ul class="list-disc pl-6 mb-4 space-y-1">
+      <li><strong>Technical Issues:</strong> If you experience significant technical issues with our service that we are unable to resolve within a reasonable time frame (typically 72 hours from when the issue is reported).</li>
+      <li><strong>Service Not as Described:</strong> If our service materially fails to meet the specifications described at the time of purchase. This does not include minor variations in design or functionality that do not impact the core purpose of the service.</li>
+      <li><strong>Double Charging:</strong> If you were charged multiple times for the same service due to a technical error in our payment system.</li>
+      <li><strong>Service Unavailability:</strong> If our service is unavailable for more than 24 consecutive hours during a paid subscription period (excluding scheduled maintenance periods that were announced in advance).</li>
+      <li><strong>Unauthorized Charges:</strong> If charges were made to your account without your authorization (subject to verification).</li>
     </ul>
+    <p class="mb-4">Each refund request is evaluated on a case-by-case basis, taking into account the specific circumstances and our service records.</p>
 
     <h3 class="text-lg font-medium mb-2">2.2. Refund Request Timeline</h3>
     <p class="mb-4">To be eligible for a refund:</p>
@@ -50,13 +62,24 @@
     </ul>
 
     <h3 class="text-lg font-medium mb-2">2.4. Refund Process</h3>
-    <p class="mb-4">To request a refund:</p>
-    <ol class="list-decimal pl-6 mb-4">
-      <li>Contact our customer support team at vijaymudaliyar224@gmail.com with the subject line "Refund Request".</li>
-      <li>Include your order number, date of purchase, and reason for the refund request.</li>
-      <li>Our team will review your request and respond within 3 business days.</li>
+    <p class="mb-4">To request a refund, please follow these steps:</p>
+    <ol class="list-decimal pl-6 mb-4 space-y-1">
+      <li>Contact our customer support team at <a href="mailto:vijaymudaliyar224@gmail.com" class="text-neon-blue hover:text-neon-purple transition-colors">vijaymudaliyar224@gmail.com</a> with the subject line "Refund Request - [Your Order ID]".</li>
+      <li>In your email, please include:
+        <ul class="list-disc pl-6 mt-2 mb-2">
+          <li>Your full name and email address associated with your account</li>
+          <li>Order number and date of purchase</li>
+          <li>Detailed reason for the refund request</li>
+          <li>Any relevant screenshots or documentation supporting your request</li>
+          <li>Your preferred contact method for follow-up questions</li>
+        </ul>
+      </li>
+      <li>Our customer support team will acknowledge receipt of your request within 24 hours.</li>
+      <li>Our team will review your request and provide a decision within 3-5 business days.</li>
       <li>If approved, refunds will be processed to the original payment method within 7-14 business days, depending on your payment provider's policies.</li>
+      <li>You will receive a confirmation email once the refund has been processed.</li>
     </ol>
+    <p class="mb-4">For faster processing, please ensure all information provided is accurate and complete.</p>
 
     <h3 class="text-lg font-medium mb-2">2.5. Refund Amount</h3>
     <p class="mb-4">If a refund is approved:</p>
@@ -66,10 +89,22 @@
       <li>Any transaction fees charged by payment processors may be deducted from the refund amount.</li>
     </ul>
 
-    <h2 class="text-xl font-semibold mb-4">3. Contact Us</h2>
+    <h2 class="text-xl font-semibold mb-4">3. Dispute Resolution</h2>
+    <p class="mb-4">If you are not satisfied with our decision regarding your refund request, you may request a review of the decision. To do so, please respond to the decision email within 7 days, providing any additional information that may be relevant to your case.</p>
+    <p class="mb-4">We are committed to resolving all disputes fairly and in accordance with applicable consumer protection laws.</p>
+
+    <h2 class="text-xl font-semibold mb-4">4. Changes to This Policy</h2>
+    <p class="mb-4">We reserve the right to modify this Cancellation and Refund Policy at any time. Changes will be effective immediately upon posting to our website. It is your responsibility to review this policy periodically for changes. Your continued use of our services following the posting of changes constitutes your acceptance of such changes.</p>
+
+    <h2 class="text-xl font-semibold mb-4">5. Contact Us</h2>
     <p class="mb-4">If you have any questions about our Cancellation and Refund Policy, please contact us:</p>
-    <p class="mb-4">Email: vijaymudaliyar224@gmail.com</p>
-    <p class="mb-4">Instagram: @ft_raise_59</p>
-    <p class="mb-4">GitHub: Mudaliyar1</p>
+    <ul class="list-none mb-4">
+      <li><strong>Email:</strong> <a href="mailto:vijaymudaliyar224@gmail.com" class="text-neon-blue hover:text-neon-purple transition-colors">vijaymudaliyar224@gmail.com</a></li>
+      <li><strong>Instagram:</strong> <a href="https://www.instagram.com/ft_raise_59" target="_blank" class="text-neon-blue hover:text-neon-purple transition-colors">@ft_raise_59</a></li>
+      <li><strong>GitHub:</strong> <a href="https://github.com/Mudaliyar1" target="_blank" class="text-neon-blue hover:text-neon-purple transition-colors">Mudaliyar1</a></li>
+      <li><strong>Website:</strong> <a href="/" class="text-neon-blue hover:text-neon-purple transition-colors">https://ftraiseai.onrender.com/</a></li>
+    </ul>
+    <p class="mb-4">You can also visit our <a href="/policies/contact" class="text-neon-blue hover:text-neon-purple transition-colors">Contact Us</a> page to send us a message directly through our website.</p>
+    </div>
   </div>
 </div>

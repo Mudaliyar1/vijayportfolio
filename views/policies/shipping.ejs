@@ -1,16 +1,31 @@
-<div class="container mx-auto px-4 py-8 max-w-4xl bg-gray-900">
-  <h1 class="text-3xl font-bold mb-8 text-white">Shipping Policy</h1>
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple">
+      Shipping Policy
+    </h1>
+    <p class="text-gray-400">Last Updated: <%= new Date().toLocaleDateString() %></p>
+  </div>
 
-  <div class="bg-white rounded-lg shadow-md p-6 mb-8 text-black">
-    <p class="mb-4">Last Updated: <%= new Date().toLocaleDateString() %></p>
+  <%- include('../partials/policy-nav', {currentPage: 'shipping'}) %>
+
+  <div class="bg-dark-200 rounded-lg border border-gray-700 shadow-xl overflow-hidden">
+    <div class="p-6 prose prose-invert max-w-none">
+
 
     <h2 class="text-xl font-semibold mb-4">1. Digital Services</h2>
-    <p class="mb-4">FTRAISE AI primarily provides digital services, including AI-powered website building, hosting, and related digital products. As these are digital services delivered electronically, traditional shipping does not apply to our core offerings.</p>
+    <p class="mb-4">FTRAISE AI primarily provides digital services, including AI-powered Digital Twins, Neural Dreamscape visualization, website building, and other AI-enhanced features. As these are digital services delivered electronically through our platform at <a href="/" class="text-neon-blue hover:text-neon-purple transition-colors">https://ftraiseai.onrender.com/</a>, traditional shipping does not apply to our core offerings.</p>
+    <p class="mb-4">This policy outlines how we deliver our digital services and any potential physical products that may be offered in the future.</p>
 
     <h2 class="text-xl font-semibold mb-4">2. Digital Delivery</h2>
-    <p class="mb-4">2.1. <strong>Delivery Method:</strong> All our digital services and products are delivered through our online platform. Upon successful payment, you will have immediate access to your purchased services through your account dashboard.</p>
-    <p class="mb-4">2.2. <strong>Delivery Timeframe:</strong> For standard website generation services, delivery is typically immediate or within 24 hours of payment confirmation. For custom services requiring additional work, delivery timeframes will be communicated during the ordering process.</p>
-    <p class="mb-4">2.3. <strong>Access Information:</strong> Login credentials and access information will be sent to the email address associated with your account. It is your responsibility to ensure that the email address provided is correct and functioning.</p>
+    <p class="mb-4">2.1. <strong>Delivery Method:</strong> All our digital services and products are delivered through our secure online platform. Upon successful payment or account creation, you will have access to your purchased or free services through your personalized account dashboard.</p>
+    <p class="mb-4">2.2. <strong>Delivery Timeframe:</strong> Our delivery timeframes vary by service type:</p>
+    <ul class="list-disc pl-6 mb-4 space-y-1">
+      <li><strong>Digital Twins:</strong> Creation and activation typically occurs within minutes of submission</li>
+      <li><strong>Neural Dreamscape:</strong> Visualization generation typically takes 1-5 minutes depending on complexity</li>
+      <li><strong>Website Generation:</strong> Basic websites are typically available within 24 hours of request submission</li>
+      <li><strong>Custom Services:</strong> For specialized requests requiring additional work, specific timeframes will be communicated during the ordering process</li>
+    </ul>
+    <p class="mb-4">2.3. <strong>Access Information:</strong> Login credentials and access information will be sent to the email address associated with your account. It is your responsibility to ensure that the email address provided is correct and functioning. We recommend adding our domain to your safe senders list to prevent delivery issues.</p>
 
     <h2 class="text-xl font-semibold mb-4">3. Service Activation</h2>
     <p class="mb-4">3.1. <strong>Automatic Activation:</strong> Most services are activated automatically upon successful payment processing.</p>
@@ -29,16 +44,31 @@
     <p class="mb-4">5.3. <strong>Customs and Import Duties:</strong> For international deliveries of physical products, customers are responsible for any customs fees, import duties, or taxes imposed by their country of residence.</p>
 
     <h2 class="text-xl font-semibold mb-4">6. Delivery Issues</h2>
-    <p class="mb-4">6.1. <strong>Digital Services:</strong> If you experience any issues accessing your digital services after purchase, please contact our support team immediately at vijaymudaliyar224@gmail.com.</p>
-    <p class="mb-4">6.2. <strong>Physical Products:</strong> For any issues with physical product deliveries, including damaged items or non-delivery, please contact our support team within 7 days of the expected delivery date.</p>
+    <p class="mb-4">6.1. <strong>Digital Services:</strong> If you experience any issues accessing your digital services after purchase or account creation, please follow these steps:</p>
+    <ol class="list-decimal pl-6 mb-4 space-y-1">
+      <li>Verify your login credentials and ensure you're using the correct email address</li>
+      <li>Check your email spam/junk folder for any communications from us</li>
+      <li>Clear your browser cache and cookies, then attempt to log in again</li>
+      <li>If issues persist, contact our support team immediately at <a href="mailto:vijaymudaliyar224@gmail.com" class="text-neon-blue hover:text-neon-purple transition-colors">vijaymudaliyar224@gmail.com</a> with details of the problem</li>
+    </ol>
+    <p class="mb-4">We aim to respond to all support requests within 24 business hours.</p>
+    <p class="mb-4">6.2. <strong>Physical Products:</strong> For any issues with physical product deliveries, including damaged items or non-delivery, please contact our support team within 7 days of the expected delivery date with photos of damaged items (if applicable) and your order information.</p>
 
     <h2 class="text-xl font-semibold mb-4">7. Changes to Shipping Policy</h2>
     <p class="mb-4">We reserve the right to modify this Shipping Policy at any time. Changes will be effective immediately upon posting to our website. It is your responsibility to review this Shipping Policy periodically.</p>
 
-    <h2 class="text-xl font-semibold mb-4">8. Contact Us</h2>
-    <p class="mb-4">If you have any questions about our Shipping Policy, please contact us:</p>
-    <p class="mb-4">Email: vijaymudaliyar224@gmail.com</p>
-    <p class="mb-4">Instagram: @ft_raise_59</p>
-    <p class="mb-4">GitHub: Mudaliyar1</p>
+    <h2 class="text-xl font-semibold mb-4">8. Service Level Agreements</h2>
+    <p class="mb-4">For premium services, we may offer specific Service Level Agreements (SLAs) that guarantee certain delivery timeframes and performance metrics. Details of any applicable SLAs will be provided during the purchase process for premium services.</p>
+
+    <h2 class="text-xl font-semibold mb-4">9. Contact Us</h2>
+    <p class="mb-4">If you have any questions about our Shipping Policy or need assistance with delivery issues, please contact us:</p>
+    <ul class="list-none mb-4">
+      <li><strong>Email:</strong> <a href="mailto:vijaymudaliyar224@gmail.com" class="text-neon-blue hover:text-neon-purple transition-colors">vijaymudaliyar224@gmail.com</a></li>
+      <li><strong>Instagram:</strong> <a href="https://www.instagram.com/ft_raise_59" target="_blank" class="text-neon-blue hover:text-neon-purple transition-colors">@ft_raise_59</a></li>
+      <li><strong>GitHub:</strong> <a href="https://github.com/Mudaliyar1" target="_blank" class="text-neon-blue hover:text-neon-purple transition-colors">Mudaliyar1</a></li>
+      <li><strong>Website:</strong> <a href="/" class="text-neon-blue hover:text-neon-purple transition-colors">https://ftraiseai.onrender.com/</a></li>
+    </ul>
+    <p class="mb-4">You can also visit our <a href="/policies/contact" class="text-neon-blue hover:text-neon-purple transition-colors">Contact Us</a> page to send us a message directly through our website.</p>
+    </div>
   </div>
 </div>

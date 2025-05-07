@@ -50,11 +50,32 @@ router.get('/contact', (req, res) => {
 });
 
 // Contact form submission handler
-router.post('/contact/submit', (req, res) => {
-  // Here you would typically process the contact form submission
-  // For now, we'll just redirect back with a success message
-  req.flash('success_msg', 'Your message has been sent. We will get back to you soon!');
-  res.redirect('/policies/contact');
+router.post('/contact/submit', async (req, res) => {
+  try {
+    const { name, email, subject, message } = req.body;
+
+    // Get IP address and user agent
+    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+
+    // Create a new contact message
+    const ContactMessage = require('../models/ContactMessage');
+    await ContactMessage.create({
+      name,
+      email,
+      subject,
+      message,
+      ipAddress,
+      userAgent
+    });
+
+    req.flash('success_msg', 'Your message has been sent. We will get back to you soon!');
+    res.redirect('/policies/contact');
+  } catch (err) {
+    console.error('Error saving contact message:', err);
+    req.flash('error_msg', 'There was an error sending your message. Please try again later.');
+    res.redirect('/policies/contact');
+  }
 });
 
 module.exports = router;

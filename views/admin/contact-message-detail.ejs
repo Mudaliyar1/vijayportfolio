@@ -1,0 +1,249 @@
+<!-- Admin Contact Message Detail Page -->
+<div class="container mx-auto px-4 py-8">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-white mb-2">Contact Message</h1>
+      <p class="text-gray-400">Viewing message from <%= message.name %></p>
+    </div>
+    
+    <div class="mt-4 md:mt-0 flex space-x-2">
+      <a href="/admin/contact-messages" class="px-4 py-2 bg-dark-200 text-white rounded-md hover:bg-dark-300 transition-colors">
+        <i class="fas fa-arrow-left mr-2"></i> Back to Messages
+      </a>
+    </div>
+  </div>
+  
+  <!-- Message Details -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Main Message Content -->
+    <div class="md:col-span-2">
+      <div class="bg-dark-200 rounded-lg overflow-hidden mb-6">
+        <div class="p-6">
+          <div class="flex justify-between items-start mb-6">
+            <h2 class="text-xl font-semibold text-white"><%= message.subject %></h2>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+              <%= message.status === 'new' ? 'bg-neon-blue text-white' : 
+                 message.status === 'read' ? 'bg-yellow-500 text-white' :
+                 message.status === 'replied' ? 'bg-green-500 text-white' :
+                 'bg-gray-500 text-white' %>">
+              <%= message.status.charAt(0).toUpperCase() + message.status.slice(1) %>
+            </span>
+          </div>
+          
+          <div class="prose prose-invert max-w-none mb-6">
+            <p class="whitespace-pre-wrap"><%= message.message %></p>
+          </div>
+          
+          <div class="border-t border-gray-700 pt-4">
+            <div class="flex justify-between">
+              <div>
+                <a href="mailto:<%= message.email %>" class="text-neon-blue hover:underline">
+                  <i class="fas fa-reply mr-1"></i> Reply via Email
+                </a>
+              </div>
+              <div>
+                <form action="/admin/contact-messages/<%= message._id %>/delete" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this message?');">
+                  <button type="submit" class="text-red-500 hover:text-red-400">
+                    <i class="fas fa-trash-alt mr-1"></i> Delete
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Quick Reply Form (Future Enhancement) -->
+      <div class="bg-dark-200 rounded-lg overflow-hidden mb-6">
+        <div class="p-6">
+          <h3 class="text-lg font-semibold text-white mb-4">Quick Reply</h3>
+          <div class="mb-4">
+            <label for="replyTemplate" class="block text-sm font-medium text-gray-400 mb-1">Template</label>
+            <select id="replyTemplate" class="w-full bg-dark-100 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue">
+              <option value="">Select a template...</option>
+              <option value="thank_you">Thank You</option>
+              <option value="more_info">Request More Information</option>
+              <option value="custom">Custom Reply</option>
+            </select>
+          </div>
+          
+          <div class="mb-4">
+            <label for="replyMessage" class="block text-sm font-medium text-gray-400 mb-1">Message</label>
+            <textarea id="replyMessage" rows="6" class="w-full bg-dark-100 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue" placeholder="Type your reply here..."></textarea>
+          </div>
+          
+          <div class="flex justify-end">
+            <button type="button" id="sendReplyBtn" class="px-4 py-2 bg-neon-blue text-white rounded-md hover:bg-blue-600 transition-colors">
+              <i class="fas fa-paper-plane mr-2"></i> Send Reply
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Sidebar with Sender Info -->
+    <div class="md:col-span-1">
+      <!-- Sender Information -->
+      <div class="bg-dark-200 rounded-lg overflow-hidden mb-6">
+        <div class="p-6">
+          <h3 class="text-lg font-semibold text-white mb-4">Sender Information</h3>
+          
+          <div class="space-y-4">
+            <div>
+              <p class="text-sm text-gray-400">Name</p>
+              <p class="text-white"><%= message.name %></p>
+            </div>
+            
+            <div>
+              <p class="text-sm text-gray-400">Email</p>
+              <p class="text-white break-all">
+                <a href="mailto:<%= message.email %>" class="text-neon-blue hover:underline"><%= message.email %></a>
+              </p>
+            </div>
+            
+            <div>
+              <p class="text-sm text-gray-400">Date Received</p>
+              <p class="text-white"><%= new Date(message.createdAt).toLocaleString() %></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Message Actions -->
+      <div class="bg-dark-200 rounded-lg overflow-hidden mb-6">
+        <div class="p-6">
+          <h3 class="text-lg font-semibold text-white mb-4">Message Actions</h3>
+          
+          <div class="space-y-3">
+            <button type="button" class="status-btn w-full text-left px-4 py-2 rounded-md flex items-center justify-between <%= message.status === 'new' ? 'bg-neon-blue text-white' : 'bg-dark-100 text-white hover:bg-dark-300' %> transition-colors" data-status="new">
+              <span><i class="fas fa-envelope mr-2"></i> Mark as New</span>
+              <% if (message.status === 'new') { %>
+                <i class="fas fa-check"></i>
+              <% } %>
+            </button>
+            
+            <button type="button" class="status-btn w-full text-left px-4 py-2 rounded-md flex items-center justify-between <%= message.status === 'read' ? 'bg-yellow-500 text-white' : 'bg-dark-100 text-white hover:bg-dark-300' %> transition-colors" data-status="read">
+              <span><i class="fas fa-envelope-open mr-2"></i> Mark as Read</span>
+              <% if (message.status === 'read') { %>
+                <i class="fas fa-check"></i>
+              <% } %>
+            </button>
+            
+            <button type="button" class="status-btn w-full text-left px-4 py-2 rounded-md flex items-center justify-between <%= message.status === 'replied' ? 'bg-green-500 text-white' : 'bg-dark-100 text-white hover:bg-dark-300' %> transition-colors" data-status="replied">
+              <span><i class="fas fa-reply mr-2"></i> Mark as Replied</span>
+              <% if (message.status === 'replied') { %>
+                <i class="fas fa-check"></i>
+              <% } %>
+            </button>
+            
+            <button type="button" class="status-btn w-full text-left px-4 py-2 rounded-md flex items-center justify-between <%= message.status === 'archived' ? 'bg-gray-500 text-white' : 'bg-dark-100 text-white hover:bg-dark-300' %> transition-colors" data-status="archived">
+              <span><i class="fas fa-archive mr-2"></i> Archive</span>
+              <% if (message.status === 'archived') { %>
+                <i class="fas fa-check"></i>
+              <% } %>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Technical Information -->
+      <div class="bg-dark-200 rounded-lg overflow-hidden mb-6">
+        <div class="p-6">
+          <h3 class="text-lg font-semibold text-white mb-4">Technical Information</h3>
+          
+          <div class="space-y-4">
+            <div>
+              <p class="text-sm text-gray-400">IP Address</p>
+              <p class="text-white font-mono"><%= message.ipAddress || 'Not recorded' %></p>
+            </div>
+            
+            <div>
+              <p class="text-sm text-gray-400">User Agent</p>
+              <p class="text-white text-xs break-all"><%= message.userAgent || 'Not recorded' %></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript for Status Updates -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Status update buttons
+    const statusButtons = document.querySelectorAll('.status-btn');
+    
+    statusButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const status = this.getAttribute('data-status');
+        updateMessageStatus(status);
+      });
+    });
+    
+    // Function to update message status
+    async function updateMessageStatus(status) {
+      try {
+        const response = await fetch('/admin/contact-messages/<%= message._id %>/status', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ status })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          // Reload the page to show updated status
+          window.location.reload();
+        } else {
+          alert('Failed to update status: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Error updating status:', error);
+        alert('An error occurred while updating the status');
+      }
+    }
+    
+    // Quick reply templates
+    const replyTemplateSelect = document.getElementById('replyTemplate');
+    const replyMessageTextarea = document.getElementById('replyMessage');
+    const sendReplyBtn = document.getElementById('sendReplyBtn');
+    
+    // Template content
+    const templates = {
+      thank_you: `Dear <%= message.name %>,\n\nThank you for contacting FTRAISE AI. We appreciate your message and will get back to you as soon as possible.\n\nBest regards,\nThe FTRAISE AI Team`,
+      more_info: `Dear <%= message.name %>,\n\nThank you for contacting FTRAISE AI. We would like to get some additional information regarding your inquiry.\n\nCould you please provide more details about...\n\nBest regards,\nThe FTRAISE AI Team`,
+      custom: ``
+    };
+    
+    // Update textarea when template changes
+    replyTemplateSelect.addEventListener('change', function() {
+      const selectedTemplate = this.value;
+      if (selectedTemplate && templates[selectedTemplate]) {
+        replyMessageTextarea.value = templates[selectedTemplate];
+      }
+    });
+    
+    // Send reply button
+    sendReplyBtn.addEventListener('click', function() {
+      const replyText = replyMessageTextarea.value.trim();
+      
+      if (!replyText) {
+        alert('Please enter a reply message');
+        return;
+      }
+      
+      // Open email client with pre-filled message
+      const subject = `Re: <%= message.subject %>`;
+      const body = replyText;
+      const mailtoLink = `mailto:<%= message.email %>?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      
+      window.open(mailtoLink, '_blank');
+      
+      // Update status to replied
+      updateMessageStatus('replied');
+    });
+  });
+</script>

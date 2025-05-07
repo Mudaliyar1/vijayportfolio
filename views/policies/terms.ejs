@@ -1,14 +1,32 @@
-<div class="container mx-auto px-4 py-8 max-w-4xl bg-gray-900">
-  <h1 class="text-3xl font-bold mb-8 text-white">Terms and Conditions</h1>
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple">
+      Terms and Conditions
+    </h1>
+    <p class="text-gray-400">Last Updated: <%= new Date().toLocaleDateString() %></p>
+  </div>
 
-  <div class="bg-white rounded-lg shadow-md p-6 mb-8 text-black">
-    <p class="mb-4">Last Updated: <%= new Date().toLocaleDateString() %></p>
+  <%- include('../partials/policy-nav', {currentPage: 'terms'}) %>
+
+  <div class="bg-dark-200 rounded-lg border border-gray-700 shadow-xl overflow-hidden">
+    <div class="p-6 prose prose-invert max-w-none">
+
 
     <h2 class="text-xl font-semibold mb-4">1. Introduction</h2>
-    <p class="mb-4">Welcome to FTRAISE AI ("we," "our," or "us"). These Terms and Conditions govern your use of our website, services, and products. By accessing or using our services, you agree to be bound by these Terms and Conditions.</p>
+    <p class="mb-4">Welcome to FTRAISE AI ("we," "our," or "us"). These Terms and Conditions govern your use of our website at <a href="/" class="text-neon-blue hover:text-neon-purple transition-colors">https://ftraiseai.onrender.com/</a>, as well as all related services, features, content, and applications (collectively, the "Services").</p>
+    <p class="mb-4">By accessing or using our Services, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, you must not access or use our Services.</p>
+    <p class="mb-4">Please read these Terms carefully as they contain important information regarding your legal rights, remedies, and obligations.</p>
 
     <h2 class="text-xl font-semibold mb-4">2. Services</h2>
-    <p class="mb-4">FTRAISE AI provides AI-powered website building services, including but not limited to website generation, hosting, and maintenance. We offer various packages with different features and pricing as described on our website.</p>
+    <p class="mb-4">FTRAISE AI provides AI-powered services, including but not limited to:</p>
+    <ul class="list-disc pl-6 mb-4">
+      <li>Digital Twin creation and interaction</li>
+      <li>Neural Dreamscape visualization and collaboration</li>
+      <li>AI-powered website generation and customization</li>
+      <li>Content analysis and optimization</li>
+      <li>Other AI-enhanced features as described on our website</li>
+    </ul>
+    <p class="mb-4">We offer various packages with different features and pricing as described on our website. We reserve the right to modify, suspend, or discontinue any aspect of our Services at any time, with or without notice.</p>
 
     <h2 class="text-xl font-semibold mb-4">3. Account Registration</h2>
     <p class="mb-4">To access certain features of our services, you must register for an account. You agree to provide accurate, current, and complete information during the registration process and to update such information to keep it accurate, current, and complete.</p>
@@ -48,10 +66,25 @@
     <h2 class="text-xl font-semibold mb-4">11. Governing Law</h2>
     <p class="mb-4">These Terms shall be governed and construed in accordance with the laws of India, without regard to its conflict of law provisions.</p>
 
-    <h2 class="text-xl font-semibold mb-4">12. Contact Us</h2>
-    <p class="mb-4">If you have any questions about these Terms, please contact us at:</p>
-    <p class="mb-4">Email: vijaymudaliyar224@gmail.com</p>
-    <p class="mb-4">Instagram: @ft_raise_59</p>
-    <p class="mb-4">GitHub: Mudaliyar1</p>
+    <h2 class="text-xl font-semibold mb-4">12. Disclaimer of Warranties</h2>
+    <p class="mb-4">The Services are provided on an "as is" and "as available" basis. FTRAISE AI makes no warranties, expressed or implied, and hereby disclaims all warranties, including without limitation, implied warranties of merchantability, fitness for a particular purpose, non-infringement, or course of performance.</p>
+    <p class="mb-4">We do not warrant that:</p>
+    <ul class="list-disc pl-6 mb-4">
+      <li>The Services will function uninterrupted, secure, or available at any particular time or location</li>
+      <li>Any errors or defects will be corrected</li>
+      <li>The Services are free of viruses or other harmful components</li>
+      <li>The results of using the Services will meet your requirements</li>
+    </ul>
+
+    <h2 class="text-xl font-semibold mb-4">13. Contact Us</h2>
+    <p class="mb-4">If you have any questions, concerns, or feedback regarding these Terms and Conditions, please contact us:</p>
+    <ul class="list-none mb-4">
+      <li><strong>Email:</strong> <a href="mailto:vijaymudaliyar224@gmail.com" class="text-neon-blue hover:text-neon-purple transition-colors">vijaymudaliyar224@gmail.com</a></li>
+      <li><strong>Instagram:</strong> <a href="https://www.instagram.com/ft_raise_59" target="_blank" class="text-neon-blue hover:text-neon-purple transition-colors">@ft_raise_59</a></li>
+      <li><strong>GitHub:</strong> <a href="https://github.com/Mudaliyar1" target="_blank" class="text-neon-blue hover:text-neon-purple transition-colors">Mudaliyar1</a></li>
+      <li><strong>Website:</strong> <a href="/" class="text-neon-blue hover:text-neon-purple transition-colors">https://ftraiseai.onrender.com/</a></li>
+    </ul>
+    <p class="mb-4">You can also visit our <a href="/policies/contact" class="text-neon-blue hover:text-neon-purple transition-colors">Contact Us</a> page to send us a message directly through our website.</p>
+    </div>
   </div>
 </div>

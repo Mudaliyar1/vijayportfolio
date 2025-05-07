@@ -1,0 +1,209 @@
+<!-- System Status Page -->
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple">
+      System Status
+    </h1>
+    <p class="text-gray-400">Current operational status of FTRAISE AI services</p>
+  </div>
+  
+  <!-- Current Status Banner -->
+  <div class="mb-8">
+    <div class="bg-dark-200 rounded-lg border border-gray-700 shadow-xl overflow-hidden">
+      <div class="p-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+          <div class="flex items-center mb-4 md:mb-0">
+            <div class="text-2xl mr-3"><%= overallStatusInfo.icon %></div>
+            <div>
+              <h2 class="text-xl font-semibold text-white"><%= overallStatusInfo.text %></h2>
+              <p class="text-gray-400 text-sm">Last updated: <%= new Date(systemStatus.updatedAt).toLocaleString() %></p>
+            </div>
+          </div>
+          
+          <div class="flex space-x-3">
+            <a href="#subscribe" class="px-4 py-2 bg-neon-blue text-white rounded-md hover:bg-blue-600 transition-colors">
+              <i class="fas fa-bell mr-2"></i> Subscribe to Updates
+            </a>
+            <a href="#history" class="px-4 py-2 bg-dark-100 text-white rounded-md hover:bg-dark-300 transition-colors">
+              <i class="fas fa-history mr-2"></i> View History
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Component Status Grid -->
+  <div class="mb-8">
+    <h2 class="text-xl font-semibold mb-4 text-white">Component Status</h2>
+    
+    <div class="bg-dark-200 rounded-lg border border-gray-700 shadow-xl overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-700">
+          <thead class="bg-dark-300">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Component</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Last Updated</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Uptime (30 days)</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-700">
+            <% components.forEach(component => { %>
+              <tr class="hover:bg-dark-300 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-white"><%= component.name %></div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <span class="text-lg mr-2"><%= component.statusInfo.icon %></span>
+                    <span class="text-sm font-medium text-white"><%= component.statusInfo.text %></span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                  <%= new Date(component.updatedAt).toLocaleString() %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="w-full bg-dark-100 rounded-full h-2.5 mr-2 max-w-[100px]">
+                      <div class="bg-neon-blue h-2.5 rounded-full" style="width: <%= uptimeData[component.name] %>%"></div>
+                    </div>
+                    <span class="text-sm font-medium text-white"><%= uptimeData[component.name] %>%</span>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Incident History -->
+  <div id="history" class="mb-8 scroll-mt-8">
+    <h2 class="text-xl font-semibold mb-4 text-white">Incident History</h2>
+    
+    <div class="bg-dark-200 rounded-lg border border-gray-700 shadow-xl overflow-hidden">
+      <% if (incidents.length === 0) { %>
+        <div class="p-8 text-center">
+          <div class="text-gray-400 mb-4">
+            <i class="fas fa-check-circle text-5xl"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-2">No incidents in the last 30 days</h3>
+          <p class="text-gray-400">All systems have been operating normally.</p>
+        </div>
+      <% } else { %>
+        <div class="divide-y divide-gray-700">
+          <% incidents.forEach(incident => { %>
+            <div class="p-6">
+              <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+                <div>
+                  <h3 class="text-lg font-semibold text-white mb-1"><%= incident.title %></h3>
+                  <div class="flex flex-wrap items-center text-sm text-gray-400">
+                    <span class="mr-4"><i class="far fa-calendar-alt mr-1"></i> <%= new Date(incident.startTime).toLocaleDateString() %></span>
+                    <span class="mr-4"><i class="far fa-clock mr-1"></i> <%= incident.duration %></span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                      <%= incident.statusInfo.color === 'green' ? 'bg-green-500 text-white' : 
+                         incident.statusInfo.color === 'yellow' ? 'bg-yellow-500 text-white' :
+                         incident.statusInfo.color === 'orange' ? 'bg-orange-500 text-white' :
+                         incident.statusInfo.color === 'blue' ? 'bg-blue-500 text-white' :
+                         'bg-gray-500 text-white' %>">
+                      <%= incident.statusInfo.text %>
+                    </span>
+                  </div>
+                </div>
+                
+                <div class="mt-4 md:mt-0">
+                  <div class="text-sm text-gray-400">
+                    <span class="font-medium">Affected:</span>
+                    <% incident.affectedComponents.forEach((component, index) => { %>
+                      <%= component %><%= index < incident.affectedComponents.length - 1 ? ', ' : '' %>
+                    <% }) %>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="prose prose-invert max-w-none text-sm">
+                <p><%= incident.description %></p>
+              </div>
+              
+              <% if (incident.updates && incident.updates.length > 1) { %>
+                <div class="mt-4">
+                  <button class="text-neon-blue hover:underline text-sm flex items-center" onclick="toggleUpdates('<%= incident._id %>')">
+                    <span id="toggle-text-<%= incident._id %>">Show Updates (<%= incident.updates.length %>)</span>
+                    <i id="toggle-icon-<%= incident._id %>" class="fas fa-chevron-down ml-1"></i>
+                  </button>
+                  
+                  <div id="updates-<%= incident._id %>" class="hidden mt-3 pl-4 border-l-2 border-gray-700 space-y-3">
+                    <% incident.updates.slice(1).forEach(update => { %>
+                      <div class="text-sm">
+                        <div class="flex items-center mb-1">
+                          <span class="text-gray-400"><%= new Date(update.timestamp).toLocaleString() %></span>
+                          <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            <%= update.status === 'investigating' ? 'bg-yellow-500 text-white' : 
+                               update.status === 'identified' ? 'bg-orange-500 text-white' :
+                               update.status === 'monitoring' ? 'bg-blue-500 text-white' :
+                               update.status === 'resolved' ? 'bg-green-500 text-white' :
+                               'bg-gray-500 text-white' %>">
+                            <%= update.status.charAt(0).toUpperCase() + update.status.slice(1) %>
+                          </span>
+                        </div>
+                        <p class="text-white"><%= update.message %></p>
+                      </div>
+                    <% }) %>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+  
+  <!-- Subscribe to Updates -->
+  <div id="subscribe" class="mb-8 scroll-mt-8">
+    <h2 class="text-xl font-semibold mb-4 text-white">Subscribe to Status Updates</h2>
+    
+    <div class="bg-dark-200 rounded-lg border border-gray-700 shadow-xl overflow-hidden">
+      <div class="p-6">
+        <p class="text-gray-400 mb-4">Get notified when there are changes to our system status or new incidents.</p>
+        
+        <form action="/status/subscribe" method="POST" class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+          <div class="flex-grow">
+            <input type="email" name="email" required placeholder="Enter your email address" class="w-full px-4 py-2 bg-dark-100 border border-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-neon-blue">
+          </div>
+          
+          <div>
+            <button type="submit" class="w-full md:w-auto px-6 py-2 bg-neon-blue text-white rounded-lg hover:bg-blue-600 transition-colors">
+              Subscribe
+            </button>
+          </div>
+        </form>
+        
+        <p class="text-xs text-gray-500 mt-4">We'll only email you about important system status changes. You can unsubscribe at any time.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Toggle incident updates
+  function toggleUpdates(incidentId) {
+    const updatesElement = document.getElementById(`updates-${incidentId}`);
+    const toggleText = document.getElementById(`toggle-text-${incidentId}`);
+    const toggleIcon = document.getElementById(`toggle-icon-${incidentId}`);
+    
+    if (updatesElement.classList.contains('hidden')) {
+      updatesElement.classList.remove('hidden');
+      toggleText.textContent = 'Hide Updates';
+      toggleIcon.classList.remove('fa-chevron-down');
+      toggleIcon.classList.add('fa-chevron-up');
+    } else {
+      updatesElement.classList.add('hidden');
+      toggleText.textContent = `Show Updates (${updatesElement.children.length})`;
+      toggleIcon.classList.remove('fa-chevron-up');
+      toggleIcon.classList.add('fa-chevron-down');
+    }
+  }
+</script>

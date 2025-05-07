@@ -215,7 +215,7 @@ const adminBypassMaintenance = require('./middleware/adminBypassMaintenance');
 app.use(adminBypassMaintenance);
 
 // Admin status route - must be before maintenance middleware
-app.use('/admin-status', require('./routes/admin-status'));
+app.use('/admin-status', require('./routes/admin-status')); // This is for admin authentication status checks
 
 // View data middleware
 const viewData = require('./middleware/viewData');
@@ -233,6 +233,9 @@ app.use('/admin/websites', require('./routes/admin-websites'));
 app.use('/admin/package-inquiries', require('./routes/admin-package-inquiries'));
 app.use('/admin/marketing-packages', require('./routes/admin-marketing-packages'));
 app.use('/admin/ip-tracker', require('./routes/admin-ip-tracker')); // IP tracker routes
+app.use('/admin/contact-messages', require('./routes/admin-contact-messages')); // Contact messages routes
+app.use('/admin/system-status', require('./routes/admin-system-status')); // System status management routes
+app.use('/admin/issues', require('./routes/admin-issues')); // Issue management routes
 
 
 // Maintenance mode middleware - applied after admin routes
@@ -242,6 +245,9 @@ app.use(maintenanceMiddleware);
 app.use('/', require('./routes/index'));
 app.use('/users', require('./routes/users'));
 app.use('/chat', require('./routes/chat'));
+app.use('/status', require('./routes/status')); // System status page
+app.use('/issues', require('./routes/issues')); // Issue reporting and tracking routes
+app.use('/report-issue', (req, res) => res.redirect('/issues/report')); // Redirect for convenience
 app.use('/profile', require('./routes/profile'));
 app.use('/reviews', require('./routes/reviews'));
 app.use('/maintenance', require('./routes/maintenance'));

@@ -1,9 +1,11 @@
 /**
  * Middleware to add common admin view data
- * This middleware adds maintenance mode flag and other common data to all admin views
+ * This middleware adds maintenance mode flag, new message count, and other common data to all admin views
  */
 
 const MaintenanceMode = require('../models/MaintenanceMode');
+const ContactMessage = require('../models/ContactMessage');
+const Issue = require('../models/Issue');
 
 module.exports = async (req, res, next) => {
   // Store the original render function
@@ -29,6 +31,14 @@ module.exports = async (req, res, next) => {
 
       // Only set maintenanceMode flag if maintenance is actually active
       options.maintenanceMode = isMaintenanceActive;
+
+      // Get count of new contact messages
+      const newMessageCount = await ContactMessage.countDocuments({ status: 'new' });
+      options.newMessageCount = newMessageCount;
+
+      // Get count of open issues
+      const openIssueCount = await Issue.countDocuments({ status: 'Open' });
+      options.openIssueCount = openIssueCount;
 
       // Call the original render function with the modified options
       originalRender.call(this, view, options, callback);

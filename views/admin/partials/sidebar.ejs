@@ -157,6 +157,15 @@ if (typeof path === 'undefined') {
           </a>
         </li>
         <li>
+          <a href="/admin/contact-messages" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/contact-messages' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-envelope w-5"></i>
+            <span class="ml-3">Contact Messages</span>
+            <% if (typeof newMessageCount !== 'undefined' && newMessageCount > 0) { %>
+              <span class="ml-auto bg-neon-blue text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"><%= newMessageCount %></span>
+            <% } %>
+          </a>
+        </li>
+        <li>
           <a href="/admin/maintenance" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/maintenance' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
             <i class="fas fa-tools w-5"></i>
             <span class="ml-3">Maintenance</span>
@@ -166,6 +175,21 @@ if (typeof path === 'undefined') {
           <a href="/admin/ip-tracker" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/ip-tracker' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
             <i class="fas fa-map-marker-alt w-5"></i>
             <span class="ml-3">IP & Location Tracker</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/system-status" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/system-status' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-heartbeat w-5"></i>
+            <span class="ml-3">System Status</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/issues" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/issues' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-ticket-alt w-5"></i>
+            <span class="ml-3">Issue Management</span>
+            <% if (typeof openIssueCount !== 'undefined' && openIssueCount > 0) { %>
+              <span class="ml-auto bg-neon-blue text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"><%= openIssueCount %></span>
+            <% } %>
           </a>
         </li>
 
@@ -294,6 +318,30 @@ if (typeof path === 'undefined') {
           <a href="/admin/ip-tracker" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/ip-tracker' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
             <i class="fas fa-map-marker-alt w-5"></i>
             <span class="ml-3">IP & Location Tracker</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/contact-messages" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/contact-messages' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-envelope w-5"></i>
+            <span class="ml-3">Contact Messages</span>
+            <% if (typeof newMessageCount !== 'undefined' && newMessageCount > 0) { %>
+              <span class="ml-auto bg-neon-blue text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"><%= newMessageCount %></span>
+            <% } %>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/system-status" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/system-status' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-heartbeat w-5"></i>
+            <span class="ml-3">System Status</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/issues" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/issues' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-ticket-alt w-5"></i>
+            <span class="ml-3">Issue Management</span>
+            <% if (typeof openIssueCount !== 'undefined' && openIssueCount > 0) { %>
+              <span class="ml-auto bg-neon-blue text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"><%= openIssueCount %></span>
+            <% } %>
           </a>
         </li>
 
