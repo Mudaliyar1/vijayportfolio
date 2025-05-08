@@ -93,6 +93,24 @@ if (typeof path === 'undefined') {
           </a>
         </li>
         <li>
+          <a href="/admin/ads" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/ads' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-ad w-5"></i>
+            <span class="ml-3">Ad Management</span>
+          </a>
+        </li>
+        <li>
+          <a href="/subscription/admin/subscription-settings" class="flex items-center py-2 px-4 rounded-md <%= path === '/subscription/admin/subscription-settings' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-dollar-sign w-5"></i>
+            <span class="ml-3">Ad-Free Subscriptions</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/settings" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/settings' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-cog w-5"></i>
+            <span class="ml-3">System Settings</span>
+          </a>
+        </li>
+        <li>
           <a href="/admin/memories" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/memories' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
             <i class="fas fa-brain w-5"></i>
             <span class="ml-3">AI Memory</span>
@@ -190,6 +208,12 @@ if (typeof path === 'undefined') {
             <% if (typeof openIssueCount !== 'undefined' && openIssueCount > 0) { %>
               <span class="ml-auto bg-neon-blue text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"><%= openIssueCount %></span>
             <% } %>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/page-locks" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/page-locks' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-lock w-5"></i>
+            <span class="ml-3">Page Lock Management</span>
           </a>
         </li>
 
@@ -344,11 +368,35 @@ if (typeof path === 'undefined') {
             <% } %>
           </a>
         </li>
+        <li>
+          <a href="/admin/page-locks" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/page-locks' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-lock w-5"></i>
+            <span class="ml-3">Page Lock Management</span>
+          </a>
+        </li>
 
         <li>
           <a href="/admin/images" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/images' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
             <i class="fas fa-images w-5"></i>
             <span class="ml-3">Image Management</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/ads" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/ads' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-ad w-5"></i>
+            <span class="ml-3">Ad Management</span>
+          </a>
+        </li>
+        <li>
+          <a href="/subscription/admin/subscription-settings" class="flex items-center py-2 px-4 rounded-md <%= path === '/subscription/admin/subscription-settings' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-dollar-sign w-5"></i>
+            <span class="ml-3">Ad-Free Subscriptions</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/settings" class="flex items-center py-2 px-4 rounded-md <%= path === '/admin/settings' ? 'bg-dark-100 text-white' : 'text-gray-400 hover:bg-dark-100 hover:text-white' %> transition-colors">
+            <i class="fas fa-cog w-5"></i>
+            <span class="ml-3">System Settings</span>
           </a>
         </li>
         <li>

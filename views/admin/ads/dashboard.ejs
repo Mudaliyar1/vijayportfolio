@@ -1,0 +1,337 @@
+<!-- Admin Ads Dashboard -->
+<div>
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Ad Management</h1>
+    <div class="flex space-x-2">
+      <a href="/admin/settings" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-3 py-2 rounded-md text-sm transition-colors">
+        <i class="fas fa-cog mr-1"></i> Internet Ads Settings
+      </a>
+      <a href="/admin/ads/add" class="bg-neon-blue hover:bg-blue-600 text-white px-3 py-2 rounded-md text-sm transition-colors">
+        <i class="fas fa-plus mr-1"></i> Add New Ad
+      </a>
+    </div>
+  </div>
+
+  <!-- Internet Ads Info -->
+  <div class="bg-dark-100 rounded-lg border border-gray-800 p-4 mb-6">
+    <div class="flex items-start">
+      <div class="flex-shrink-0 mt-0.5">
+        <i class="fas fa-info-circle text-neon-blue text-xl"></i>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-sm font-medium text-gray-200">About Internet Ads</h3>
+        <div class="mt-2 text-sm text-gray-400">
+          <p>This page displays both custom ads (created by you) and internet ads (free ads from public sources).</p>
+          <p class="mt-1">You can enable or disable internet ads in the <a href="/admin/settings" class="text-neon-blue hover:underline">System Settings</a> page.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-4 hover:border-neon-blue transition-colors">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-sm font-semibold">Total Ads</h3>
+        <div class="w-8 h-8 rounded-full bg-neon-blue/20 flex items-center justify-center">
+          <i class="fas fa-ad text-neon-blue"></i>
+        </div>
+      </div>
+      <p class="text-2xl font-bold"><%= totalAds %></p>
+    </div>
+
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-4 hover:border-neon-green transition-colors">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-sm font-semibold">Active Ads</h3>
+        <div class="w-8 h-8 rounded-full bg-neon-green/20 flex items-center justify-center">
+          <i class="fas fa-check-circle text-neon-green"></i>
+        </div>
+      </div>
+      <p class="text-2xl font-bold"><%= activeAds %></p>
+    </div>
+
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-4 hover:border-neon-purple transition-colors">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-sm font-semibold">Popup Ads</h3>
+        <div class="w-8 h-8 rounded-full bg-neon-purple/20 flex items-center justify-center">
+          <i class="fas fa-window-restore text-neon-purple"></i>
+        </div>
+      </div>
+      <p class="text-2xl font-bold"><%= positionCounts.popup %></p>
+    </div>
+
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-4 hover:border-neon-pink transition-colors">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-sm font-semibold">Top Banners</h3>
+        <div class="w-8 h-8 rounded-full bg-neon-pink/20 flex items-center justify-center">
+          <i class="fas fa-arrow-up text-neon-pink"></i>
+        </div>
+      </div>
+      <p class="text-2xl font-bold"><%= positionCounts.top %></p>
+    </div>
+
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-4 hover:border-yellow-500 transition-colors">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-sm font-semibold">Bottom Banners</h3>
+        <div class="w-8 h-8 rounded-full bg-yellow-500/20 flex items-center justify-center">
+          <i class="fas fa-arrow-down text-yellow-500"></i>
+        </div>
+      </div>
+      <p class="text-2xl font-bold"><%= positionCounts.bottom %></p>
+    </div>
+
+    <div class="bg-dark-100 rounded-lg border border-gray-800 p-4 hover:border-cyan-500 transition-colors">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-sm font-semibold">Sidebar Ads</h3>
+        <div class="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center">
+          <i class="fas fa-columns text-cyan-500"></i>
+        </div>
+      </div>
+      <p class="text-2xl font-bold"><%= positionCounts.sidebar %></p>
+    </div>
+  </div>
+
+  <!-- Ads Table -->
+  <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden">
+    <div class="p-4 border-b border-gray-800 bg-dark-200">
+      <h2 class="text-lg font-semibold">All Ads</h2>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-dark-200">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Title</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Source</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Category</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Positions</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Pages</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Image</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Created</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-800">
+          <% if (ads && ads.length > 0) { %>
+            <% ads.forEach(ad => { %>
+              <tr class="hover:bg-dark-200 transition-colors">
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div>
+                      <div class="text-sm font-medium text-white"><%= ad.title %></div>
+                      <div class="text-xs text-gray-400 truncate max-w-xs"><%= ad.description %></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                    <%= ad.source === 'custom' ? 'bg-blue-900 text-blue-200' : 'bg-purple-900 text-purple-200' %>">
+                    <%= ad.source === 'custom' ? 'Custom' : 'Internet' %>
+                  </span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <% if (ad.category) { %>
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                      <% if (ad.category === 'social-media') { %>bg-purple-900 text-purple-200
+                      <% } else if (ad.category === 'tech-giant') { %>bg-blue-900 text-blue-200
+                      <% } else if (ad.category === 'dev-tool') { %>bg-green-900 text-green-200
+                      <% } else if (ad.category === 'cloud') { %>bg-cyan-900 text-cyan-200
+                      <% } else if (ad.category === 'education') { %>bg-yellow-900 text-yellow-200
+                      <% } else if (ad.category === 'open-source') { %>bg-red-900 text-red-200
+                      <% } else if (ad.category === 'browser') { %>bg-orange-900 text-orange-200
+                      <% } else { %>bg-gray-900 text-gray-200<% } %>">
+                      <%= ad.category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') %>
+                    </span>
+                  <% } else { %>
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-900 text-gray-200">
+                      Other
+                    </span>
+                  <% } %>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="flex flex-wrap gap-1">
+                    <%
+                    // Handle both old format (position) and new format (positions array)
+                    const positions = ad.positions || [ad.position];
+                    positions.forEach(position => {
+                    %>
+                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                        <% if (position === 'popup') { %>bg-purple-900 text-purple-200
+                        <% } else if (position === 'top') { %>bg-pink-900 text-pink-200
+                        <% } else if (position === 'bottom') { %>bg-yellow-900 text-yellow-200
+                        <% } else if (position === 'sidebar') { %>bg-cyan-900 text-cyan-200
+                        <% } else { %>bg-gray-900 text-gray-200<% } %>">
+                        <%= position %>
+                      </span>
+                    <% }); %>
+                  </div>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="text-sm text-gray-300">
+                    <% if (ad.pages && ad.pages.length > 0) { %>
+                      <% if (ad.pages.includes('all')) { %>
+                        All Pages
+                      <% } else { %>
+                        <%= ad.pages.slice(0, 2).join(', ') %>
+                        <% if (ad.pages.length > 2) { %>
+                          <span class="text-gray-400">+<%= ad.pages.length - 2 %> more</span>
+                        <% } %>
+                      <% } %>
+                    <% } else { %>
+                      -
+                    <% } %>
+                  </div>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <% const isActive = ad.isCurrentlyActive(); %>
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                    <%= isActive ? 'bg-green-900 text-green-200' : 'bg-red-900 text-red-200' %>">
+                    <%= isActive ? 'Active' : 'Inactive' %>
+                  </span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <% if (ad.imageUrl) { %>
+                    <a href="<%= ad.imageUrl %>" target="_blank" class="text-neon-blue hover:underline">
+                      <img src="<%= ad.imageUrl %>" alt="<%= ad.title %>" class="h-10 w-auto object-contain"
+                        onerror="this.onerror=null; this.src='/images/default-avatar.png'; this.classList.add('error-image');">
+                    </a>
+                  <% } else { %>
+                    <img src="/images/default-avatar.png" alt="Default Image" class="h-10 w-auto object-contain opacity-50">
+                    <span class="text-xs text-gray-500 block">No image</span>
+                  <% } %>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
+                  <%= new Date(ad.createdAt).toLocaleDateString() %>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                  <div class="flex space-x-2">
+                    <% if (ad.source === 'custom') { %>
+                      <a href="/admin/ads/edit/<%= ad._id %>" class="text-neon-blue hover:text-blue-400 transition-colors">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                    <% } else { %>
+                      <span class="text-gray-600 cursor-not-allowed" title="Internet ads cannot be edited">
+                        <i class="fas fa-edit"></i>
+                      </span>
+                    <% } %>
+                    <button class="toggle-ad-status text-yellow-500 hover:text-yellow-400 transition-colors"
+                      data-id="<%= ad._id %>" data-active="<%= ad.active %>">
+                      <i class="fas <%= ad.active ? 'fa-toggle-on' : 'fa-toggle-off' %>"></i>
+                    </button>
+                    <button class="delete-ad text-red-500 hover:text-red-400 transition-colors"
+                      data-id="<%= ad._id %>" data-title="<%= ad.title %>">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="7" class="px-4 py-8 text-center text-gray-400">
+                <div class="flex flex-col items-center">
+                  <i class="fas fa-ad text-4xl mb-3 text-gray-600"></i>
+                  <p>No ads found. Click "Add New Ad" to create your first ad.</p>
+                </div>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Ad Modal -->
+<div id="delete-ad-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-dark-100 rounded-lg max-w-md w-full p-6 border border-gray-800">
+    <h3 class="text-xl font-bold mb-4">Delete Ad</h3>
+    <p class="mb-6">Are you sure you want to delete the ad "<span id="delete-ad-title"></span>"? This action cannot be undone.</p>
+    <div class="flex justify-end space-x-3">
+      <button id="cancel-delete" class="px-4 py-2 bg-dark-200 text-white rounded-md hover:bg-dark-300 transition-colors">
+        Cancel
+      </button>
+      <form id="delete-ad-form" method="POST" action="">
+        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+          Delete
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript for Ad Management -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Toggle Ad Status
+    const toggleButtons = document.querySelectorAll('.toggle-ad-status');
+    toggleButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const adId = this.getAttribute('data-id');
+        const isActive = this.getAttribute('data-active') === 'true';
+
+        fetch(`/admin/ads/toggle/${adId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Toggle icon
+            const icon = this.querySelector('i');
+            if (data.active) {
+              icon.classList.remove('fa-toggle-off');
+              icon.classList.add('fa-toggle-on');
+              this.setAttribute('data-active', 'true');
+            } else {
+              icon.classList.remove('fa-toggle-on');
+              icon.classList.add('fa-toggle-off');
+              this.setAttribute('data-active', 'false');
+            }
+
+            // Refresh the page to update status indicators
+            window.location.reload();
+          } else {
+            alert('Failed to toggle ad status');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred while toggling ad status');
+        });
+      });
+    });
+
+    // Delete Ad
+    const deleteButtons = document.querySelectorAll('.delete-ad');
+    const deleteModal = document.getElementById('delete-ad-modal');
+    const deleteAdTitle = document.getElementById('delete-ad-title');
+    const deleteAdForm = document.getElementById('delete-ad-form');
+    const cancelDelete = document.getElementById('cancel-delete');
+
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const adId = this.getAttribute('data-id');
+        const adTitle = this.getAttribute('data-title');
+
+        deleteAdTitle.textContent = adTitle;
+        deleteAdForm.action = `/admin/ads/delete/${adId}`;
+        deleteModal.classList.remove('hidden');
+      });
+    });
+
+    cancelDelete.addEventListener('click', function() {
+      deleteModal.classList.add('hidden');
+    });
+
+    // Close modal when clicking outside
+    deleteModal.addEventListener('click', function(e) {
+      if (e.target === deleteModal) {
+        deleteModal.classList.add('hidden');
+      }
+    });
+  });
+</script>

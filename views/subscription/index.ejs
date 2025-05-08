@@ -1,0 +1,501 @@
+<div class="container mx-auto px-4 py-8 max-w-6xl" style="min-height: 80vh;">
+  <h1 class="text-3xl font-bold text-center mb-8">Ad-Free Subscription</h1>
+
+  <% if (locals.success_msg && success_msg.length > 0) { %>
+    <div class="bg-green-900/30 border border-green-500 text-white px-4 py-3 rounded-md mb-6">
+      <p><i class="fas fa-check-circle mr-2"></i> <%= success_msg %></p>
+    </div>
+  <% } %>
+
+  <!-- Dynamic success message container -->
+  <div id="successContainer" class="bg-green-900/30 border border-green-500 text-white px-4 py-3 rounded-md mb-6" style="display: none;">
+    <p><i class="fas fa-check-circle mr-2"></i> <span id="successMessage"></span></p>
+  </div>
+
+  <!-- Loading indicator -->
+  <div id="loadingContainer" class="bg-blue-900/30 border border-blue-500 text-white px-4 py-3 rounded-md mb-6 flex items-center justify-center" style="display: none;">
+    <div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-blue-500 mr-3"></div>
+    <p>Processing your request...</p>
+  </div>
+
+  <% if (locals.error_msg && error_msg.length > 0) { %>
+    <div class="bg-red-900/30 border border-red-500 text-white px-4 py-3 rounded-md mb-6">
+      <p><i class="fas fa-exclamation-circle mr-2"></i> <%= error_msg %></p>
+    </div>
+  <% } %>
+
+  <!-- Dynamic error message container -->
+  <div id="errorContainer" class="bg-red-900/30 border border-red-500 text-white px-4 py-3 rounded-md mb-6" style="display: none;">
+    <p><i class="fas fa-exclamation-circle mr-2"></i> <span id="errorMessage"></span></p>
+  </div>
+
+  <div class="flex justify-center">
+    <div class="w-full max-w-5xl">
+      <% if (subscription && subscription.active) { %>
+        <!-- Active Subscription -->
+        <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden mb-8">
+          <div class="bg-gradient-to-r from-green-600/30 to-green-500/30 p-4 border-b border-gray-800">
+            <h2 class="text-xl font-semibold">Active Subscription</h2>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center mb-4">
+              <div class="bg-green-500/20 p-3 rounded-full mr-4">
+                <i class="fas fa-check-circle text-green-400 text-2xl"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-medium text-green-400">Ad-Free Experience Active</h3>
+                <p class="text-gray-300 mt-1">Your subscription is active until <%= new Date(subscription.endDate).toLocaleDateString() %></p>
+              </div>
+            </div>
+
+            <p class="text-gray-300 mb-6">Enjoy browsing without any advertisements! Thank you for supporting FTRAISE AI.</p>
+
+            <form action="/subscription/cancel" method="POST">
+              <button
+                type="submit"
+                class="bg-red-600/80 hover:bg-red-700 text-white py-2 px-4 rounded-md transition-colors block"
+                onclick="return confirm('Are you sure you want to cancel your subscription? Ads will start showing immediately.')"
+                style="display: block; width: auto; text-align: center;"
+              >
+                <i class="fas fa-times-circle mr-1"></i> Cancel Subscription
+              </button>
+            </form>
+          </div>
+        </div>
+      <% } else { %>
+        <!-- Subscription Plans -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-<%= Math.min(4, (customPlans && customPlans.length > 0 ? customPlans.length + 2 : 2)) %>  gap-6 mb-8" style="min-height: 450px;">
+          <!-- Monthly Plan -->
+          <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden h-full plan-card">
+            <div class="bg-gradient-to-r from-neon-blue/20 to-neon-purple/20 p-4 border-b border-gray-800">
+              <h2 class="text-xl font-semibold">Monthly Plan</h2>
+            </div>
+            <div class="p-6 flex flex-col h-full plan-card-body">
+              <div class="mb-4">
+                <span class="text-3xl font-bold">₹<%= monthlyAmount %></span>
+                <span class="text-gray-400 ml-1">/ month</span>
+              </div>
+
+              <ul class="space-y-3 mb-6 flex-grow plan-features">
+                <li class="flex items-start">
+                  <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                  <span>Ad-free browsing experience</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                  <span>Support the platform</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                  <span>Cancel anytime</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                  <span>Faster page loading</span>
+                </li>
+              </ul>
+
+              <div class="button-container">
+                <button
+                  type="button"
+                  class="bg-neon-blue hover:bg-blue-600 text-white py-3 px-4 rounded-md font-medium transition-colors w-full mt-auto block subscription-btn"
+                  onclick="createOrder('monthly')"
+                >
+                  Subscribe Now
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Yearly Plan -->
+          <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden h-full relative plan-card">
+            <div class="absolute top-0 right-0 bg-green-600 text-white text-xs px-3 py-1 rounded-bl-md font-medium">
+              Best Value
+            </div>
+            <div class="bg-gradient-to-r from-neon-green/20 to-neon-blue/20 p-4 border-b border-gray-800">
+              <h2 class="text-xl font-semibold">Yearly Plan</h2>
+            </div>
+            <div class="p-6 flex flex-col h-full plan-card-body">
+              <div class="mb-4">
+                <span class="text-3xl font-bold">₹<%= yearlyAmount %></span>
+                <span class="text-gray-400 ml-1">/ year</span>
+              </div>
+
+              <ul class="space-y-3 mb-6 flex-grow plan-features">
+                <li class="flex items-start">
+                  <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                  <span>Ad-free browsing experience</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                  <span>Support the platform</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                  <span>Save <%= Math.round((monthlyAmount * 12 - yearlyAmount) / (monthlyAmount * 12) * 100) %>% compared to monthly</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                  <span>Faster page loading</span>
+                </li>
+              </ul>
+
+              <div class="button-container">
+                <button
+                  type="button"
+                  class="bg-neon-green hover:bg-green-600 text-white py-3 px-4 rounded-md font-medium transition-colors w-full mt-auto block subscription-btn"
+                  onclick="createOrder('yearly')"
+                >
+                  Subscribe Now
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <% if (customPlans && customPlans.length > 0) { %>
+            <% customPlans.forEach(plan => { %>
+              <!-- Custom Plan: <%= plan.name %> -->
+              <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden h-full plan-card">
+                <div class="bg-gradient-to-r from-purple-600/20 to-pink-600/20 p-4 border-b border-gray-800">
+                  <h2 class="text-xl font-semibold"><%= plan.name %></h2>
+                </div>
+                <div class="p-6 flex flex-col h-full plan-card-body">
+                  <div class="mb-4">
+                    <span class="text-3xl font-bold">₹<%= plan.amount %></span>
+                    <span class="text-gray-400 ml-1">/ <%= plan.duration %> <%= plan.durationUnit %></span>
+                  </div>
+
+                  <ul class="space-y-3 mb-6 flex-grow plan-features">
+                    <li class="flex items-start">
+                      <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                      <span>Ad-free browsing experience</span>
+                    </li>
+                    <% if (plan.description) { %>
+                      <li class="flex items-start">
+                        <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                        <span><%= plan.description %></span>
+                      </li>
+                    <% } %>
+                    <li class="flex items-start">
+                      <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                      <span>Support the platform</span>
+                    </li>
+                    <li class="flex items-start">
+                      <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                      <span>Faster page loading</span>
+                    </li>
+                  </ul>
+
+                  <div class="button-container">
+                    <button
+                      type="button"
+                      class="bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-md font-medium transition-colors w-full mt-auto block subscription-btn"
+                      onclick="createOrderWithPlan('<%= plan._id %>')"
+                    >
+                      Subscribe Now
+                    </button>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          <% } %>
+        </div>
+
+        <!-- Why Go Ad-Free Section -->
+        <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden">
+          <div class="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 p-4 border-b border-gray-800">
+            <h2 class="text-xl font-semibold">Why Go Ad-Free?</h2>
+          </div>
+          <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 class="text-lg font-medium mb-3 text-indigo-400">Benefits</h3>
+                <ul class="space-y-2">
+                  <li class="flex items-start">
+                    <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                    <span>Enjoy a clean, distraction-free experience</span>
+                  </li>
+                  <li class="flex items-start">
+                    <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                    <span>Faster page loading times</span>
+                  </li>
+                  <li class="flex items-start">
+                    <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                    <span>Support the development of FTRAISE AI</span>
+                  </li>
+                  <li class="flex items-start">
+                    <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                    <span>No tracking from ad networks</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-medium mb-3 text-purple-400">What's Removed</h3>
+                <ul class="space-y-2">
+                  <li class="flex items-start">
+                    <i class="fas fa-minus text-red-500 mt-1 mr-3"></i>
+                    <span>All banner ads</span>
+                  </li>
+                  <li class="flex items-start">
+                    <i class="fas fa-minus text-red-500 mt-1 mr-3"></i>
+                    <span>Sidebar ads</span>
+                  </li>
+                  <li class="flex items-start">
+                    <i class="fas fa-minus text-red-500 mt-1 mr-3"></i>
+                    <span>Popup ads</span>
+                  </li>
+                  <li class="flex items-start">
+                    <i class="fas fa-minus text-red-500 mt-1 mr-3"></i>
+                    <span>In-content ads</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Styles for Subscription Page -->
+<style>
+  /* Fix for subscription buttons */
+  .subscription-btn {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    margin-top: 1rem !important;
+    position: relative !important;
+    z-index: 10 !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 48px !important;
+    padding: 0.75rem 1rem !important;
+    line-height: 1.5 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* Fix for plan cards */
+  .plan-card {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    min-height: 400px !important;
+    position: relative !important;
+    overflow: visible !important;
+  }
+
+  .plan-card-body {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-grow: 1 !important;
+  }
+
+  .plan-features {
+    flex-grow: 1 !important;
+    margin-bottom: 1.5rem !important;
+  }
+
+  /* Fix for button container */
+  .button-container {
+    position: relative !important;
+    z-index: 20 !important;
+    margin-top: auto !important;
+    width: 100% !important;
+    display: block !important;
+    height: auto !important;
+    min-height: 48px !important;
+  }
+</style>
+
+<!-- Razorpay Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  // Function to display error messages
+  function showError(message) {
+    const errorContainer = document.getElementById('errorContainer');
+    const errorMessage = document.getElementById('errorMessage');
+
+    // Hide other containers
+    document.getElementById('successContainer').style.display = 'none';
+    document.getElementById('loadingContainer').style.display = 'none';
+
+    errorMessage.textContent = message;
+    errorContainer.style.display = 'block';
+
+    // Scroll to error message
+    errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Hide after 10 seconds
+    setTimeout(() => {
+      errorContainer.style.display = 'none';
+    }, 10000);
+  }
+
+  // Function to display success messages
+  function showSuccess(message) {
+    const successContainer = document.getElementById('successContainer');
+    const successMessage = document.getElementById('successMessage');
+
+    // Hide other containers
+    document.getElementById('errorContainer').style.display = 'none';
+    document.getElementById('loadingContainer').style.display = 'none';
+
+    successMessage.textContent = message;
+    successContainer.style.display = 'block';
+
+    // Scroll to success message
+    successContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Hide after 10 seconds
+    setTimeout(() => {
+      successContainer.style.display = 'none';
+    }, 10000);
+  }
+
+  // Function to show loading indicator
+  function showLoading() {
+    // Hide other containers
+    document.getElementById('errorContainer').style.display = 'none';
+    document.getElementById('successContainer').style.display = 'none';
+
+    // Show loading container
+    document.getElementById('loadingContainer').style.display = 'flex';
+
+    // Scroll to loading indicator
+    document.getElementById('loadingContainer').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // Function to hide loading indicator
+  function hideLoading() {
+    document.getElementById('loadingContainer').style.display = 'none';
+  }
+  function createOrder(plan) {
+    // Show loading indicator
+    showLoading();
+
+    // Create order
+    fetch('/subscription/create-order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ plan }),
+    })
+  }
+
+  function createOrderWithPlan(planId) {
+    // Show loading indicator
+    showLoading();
+
+    // Create order
+    fetch('/subscription/create-order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ planId }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Open Razorpay checkout
+        const options = {
+          key: '<%= process.env.RAZORPAY_KEY_ID %>',
+          amount: data.amount,
+          currency: data.currency,
+          name: 'FTRAISE AI',
+          description: data.planName ? data.planName : `${plan ? plan.charAt(0).toUpperCase() + plan.slice(1) : ''} Ad-Free Subscription`,
+          order_id: data.order_id,
+          handler: function (response) {
+            // Verify payment
+            verifyPayment(response, data.plan, data.planId, data.planDuration, data.planDurationUnit);
+          },
+          prefill: {
+            name: data.name,
+            email: data.email,
+            contact: data.contact
+          },
+          theme: {
+            color: '#3399cc'
+          },
+          modal: {
+            ondismiss: function() {
+              console.log('Checkout form closed');
+            }
+          }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+      } else {
+        showError(data.message || 'Failed to create order');
+      }
+    })
+    .catch(error => {
+      console.error('Error creating subscription order:', error);
+
+      // Try to get detailed error message
+      error.json().then(errorData => {
+        const errorMessage = errorData.message || 'An error occurred while creating the order';
+        showError(errorMessage);
+        console.error('Detailed error:', errorData);
+      }).catch(() => {
+        // If we can't parse the error as JSON
+        showError('An error occurred while creating the order. Please try again later.');
+      });
+    });
+  }
+
+  function verifyPayment(response, plan, planId, planDuration, planDurationUnit) {
+    // Show loading indicator
+    showLoading();
+
+    // Verify payment
+    fetch('/subscription/verify-payment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_signature: response.razorpay_signature,
+        plan,
+        planId,
+        planDuration,
+        planDurationUnit
+      }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Show success message and reload
+        showSuccess('Subscription activated successfully!');
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else {
+        showError(data.message || 'Failed to verify payment');
+      }
+    })
+    .catch(error => {
+      console.error('Error verifying payment:', error);
+
+      // Try to get detailed error message
+      error.json().then(errorData => {
+        const errorMessage = errorData.message || 'An error occurred while verifying the payment';
+        showError(errorMessage);
+        console.error('Detailed error:', errorData);
+      }).catch(() => {
+        // If we can't parse the error as JSON
+        showError('An error occurred while verifying the payment. Please try again later.');
+      });
+    });
+  }
+</script>
+
+

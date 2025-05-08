@@ -2,6 +2,7 @@ const SystemStatus = require('../models/SystemStatus');
 const Incident = require('../models/Incident');
 const StatusSubscription = require('../models/StatusSubscription');
 const crypto = require('crypto');
+const mongoose = require('mongoose');
 
 // Helper function to get status text and color
 function getStatusInfo(status) {
@@ -186,16 +187,72 @@ module.exports = {
 
       // If no system status exists, create a default one
       if (!systemStatus) {
+        // Try to fetch components from status app if available
+        let statusAppComponents = [];
+        try {
+          // Use the same MongoDB connection to fetch from status app
+          const statusAppSystemStatus = await mongoose.connection.db
+            .collection('systemstatuses')
+            .findOne({}, { sort: { updatedAt: -1 } });
+
+          if (statusAppSystemStatus && statusAppSystemStatus.components && statusAppSystemStatus.components.length > 0) {
+            statusAppComponents = statusAppSystemStatus.components.map(comp => ({
+              name: comp.name,
+              status: 'operational'
+            }));
+            console.log('Fetched components from status app:', statusAppComponents);
+          }
+        } catch (statusAppErr) {
+          console.error('Error fetching components from status app:', statusAppErr);
+        }
+
+        // Use status app components if available, otherwise use defaults
+        const componentsToUse = statusAppComponents.length > 0 ? statusAppComponents : [
+          { name: 'AI Chat Engine', status: 'operational' },
+          { name: 'Database (MongoDB)', status: 'operational' },
+          { name: 'User Login/Auth', status: 'operational' },
+          { name: 'Admin Dashboard', status: 'operational' },
+          { name: 'Website Frontend', status: 'operational' }
+        ];
+
         systemStatus = await SystemStatus.create({
           overallStatus: 'operational',
-          components: [
-            { name: 'AI Chat Engine', status: 'operational' },
-            { name: 'Database (MongoDB)', status: 'operational' },
-            { name: 'User Login/Auth', status: 'operational' },
-            { name: 'Admin Dashboard', status: 'operational' },
-            { name: 'Website Frontend', status: 'operational' }
-          ]
+          components: componentsToUse
         });
+      }
+
+      // Check if we need to sync components from status app
+      try {
+        const statusAppSystemStatus = await mongoose.connection.db
+          .collection('systemstatuses')
+          .findOne({}, { sort: { updatedAt: -1 } });
+
+        if (statusAppSystemStatus && statusAppSystemStatus.components) {
+          // Get component names from status app
+          const statusAppComponentNames = statusAppSystemStatus.components.map(comp => comp.name);
+
+          // Get component names from main app
+          const mainAppComponentNames = systemStatus.components.map(comp => comp.name);
+
+          // Find components in status app that are not in main app
+          const newComponents = statusAppComponentNames.filter(name => !mainAppComponentNames.includes(name));
+
+          // Add new components to main app
+          if (newComponents.length > 0) {
+            newComponents.forEach(name => {
+              systemStatus.components.push({
+                name,
+                status: 'operational',
+                updatedAt: new Date()
+              });
+            });
+
+            await systemStatus.save();
+            console.log('Added new components from status app:', newComponents);
+          }
+        }
+      } catch (syncErr) {
+        console.error('Error syncing components from status app:', syncErr);
       }
 
       // Get all incidents

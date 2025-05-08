@@ -15,6 +15,11 @@
   <link rel="stylesheet" href="/css/space-animations.css">
   <link rel="stylesheet" href="/css/interactive-demo.css">
   <link rel="stylesheet" href="/css/demo-page.css">
+  <link rel="stylesheet" href="/css/ad-display.css">
+  <% if (user && user.role === 'admin') { %>
+  <!-- Debug CSS for ads (only visible to admins) -->
+  <link rel="stylesheet" href="/css/ad-display-debug.css">
+  <% } %>
 
   <!-- Favicon -->
   <link rel="icon" href="/images/favicon.ico">
@@ -138,6 +143,53 @@
   <!-- Cookie Consent -->
   <script src="/js/cookie-consent.js"></script>
   <script src="/js/analytics-loader.js"></script>
+
+  <!-- Ad Display System -->
+  <script>
+    // Make ads available to the ad display script
+    window.pageAds = <%- JSON.stringify(typeof ads !== 'undefined' ? ads : {}) %>;
+    // Pass ad settings flags to the client
+    window.allAdsDisabled = <%- typeof allAdsDisabled !== 'undefined' ? allAdsDisabled : false %>;
+    window.internetAdsEnabled = <%- typeof internetAdsEnabled !== 'undefined' ? internetAdsEnabled : false %>;
+    // Pass current path information
+    window.currentPath = <%- JSON.stringify(typeof currentPath !== 'undefined' ? currentPath : '') %>;
+    window.simplePath = <%- JSON.stringify(typeof simplePath !== 'undefined' ? simplePath : '') %>;
+
+    <% if (user && user.role === 'admin') { %>
+    // Log page information for debugging (only for admins)
+    console.log('Page info:', {
+      path: window.currentPath,
+      simplePath: window.simplePath,
+      adsDisabled: window.allAdsDisabled,
+      internetAdsEnabled: window.internetAdsEnabled
+    });
+
+    // Log the actual ad data
+    console.log('Available ads:', window.pageAds);
+    <% } %>
+  </script>
+  <% if (user && user.role === 'admin') { %>
+  <!-- Debug scripts (only for admins) -->
+  <script src="/js/check-ad-css.js"></script>
+  <script src="/js/inject-test-ad.js"></script>
+  <% } %>
+  <script src="/js/ad-display.js"></script>
+
+  <% if (user && user.role === 'admin') { %>
+  <!-- Debug Controls (only visible to admins) -->
+  <div id="ad-debug-controls" style="position: fixed; bottom: 10px; left: 10px; z-index: 9999; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px;">
+    <button id="force-show-ads" style="background: red; color: white; padding: 5px 10px; border-radius: 3px;">Force Show Ads</button>
+    <script>
+      document.getElementById('force-show-ads').addEventListener('click', function() {
+        console.log('Forcing ads to show...');
+        window.allAdsDisabled = false;
+        window.internetAdsEnabled = true;
+        initializeAds();
+        alert('Attempting to force show ads. Check console for details.');
+      });
+    </script>
+  </div>
+  <% } %>
 
   <% if (user) { %>
   <!-- Precise Location Tracking (only for logged-in users) -->

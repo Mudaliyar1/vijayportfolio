@@ -1,0 +1,410 @@
+<!-- System Status Page -->
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple">
+      System Status
+    </h1>
+    <p class="text-gray-400">Current operational status of FTRAISE AI services</p>
+  </div>
+
+  <!-- Current Status Banner -->
+  <div class="mb-8">
+    <div class="bg-dark-200 rounded-lg border border-gray-700 shadow-xl overflow-hidden">
+      <div class="p-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+          <div class="flex items-center mb-4 md:mb-0">
+            <div class="text-2xl mr-3"><%= overallStatusInfo.icon %></div>
+            <div>
+              <h2 id="overall-status" class="text-xl font-semibold text-white status-badge"><%= overallStatusInfo.icon %> <%= overallStatusInfo.text %></h2>
+              <p class="text-gray-400 text-sm">Last updated: <span id="last-updated"><%= new Date(systemStatus.updatedAt).toLocaleString() %></span></p>
+            </div>
+          </div>
+
+          <div class="flex space-x-3">
+            <a href="#subscribe" class="px-4 py-2 bg-neon-blue text-white rounded-md hover:bg-blue-600 transition-colors">
+              <i class="fas fa-bell mr-2"></i> Subscribe to Updates
+            </a>
+            <a href="#history" class="px-4 py-2 bg-dark-100 text-white rounded-md hover:bg-dark-300 transition-colors">
+              <i class="fas fa-history mr-2"></i> View History
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Component Status Grid -->
+  <div class="mb-8">
+    <h2 class="text-xl font-semibold mb-4 text-white">Component Status</h2>
+
+    <div class="bg-dark-200 rounded-lg border border-gray-700 shadow-xl overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-700">
+          <thead class="bg-dark-300">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Component</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Last Checked</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Response Time</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Uptime (30 days)</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-700">
+            <% components.forEach(component => { %>
+              <tr class="hover:bg-dark-300 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-white"><%= component.name %></div>
+                  <div class="text-xs text-gray-400"><%= component.endpoint %></div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div id="component-status-<%= component.name.replace(/\s+/g, '-').toLowerCase() %>" class="flex items-center status-badge">
+                    <span class="text-lg mr-2"><%= component.statusInfo.icon %></span>
+                    <span class="text-sm font-medium text-white"><%= component.statusInfo.text %></span>
+                  </div>
+                  <% if (component.errorMessage) { %>
+                    <div class="text-xs text-red-400 mt-1"><%= component.errorMessage %></div>
+                  <% } %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                  <span id="component-last-checked-<%= component.name.replace(/\s+/g, '-').toLowerCase() %>">
+                    <%= new Date(component.lastChecked || component.updatedAt).toLocaleString() %>
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                  <% if (component.responseTime) { %>
+                    <%= component.responseTime %> ms
+                    <% if (component.responseTime > 1000) { %>
+                      <span class="text-yellow-400 ml-1"><i class="fas fa-exclamation-triangle"></i></span>
+                    <% } %>
+                  <% } else { %>
+                    N/A
+                  <% } %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="w-full bg-dark-100 rounded-full h-2.5 mr-2 max-w-[100px] relative overflow-hidden">
+                      <div class="bg-neon-blue h-2.5 rounded-full absolute top-0 left-0 bottom-0" id="uptime-bar-<%= component.name.replace(/\s+/g, '-').toLowerCase() %>"></div>
+                    </div>
+                    <script>
+                      document.getElementById('uptime-bar-<%= component.name.replace(/\s+/g, '-').toLowerCase() %>').style.width = '<%= component.uptime %>%';
+                    </script>
+                    <span class="text-sm font-medium text-white"><%= component.uptime.toFixed(2) %>%</span>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Uptime Charts -->
+  <div class="mb-8">
+    <h2 class="text-xl font-semibold mb-4 text-white">Uptime History</h2>
+
+    <div class="bg-dark-200 rounded-lg border border-gray-700 shadow-xl overflow-hidden p-6">
+      <div class="mb-4">
+        <select id="component-selector" class="bg-dark-100 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-neon-blue">
+          <% components.forEach(component => { %>
+            <option value="<%= component.name %>"><%= component.name %></option>
+          <% }) %>
+        </select>
+
+        <select id="time-range-selector" class="bg-dark-100 border border-gray-700 text-white rounded-lg px-4 py-2 ml-2 focus:outline-none focus:ring-2 focus:ring-neon-blue">
+          <option value="1">Last 24 Hours</option>
+          <option value="7">Last 7 Days</option>
+          <option value="30" selected>Last 30 Days</option>
+        </select>
+      </div>
+
+      <div class="h-64">
+        <canvas id="uptime-chart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Incident History -->
+  <div id="history" class="mb-8 scroll-mt-8">
+    <h2 class="text-xl font-semibold mb-4 text-white">Incident History</h2>
+
+    <div class="bg-dark-200 rounded-lg border border-gray-700 shadow-xl overflow-hidden">
+      <% if (incidents.length === 0) { %>
+        <div class="p-8 text-center">
+          <div class="text-gray-400 mb-4">
+            <i class="fas fa-check-circle text-5xl"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-2">No incidents in the last 30 days</h3>
+          <p class="text-gray-400">All systems have been operating normally.</p>
+        </div>
+      <% } else { %>
+        <div class="divide-y divide-gray-700">
+          <% incidents.forEach(incident => { %>
+            <div class="p-6">
+              <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+                <div>
+                  <div class="flex items-center mb-1">
+                    <h3 class="text-lg font-semibold text-white mr-2"><%= incident.title %></h3>
+                    <% if (incident.autoDetected) { %>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500 text-white">
+                        Auto-detected
+                      </span>
+                    <% } %>
+                  </div>
+                  <div class="flex flex-wrap items-center text-sm text-gray-400">
+                    <span class="mr-4"><i class="far fa-calendar-alt mr-1"></i> <%= new Date(incident.startTime).toLocaleDateString() %></span>
+                    <span class="mr-4"><i class="far fa-clock mr-1"></i> <%= incident.duration %></span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                      <%= incident.statusInfo.color === 'green' ? 'bg-green-500 text-white' :
+                         incident.statusInfo.color === 'yellow' ? 'bg-yellow-500 text-white' :
+                         incident.statusInfo.color === 'orange' ? 'bg-orange-500 text-white' :
+                         incident.statusInfo.color === 'blue' ? 'bg-blue-500 text-white' :
+                         'bg-gray-500 text-white' %>">
+                      <%= incident.statusInfo.text %>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="mt-4 md:mt-0">
+                  <div class="text-sm text-gray-400">
+                    <span class="font-medium">Affected:</span>
+                    <% incident.affectedComponents.forEach((component, index) => { %>
+                      <%= component %><%= index < incident.affectedComponents.length - 1 ? ', ' : '' %>
+                    <% }) %>
+                  </div>
+                </div>
+              </div>
+
+              <div class="prose prose-invert max-w-none text-sm">
+                <p><%= incident.description %></p>
+              </div>
+
+              <% if (incident.updates && incident.updates.length > 1) { %>
+                <div class="mt-4">
+                  <button class="text-neon-blue hover:underline text-sm flex items-center" onclick="toggleUpdates('<%= incident._id %>')">
+                    <span id="toggle-text-<%= incident._id %>">Show Updates (<%= incident.updates.length %>)</span>
+                    <i id="toggle-icon-<%= incident._id %>" class="fas fa-chevron-down ml-1"></i>
+                  </button>
+
+                  <div id="updates-<%= incident._id %>" class="hidden mt-3 pl-4 border-l-2 border-gray-700 space-y-3">
+                    <% incident.updates.slice(1).forEach(update => { %>
+                      <div class="text-sm">
+                        <div class="flex items-center mb-1">
+                          <span class="text-gray-400"><%= new Date(update.timestamp).toLocaleString() %></span>
+                          <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            <%= update.status === 'investigating' ? 'bg-yellow-500 text-white' :
+                               update.status === 'identified' ? 'bg-orange-500 text-white' :
+                               update.status === 'monitoring' ? 'bg-blue-500 text-white' :
+                               update.status === 'resolved' ? 'bg-green-500 text-white' :
+                               'bg-gray-500 text-white' %>">
+                            <%= update.status.charAt(0).toUpperCase() + update.status.slice(1) %>
+                          </span>
+                          <% if (update.autoDetected) { %>
+                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500 text-white">
+                              Auto-detected
+                            </span>
+                          <% } %>
+                        </div>
+                        <p class="text-white"><%= update.message %></p>
+                      </div>
+                    <% }) %>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Subscribe to Updates -->
+  <div id="subscribe" class="mb-8 scroll-mt-8">
+    <h2 class="text-xl font-semibold mb-4 text-white">Subscribe to Status Updates</h2>
+
+    <div class="bg-dark-200 rounded-lg border border-gray-700 shadow-xl overflow-hidden">
+      <div class="p-6">
+        <p class="text-gray-400 mb-4">Get notified when there are changes to our system status or new incidents.</p>
+
+        <form action="/subscribe" method="POST" class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+          <div class="flex-grow">
+            <input type="email" name="email" required placeholder="Enter your email address" class="w-full px-4 py-2 bg-dark-100 border border-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-neon-blue">
+          </div>
+
+          <div>
+            <button type="submit" class="w-full md:w-auto px-6 py-2 bg-neon-blue text-white rounded-lg hover:bg-blue-600 transition-colors">
+              Subscribe
+            </button>
+          </div>
+        </form>
+
+        <p class="text-xs text-gray-500 mt-4">We'll only email you about important system status changes. You can unsubscribe at any time.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Toggle incident updates
+  function toggleUpdates(incidentId) {
+    const updatesElement = document.getElementById(`updates-${incidentId}`);
+    const toggleText = document.getElementById(`toggle-text-${incidentId}`);
+    const toggleIcon = document.getElementById(`toggle-icon-${incidentId}`);
+
+    if (updatesElement.classList.contains('hidden')) {
+      updatesElement.classList.remove('hidden');
+      toggleText.textContent = 'Hide Updates';
+      toggleIcon.classList.remove('fa-chevron-down');
+      toggleIcon.classList.add('fa-chevron-up');
+    } else {
+      updatesElement.classList.add('hidden');
+      toggleText.textContent = `Show Updates (${updatesElement.children.length})`;
+      toggleIcon.classList.remove('fa-chevron-up');
+      toggleIcon.classList.add('fa-chevron-down');
+    }
+  }
+
+  // Initialize uptime chart
+  let uptimeChart;
+
+  function initUptimeChart() {
+    const ctx = document.getElementById('uptime-chart').getContext('2d');
+
+    uptimeChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        datasets: [
+          {
+            label: 'Uptime %',
+            borderColor: '#00a8ff',
+            backgroundColor: 'rgba(0, 168, 255, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Response Time (ms)',
+            borderColor: '#9c27b0',
+            backgroundColor: 'rgba(156, 39, 176, 0.1)',
+            borderWidth: 2,
+            fill: false,
+            tension: 0.4,
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            type: 'time',
+            time: {
+              unit: 'day',
+              tooltipFormat: 'MMM d, yyyy HH:mm'
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: '#e0e0e0'
+            }
+          },
+          y: {
+            min: 0,
+            max: 100,
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: '#e0e0e0'
+            },
+            title: {
+              display: true,
+              text: 'Uptime %',
+              color: '#00a8ff'
+            }
+          },
+          y1: {
+            position: 'right',
+            min: 0,
+            grid: {
+              drawOnChartArea: false
+            },
+            ticks: {
+              color: '#e0e0e0'
+            },
+            title: {
+              display: true,
+              text: 'Response Time (ms)',
+              color: '#9c27b0'
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: '#e0e0e0'
+            }
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false
+          }
+        }
+      }
+    });
+
+    // Load initial data
+    loadUptimeData();
+  }
+
+  // Load uptime data for the selected component and time range
+  async function loadUptimeData() {
+    const componentSelector = document.getElementById('component-selector');
+    const timeRangeSelector = document.getElementById('time-range-selector');
+
+    const component = componentSelector.value;
+    const days = timeRangeSelector.value;
+
+    try {
+      const response = await fetch(`/api/uptime/${component}/daily?days=${days}`);
+      const data = await response.json();
+
+      // Update chart data
+      uptimeChart.data.labels = data.map(item => new Date(item.timestamp));
+      uptimeChart.data.datasets[0].data = data.map(item => ({
+        x: new Date(item.timestamp),
+        y: item.uptime
+      }));
+      uptimeChart.data.datasets[1].data = data.map(item => ({
+        x: new Date(item.timestamp),
+        y: item.responseTime
+      }));
+
+      // Update chart options based on time range
+      if (days <= 1) {
+        uptimeChart.options.scales.x.time.unit = 'hour';
+      } else if (days <= 7) {
+        uptimeChart.options.scales.x.time.unit = 'day';
+      } else {
+        uptimeChart.options.scales.x.time.unit = 'week';
+      }
+
+      // Update chart
+      uptimeChart.update();
+    } catch (error) {
+      console.error('Error loading uptime data:', error);
+    }
+  }
+
+  // Initialize chart when page loads
+  document.addEventListener('DOMContentLoaded', () => {
+    initUptimeChart();
+
+    // Add event listeners for selectors
+    document.getElementById('component-selector').addEventListener('change', loadUptimeData);
+    document.getElementById('time-range-selector').addEventListener('change', loadUptimeData);
+  });
+</script>

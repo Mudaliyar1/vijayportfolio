@@ -39,4 +39,16 @@ router.get('/db-error', (req, res) => {
   });
 });
 
+// Test ads page route
+router.get('/test-ads', (req, res) => {
+  res.render('test-ads', {
+    title: 'Ad Test Page',
+    user: req.user || null,
+    success_msg: '',
+    error_msg: '',
+    error: '',
+    errors: []
+  });
+});
+
 module.exports = router;

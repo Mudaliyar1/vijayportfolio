@@ -1,0 +1,296 @@
+/**
+ * Ad Display System Styles
+ */
+
+/* Popup Ads */
+.ad-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.ad-popup-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.ad-popup-content {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  animation: adPopupIn 0.5s ease forwards;
+}
+
+@keyframes adPopupIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.ad-popup-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.ad-popup-close:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Banner Ads */
+.ad-banner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 9998;
+  background-color: #1a1a1a;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+}
+
+.ad-banner-top {
+  top: 0;
+  transform: translateY(-100%);
+}
+
+.ad-banner-bottom {
+  bottom: 0;
+  transform: translateY(100%);
+}
+
+.ad-banner-visible {
+  transform: translateY(0);
+}
+
+.ad-banner-content {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  max-height: 100px;
+}
+
+.ad-banner-close {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 24px;
+  height: 24px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.ad-banner-close:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Sidebar Ads */
+.ad-sidebar-container {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 9997;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ad-sidebar-container.right-side {
+  right: 0;
+}
+
+.ad-sidebar-container.left-side {
+  left: 0;
+}
+
+.ad-sidebar {
+  width: 160px;
+  background-color: #1a1a1a;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.right-side .ad-sidebar {
+  border-radius: 8px 0 0 8px;
+  transform: translateX(100%);
+}
+
+.left-side .ad-sidebar {
+  border-radius: 0 8px 8px 0;
+  transform: translateX(-100%);
+}
+
+.ad-sidebar-visible,
+.right-side .ad-sidebar-visible,
+.left-side .ad-sidebar-visible {
+  transform: translateX(0) !important;
+}
+
+.ad-sidebar-content {
+  position: relative;
+  padding: 10px;
+}
+
+.ad-sidebar-close {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 20px;
+  height: 20px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.ad-sidebar-close:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Content Ads */
+.ad-content {
+  margin: 20px 0;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.ad-content-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ad-content-inner {
+  display: inline-block;
+  max-width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Common Ad Elements */
+.ad-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.ad-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.ad-overlay-text {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 12px;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .ad-sidebar-container.mobile-sidebar {
+    /* Reposition sidebar ads on mobile instead of hiding them */
+    position: fixed;
+    top: auto;
+    bottom: 10px;
+    transform: none;
+    z-index: 9997;
+  }
+
+  .ad-sidebar-container.mobile-sidebar.right-side {
+    right: 10px;
+  }
+
+  .ad-sidebar-container.mobile-sidebar.left-side {
+    left: 10px;
+  }
+
+  .ad-sidebar {
+    width: 120px; /* Smaller width on mobile */
+    border-radius: 8px !important; /* Full rounded corners on mobile, override left/right specific styles */
+    margin-bottom: 10px;
+  }
+
+  /* Reset transforms for mobile to ensure proper positioning */
+  .mobile-sidebar .ad-sidebar {
+    transform: none !important;
+  }
+
+  .ad-banner-content {
+    max-height: 80px;
+  }
+
+  .ad-popup-content {
+    max-width: 95%;
+  }
+}
+
+/* Adjust for top banner */
+body.has-top-banner {
+  padding-top: 100px;
+}
+
+/* Adjust for bottom banner */
+body.has-bottom-banner {
+  padding-bottom: 100px;
+}

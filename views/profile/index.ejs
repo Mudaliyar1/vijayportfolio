@@ -1,68 +1,112 @@
 <div class="max-w-4xl mx-auto">
-  <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg border border-indigo-500/20 overflow-hidden mb-8 shadow-xl">
+  <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg border border-indigo-500/20 overflow-hidden mb-8 shadow-xl animate-fade-in">
     <div class="bg-gradient-to-r from-neon-blue/20 to-neon-purple/20 p-6 text-center relative">
       <div class="absolute inset-0 bg-dark-200/50"></div>
       <div class="relative">
-        <div class="w-24 h-24 rounded-full mx-auto mb-4 border-2 border-neon-blue overflow-hidden animate-glow">
+        <div class="w-24 h-24 rounded-full mx-auto mb-4 border-2 border-neon-blue overflow-hidden animate-glow shadow-lg">
           <img src="<%= user.profilePicture %>" alt="<%= user.username %>" class="w-full h-full object-cover">
         </div>
-        <h1 class="text-2xl font-bold mb-1"><%= user.username %></h1>
+        <h1 class="text-2xl font-bold mb-1 text-white"><%= user.username %></h1>
         <p class="text-gray-400"><%= user.email %></p>
-        <p class="text-sm text-gray-500 mt-2">Member since <%= new Date(user.createdAt).toLocaleDateString() %></p>
+        <div class="flex items-center justify-center mt-2 space-x-2">
+          <i class="fas fa-calendar-alt text-indigo-400 text-sm"></i>
+          <p class="text-sm text-gray-400">Member since <%= new Date(user.createdAt).toLocaleDateString() %></p>
+        </div>
+        <div class="mt-3 flex justify-center space-x-3">
+          <span class="bg-indigo-900/50 text-indigo-300 text-xs px-3 py-1 rounded-full border border-indigo-500/30">
+            <i class="fas fa-user-shield mr-1"></i> <%= user.role %>
+          </span>
+          <% if (user.adFree && user.adFreeUntil && new Date(user.adFreeUntil) > new Date()) { %>
+            <span class="bg-green-900/50 text-green-300 text-xs px-3 py-1 rounded-full border border-green-500/30">
+              <i class="fas fa-crown mr-1"></i> Ad-Free
+            </span>
+          <% } %>
+        </div>
       </div>
     </div>
 
     <div class="p-6">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class="bg-dark-200 p-4 rounded-lg text-center">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 animate-fade-in" style="animation-delay: 0.1s;">
+        <div class="bg-dark-200 p-4 rounded-lg text-center hover:bg-dark-300 transition-all duration-300 border border-gray-700/50">
+          <div class="bg-indigo-900/30 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+            <i class="fas fa-chart-line text-indigo-400 text-xl"></i>
+          </div>
           <h3 class="text-gray-400 text-sm mb-1">Total Requests</h3>
-          <p class="text-2xl font-semibold"><%= user.requestsCount %></p>
+          <p class="text-2xl font-semibold text-white"><%= user.requestsCount %></p>
         </div>
 
-        <div class="bg-dark-200 p-4 rounded-lg text-center">
+        <div class="bg-dark-200 p-4 rounded-lg text-center hover:bg-dark-300 transition-all duration-300 border border-gray-700/50">
+          <div class="bg-purple-900/30 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+            <i class="fas fa-user-tag text-purple-400 text-xl"></i>
+          </div>
           <h3 class="text-gray-400 text-sm mb-1">Account Type</h3>
-          <p class="text-2xl font-semibold capitalize"><%= user.role %></p>
+          <p class="text-2xl font-semibold text-white capitalize"><%= user.role %></p>
         </div>
 
-        <div class="bg-dark-200 p-4 rounded-lg text-center">
+        <div class="bg-dark-200 p-4 rounded-lg text-center hover:bg-dark-300 transition-all duration-300 border border-gray-700/50">
+          <div class="bg-blue-900/30 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+            <i class="fas fa-comments text-blue-400 text-xl"></i>
+          </div>
           <h3 class="text-gray-400 text-sm mb-1">Chat History</h3>
-          <p class="text-2xl font-semibold"><%= typeof chatCount !== 'undefined' ? chatCount : 0 %></p>
+          <p class="text-2xl font-semibold text-white"><%= typeof chatCount !== 'undefined' ? chatCount : 0 %></p>
         </div>
       </div>
 
-      <div class="flex justify-between items-center">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0 mb-4">
         <h2 class="text-xl font-semibold mb-4">Account Settings</h2>
-        <div class="flex space-x-4">
-          <a href="/digital-twin/dashboard" class="text-neon-purple hover:underline flex items-center">
-            <i class="fas fa-robot mr-1"></i> My Digital Twin
+        <div class="flex flex-wrap gap-3">
+          <a href="/digital-twin/dashboard" class="bg-gradient-to-r from-purple-900/50 to-indigo-900/50 hover:from-purple-800/50 hover:to-indigo-800/50 text-white px-4 py-2 rounded-lg flex items-center transition-all duration-300 border border-purple-500/30 shadow-md hover:shadow-purple-500/20 hover:-translate-y-1">
+            <i class="fas fa-robot mr-2"></i> My Digital Twin
           </a>
-          <a href="/profile/content" class="text-neon-purple hover:underline flex items-center">
-            <i class="fas fa-newspaper mr-1"></i> My Content
+          <a href="/profile/content" class="bg-gradient-to-r from-indigo-900/50 to-blue-900/50 hover:from-indigo-800/50 hover:to-blue-800/50 text-white px-4 py-2 rounded-lg flex items-center transition-all duration-300 border border-indigo-500/30 shadow-md hover:shadow-indigo-500/20 hover:-translate-y-1">
+            <i class="fas fa-newspaper mr-2"></i> My Content
           </a>
-          <a href="/chat" class="text-neon-blue hover:underline flex items-center">
-            <i class="fas fa-arrow-left mr-1"></i> Back to Chat
+          <a href="/chat" class="bg-gradient-to-r from-blue-900/50 to-cyan-900/50 hover:from-blue-800/50 hover:to-cyan-800/50 text-white px-4 py-2 rounded-lg flex items-center transition-all duration-300 border border-blue-500/30 shadow-md hover:shadow-blue-500/20 hover:-translate-y-1">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Chat
           </a>
         </div>
       </div>
 
       <div class="border-t border-gray-800 pt-4">
-        <!-- Tabs -->
-        <div class="flex border-b border-indigo-500/20 mb-6 overflow-x-auto pb-1">
-          <button class="tab-btn active py-3 px-5 border-b-2 border-indigo-500 text-white font-medium flex items-center" data-tab="profile">
-            <i class="fas fa-user mr-2"></i> Profile
-          </button>
-          <button class="tab-btn py-3 px-5 border-b-2 border-transparent text-gray-400 hover:text-white font-medium flex items-center" data-tab="password">
-            <i class="fas fa-lock mr-2"></i> Password
-          </button>
-          <button class="tab-btn py-3 px-5 border-b-2 border-transparent text-gray-400 hover:text-white font-medium flex items-center" data-tab="picture">
-            <i class="fas fa-image mr-2"></i> Profile Picture
-          </button>
-          <button class="tab-btn py-3 px-5 border-b-2 border-transparent text-gray-400 hover:text-white font-medium flex items-center" data-tab="privacy">
-            <i class="fas fa-shield-alt mr-2"></i> Privacy
-          </button>
-          <button class="tab-btn py-3 px-5 border-b-2 border-transparent text-gray-400 hover:text-white font-medium flex items-center" data-tab="danger">
-            <i class="fas fa-exclamation-triangle mr-2"></i> Danger Zone
-          </button>
+        <!-- Tabs for Desktop -->
+        <div class="hidden md:flex border-b border-indigo-500/20 mb-6 overflow-x-auto pb-1 justify-center">
+          <div class="inline-flex bg-gray-800/50 rounded-lg p-1 border border-indigo-500/20 shadow-lg">
+            <button class="tab-btn active py-3 px-5 rounded-md text-white font-medium flex items-center" data-tab="profile">
+              <i class="fas fa-user mr-2"></i> <span>Profile</span>
+            </button>
+            <button class="tab-btn py-3 px-5 rounded-md text-gray-400 hover:text-white font-medium flex items-center" data-tab="password">
+              <i class="fas fa-lock mr-2"></i> <span>Password</span>
+            </button>
+            <button class="tab-btn py-3 px-5 rounded-md text-gray-400 hover:text-white font-medium flex items-center" data-tab="picture">
+              <i class="fas fa-image mr-2"></i> <span>Profile Picture</span>
+            </button>
+            <button class="tab-btn py-3 px-5 rounded-md text-gray-400 hover:text-white font-medium flex items-center" data-tab="privacy">
+              <i class="fas fa-shield-alt mr-2"></i> <span>Privacy</span>
+            </button>
+            <button class="tab-btn py-3 px-5 rounded-md text-gray-400 hover:text-white font-medium flex items-center" data-tab="subscription">
+              <i class="fas fa-ad mr-2"></i> <span>Ad-Free</span>
+            </button>
+            <button class="tab-btn py-3 px-5 rounded-md text-gray-400 hover:text-white font-medium flex items-center" data-tab="danger">
+              <i class="fas fa-exclamation-triangle mr-2"></i> <span>Danger Zone</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile Tab Selector -->
+        <div class="md:hidden mb-6">
+          <div class="relative">
+            <select id="mobile-tab-selector" class="w-full bg-gradient-to-r from-gray-800 to-gray-900 text-white py-3 px-4 pr-8 rounded-lg border border-indigo-500/30 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none animate-fade-in dark-select">
+              <option value="profile">Profile</option>
+              <option value="password">Password</option>
+              <option value="picture">Profile Picture</option>
+              <option value="privacy">Privacy</option>
+              <option value="subscription">Ad-Free</option>
+              <option value="danger">Danger Zone</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-indigo-400">
+              <i class="fas fa-chevron-down"></i>
+            </div>
+          </div>
         </div>
 
         <!-- Profile Tab -->
@@ -299,6 +343,108 @@
           </div>
         </div>
 
+        <!-- Subscription Tab -->
+        <div id="subscription-tab" class="tab-content hidden">
+          <div class="mb-6">
+            <h3 class="text-xl font-semibold mb-4">Ad-Free Subscription</h3>
+            <p class="text-gray-300 mb-6">
+              Enjoy a clean, distraction-free experience by subscribing to our ad-free plan.
+            </p>
+
+            <% if (user.adFree && user.adFreeUntil && new Date(user.adFreeUntil) > new Date()) { %>
+              <!-- Active Subscription -->
+              <div class="bg-gradient-to-r from-green-900/30 to-green-800/30 p-6 rounded-lg border border-green-700/50 mb-6">
+                <div class="flex items-center mb-4">
+                  <div class="bg-green-500/20 p-3 rounded-full mr-4">
+                    <i class="fas fa-check-circle text-green-400 text-2xl"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-lg font-medium text-green-400">Active Subscription</h4>
+                    <p class="text-gray-300 mt-1">Your ad-free subscription is active until <%= new Date(user.adFreeUntil).toLocaleDateString() %></p>
+                  </div>
+                </div>
+
+                <!-- Countdown Timer -->
+                <div class="subscription-timer-container mb-4">
+                  <div class="flex items-center justify-center mb-2">
+                    <i class="fas fa-clock text-indigo-400 mr-2"></i>
+                    <span class="text-indigo-300 font-medium">Subscription Time Remaining:</span>
+                  </div>
+                  <div class="countdown-timer" data-expires="<%= user.adFreeUntil %>">
+                    <div class="countdown-segment">
+                      <div class="countdown-value" id="countdown-days">--</div>
+                      <div class="countdown-label">Days</div>
+                    </div>
+                    <div class="countdown-segment">
+                      <div class="countdown-value" id="countdown-hours">--</div>
+                      <div class="countdown-label">Hours</div>
+                    </div>
+                    <div class="countdown-segment">
+                      <div class="countdown-value" id="countdown-minutes">--</div>
+                      <div class="countdown-label">Minutes</div>
+                    </div>
+                    <div class="countdown-segment">
+                      <div class="countdown-value" id="countdown-seconds">--</div>
+                      <div class="countdown-label">Seconds</div>
+                    </div>
+                  </div>
+                </div>
+
+                <p class="text-gray-400 mb-4">
+                  You are currently enjoying an ad-free experience across the entire platform. Thank you for your support!
+                </p>
+                <form action="/subscription/cancel" method="POST">
+                  <button type="submit" class="bg-red-600/80 hover:bg-red-700 text-white py-2 px-4 rounded-md text-sm transition-colors"
+                    onclick="return confirm('Are you sure you want to cancel your subscription? Ads will start showing immediately.')">
+                    <i class="fas fa-times-circle mr-1"></i> Cancel Subscription
+                  </button>
+                </form>
+              </div>
+            <% } else { %>
+              <!-- No Active Subscription -->
+              <div class="bg-dark-200 p-6 rounded-lg border border-gray-700 mb-6">
+                <div class="flex items-center mb-4">
+                  <div class="bg-gray-700/50 p-3 rounded-full mr-4">
+                    <i class="fas fa-ad text-gray-400 text-2xl"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-lg font-medium">No Active Subscription</h4>
+                    <p class="text-gray-400 mt-1">You are currently seeing ads across the platform</p>
+                  </div>
+                </div>
+                <p class="text-gray-400 mb-4">
+                  Subscribe to our ad-free plan to enjoy a clean, distraction-free experience and support our platform.
+                </p>
+                <a href="/subscription" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-2 px-6 rounded-md font-medium hover:from-indigo-700 hover:to-purple-700 transition-all inline-block">
+                  <i class="fas fa-crown mr-1"></i> View Subscription Plans
+                </a>
+              </div>
+            <% } %>
+
+            <div class="bg-dark-200 p-6 rounded-lg border border-gray-700">
+              <h4 class="text-lg font-medium mb-4">Benefits of Ad-Free Subscription</h4>
+              <ul class="space-y-3">
+                <li class="flex items-start">
+                  <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                  <span>Enjoy a clean, distraction-free experience</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                  <span>Faster page loading times</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                  <span>Support the development of FTRAISE AI</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                  <span>No tracking from ad networks</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         <!-- Danger Zone Tab -->
         <div id="danger-tab" class="tab-content hidden">
           <div class="bg-red-900/30 border border-red-800 rounded-lg p-6">
@@ -331,6 +477,11 @@
   </div>
 </div>
 
+<!-- Back to Top Button -->
+<button id="back-to-top" class="fixed bottom-6 right-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-3 rounded-full shadow-lg opacity-0 invisible transition-all duration-300 hover:transform hover:-translate-y-1 z-50">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
 <style>
   /* Modern Tab Styles */
   .tab-content {
@@ -347,6 +498,39 @@
     display: none;
   }
 
+  /* Dropdown Styles - Fix for white background */
+  #mobile-tab-selector option {
+    background-color: #1e293b;
+    color: white;
+  }
+
+  /* Additional styling for dark select */
+  .dark-select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: #1e293b;
+    color: white;
+  }
+
+  /* For Firefox */
+  .dark-select:-moz-focusring {
+    color: transparent;
+    text-shadow: 0 0 0 white;
+  }
+
+  /* For IE and Edge */
+  .dark-select::-ms-expand {
+    display: none;
+  }
+
+  /* Force dark background for select dropdown in all browsers */
+  @media screen and (-webkit-min-device-pixel-ratio:0) {
+    select.dark-select {
+      background-color: #1e293b !important;
+    }
+  }
+
   /* Tab Button Styles */
   .tab-btn {
     position: relative;
@@ -356,14 +540,18 @@
     position: relative;
     z-index: 1;
     overflow: hidden;
+    white-space: nowrap;
   }
 
   .tab-btn:hover {
     color: white !important;
+    background-color: rgba(99, 102, 241, 0.1);
   }
 
   .tab-btn.active {
     color: white !important;
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.2), rgba(99, 102, 241, 0.1));
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 
   .tab-btn.active::before {
@@ -372,10 +560,9 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-    border-radius: 3px 3px 0 0;
-    z-index: 1;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+    z-index: -1;
   }
 
   /* Form Styles */
@@ -388,23 +575,30 @@
     margin-bottom: 8px;
     font-weight: 500;
     color: #e2e8f0;
+    transition: all 0.3s ease;
   }
 
   .form-group input {
     width: 100%;
     padding: 12px 16px;
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(99, 102, 241, 0.2);
     border-radius: 8px;
     color: white;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 
   .form-group input:focus {
     outline: none;
     border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
-    background-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3), 0 4px 12px rgba(0, 0, 0, 0.1);
+    background-color: rgba(30, 41, 59, 0.7);
+    transform: translateY(-1px);
+  }
+
+  .form-group input:hover {
+    border-color: rgba(99, 102, 241, 0.4);
   }
 
   /* Button Styles */
@@ -432,8 +626,33 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
   .tab-content:not(.hidden) {
     animation: fadeIn 0.3s ease-out;
+  }
+
+  /* Form field animations */
+  .form-group, .grid > div {
+    animation: slideIn 0.4s ease-out forwards;
+    opacity: 0;
+  }
+
+  .form-group:nth-child(1), .grid > div:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+
+  .form-group:nth-child(2), .grid > div:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  button[type="submit"] {
+    animation: fadeIn 0.5s ease-out forwards;
+    animation-delay: 0.3s;
+    opacity: 0;
   }
 
   /* Profile Picture Styles */
@@ -457,6 +676,138 @@
     border-bottom-color: rgba(99, 102, 241, 0.2) !important;
     padding-bottom: 4px;
   }
+
+  /* Mobile Tab Selector */
+  #mobile-tab-selector {
+    background-image: linear-gradient(to right, #1e293b, #0f172a);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  #mobile-tab-selector:focus {
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Custom Select Arrow */
+  .pointer-events-none.absolute.inset-y-0.right-0 {
+    animation: pulse 2s infinite;
+  }
+
+  /* Responsive Card Styles */
+  @media (max-width: 768px) {
+    .tab-content {
+      padding: 16px;
+    }
+
+    .grid.grid-cols-1.md\:grid-cols-2 {
+      grid-template-columns: 1fr;
+    }
+
+    .max-w-4xl {
+      padding: 0 12px;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .bg-dark-200 {
+      padding: 16px 12px;
+    }
+
+    /* Responsive countdown timer */
+    .countdown-timer {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .countdown-segment {
+      min-width: 45px;
+      flex: 1;
+    }
+
+    .countdown-value {
+      font-size: 1.4rem;
+      padding: 6px 8px;
+      min-width: 45px;
+    }
+
+    .countdown-label {
+      font-size: 0.7rem;
+    }
+  }
+
+  /* Back to Top Button */
+  #back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Card Hover Effects */
+  .bg-dark-200 {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .bg-dark-200:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Countdown Timer Styles */
+  .subscription-timer-container {
+    background: rgba(79, 70, 229, 0.1);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+  }
+
+  .countdown-timer {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .countdown-segment {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 60px;
+  }
+
+  .countdown-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #a5b4fc;
+    background: rgba(49, 46, 129, 0.3);
+    border-radius: 8px;
+    padding: 8px 12px;
+    min-width: 60px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .countdown-label {
+    font-size: 0.8rem;
+    color: #a5b4fc;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  /* Animation for countdown timer */
+  @keyframes pulse-countdown {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+
+  .countdown-value.ending {
+    color: #f87171;
+    animation: pulse-countdown 1s infinite;
+  }
 </style>
 
 <script>
@@ -464,6 +815,28 @@
   document.addEventListener('DOMContentLoaded', function() {
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
+    const mobileTabSelector = document.getElementById('mobile-tab-selector');
+
+    // Fix for dropdown background color
+    if (mobileTabSelector) {
+      // Apply dark styling to dropdown options
+      const options = mobileTabSelector.querySelectorAll('option');
+      options.forEach(option => {
+        option.style.backgroundColor = '#1e293b';
+        option.style.color = 'white';
+      });
+
+      // Add event listener for dropdown focus
+      mobileTabSelector.addEventListener('mousedown', function() {
+        // Force dark background for dropdown
+        setTimeout(() => {
+          document.querySelectorAll('#mobile-tab-selector option').forEach(opt => {
+            opt.style.backgroundColor = '#1e293b';
+            opt.style.color = 'white';
+          });
+        }, 0);
+      });
+    }
 
     // Log tab information to console for debugging
     console.log(`Found ${tabBtns.length} tabs and ${tabContents.length} content sections`);
@@ -472,15 +845,20 @@
     function switchTab(tabId) {
       // Remove active class from all buttons
       tabBtns.forEach(b => {
-        b.classList.remove('active', 'border-neon-blue', 'text-white');
-        b.classList.add('text-gray-400', 'border-transparent');
+        b.classList.remove('active', 'text-white');
+        b.classList.add('text-gray-400');
       });
 
       // Add active class to clicked button
       const activeBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
       if (activeBtn) {
-        activeBtn.classList.add('active', 'border-neon-blue', 'text-white');
-        activeBtn.classList.remove('text-gray-400', 'border-transparent');
+        activeBtn.classList.add('active', 'text-white');
+        activeBtn.classList.remove('text-gray-400');
+      }
+
+      // Update mobile selector
+      if (mobileTabSelector) {
+        mobileTabSelector.value = tabId;
       }
 
       // Hide all tab contents
@@ -492,6 +870,33 @@
       const activeContent = document.getElementById(`${tabId}-tab`);
       if (activeContent) {
         activeContent.classList.remove('hidden');
+
+        // Reset animations by removing and re-adding the class
+        activeContent.classList.remove('animate-fade-in');
+
+        // Force a reflow to restart the animation
+        void activeContent.offsetWidth;
+
+        // Add animation class back
+        activeContent.classList.add('animate-fade-in');
+
+        // Reset form field animations
+        const formGroups = activeContent.querySelectorAll('.form-group, .grid > div');
+        formGroups.forEach((group, index) => {
+          group.style.animationDelay = `${0.1 * (index + 1)}s`;
+          group.style.opacity = '0';
+
+          // Force a reflow
+          void group.offsetWidth;
+
+          group.style.opacity = '';
+        });
+
+        // Initialize countdown timer if switching to subscription tab
+        if (tabId === 'subscription') {
+          initCountdownTimer();
+        }
+
         console.log(`Showing tab: ${tabId}`);
       } else {
         console.error(`Error: Tab content not found for ${tabId}`);
@@ -507,6 +912,14 @@
       });
     });
 
+    // Add change event to mobile selector
+    if (mobileTabSelector) {
+      mobileTabSelector.addEventListener('change', (e) => {
+        const tabId = e.target.value;
+        switchTab(tabId);
+      });
+    }
+
     // Initialize with the first tab or the active tab
     const activeTab = document.querySelector('.tab-btn.active');
     if (activeTab) {
@@ -514,6 +927,12 @@
     } else if (tabBtns.length > 0) {
       switchTab(tabBtns[0].getAttribute('data-tab'));
     }
+
+    // Add hover effects to cards
+    const cards = document.querySelectorAll('.bg-dark-200');
+    cards.forEach(card => {
+      card.classList.add('transition-all');
+    });
   });
 
   // Profile picture preview
@@ -533,6 +952,68 @@
 
   // Delete account confirmation
   const confirmDelete = document.getElementById('confirm-delete');
+
+  // Subscription Countdown Timer
+  function initCountdownTimer() {
+    const timerContainer = document.querySelector('.countdown-timer');
+    if (!timerContainer) return;
+
+    const expiryDate = new Date(timerContainer.dataset.expires);
+    const daysElement = document.getElementById('countdown-days');
+    const hoursElement = document.getElementById('countdown-hours');
+    const minutesElement = document.getElementById('countdown-minutes');
+    const secondsElement = document.getElementById('countdown-seconds');
+
+    function updateCountdown() {
+      const now = new Date();
+      const timeRemaining = expiryDate - now;
+
+      if (timeRemaining <= 0) {
+        // Subscription has expired
+        daysElement.textContent = '0';
+        hoursElement.textContent = '0';
+        minutesElement.textContent = '0';
+        secondsElement.textContent = '0';
+
+        // Add expired class to all countdown values
+        document.querySelectorAll('.countdown-value').forEach(el => {
+          el.classList.add('ending');
+        });
+
+        return;
+      }
+
+      // Calculate time units
+      const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+      // Update the countdown elements
+      daysElement.textContent = days;
+      hoursElement.textContent = hours < 10 ? `0${hours}` : hours;
+      minutesElement.textContent = minutes < 10 ? `0${minutes}` : minutes;
+      secondsElement.textContent = seconds < 10 ? `0${seconds}` : seconds;
+
+      // Add visual indication when time is running out (less than 3 days)
+      if (days < 3) {
+        document.querySelectorAll('.countdown-value').forEach(el => {
+          el.classList.add('ending');
+        });
+      }
+    }
+
+    // Initial update
+    updateCountdown();
+
+    // Update the countdown every second
+    setInterval(updateCountdown, 1000);
+  }
+
+  // Initialize countdown timer when DOM is loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    initCountdownTimer();
+  });
   const deleteAccountBtn = document.getElementById('delete-account-btn');
   const deleteAccountForm = document.getElementById('delete-account-form');
 
@@ -551,6 +1032,28 @@
       e.preventDefault();
     }
   });
+
+  // Back to top button functionality
+  const backToTopButton = document.getElementById('back-to-top');
+
+  if (backToTopButton) {
+    // Show/hide button based on scroll position
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 300) {
+        backToTopButton.classList.add('visible');
+      } else {
+        backToTopButton.classList.remove('visible');
+      }
+    });
+
+    // Scroll to top when clicked
+    backToTopButton.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  }
 
   // Privacy settings
   document.addEventListener('DOMContentLoaded', function() {

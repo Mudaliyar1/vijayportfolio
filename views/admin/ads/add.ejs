@@ -1,0 +1,342 @@
+<!-- Add New Ad -->
+<div>
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Add New Ad</h1>
+    <div class="flex space-x-2">
+      <a href="/admin/ads" class="bg-dark-200 hover:bg-dark-300 text-gray-300 px-3 py-2 rounded-md text-sm transition-colors">
+        <i class="fas fa-arrow-left mr-1"></i> Back to Ads
+      </a>
+    </div>
+  </div>
+
+  <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden">
+    <div class="p-4 border-b border-gray-800 bg-dark-200">
+      <h2 class="text-lg font-semibold">Ad Details</h2>
+    </div>
+
+    <form id="add-ad-form" action="/admin/ads/add" method="POST" class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Left Column -->
+        <div class="space-y-6">
+          <!-- Title -->
+          <div>
+            <label for="title" class="block text-sm font-medium text-gray-300 mb-1">Title <span class="text-red-500">*</span></label>
+            <input type="text" id="title" name="title" required
+              class="w-full px-3 py-2 bg-dark-200 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent">
+            <p class="text-xs text-gray-500 mt-1">A descriptive title for the ad (for admin reference)</p>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label for="description" class="block text-sm font-medium text-gray-300 mb-1">Description</label>
+            <textarea id="description" name="description" rows="3"
+              class="w-full px-3 py-2 bg-dark-200 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent"></textarea>
+            <p class="text-xs text-gray-500 mt-1">Optional description for admin reference</p>
+          </div>
+
+          <!-- Image URL -->
+          <div>
+            <label for="imageUrl" class="block text-sm font-medium text-gray-300 mb-1">Image URL</label>
+            <div class="flex">
+              <input type="url" id="imageUrl" name="imageUrl"
+                class="flex-grow px-3 py-2 bg-dark-200 border border-gray-700 rounded-l-md focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent">
+              <button type="button" id="validate-image"
+                class="px-3 py-2 bg-neon-blue text-white rounded-r-md hover:bg-blue-600 transition-colors">
+                Validate
+              </button>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">URL of the ad image (optional - a default image will be used if not provided or if the URL doesn't load)</p>
+            <div id="image-preview" class="mt-3 hidden">
+              <p class="text-sm font-medium text-gray-300 mb-2">Image Preview:</p>
+              <img id="preview-img" src="" alt="Ad Preview" class="max-h-32 border border-gray-700 rounded-md">
+            </div>
+            <div id="image-error" class="mt-2 text-yellow-500 text-sm hidden">
+              Warning: Image URL could not be validated. A default image will be used if it doesn't load.
+            </div>
+          </div>
+
+          <!-- Destination Link -->
+          <div>
+            <label for="link" class="block text-sm font-medium text-gray-300 mb-1">Destination Link <span class="text-red-500">*</span></label>
+            <input type="url" id="link" name="link" required
+              class="w-full px-3 py-2 bg-dark-200 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent">
+            <p class="text-xs text-gray-500 mt-1">Where users will go when they click the ad</p>
+          </div>
+
+          <!-- Overlay Text -->
+          <div>
+            <label for="overlayText" class="block text-sm font-medium text-gray-300 mb-1">Overlay Text</label>
+            <input type="text" id="overlayText" name="overlayText"
+              class="w-full px-3 py-2 bg-dark-200 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent">
+            <p class="text-xs text-gray-500 mt-1">Optional text to display over the ad image</p>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="space-y-6">
+          <!-- Positions -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Positions <span class="text-red-500">*</span></label>
+            <div class="space-y-2 max-h-40 overflow-y-auto p-2 border border-gray-700 rounded-md bg-dark-200">
+              <div class="flex items-center">
+                <input type="checkbox" id="position-popup" name="positions" value="popup" class="mr-2" checked>
+                <label for="position-popup" class="text-sm text-gray-300">Popup</label>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" id="position-top" name="positions" value="top" class="mr-2">
+                <label for="position-top" class="text-sm text-gray-300">Top Banner</label>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" id="position-bottom" name="positions" value="bottom" class="mr-2">
+                <label for="position-bottom" class="text-sm text-gray-300">Bottom Banner</label>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" id="position-sidebar" name="positions" value="sidebar" class="mr-2">
+                <label for="position-sidebar" class="text-sm text-gray-300">Sidebar</label>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" id="position-content" name="positions" value="content" class="mr-2">
+                <label for="position-content" class="text-sm text-gray-300">In-Content</label>
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Where the ad will be displayed on the page (select multiple if needed)</p>
+          </div>
+
+          <!-- Pages -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Pages <span class="text-red-500">*</span></label>
+            <div class="space-y-2 max-h-40 overflow-y-auto p-2 border border-gray-700 rounded-md bg-dark-200">
+              <div class="flex items-center">
+                <input type="checkbox" id="page-all" name="pages" value="all" class="mr-2">
+                <label for="page-all" class="text-sm text-gray-300">All Pages</label>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" id="page-home" name="pages" value="home" class="mr-2" checked>
+                <label for="page-home" class="text-sm text-gray-300">Home Page</label>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" id="page-chat" name="pages" value="chat" class="mr-2">
+                <label for="page-chat" class="text-sm text-gray-300">Chat</label>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" id="page-profile" name="pages" value="profile" class="mr-2">
+                <label for="page-profile" class="text-sm text-gray-300">Profile</label>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" id="page-blog" name="pages" value="blog" class="mr-2">
+                <label for="page-blog" class="text-sm text-gray-300">Blog</label>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" id="page-digital-twin" name="pages" value="digital-twin" class="mr-2">
+                <label for="page-digital-twin" class="text-sm text-gray-300">Digital Twin</label>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" id="page-neural-dreamscape" name="pages" value="neural-dreamscape" class="mr-2">
+                <label for="page-neural-dreamscape" class="text-sm text-gray-300">Neural Dreamscape</label>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" id="page-website-builder" name="pages" value="website-builder" class="mr-2">
+                <label for="page-website-builder" class="text-sm text-gray-300">Website Builder</label>
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Select pages where this ad will appear</p>
+          </div>
+
+          <!-- Active Status -->
+          <div class="flex items-center">
+            <input type="checkbox" id="active" name="active" class="mr-2" checked>
+            <label for="active" class="text-sm font-medium text-gray-300">Active</label>
+            <p class="text-xs text-gray-500 ml-2">Enable or disable this ad</p>
+          </div>
+
+          <!-- Scheduling -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="startDate" class="block text-sm font-medium text-gray-300 mb-1">Start Date</label>
+              <input type="datetime-local" id="startDate" name="startDate"
+                class="w-full px-3 py-2 bg-dark-200 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent">
+            </div>
+            <div>
+              <label for="endDate" class="block text-sm font-medium text-gray-300 mb-1">End Date</label>
+              <input type="datetime-local" id="endDate" name="endDate"
+                class="w-full px-3 py-2 bg-dark-200 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent">
+            </div>
+          </div>
+          <p class="text-xs text-gray-500 -mt-4">Optional scheduling (leave empty for no time restriction)</p>
+
+          <!-- Display Settings -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="delay" class="block text-sm font-medium text-gray-300 mb-1">Delay (ms)</label>
+              <input type="number" id="delay" name="delay" value="3000" min="0"
+                class="w-full px-3 py-2 bg-dark-200 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent">
+              <p class="text-xs text-gray-500 mt-1">Delay before showing popup (ms)</p>
+            </div>
+            <div>
+              <label for="displayFrequency" class="block text-sm font-medium text-gray-300 mb-1">Display Frequency</label>
+              <input type="number" id="displayFrequency" name="displayFrequency" value="1" min="1"
+                class="w-full px-3 py-2 bg-dark-200 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent">
+              <p class="text-xs text-gray-500 mt-1">Times to show per session</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-8 flex justify-end">
+        <button type="submit" class="px-6 py-3 bg-neon-blue text-white rounded-md hover:bg-blue-600 transition-colors">
+          <i class="fas fa-plus mr-2"></i> Add Ad
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- JavaScript for Add Ad Form -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const imageUrlInput = document.getElementById('imageUrl');
+    const validateButton = document.getElementById('validate-image');
+    const previewContainer = document.getElementById('image-preview');
+    const previewImg = document.getElementById('preview-img');
+    const imageError = document.getElementById('image-error');
+    const pageAllCheckbox = document.getElementById('page-all');
+    const pageCheckboxes = document.querySelectorAll('input[name="pages"]');
+
+    // Image URL validation
+    validateButton.addEventListener('click', function() {
+      const imageUrl = imageUrlInput.value.trim();
+
+      if (!imageUrl) {
+        imageError.textContent = 'Please enter an image URL';
+        imageError.classList.remove('hidden');
+        previewContainer.classList.add('hidden');
+        return;
+      }
+
+      // Show loading state
+      validateButton.disabled = true;
+      validateButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validating...';
+      imageError.classList.add('hidden');
+
+      // Try to load the image directly first
+      previewImg.onload = function() {
+        // Image loaded successfully
+        previewContainer.classList.remove('hidden');
+        imageError.classList.add('hidden');
+        validateButton.disabled = false;
+        validateButton.innerHTML = 'Validate';
+      };
+
+      previewImg.onerror = function() {
+        // If direct loading fails, try server validation
+        // Validate image URL through server
+        fetch('/admin/ads/validate-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ imageUrl })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Show preview
+            previewImg.src = imageUrl; // Try loading again
+            previewContainer.classList.remove('hidden');
+            imageError.classList.add('hidden');
+          } else {
+            // Show error
+            imageError.textContent = data.message || 'Invalid image URL';
+            imageError.classList.remove('hidden');
+            previewContainer.classList.add('hidden');
+          }
+          validateButton.disabled = false;
+          validateButton.innerHTML = 'Validate';
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          // Even if validation fails, allow the user to try using the image
+          imageError.textContent = 'Warning: Could not fully validate the image URL, but you can still use it if you\'re sure it\'s correct.';
+          imageError.classList.remove('hidden');
+          previewContainer.classList.remove('hidden');
+          validateButton.disabled = false;
+          validateButton.innerHTML = 'Validate';
+        });
+      };
+
+      // Try to load the image
+      previewImg.src = imageUrl;
+    });
+
+    // Preview image on input change
+    imageUrlInput.addEventListener('change', function() {
+      const imageUrl = this.value.trim();
+
+      if (imageUrl) {
+        previewImg.src = imageUrl;
+        previewContainer.classList.remove('hidden');
+
+        // Check if image loads correctly
+        previewImg.onload = function() {
+          imageError.classList.add('hidden');
+        };
+
+        previewImg.onerror = function() {
+          imageError.textContent = 'Image could not be loaded';
+          imageError.classList.remove('hidden');
+        };
+      } else {
+        previewContainer.classList.add('hidden');
+      }
+    });
+
+    // Handle "All Pages" checkbox
+    pageAllCheckbox.addEventListener('change', function() {
+      if (this.checked) {
+        // Uncheck and disable all other page checkboxes
+        pageCheckboxes.forEach(checkbox => {
+          if (checkbox !== this) {
+            checkbox.checked = false;
+            checkbox.disabled = true;
+          }
+        });
+      } else {
+        // Enable all page checkboxes
+        pageCheckboxes.forEach(checkbox => {
+          if (checkbox !== this) {
+            checkbox.disabled = false;
+          }
+        });
+
+        // Ensure at least one page is selected
+        if ([...pageCheckboxes].filter(cb => cb.checked).length === 0) {
+          document.getElementById('page-home').checked = true;
+        }
+      }
+    });
+
+    // Form validation
+    document.getElementById('add-ad-form').addEventListener('submit', function(e) {
+      // Check if at least one page is selected
+      const pagesSelected = [...pageCheckboxes].some(checkbox => checkbox.checked);
+
+      if (!pagesSelected) {
+        e.preventDefault();
+        alert('Please select at least one page where the ad will appear');
+        return;
+      }
+
+      // Check if at least one position is selected
+      const positionCheckboxes = document.querySelectorAll('input[name="positions"]');
+      const positionsSelected = [...positionCheckboxes].some(checkbox => checkbox.checked);
+
+      if (!positionsSelected) {
+        e.preventDefault();
+        alert('Please select at least one position where the ad will appear');
+        return;
+      }
+
+      // Image URL is now optional, no validation needed here
+    });
+  });
+</script>

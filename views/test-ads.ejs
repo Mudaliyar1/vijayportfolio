@@ -1,0 +1,103 @@
+<!-- This is a test page for ads -->
+
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6">Ad Test Page</h1>
+
+  <div class="bg-dark-200 p-6 rounded-lg mb-8">
+    <h2 class="text-2xl font-semibold mb-4">Ad Settings</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-dark-100 p-4 rounded-lg">
+        <h3 class="text-xl mb-2">System Settings</h3>
+        <ul class="list-disc pl-5">
+          <li>All Ads Disabled: <span class="font-mono"><%= typeof allAdsDisabled !== 'undefined' ? allAdsDisabled : 'not set' %></span></li>
+          <li>Internet Ads Enabled: <span class="font-mono"><%= typeof internetAdsEnabled !== 'undefined' ? internetAdsEnabled : 'not set' %></span></li>
+          <li>Current Path: <span class="font-mono"><%= typeof currentPath !== 'undefined' ? currentPath : 'not set' %></span></li>
+          <li>Simple Path: <span class="font-mono"><%= typeof simplePath !== 'undefined' ? simplePath : 'not set' %></span></li>
+        </ul>
+      </div>
+
+      <div class="bg-dark-100 p-4 rounded-lg">
+        <h3 class="text-xl mb-2">Available Ads</h3>
+        <ul class="list-disc pl-5">
+          <li>Popup Ads: <span class="font-mono"><%= typeof ads !== 'undefined' && ads.popup ? ads.popup.length : 0 %></span></li>
+          <li>Top Banner Ads: <span class="font-mono"><%= typeof ads !== 'undefined' && ads.top ? ads.top.length : 0 %></span></li>
+          <li>Bottom Banner Ads: <span class="font-mono"><%= typeof ads !== 'undefined' && ads.bottom ? ads.bottom.length : 0 %></span></li>
+          <li>Sidebar Ads: <span class="font-mono"><%= typeof ads !== 'undefined' && ads.sidebar ? ads.sidebar.length : 0 %></span></li>
+          <li>Content Ads: <span class="font-mono"><%= typeof ads !== 'undefined' && ads.content ? ads.content.length : 0 %></span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-dark-200 p-6 rounded-lg mb-8">
+    <h2 class="text-2xl font-semibold mb-4">Manual Ad Display</h2>
+    <p class="mb-4">Click the buttons below to manually display ads:</p>
+
+    <div class="flex flex-wrap gap-3">
+      <button id="show-popup-ad" class="bg-neon-blue text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors">Show Popup Ad</button>
+      <button id="show-top-ad" class="bg-neon-purple text-white px-4 py-2 rounded-md hover:bg-purple-600 transition-colors">Show Top Banner Ad</button>
+      <button id="show-bottom-ad" class="bg-neon-pink text-white px-4 py-2 rounded-md hover:bg-pink-600 transition-colors">Show Bottom Banner Ad</button>
+      <button id="show-sidebar-ad" class="bg-neon-green text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors">Show Sidebar Ad</button>
+      <button id="show-content-ad" class="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition-colors">Show Content Ad</button>
+    </div>
+  </div>
+
+  <div class="bg-dark-200 p-6 rounded-lg mb-8">
+    <h2 class="text-2xl font-semibold mb-4">Content Area</h2>
+    <p class="mb-4">This is a test paragraph. Content ads should appear after this paragraph if they are enabled.</p>
+    <p class="mb-4">This is another test paragraph. Content ads should appear after this paragraph if they are enabled.</p>
+    <p class="mb-4">This is a third test paragraph. Content ads might appear after this paragraph as well.</p>
+    <p class="mb-4">This is a fourth test paragraph. Content ads might appear after this paragraph as well.</p>
+    <p class="mb-4">This is a fifth test paragraph. Content ads might appear after this paragraph as well.</p>
+  </div>
+</div>
+
+<script>
+  // Manual ad display buttons
+  document.getElementById('show-popup-ad').addEventListener('click', function() {
+    if (typeof displayPopupAds === 'function') {
+      displayPopupAds();
+      console.log('Manually triggered popup ad display');
+    } else {
+      console.error('displayPopupAds function not found');
+    }
+  });
+
+  document.getElementById('show-top-ad').addEventListener('click', function() {
+    if (typeof displayBannerAds === 'function') {
+      displayBannerAds('top');
+      console.log('Manually triggered top banner ad display');
+    } else {
+      console.error('displayBannerAds function not found');
+    }
+  });
+
+  document.getElementById('show-bottom-ad').addEventListener('click', function() {
+    if (typeof displayBannerAds === 'function') {
+      displayBannerAds('bottom');
+      console.log('Manually triggered bottom banner ad display');
+    } else {
+      console.error('displayBannerAds function not found');
+    }
+  });
+
+  document.getElementById('show-sidebar-ad').addEventListener('click', function() {
+    if (typeof displaySidebarAds === 'function') {
+      displaySidebarAds();
+      console.log('Manually triggered sidebar ad display');
+    } else {
+      console.error('displaySidebarAds function not found');
+    }
+  });
+
+  document.getElementById('show-content-ad').addEventListener('click', function() {
+    if (typeof displayContentAds === 'function') {
+      displayContentAds();
+      console.log('Manually triggered content ad display');
+    } else {
+      console.error('displayContentAds function not found');
+    }
+  });
+</script>
+
+<!-- End of test page -->

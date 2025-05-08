@@ -1,0 +1,327 @@
+<!-- Tech Ads Showcase Page -->
+<div class="container mx-auto px-4 py-8">
+  <div class="text-center mb-10">
+    <h1 class="text-4xl font-bold mb-4">Tech Ads Showcase</h1>
+    <p class="text-gray-400 max-w-2xl mx-auto mb-4">
+      Explore the latest technology ads from top tech companies and platforms.
+      These are free promotional materials showcasing various tech products and services.
+    </p>
+
+    <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
+      <div class="flex justify-center space-x-4 mt-6">
+        <a href="/admin/settings" class="px-4 py-2 bg-dark-200 hover:bg-dark-300 text-white rounded-md transition-colors inline-flex items-center">
+          <i class="fas fa-cog mr-2"></i> Manage Ad Settings
+        </a>
+        <form action="/admin/settings/all-ads-disabled" method="POST" class="inline">
+          <input type="hidden" name="disabled" value="<%= allAdsDisabled ? 'false' : 'true' %>">
+          <button type="submit" class="px-4 py-2 <%= allAdsDisabled ? 'bg-green-700 hover:bg-green-800' : 'bg-red-700 hover:bg-red-800' %> text-white rounded-md transition-colors inline-flex items-center">
+            <i class="fas <%= allAdsDisabled ? 'fa-toggle-on' : 'fa-toggle-off' %> mr-2"></i> <%= allAdsDisabled ? 'Enable All Ads' : 'Stop All Ads' %>
+          </button>
+        </form>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Category Filter -->
+  <div class="mb-8">
+    <div class="flex flex-wrap justify-center gap-2">
+      <a href="/tech-ads" class="px-4 py-2 rounded-full text-sm font-medium <%= selectedCategory === 'all' ? 'bg-neon-blue text-white' : 'bg-dark-200 text-gray-300 hover:bg-dark-300' %> transition-colors">
+        All Categories
+      </a>
+      <% categories.forEach(category => { %>
+        <a href="/tech-ads?category=<%= category %>" class="px-4 py-2 rounded-full text-sm font-medium <%= selectedCategory === category ? 'bg-neon-blue text-white' : 'bg-dark-200 text-gray-300 hover:bg-dark-300' %> transition-colors">
+          <%= category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') %>
+        </a>
+      <% }); %>
+    </div>
+  </div>
+
+  <% if (allAdsDisabled) { %>
+    <div class="text-center py-16">
+      <div class="text-6xl mb-4 text-gray-600">
+        <i class="fas fa-ban"></i>
+      </div>
+      <h2 class="text-2xl font-semibold mb-2"><% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>Ads Are Disabled<% } else { %>No Ads Available<% } %></h2>
+      <p class="text-gray-400">
+        <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
+          All ads are currently disabled across the site.
+          <% if (typeof messages !== 'undefined' && messages.info_msg) { %>
+            <br><%= messages.info_msg %>
+          <% } %>
+        <% } else { %>
+          No ads are available at this time.
+        <% } %>
+      </p>
+      <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
+        <div class="mt-4">
+          <a href="/admin/settings" class="px-4 py-2 bg-neon-blue text-white rounded-md hover:bg-blue-600 transition-colors inline-flex items-center">
+            <i class="fas fa-cog mr-2"></i> Manage Ad Settings
+          </a>
+        </div>
+      <% } %>
+    </div>
+  <% } else if (ads.length === 0) { %>
+    <div class="text-center py-16">
+      <div class="text-6xl mb-4 text-gray-600">
+        <i class="fas fa-ad"></i>
+      </div>
+      <h2 class="text-2xl font-semibold mb-2">No Ads Available</h2>
+      <p class="text-gray-400">
+        There are currently no tech ads available in this category.
+        <% if (typeof user !== 'undefined' && user && user.role === 'admin' && typeof messages !== 'undefined' && messages.info_msg) { %>
+          <br><%= messages.info_msg %>
+        <% } %>
+      </p>
+    </div>
+  <% } else { %>
+    <!-- Ads Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <% ads.forEach(ad => { %>
+        <div class="bg-dark-100 rounded-lg overflow-hidden border border-gray-800 hover:border-neon-blue transition-colors">
+          <div class="relative aspect-video bg-dark-200 overflow-hidden">
+            <% if (ad.imageUrl) { %>
+              <img
+                src="<%= ad.imageUrl %>"
+                alt="<%= ad.title %>"
+                class="w-full h-full object-contain"
+                onerror="this.onerror=null; this.src='/images/default-avatar.png';"
+              >
+            <% } else { %>
+              <div class="flex items-center justify-center h-full">
+                <i class="fas fa-image text-4xl text-gray-600"></i>
+              </div>
+            <% } %>
+
+            <!-- Category Badge -->
+            <div class="absolute top-2 right-2">
+              <span class="px-2 py-1 text-xs font-semibold rounded-full
+                <% if (ad.category === 'social-media') { %>bg-purple-900 text-purple-200
+                <% } else if (ad.category === 'tech-giant') { %>bg-blue-900 text-blue-200
+                <% } else if (ad.category === 'dev-tool') { %>bg-green-900 text-green-200
+                <% } else if (ad.category === 'cloud') { %>bg-cyan-900 text-cyan-200
+                <% } else if (ad.category === 'education') { %>bg-yellow-900 text-yellow-200
+                <% } else if (ad.category === 'open-source') { %>bg-red-900 text-red-200
+                <% } else if (ad.category === 'browser') { %>bg-orange-900 text-orange-200
+                <% } else { %>bg-gray-900 text-gray-200<% } %>">
+                <%= ad.category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') %>
+              </span>
+            </div>
+          </div>
+
+          <div class="p-4">
+            <h3 class="text-lg font-semibold mb-2"><%= ad.title %></h3>
+            <p class="text-gray-400 text-sm mb-4 h-12 overflow-hidden"><%= ad.description %></p>
+
+            <a href="<%= ad.link %>" target="_blank" rel="noopener noreferrer" class="inline-block w-full text-center bg-dark-200 hover:bg-dark-300 text-white py-2 px-4 rounded-md transition-colors">
+              <i class="fas fa-external-link-alt mr-2"></i> Visit Website
+            </a>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+
+    <!-- Pagination (if needed in the future) -->
+    <!-- <div class="mt-8 flex justify-center">
+      <nav class="inline-flex rounded-md shadow-sm">
+        <a href="#" class="px-3 py-2 rounded-l-md bg-dark-200 text-gray-400 hover:bg-dark-300 hover:text-white">Previous</a>
+        <a href="#" class="px-3 py-2 bg-neon-blue text-white">1</a>
+        <a href="#" class="px-3 py-2 bg-dark-200 text-gray-400 hover:bg-dark-300 hover:text-white">2</a>
+        <a href="#" class="px-3 py-2 bg-dark-200 text-gray-400 hover:bg-dark-300 hover:text-white">3</a>
+        <a href="#" class="px-3 py-2 rounded-r-md bg-dark-200 text-gray-400 hover:bg-dark-300 hover:text-white">Next</a>
+      </nav>
+    </div> -->
+  <% } %>
+
+  <!-- Info Section -->
+  <div class="mt-12 bg-dark-100 rounded-lg border border-gray-800 p-6">
+    <div class="flex items-start">
+      <div class="flex-shrink-0 mt-0.5">
+        <i class="fas fa-info-circle text-neon-blue text-xl"></i>
+      </div>
+      <div class="ml-3 info-section">
+        <h3 class="text-lg font-medium text-gray-200">About Tech Ads</h3>
+        <div class="mt-2 text-sm text-gray-400">
+          <p>This page showcases free promotional materials from various technology companies and platforms.</p>
+          <p class="mt-2">These ads are not paid advertisements and are provided for informational purposes only.</p>
+          <p class="mt-2">All logos, trademarks, and brand names belong to their respective owners.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Animation and Auto-Refresh for the ads -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add fade-in animation to the ad cards
+    function animateCards() {
+      const adCards = document.querySelectorAll('.grid > div');
+      adCards.forEach((card, index) => {
+        if (card.classList.contains('animated')) return;
+
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+
+        setTimeout(() => {
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+          card.classList.add('animated');
+        }, 100 * index);
+      });
+    }
+
+    // Initial animation
+    animateCards();
+
+    // Function to create an ad card element
+    function createAdCard(ad) {
+      const div = document.createElement('div');
+      div.className = 'bg-dark-100 rounded-lg overflow-hidden border border-gray-800 hover:border-neon-blue transition-colors';
+
+      // Generate category badge color class
+      let categoryColorClass = 'bg-gray-900 text-gray-200';
+      if (ad.category === 'social-media') categoryColorClass = 'bg-purple-900 text-purple-200';
+      else if (ad.category === 'tech-giant') categoryColorClass = 'bg-blue-900 text-blue-200';
+      else if (ad.category === 'dev-tool') categoryColorClass = 'bg-green-900 text-green-200';
+      else if (ad.category === 'cloud') categoryColorClass = 'bg-cyan-900 text-cyan-200';
+      else if (ad.category === 'education') categoryColorClass = 'bg-yellow-900 text-yellow-200';
+      else if (ad.category === 'open-source') categoryColorClass = 'bg-red-900 text-red-200';
+      else if (ad.category === 'browser') categoryColorClass = 'bg-orange-900 text-orange-200';
+
+      // Format category name
+      const categoryName = ad.category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+
+      div.innerHTML = `
+        <div class="relative aspect-video bg-dark-200 overflow-hidden">
+          <img
+            src="${ad.imageUrl}"
+            alt="${ad.title}"
+            class="w-full h-full object-contain"
+            onerror="this.onerror=null; this.src='/images/default-avatar.png';"
+          >
+
+          <!-- Category Badge -->
+          <div class="absolute top-2 right-2">
+            <span class="px-2 py-1 text-xs font-semibold rounded-full ${categoryColorClass}">
+              ${categoryName}
+            </span>
+          </div>
+        </div>
+
+        <div class="p-4">
+          <h3 class="text-lg font-semibold mb-2">${ad.title}</h3>
+          <p class="text-gray-400 text-sm mb-4 h-12 overflow-hidden">${ad.description}</p>
+
+          <a href="${ad.link}" target="_blank" rel="noopener noreferrer" class="inline-block w-full text-center bg-dark-200 hover:bg-dark-300 text-white py-2 px-4 rounded-md transition-colors">
+            <i class="fas fa-external-link-alt mr-2"></i> Visit Website
+          </a>
+        </div>
+      `;
+
+      return div;
+    }
+
+    // Function to fetch and add new ads
+    function fetchNewAds() {
+      // Check if ads are disabled
+      if (typeof window.allAdsDisabled !== 'undefined' && window.allAdsDisabled === true) {
+        console.log('All ads are disabled. Skipping ad refresh.');
+        return;
+      }
+
+      // Get the current category
+      const urlParams = new URLSearchParams(window.location.search);
+      const category = urlParams.get('category') || 'all';
+
+      // Fetch new random ads
+      fetch(`/tech-ads/api/random?count=1&category=${category}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success && data.ads.length > 0) {
+            const adsGrid = document.querySelector('.grid');
+
+            // Only proceed if we found the grid and we're not on the "no ads" view
+            if (adsGrid) {
+              // Create and add new ad cards
+              data.ads.forEach(ad => {
+                const adCard = createAdCard(ad);
+                adsGrid.prepend(adCard); // Add to the beginning of the grid
+
+                // Animate the new card
+                setTimeout(() => {
+                  adCard.style.opacity = '0';
+                  adCard.style.transform = 'translateY(-20px)';
+                  adCard.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+
+                  setTimeout(() => {
+                    adCard.style.opacity = '1';
+                    adCard.style.transform = 'translateY(0)';
+                  }, 50);
+                }, 0);
+              });
+
+              // Update the counter in the info section
+              const adCountElement = document.getElementById('ad-count');
+              if (adCountElement) {
+                const currentCount = parseInt(adCountElement.textContent) || 0;
+                adCountElement.textContent = currentCount + data.ads.length;
+              }
+            }
+          }
+        })
+        .catch(error => console.error('Error fetching new ads:', error));
+    }
+
+    // Set up the interval to fetch new ads every 10 seconds
+    // Only if ads are not disabled and we're on the ads grid view
+    if (!window.allAdsDisabled && document.querySelector('.grid')) {
+      // Add a counter and controls to the info section
+      const infoSection = document.querySelector('.info-section');
+      if (infoSection) {
+        const counterDiv = document.createElement('div');
+        counterDiv.className = 'mt-4 text-sm text-gray-400';
+        counterDiv.innerHTML = `
+          <div class="flex justify-between items-center">
+            <p>New ads added: <span id="ad-count" class="font-semibold text-neon-blue">0</span></p>
+            <button id="toggle-auto-refresh" class="px-3 py-1 bg-dark-200 hover:bg-dark-300 text-white text-xs rounded-md transition-colors">
+              <i class="fas fa-pause mr-1"></i> Pause Auto-Refresh
+            </button>
+          </div>
+          <p class="text-xs text-gray-500 mt-1">New ads are automatically added every 10 seconds</p>
+        `;
+        infoSection.appendChild(counterDiv);
+
+        // Add toggle functionality
+        let autoRefreshInterval;
+        let autoRefreshEnabled = true;
+
+        const toggleButton = document.getElementById('toggle-auto-refresh');
+        if (toggleButton) {
+          // Start the interval
+          autoRefreshInterval = setInterval(fetchNewAds, 10000); // 10 seconds
+
+          toggleButton.addEventListener('click', function() {
+            if (autoRefreshEnabled) {
+              // Pause auto-refresh
+              clearInterval(autoRefreshInterval);
+              toggleButton.innerHTML = '<i class="fas fa-play mr-1"></i> Resume Auto-Refresh';
+              toggleButton.classList.add('bg-neon-blue');
+              toggleButton.classList.remove('bg-dark-200');
+            } else {
+              // Resume auto-refresh
+              autoRefreshInterval = setInterval(fetchNewAds, 10000);
+              toggleButton.innerHTML = '<i class="fas fa-pause mr-1"></i> Pause Auto-Refresh';
+              toggleButton.classList.remove('bg-neon-blue');
+              toggleButton.classList.add('bg-dark-200');
+            }
+            autoRefreshEnabled = !autoRefreshEnabled;
+          });
+        }
+      } else {
+        // If info section not found, just start the interval
+        setInterval(fetchNewAds, 10000); // 10 seconds
+      }
+    }
+  });
+</script>

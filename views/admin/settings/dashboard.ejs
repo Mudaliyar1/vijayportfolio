@@ -1,0 +1,177 @@
+<!-- System Settings Dashboard -->
+<div>
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">System Settings</h1>
+  </div>
+
+  <!-- Master Ad Control -->
+  <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden mb-6">
+    <div class="p-4 border-b border-gray-800 bg-dark-200">
+      <h2 class="text-lg font-semibold">Master Ad Control</h2>
+    </div>
+
+    <div class="p-6">
+      <p class="text-gray-300 mb-4">
+        Control whether to show any ads on the site. When disabled, all ads (both custom and internet) will be hidden across the entire site.
+      </p>
+
+      <form action="/admin/settings/all-ads-disabled" method="POST" class="mb-6">
+        <div class="flex items-center mb-4">
+          <label class="inline-flex items-center cursor-pointer">
+            <input type="checkbox" name="disabled" value="true" class="sr-only peer" <%= allAdsDisabled ? 'checked' : '' %>>
+            <div class="relative w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-800 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+            <span class="ms-3 text-sm font-medium text-gray-300">Disable All Ads</span>
+          </label>
+        </div>
+
+        <button type="submit" class="px-4 py-2 bg-red-700 text-white rounded-md hover:bg-red-800 transition-colors">
+          Save Setting
+        </button>
+      </form>
+
+      <div class="border-t border-gray-800 pt-4">
+        <div class="flex items-start">
+          <div class="flex-shrink-0 mt-0.5">
+            <i class="fas fa-info-circle text-yellow-500 text-xl"></i>
+          </div>
+          <div class="ml-3">
+            <p class="text-yellow-500 text-sm">
+              <strong>Note:</strong> This is a master control that overrides all other ad settings. When ads are disabled, no ads will be shown anywhere on the site, regardless of other settings.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Internet Ads Settings -->
+  <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden mb-6 <%= allAdsDisabled ? 'opacity-50' : '' %>">
+    <div class="p-4 border-b border-gray-800 bg-dark-200">
+      <h2 class="text-lg font-semibold">Internet Ads Settings</h2>
+      <% if (allAdsDisabled) { %>
+        <p class="text-xs text-yellow-500 mt-1">
+          <i class="fas fa-exclamation-triangle mr-1"></i> All ads are currently disabled. These settings will have no effect until you enable ads in the Master Ad Control section.
+        </p>
+      <% } %>
+    </div>
+
+    <div class="p-6">
+      <p class="text-gray-300 mb-4">
+        Control whether to show free ads from the internet. When enabled, the system will fetch and display ads from free internet sources.
+      </p>
+
+      <form action="/admin/settings/internet-ads" method="POST" class="mb-6">
+        <div class="flex items-center mb-4">
+          <label class="inline-flex items-center cursor-pointer">
+            <input type="checkbox" name="enabled" value="true" class="sr-only peer" <%= internetAdsEnabled ? 'checked' : '' %>>
+            <div class="relative w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-blue"></div>
+            <span class="ms-3 text-sm font-medium text-gray-300">Enable Internet Ads</span>
+          </label>
+        </div>
+
+        <button type="submit" class="px-4 py-2 bg-neon-blue text-white rounded-md hover:bg-blue-600 transition-colors">
+          Save Setting
+        </button>
+      </form>
+
+      <div class="border-t border-gray-800 pt-4">
+        <h3 class="text-md font-semibold mb-2">Refresh Internet Ads</h3>
+        <p class="text-gray-400 text-sm mb-3">
+          Manually refresh the internet ads. This will fetch the latest ads from the internet sources.
+        </p>
+
+        <div class="flex flex-wrap gap-3">
+          <form action="/admin/settings/refresh-internet-ads" method="POST">
+            <button type="submit" class="px-4 py-2 bg-dark-200 text-white rounded-md hover:bg-dark-300 transition-colors" <%= !internetAdsEnabled ? 'disabled' : '' %>>
+              <i class="fas fa-sync-alt mr-2"></i> Refresh Internet Ads
+            </button>
+          </form>
+
+          <a href="/tech-ads" class="px-4 py-2 bg-dark-200 text-white rounded-md hover:bg-dark-300 transition-colors inline-flex items-center">
+            <i class="fas fa-external-link-alt mr-2"></i> View Tech Ads Showcase
+          </a>
+        </div>
+
+        <% if (!internetAdsEnabled) { %>
+          <p class="text-yellow-500 text-xs mt-2">
+            <i class="fas fa-exclamation-triangle mr-1"></i> Internet ads are disabled. Enable them first to refresh.
+          </p>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- All System Settings -->
+  <div class="bg-dark-100 rounded-lg border border-gray-800 overflow-hidden">
+    <div class="p-4 border-b border-gray-800 bg-dark-200">
+      <h2 class="text-lg font-semibold">All System Settings</h2>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-dark-200">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Key</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Value</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Description</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Last Updated</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-800">
+          <% if (settings && settings.length > 0) { %>
+            <% settings.forEach(setting => { %>
+              <tr class="hover:bg-dark-200 transition-colors">
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="text-sm font-medium text-white"><%= setting.key %></div>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="text-sm text-gray-300">
+                    <% if (typeof setting.value === 'boolean') { %>
+                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= setting.value ? 'bg-green-900 text-green-200' : 'bg-red-900 text-red-200' %>">
+                        <%= setting.value ? 'Enabled' : 'Disabled' %>
+                      </span>
+                    <% } else { %>
+                      <%= JSON.stringify(setting.value) %>
+                    <% } %>
+                  </div>
+                </td>
+                <td class="px-4 py-3">
+                  <div class="text-sm text-gray-300"><%= setting.description %></div>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
+                  <%= new Date(setting.updatedAt).toLocaleString() %>
+                </td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="4" class="px-4 py-8 text-center text-gray-400">
+                <div class="flex flex-col items-center">
+                  <i class="fas fa-cog text-4xl mb-3 text-gray-600"></i>
+                  <p>No system settings found.</p>
+                </div>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript for Settings -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Toggle switch for internet ads
+    const enabledCheckbox = document.querySelector('input[name="enabled"]');
+    const refreshButton = document.querySelector('button[type="submit"][disabled]');
+
+    enabledCheckbox.addEventListener('change', function() {
+      if (this.checked) {
+        refreshButton.removeAttribute('disabled');
+      } else {
+        refreshButton.setAttribute('disabled', '');
+      }
+    });
+  });
+</script>

@@ -1,0 +1,80 @@
+/**
+ * Debug styles for ad display
+ * These styles make ads more visible for debugging
+ */
+
+/* Add borders to all ad containers */
+.ad-popup,
+.ad-banner,
+.ad-sidebar,
+.ad-content {
+  border: 3px solid red !important;
+}
+
+/* Make ad containers more visible */
+.ad-popup-content,
+.ad-banner-content,
+.ad-sidebar-content,
+.ad-content-inner {
+  background-color: rgba(255, 0, 0, 0.1) !important;
+}
+
+/* Ensure ad containers are visible */
+.ad-sidebar-container {
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 9999 !important;
+}
+
+.ad-sidebar {
+  transform: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Make sure popup ads are visible */
+.ad-popup {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Make sure banner ads are visible */
+.ad-banner {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  height: auto !important;
+  max-height: none !important;
+}
+
+/* Make sure content ads are visible */
+.ad-content {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  margin: 20px 0 !important;
+}
+
+/* Add debug labels */
+.ad-popup::before,
+.ad-banner::before,
+.ad-sidebar::before,
+.ad-content::before {
+  content: "AD" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  background-color: red !important;
+  color: white !important;
+  padding: 2px 5px !important;
+  font-size: 10px !important;
+  font-weight: bold !important;
+  z-index: 9999 !important;
+}
+
+.ad-popup::before { content: "POPUP AD" !important; }
+.ad-banner-top::before { content: "TOP BANNER AD" !important; }
+.ad-banner-bottom::before { content: "BOTTOM BANNER AD" !important; }
+.ad-sidebar::before { content: "SIDEBAR AD" !important; }
+.ad-content::before { content: "CONTENT AD" !important; }

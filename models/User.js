@@ -85,6 +85,18 @@ const UserSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'DigitalTwin',
     default: null
+  },
+
+  // Ad-free subscription status
+  adFree: {
+    type: Boolean,
+    default: false
+  },
+
+  // Ad-free subscription end date
+  adFreeUntil: {
+    type: Date,
+    default: null
   }
 });
 
