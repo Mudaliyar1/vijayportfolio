@@ -1,4 +1,4 @@
-# FTRAISE AI - Futuristic AI Chat Website
+# FTRAISE AI - Futuristic AI Chat Website.
 
 A sleek, futuristic, highly interactive, and fully responsive AI chat website using EJS, Node.js, MongoDB, and Cohere AI, featuring advanced UI animations, immersive user experience, robust admin dashboard, comprehensive chat history management, and a user profile page.
 
