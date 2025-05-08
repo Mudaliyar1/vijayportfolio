@@ -68,11 +68,6 @@ module.exports = {
           return next(err);
         }
 
-        // Log successful login
-        console.log('User logged in successfully:', user.email);
-        console.log('Session ID:', req.sessionID);
-        console.log('Is authenticated:', req.isAuthenticated());
-
         // Check if maintenance mode is active
         const MaintenanceMode = require('../models/MaintenanceMode');
         const maintenanceSettings = await MaintenanceMode.findOne().sort({ updatedAt: -1 });
@@ -348,19 +343,18 @@ module.exports = {
           }
 
           // Ensure session is saved before redirecting
-          return req.session.save((err) => {
+          req.session.save((err) => {
             if (err) {
               console.error('Error saving session after login:', err);
               // Even if there's an error, try to continue with the redirect
-              // but add a flag to the session to indicate there was an error
               req.session.loginError = true;
             }
 
             // Log session details for debugging
             console.log('Session before redirect:', {
               id: req.sessionID,
-              authenticated: req.isAuthenticated(),
-              user: req.user ? req.user.email : 'none',
+              passport: JSON.stringify(req.session.passport),
+              userId: req.session.userId,
               cookie: req.session.cookie ? 'exists' : 'missing'
             });
 

@@ -19,6 +19,9 @@ const { maintenanceMiddleware } = require('./controllers/maintenanceController')
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy - important for Render and other PaaS platforms
+app.set('trust proxy', 1);
+
 // Connect to MongoDB
 const connectDB = async () => {
   try {
@@ -94,22 +97,22 @@ try {
 // Session configuration
 app.use(session({
   secret: process.env.SESSION_SECRET || 'fallback_secret_key_for_development',
-  resave: false,
-  saveUninitialized: false,
+  resave: true, // Changed to true to ensure session is saved on every request
+  saveUninitialized: true, // Changed to true to ensure new sessions are saved
   store: sessionStore,
   cookie: {
     maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days in milliseconds
     httpOnly: true,
-    // Only use secure cookies if we're behind a proxy with HTTPS
-    secure: process.env.NODE_ENV === 'production' && process.env.SECURE_COOKIES === 'true',
-    // Add sameSite attribute for better security and compatibility
-    sameSite: 'lax',
+    // Important: Always set secure to false for Render unless you have a custom domain with HTTPS
+    secure: false,
+    // Use strict sameSite only in development
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     // Ensure the cookie is always set
     expires: new Date(Date.now() + (14 * 24 * 60 * 60 * 1000)),
     // Set path to root to ensure cookie is available throughout the site
     path: '/',
-    // Don't set domain in production - let the browser handle it
-    domain: process.env.NODE_ENV === 'production' ? undefined : 'localhost'
+    // Don't set domain at all - this is critical for Render
+    domain: undefined
   },
   // Add error handling for session
   unset: 'destroy',
@@ -144,6 +147,10 @@ app.use(sessionRedirectHandler);
 app.use(passport.initialize());
 app.use(passport.session());
 require('./config/passport')(passport);
+
+// Add session restore middleware to fix authentication issues
+const sessionRestoreMiddleware = require('./middleware/sessionRestoreMiddleware');
+app.use(sessionRestoreMiddleware);
 
 // Add enhanced authentication verification middleware
 const authVerification = require('./middleware/authVerification');

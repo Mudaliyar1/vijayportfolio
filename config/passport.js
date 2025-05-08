@@ -128,14 +128,28 @@ module.exports = function(passport) {
   );
 
   passport.serializeUser((user, done) => {
+    console.log('Serializing user:', user.email, 'ID:', user.id);
     done(null, user.id);
   });
 
   passport.deserializeUser(async (id, done) => {
     try {
+      console.log('Deserializing user ID:', id);
+      if (!id) {
+        console.error('Invalid user ID during deserialization');
+        return done(null, false);
+      }
+
       const user = await User.findById(id);
+      if (!user) {
+        console.error('User not found during deserialization for ID:', id);
+        return done(null, false);
+      }
+
+      console.log('User deserialized successfully:', user.email);
       done(null, user);
     } catch (err) {
+      console.error('Error deserializing user:', err);
       done(err, null);
     }
   });

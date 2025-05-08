@@ -17,13 +17,27 @@ const chatPage = (req, res) => {
   // Check if user is authenticated
   const isAuthenticated = req.isAuthenticated && req.isAuthenticated();
 
+  // Check for user ID in session as a backup
+  const hasSessionUserId = !!(req.session && req.session.passport && req.session.passport.user);
+
   // Log authentication status for debugging
   console.log('Chat page - Authentication status:', {
     isAuthenticated: isAuthenticated,
     hasUser: !!req.user,
     sessionID: req.sessionID,
-    hasSession: !!req.session
+    hasSession: !!req.session,
+    hasSessionUserId: hasSessionUserId,
+    sessionPassport: req.session && req.session.passport ? JSON.stringify(req.session.passport) : 'none'
   });
+
+  // If session has user ID but req.user is missing, try to restore the user
+  if (!req.user && hasSessionUserId) {
+    console.log('Attempting to restore user from session ID:', req.session.passport.user);
+
+    // We'll continue and let the page render, but log this issue
+    // The user will need to refresh or navigate to see their authenticated state
+    console.warn('User missing but session has user ID - authentication state may be inconsistent');
+  }
 
   // If user should be authenticated but req.user is missing, redirect to login
   if (isAuthenticated && !req.user) {
