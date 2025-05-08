@@ -808,6 +808,28 @@
     color: #f87171;
     animation: pulse-countdown 1s infinite;
   }
+
+  /* Expiration message and warning styles */
+  .expiration-message,
+  .expiration-warning {
+    animation: slideIn 0.3s ease-out;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+
+  .expiration-warning {
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .expiration-message,
+  .expiration-warning {
+    animation: slideDown 0.4s ease-out;
+  }
 </style>
 
 <script>
@@ -964,16 +986,63 @@
     const minutesElement = document.getElementById('countdown-minutes');
     const secondsElement = document.getElementById('countdown-seconds');
 
+    // Check if subscription has already expired when the page loads
+    const now = new Date();
+    if (expiryDate <= now) {
+      // If the subscription has already expired, refresh the page to update status
+      // But first show a brief message
+      const loadingMsg = document.createElement('div');
+      loadingMsg.className = 'expiration-message bg-blue-900/30 text-white p-3 rounded-md mt-3 text-center';
+      loadingMsg.innerHTML = '<i class="fas fa-sync-alt fa-spin mr-2"></i> Updating subscription status...';
+      timerContainer.parentNode.appendChild(loadingMsg);
+
+      // Refresh after a short delay to allow the message to be seen
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+      return;
+    }
+
+    // Variable to track if we've already detected expiration
+    let expirationDetected = false;
+    let refreshCountdown = 5; // Countdown for page refresh in seconds
+
     function updateCountdown() {
       const now = new Date();
       const timeRemaining = expiryDate - now;
 
       if (timeRemaining <= 0) {
         // Subscription has expired
+        if (!expirationDetected) {
+          // First time detecting expiration
+          expirationDetected = true;
+
+          // Create or update the expiration message with refresh countdown
+          let expirationMsg = document.querySelector('.expiration-message');
+          if (!expirationMsg) {
+            expirationMsg = document.createElement('div');
+            expirationMsg.className = 'expiration-message bg-red-900/30 text-white p-3 rounded-md mt-3 text-center';
+            timerContainer.parentNode.appendChild(expirationMsg);
+          }
+
+          // Start the refresh countdown
+          const refreshInterval = setInterval(() => {
+            refreshCountdown--;
+            expirationMsg.innerHTML = `<i class="fas fa-exclamation-triangle mr-2"></i> Your subscription has expired. Page will refresh in <span class="font-bold">${refreshCountdown}</span> seconds to update your status...`;
+
+            if (refreshCountdown <= 0) {
+              clearInterval(refreshInterval);
+              // Refresh the page
+              window.location.reload();
+            }
+          }, 1000);
+        }
+
+        // Set all countdown values to zero
         daysElement.textContent = '0';
-        hoursElement.textContent = '0';
-        minutesElement.textContent = '0';
-        secondsElement.textContent = '0';
+        hoursElement.textContent = '00';
+        minutesElement.textContent = '00';
+        secondsElement.textContent = '00';
 
         // Add expired class to all countdown values
         document.querySelectorAll('.countdown-value').forEach(el => {
@@ -995,11 +1064,30 @@
       minutesElement.textContent = minutes < 10 ? `0${minutes}` : minutes;
       secondsElement.textContent = seconds < 10 ? `0${seconds}` : seconds;
 
-      // Add visual indication when time is running out (less than 3 days)
+      // Add visual indication when time is running out
       if (days < 3) {
         document.querySelectorAll('.countdown-value').forEach(el => {
           el.classList.add('ending');
         });
+      }
+
+      // Show warning when subscription is about to expire in the next 10 minutes
+      const tenMinutesInMs = 10 * 60 * 1000;
+      if (timeRemaining <= tenMinutesInMs && !document.querySelector('.expiration-warning')) {
+        // Create warning message with renewal option
+        const warningMsg = document.createElement('div');
+        warningMsg.className = 'expiration-warning bg-yellow-900/30 text-white p-3 rounded-md mt-3 text-center';
+        warningMsg.innerHTML = `
+          <div class="flex items-center justify-center mb-2">
+            <i class="fas fa-exclamation-circle text-yellow-400 mr-2"></i>
+            <span class="font-medium">Your subscription is about to expire soon!</span>
+          </div>
+          <p class="text-sm mb-2">Ads will start showing when your subscription expires.</p>
+          <a href="/subscription" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-1 px-4 rounded-md text-sm hover:from-indigo-700 hover:to-purple-700 transition-all inline-block mt-1">
+            <i class="fas fa-sync-alt mr-1"></i> Renew Now
+          </a>
+        `;
+        timerContainer.parentNode.appendChild(warningMsg);
       }
     }
 

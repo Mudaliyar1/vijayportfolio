@@ -351,7 +351,23 @@ module.exports = {
           return req.session.save((err) => {
             if (err) {
               console.error('Error saving session after login:', err);
+              // Even if there's an error, try to continue with the redirect
+              // but add a flag to the session to indicate there was an error
+              req.session.loginError = true;
             }
+
+            // Log session details for debugging
+            console.log('Session before redirect:', {
+              id: req.sessionID,
+              authenticated: req.isAuthenticated(),
+              user: req.user ? req.user.email : 'none',
+              cookie: req.session.cookie ? 'exists' : 'missing'
+            });
+
+            // Set a flash message to confirm login success
+            req.flash('success_msg', 'You have successfully logged in');
+
+            // Redirect to chat page
             return res.redirect('/chat');
           });
         }

@@ -14,6 +14,24 @@ cohere.init(COHERE_API_KEY);
 
 // Chat page
 const chatPage = (req, res) => {
+  // Check if user is authenticated
+  const isAuthenticated = req.isAuthenticated && req.isAuthenticated();
+
+  // Log authentication status for debugging
+  console.log('Chat page - Authentication status:', {
+    isAuthenticated: isAuthenticated,
+    hasUser: !!req.user,
+    sessionID: req.sessionID,
+    hasSession: !!req.session
+  });
+
+  // If user should be authenticated but req.user is missing, redirect to login
+  if (isAuthenticated && !req.user) {
+    console.error('Session inconsistency: isAuthenticated() is true but req.user is missing');
+    req.flash('error_msg', 'Session error detected. Please log in again.');
+    return res.redirect('/users/login');
+  }
+
   // Get rate limit information
   let rateLimit = {
     remaining: req.user ? 8 : 5,

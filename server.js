@@ -101,15 +101,15 @@ app.use(session({
     maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days in milliseconds
     httpOnly: true,
     // Only use secure cookies if we're behind a proxy with HTTPS
-    secure: false, // Set to false for local development
+    secure: process.env.NODE_ENV === 'production' && process.env.SECURE_COOKIES === 'true',
     // Add sameSite attribute for better security and compatibility
     sameSite: 'lax',
     // Ensure the cookie is always set
     expires: new Date(Date.now() + (14 * 24 * 60 * 60 * 1000)),
     // Set path to root to ensure cookie is available throughout the site
     path: '/',
-    // Set domain to localhost to share cookies between ports
-    domain: 'localhost'
+    // Don't set domain in production - let the browser handle it
+    domain: process.env.NODE_ENV === 'production' ? undefined : 'localhost'
   },
   // Add error handling for session
   unset: 'destroy',
@@ -144,6 +144,10 @@ app.use(sessionRedirectHandler);
 app.use(passport.initialize());
 app.use(passport.session());
 require('./config/passport')(passport);
+
+// Add enhanced authentication verification middleware
+const authVerification = require('./middleware/authVerification');
+app.use(authVerification);
 
 // Flash messages
 app.use(flash());
