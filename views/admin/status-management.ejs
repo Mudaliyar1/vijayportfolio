@@ -4,10 +4,11 @@
     <div>
       <h1 class="text-2xl font-bold text-white mb-2">System Status Management</h1>
       <p class="text-gray-400">Manage and update the operational status of FTRAISE AI services</p>
+      <p class="text-sm text-gray-500 mt-1">Current time: <span class="live-time"></span></p>
     </div>
 
     <div class="mt-4 md:mt-0 flex space-x-2">
-      <a href="<%= process.env.STATUS_APP_URL || 'http://localhost:3001' %>" target="_blank" class="px-4 py-2 bg-dark-200 text-white rounded-md hover:bg-dark-300 transition-colors">
+      <a href="/status" target="_blank" class="px-4 py-2 bg-dark-200 text-white rounded-md hover:bg-dark-300 transition-colors">
         <i class="fas fa-external-link-alt mr-2"></i> View Public Status Page
       </a>
       <button type="button" class="px-4 py-2 bg-neon-blue text-white rounded-md hover:bg-blue-600 transition-colors" onclick="openNewIncidentModal()">
@@ -33,7 +34,7 @@
         <span class="mr-2"><%= overallStatusInfo.icon %></span>
         <span><%= overallStatusInfo.text %></span>
       </p>
-      <p class="text-sm text-gray-400 mt-1">Last updated: <span class="timestamp" data-timestamp="<%= systemStatus.updatedAt.getTime() %>"><%= new Date(systemStatus.updatedAt).toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata' }) %></span></p>
+      <p class="text-sm text-gray-400 mt-1">Last updated: <span class="timestamp" data-timestamp="<%= systemStatus.updatedAt ? systemStatus.updatedAt.getTime() : Date.now() %>"><%= systemStatus.updatedAt ? new Date(systemStatus.updatedAt).toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata' }) : new Date().toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata' }) %></span></p>
     </div>
 
     <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-blue transition-colors">
@@ -58,6 +59,49 @@
       </div>
       <p class="text-3xl font-bold"><%= subscriptionCount %></p>
       <p class="text-sm text-gray-400 mt-1">Status update subscribers</p>
+    </div>
+  </div>
+
+  <!-- Crash Test Panel -->
+  <div class="bg-dark-200 rounded-lg border border-red-700 shadow-xl overflow-hidden mb-8">
+    <div class="p-6">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+        <div>
+          <h2 class="text-xl font-semibold text-white flex items-center">
+            <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+            Website Crash Testing
+          </h2>
+          <p class="text-gray-400">Use these controls to intentionally crash the website for testing the status page's resilience</p>
+        </div>
+      </div>
+
+      <div class="bg-dark-100 rounded-lg border border-gray-700 p-4 mb-4">
+        <div class="text-yellow-400 mb-2">
+          <i class="fas fa-exclamation-circle mr-1"></i>
+          <span class="font-semibold">Warning:</span>
+        </div>
+        <p class="text-gray-300 mb-2">These buttons will intentionally crash the main website. The status page should remain operational and display the crash information.</p>
+        <p class="text-gray-300">You will need to manually restart the server after using these crash test functions.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <button type="button" class="px-4 py-3 bg-red-900/30 text-red-400 border border-red-800 rounded-md hover:bg-red-900/50 transition-colors flex items-center justify-center" onclick="confirmCrashTest('crash-now')">
+          <i class="fas fa-power-off mr-2"></i>
+          Immediate Crash
+        </button>
+        <button type="button" class="px-4 py-3 bg-red-900/30 text-red-400 border border-red-800 rounded-md hover:bg-red-900/50 transition-colors flex items-center justify-center" onclick="confirmCrashTest('crash-exception')">
+          <i class="fas fa-bug mr-2"></i>
+          Exception Crash
+        </button>
+        <button type="button" class="px-4 py-3 bg-red-900/30 text-red-400 border border-red-800 rounded-md hover:bg-red-900/50 transition-colors flex items-center justify-center" onclick="confirmCrashTest('crash-memory')">
+          <i class="fas fa-memory mr-2"></i>
+          Memory Overload
+        </button>
+        <button type="button" class="px-4 py-3 bg-red-900/30 text-red-400 border border-red-800 rounded-md hover:bg-red-900/50 transition-colors flex items-center justify-center" onclick="confirmCrashTest('crash-loop')">
+          <i class="fas fa-sync-alt mr-2"></i>
+          Infinite Loop
+        </button>
+      </div>
     </div>
   </div>
 
@@ -207,7 +251,7 @@
                 <tr class="<%= incident.isOngoing ? 'bg-dark-100' : '' %> hover:bg-dark-300 transition-colors">
                   <td class="px-6 py-4">
                     <div class="text-sm font-medium text-white"><%= incident.title %></div>
-                    <div class="text-xs text-gray-400 timestamp" data-timestamp="<%= incident.startTime.getTime() %>"><%= new Date(incident.startTime).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }) %></div>
+                    <div class="text-xs text-gray-400 timestamp" data-timestamp="<%= incident.startTime ? incident.startTime.getTime() : Date.now() %>"><%= incident.startTime ? new Date(incident.startTime).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }) : new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }) %></div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
@@ -377,18 +421,69 @@
     timestampElements.forEach(element => {
       const timestamp = element.getAttribute('data-timestamp');
       if (timestamp) {
-        const date = new Date(parseInt(timestamp));
-        // Format: DD/MM/YYYY, HH:MM:SS AM/PM
-        element.textContent = date.toLocaleString('en-US', {
+        try {
+          const date = new Date(parseInt(timestamp));
+          // Check if date is valid
+          if (!isNaN(date.getTime())) {
+            // Format: DD/MM/YYYY, HH:MM:SS AM/PM
+            element.textContent = date.toLocaleString('en-US', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: true
+            });
+          } else {
+            console.warn('Invalid date from timestamp:', timestamp);
+            // Use current time as fallback
+            const now = new Date();
+            element.textContent = now.toLocaleString('en-US', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: true
+            });
+          }
+        } catch (err) {
+          console.error('Error formatting timestamp:', err);
+          // Use current time as fallback
+          const now = new Date();
+          element.textContent = now.toLocaleString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+          });
+        }
+      }
+    });
+
+    // Initialize and refresh live time display
+    function updateLiveTime() {
+      const now = new Date();
+      document.querySelectorAll('.live-time').forEach(element => {
+        element.textContent = now.toLocaleString('en-US', {
           year: 'numeric',
           month: '2-digit',
           day: '2-digit',
           hour: '2-digit',
           minute: '2-digit',
+          second: '2-digit',
           hour12: true
         });
-      }
-    });
+      });
+    }
+
+    // Initialize time display
+    updateLiveTime();
+
+    // Refresh timestamps every second
+    setInterval(updateLiveTime, 1000);
   });
 
   // New Incident Modal
@@ -445,4 +540,91 @@
       closeUpdateIncidentModal();
     }
   });
+
+  // Crash test confirmation and execution
+  function confirmCrashTest(crashType) {
+    const crashTypeNames = {
+      'crash-now': 'Immediate Crash',
+      'crash-exception': 'Exception Crash',
+      'crash-memory': 'Memory Overload',
+      'crash-loop': 'Infinite Loop'
+    };
+
+    const crashTypeName = crashTypeNames[crashType] || 'Unknown Crash Type';
+
+    if (confirm(`WARNING: This will intentionally crash the website using the ${crashTypeName} method.\n\nThe server will need to be manually restarted after this test.\n\nAre you absolutely sure you want to proceed?`)) {
+      // Create a loading overlay
+      const overlay = document.createElement('div');
+      overlay.style.position = 'fixed';
+      overlay.style.top = '0';
+      overlay.style.left = '0';
+      overlay.style.width = '100%';
+      overlay.style.height = '100%';
+      overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+      overlay.style.display = 'flex';
+      overlay.style.flexDirection = 'column';
+      overlay.style.alignItems = 'center';
+      overlay.style.justifyContent = 'center';
+      overlay.style.zIndex = '9999';
+      overlay.innerHTML = `
+        <div class="text-red-500 text-4xl mb-4">
+          <i class="fas fa-exclamation-triangle fa-spin"></i>
+        </div>
+        <h2 class="text-white text-2xl mb-2">Initiating Website Crash</h2>
+        <p class="text-gray-300 mb-4">The server will become unresponsive shortly...</p>
+        <div class="text-white">
+          <a href="/status" class="px-6 py-2 bg-neon-blue text-white rounded-md hover:bg-blue-600 transition-colors">
+            Go to Status Page
+          </a>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      // Open a new window with the status page
+      const statusWindow = window.open('/status', '_blank');
+
+      // Send the crash request
+      fetch(`/admin/crash-test/${crashType}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Crash initiated:', data);
+        // Update the overlay
+        overlay.innerHTML = `
+          <div class="text-red-500 text-4xl mb-4">
+            <i class="fas fa-skull-crossbones"></i>
+          </div>
+          <h2 class="text-white text-2xl mb-2">Website Crash Initiated</h2>
+          <p class="text-gray-300 mb-4">${data.message}</p>
+          <div class="text-white">
+            <a href="/status" class="px-6 py-2 bg-neon-blue text-white rounded-md hover:bg-blue-600 transition-colors">
+              Go to Status Page
+            </a>
+          </div>
+        `;
+
+        // The main site will crash soon, so we don't need to redirect
+      })
+      .catch(error => {
+        console.error('Error initiating crash:', error);
+        // If there's an error, it likely means the server has already crashed
+        overlay.innerHTML = `
+          <div class="text-red-500 text-4xl mb-4">
+            <i class="fas fa-skull-crossbones"></i>
+          </div>
+          <h2 class="text-white text-2xl mb-2">Website Crash Successful</h2>
+          <p class="text-gray-300 mb-4">The server has stopped responding.</p>
+          <div class="text-white">
+            <a href="/status" class="px-6 py-2 bg-neon-blue text-white rounded-md hover:bg-blue-600 transition-colors">
+              Go to Status Page
+            </a>
+          </div>
+        `;
+      });
+    }
+  }
 </script>

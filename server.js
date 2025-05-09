@@ -217,6 +217,60 @@ app.use('/health', require('./routes/health'));
 // Robust health check API
 app.use('/api/health-check', require('./routes/api/health-check'));
 
+// Crash detection middleware (high priority, before any other middleware)
+const crashDetectionMiddleware = require('./middleware/crashDetectionMiddleware');
+app.use(crashDetectionMiddleware);
+
+// Function to get the status server port
+function getStatusServerPort() {
+  // Try to read the port from the file
+  try {
+    const fs = require('fs');
+    if (fs.existsSync('status-server-port.txt')) {
+      const port = parseInt(fs.readFileSync('status-server-port.txt', 'utf8').trim());
+      if (!isNaN(port)) {
+        return port;
+      }
+    }
+  } catch (err) {
+    console.error('Error reading status server port file:', err);
+  }
+
+  // Fall back to environment variable or default
+  return process.env.STATUS_PORT || 3001;
+}
+
+// Status page redirect to the separate status server
+app.use('/status', (req, res) => {
+  // Get the status server port
+  const statusPort = getStatusServerPort();
+
+  // Redirect to the status server
+  res.redirect(`http://localhost:${statusPort}/status${req.path === '/status' ? '' : req.path.substring('/status'.length)}${req.originalUrl.includes('?') ? req.originalUrl.substring(req.originalUrl.indexOf('?')) : ''}`);
+});
+
+// Status bridge redirect
+app.use('/status-bridge', (req, res) => {
+  // Get the status server port
+  const statusPort = getStatusServerPort();
+
+  // Redirect to the status server
+  res.redirect(`http://localhost:${statusPort}/status-bridge${req.originalUrl}`);
+});
+
+// Health check for status page
+app.use('/status/health', (req, res) => {
+  // Get the status server port
+  const statusPort = getStatusServerPort();
+
+  // Redirect to the status server health check
+  res.redirect(`http://localhost:${statusPort}/health`);
+});
+
+// Status page error handler (must be after status routes)
+const statusPageErrorHandler = require('./middleware/statusPageErrorHandler');
+app.use(statusPageErrorHandler);
+
 // Simple health check routes for backward compatibility
 app.get('/health-checks', (req, res) => {
   res.json({ status: 'operational', timestamp: new Date().toISOString() });
@@ -280,6 +334,7 @@ app.use('/admin/marketing-packages', require('./routes/admin-marketing-packages'
 app.use('/admin/ip-tracker', require('./routes/admin-ip-tracker')); // IP tracker routes
 app.use('/admin/contact-messages', require('./routes/admin-contact-messages')); // Contact messages routes
 app.use('/admin/system-status', require('./routes/admin-system-status')); // System status management routes
+app.use('/admin/crash-test', require('./routes/admin-crash-test')); // Website crash testing routes
 app.use('/admin/issues', require('./routes/admin-issues')); // Issue management routes
 app.use('/admin/page-locks', require('./routes/admin-page-locks')); // Page lock management routes
 app.use('/admin/ads', require('./routes/admin-ads')); // Ad management routes
@@ -297,12 +352,12 @@ app.use(pageLockMiddleware);
 const adsMiddleware = require('./middleware/adsMiddleware');
 app.use(adsMiddleware);
 
+// Status page routes have been moved before middleware to ensure they're always available
+
 // Routes
 app.use('/', require('./routes/index'));
 app.use('/users', require('./routes/users'));
 app.use('/chat', require('./routes/chat'));
-app.use('/status', require('./routes/status')); // System status page
-app.use('/status-bridge', require('./routes/status-bridge')); // Status app session bridge
 app.use('/issues', require('./routes/issues')); // Issue reporting and tracking routes
 app.use('/report-issue', (req, res) => res.redirect('/issues/report')); // Redirect for convenience
 app.use('/profile', require('./routes/profile'));
@@ -447,9 +502,47 @@ SubscriptionPlan.countDocuments().then(count => {
   }
 });
 
+// Function to resolve unresolved crash incidents on server startup
+async function resolveUnresolvedCrashIncidents() {
+  try {
+    const Incident = mongoose.model('Incident');
+
+    // Find all unresolved crash incidents (investigating or identified status)
+    const unresolvedCrashIncidents = await Incident.find({
+      title: { $regex: /crash|exception|shutdown/i },
+      status: { $in: ['investigating', 'identified'] }
+    });
+
+    console.log(`Found ${unresolvedCrashIncidents.length} unresolved crash incidents to auto-resolve`);
+
+    // Resolve each incident
+    for (const incident of unresolvedCrashIncidents) {
+      // Add an update that the server has restarted and resolved the issue
+      incident.updates.push({
+        message: 'Server has restarted and is now operational. This incident has been automatically resolved.',
+        status: 'resolved',
+        timestamp: new Date()
+      });
+
+      // Update the incident status and end time
+      incident.status = 'resolved';
+      incident.endTime = new Date();
+
+      // Save the incident
+      await incident.save();
+      console.log(`Auto-resolved crash incident: ${incident.title}`);
+    }
+  } catch (err) {
+    console.error('Error auto-resolving crash incidents:', err);
+  }
+}
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+
+  // Auto-resolve crash incidents after server starts
+  resolveUnresolvedCrashIncidents();
 
   // Log API key status
   if (process.env.BREVO_API_KEY) {

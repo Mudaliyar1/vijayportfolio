@@ -51,25 +51,54 @@ function getIncidentStatusInfo(status) {
 }
 
 module.exports = {
-  // Public status page
+  // Public status page with enhanced reliability
   getStatusPage: async (req, res) => {
-    try {
-      // Get the current system status
-      let systemStatus = await SystemStatus.findOne().sort({ updatedAt: -1 });
+    // Define default fallback data outside of try/catch to ensure it's always available
+    const fallbackSystemStatus = {
+      overallStatus: 'operational',
+      components: [
+        { name: 'AI Chat Engine', status: 'operational' },
+        { name: 'Database (MongoDB)', status: 'operational' },
+        { name: 'User Login/Auth', status: 'operational' },
+        { name: 'Admin Dashboard', status: 'operational' },
+        { name: 'Website Frontend', status: 'operational' }
+      ],
+      updatedAt: new Date()
+    };
 
-      // If no system status exists, create a default one
+    // Default uptime data
+    const defaultUptimeData = {};
+    fallbackSystemStatus.components.forEach(component => {
+      defaultUptimeData[component.name] = 100;
+    });
+
+    try {
+      // Set a timeout for database operations to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Database operation timed out')), 5000);
+      });
+
+      // Get the current system status with timeout
+      let systemStatusPromise = SystemStatus.findOne().sort({ updatedAt: -1 });
+      let systemStatus = await Promise.race([systemStatusPromise, timeoutPromise]);
+
+      // If no system status exists, use the fallback but try to create a new one in the background
       if (!systemStatus) {
-        systemStatus = await SystemStatus.create({
+        console.log('No system status found, using fallback data');
+        // Try to create a default one in the background without waiting
+        SystemStatus.create({
           overallStatus: 'operational',
-          components: [
-            { name: 'AI Chat Engine', status: 'operational' },
-            { name: 'Database (MongoDB)', status: 'operational' },
-            { name: 'User Login/Auth', status: 'operational' },
-            { name: 'Admin Dashboard', status: 'operational' },
-            { name: 'Website Frontend', status: 'operational' }
-          ]
+          components: fallbackSystemStatus.components
+        }).catch(err => {
+          console.error('Failed to create default system status:', err);
         });
+
+        // Use fallback for rendering
+        systemStatus = fallbackSystemStatus;
       }
+
+      // Log system status for debugging
+      console.log('System status loaded successfully:', systemStatus.overallStatus);
 
       // Get incidents with time filter from query parameter or default to 30 days
       const timeFilter = req.query.timeFilter || '30days';
@@ -106,53 +135,115 @@ module.exports = {
         }
       }
 
-      const incidents = await Incident.find(dateFilter).sort({ createdAt: -1 });
+      // Try to get incidents with timeout
+      let incidentsPromise = Incident.find(dateFilter).sort({ createdAt: -1 });
+      let incidents = [];
+      try {
+        incidents = await Promise.race([incidentsPromise, timeoutPromise]);
+      } catch (incidentErr) {
+        console.error('Error fetching incidents, using empty array:', incidentErr);
+        // Continue with empty incidents array
+      }
 
       // Calculate uptime percentages for the last 30 days
       const uptimeData = {};
-      systemStatus.components.forEach(component => {
-        // Default to 100% uptime
-        uptimeData[component.name] = 100;
-      });
+
+      // Handle both mongoose model and plain object
+      const components = systemStatus.components || fallbackSystemStatus.components;
+
+      // Initialize uptime data
+      if (Array.isArray(components)) {
+        components.forEach(component => {
+          // Default to 100% uptime
+          const name = component.name || (typeof component === 'object' ? Object.values(component)[0] : 'Unknown');
+          uptimeData[name] = 100;
+        });
+      } else {
+        // Fallback if components is not an array
+        Object.assign(uptimeData, defaultUptimeData);
+      }
 
       // Adjust uptime based on incidents
-      incidents.forEach(incident => {
-        if (incident.status === 'resolved') {
-          const duration = incident.endTime - incident.startTime;
-          const durationHours = duration / (1000 * 60 * 60);
+      if (incidents && incidents.length > 0) {
+        incidents.forEach(incident => {
+          if (incident.status === 'resolved' && incident.endTime && incident.startTime) {
+            const duration = incident.endTime - incident.startTime;
+            const durationHours = duration / (1000 * 60 * 60);
 
-          incident.affectedComponents.forEach(component => {
-            if (uptimeData[component]) {
-              // Calculate percentage of time the component was down in the last 30 days
-              const percentageDown = (durationHours / (30 * 24)) * 100;
-              uptimeData[component] = Math.max(0, uptimeData[component] - percentageDown).toFixed(2);
+            if (Array.isArray(incident.affectedComponents)) {
+              incident.affectedComponents.forEach(component => {
+                if (uptimeData[component]) {
+                  // Calculate percentage of time the component was down in the last 30 days
+                  const percentageDown = (durationHours / (30 * 24)) * 100;
+                  uptimeData[component] = Math.max(0, uptimeData[component] - percentageDown).toFixed(2);
+                }
+              });
             }
-          });
-        }
-      });
+          }
+        });
+      }
 
       // Get status info for display
-      const overallStatusInfo = getOverallStatusInfo(systemStatus.overallStatus);
-      const componentsWithInfo = systemStatus.components.map(component => {
-        return {
-          ...component.toObject(),
+      const overallStatusInfo = getOverallStatusInfo(systemStatus.overallStatus || 'operational');
+
+      // Handle components safely
+      let componentsWithInfo = [];
+      if (Array.isArray(components)) {
+        componentsWithInfo = components.map(component => {
+          // Handle both mongoose model and plain object
+          if (typeof component.toObject === 'function') {
+            return {
+              ...component.toObject(),
+              statusInfo: getStatusInfo(component.status || 'operational')
+            };
+          } else {
+            return {
+              name: component.name || 'Unknown',
+              status: component.status || 'operational',
+              statusInfo: getStatusInfo(component.status || 'operational')
+            };
+          }
+        });
+      } else {
+        // Fallback if components is not an array
+        componentsWithInfo = fallbackSystemStatus.components.map(component => ({
+          name: component.name,
+          status: component.status,
           statusInfo: getStatusInfo(component.status)
-        };
-      });
+        }));
+      }
 
-      // Format incidents for display
-      const formattedIncidents = incidents.map(incident => {
-        return {
-          ...incident.toObject(),
-          statusInfo: getIncidentStatusInfo(incident.status),
-          duration: incident.duration,
-          isOngoing: incident.isOngoing
-        };
-      });
+      // Format incidents for display safely
+      const formattedIncidents = incidents && incidents.length > 0 ? incidents.map(incident => {
+        // Handle both mongoose model and plain object
+        if (typeof incident.toObject === 'function') {
+          return {
+            ...incident.toObject(),
+            statusInfo: getIncidentStatusInfo(incident.status || 'resolved'),
+            duration: incident.duration || 'Unknown',
+            isOngoing: incident.isOngoing || false
+          };
+        } else {
+          return {
+            _id: incident._id || 'unknown',
+            title: incident.title || 'Unknown Incident',
+            description: incident.description || 'No description available',
+            status: incident.status || 'resolved',
+            statusInfo: getIncidentStatusInfo(incident.status || 'resolved'),
+            affectedComponents: incident.affectedComponents || [],
+            startTime: incident.startTime || new Date(),
+            endTime: incident.endTime,
+            duration: incident.duration || 'Unknown',
+            isOngoing: incident.isOngoing || false,
+            updates: incident.updates || []
+          };
+        }
+      }) : [];
 
+      // Render the page with the data we have
       res.render('status/index', {
         title: 'System Status - FTRAISE AI',
-        systemStatus,
+        systemStatus: systemStatus || fallbackSystemStatus,
         overallStatusInfo,
         components: componentsWithInfo,
         incidents: formattedIncidents,
@@ -161,11 +252,29 @@ module.exports = {
         timeFilter: req.query.timeFilter || '30days'
       });
     } catch (err) {
-      console.error('Error fetching system status:', err);
-      res.status(500).render('error', {
-        title: 'Error - FTRAISE AI',
-        message: 'Failed to load system status',
-        user: req.user
+      console.error('Error in status page:', err);
+
+      // Get status info for display using fallback data
+      const overallStatusInfo = getOverallStatusInfo('operational');
+      const componentsWithInfo = fallbackSystemStatus.components.map(component => {
+        return {
+          name: component.name,
+          status: component.status,
+          statusInfo: getStatusInfo(component.status)
+        };
+      });
+
+      // Always render the page with fallback data in case of any error
+      res.render('status/index', {
+        title: 'System Status - FTRAISE AI',
+        systemStatus: fallbackSystemStatus,
+        overallStatusInfo,
+        components: componentsWithInfo,
+        incidents: [],
+        uptimeData: defaultUptimeData,
+        user: req.user,
+        timeFilter: '30days',
+        error: 'There was an issue loading the latest status data. Showing default values.'
       });
     }
   },
@@ -357,8 +466,43 @@ module.exports = {
       });
     } catch (err) {
       console.error('Error fetching system status for admin:', err);
-      req.flash('error_msg', 'Failed to load system status management.');
-      res.redirect('/admin');
+
+      // Create a fallback system status for error cases
+      const fallbackSystemStatus = {
+        overallStatus: 'operational',
+        components: [
+          { name: 'AI Chat Engine', status: 'operational' },
+          { name: 'Database (MongoDB)', status: 'operational' },
+          { name: 'User Login/Auth', status: 'operational' },
+          { name: 'Admin Dashboard', status: 'operational' },
+          { name: 'Website Frontend', status: 'operational' }
+        ],
+        updatedAt: new Date()
+      };
+
+      // Get status info for display
+      const overallStatusInfo = getOverallStatusInfo(fallbackSystemStatus.overallStatus);
+      const componentsWithInfo = fallbackSystemStatus.components.map(component => {
+        return {
+          name: component.name,
+          status: component.status,
+          statusInfo: getStatusInfo(component.status)
+        };
+      });
+
+      // Render the page with fallback data
+      res.render('admin/status-management', {
+        title: 'Status Management - Admin Dashboard',
+        systemStatus: fallbackSystemStatus,
+        overallStatusInfo,
+        components: componentsWithInfo,
+        incidents: [],
+        subscriptionCount: 0,
+        path: '/admin/system-status',
+        layout: 'layouts/admin',
+        timeFilter: 'all',
+        error_msg: ['There was an issue loading the latest status data. Showing default values.']
+      });
     }
   },
 

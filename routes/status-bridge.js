@@ -24,11 +24,8 @@ setInterval(() => {
 // Route to redirect to status app with session token
 router.get('/', (req, res) => {
   try {
-    // Get the status app URL from environment or use a default
-    const statusAppUrl = process.env.STATUS_APP_URL ||
-                         (process.env.NODE_ENV === 'production' ?
-                          'http://ftraise.status.onrender.com' :
-                          'http://localhost:3001');
+    // Use the local status page URL
+    const statusAppUrl = '/status';
 
     console.log(`Using status app URL: ${statusAppUrl}`);
 
@@ -56,11 +53,8 @@ router.get('/', (req, res) => {
     res.redirect(statusAppUrl);
   } catch (err) {
     console.error('Error in status bridge:', err);
-    // Get the status app URL from environment or use a default
-    const statusAppUrl = process.env.STATUS_APP_URL ||
-                       (process.env.NODE_ENV === 'production' ?
-                        'http://ftraise.status.onrender.com' :
-                        'http://localhost:3001');
+    // Use the local status page URL
+    const statusAppUrl = '/status';
     res.redirect(statusAppUrl);
   }
 });
