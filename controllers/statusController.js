@@ -71,13 +71,42 @@ module.exports = {
         });
       }
 
-      // Get recent incidents (last 30 days)
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      // Get incidents with time filter from query parameter or default to 30 days
+      const timeFilter = req.query.timeFilter || '30days';
+      let dateFilter = {};
 
-      const incidents = await Incident.find({
-        createdAt: { $gte: thirtyDaysAgo }
-      }).sort({ createdAt: -1 });
+      if (timeFilter !== 'all') {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        const ninetyDaysAgo = new Date();
+        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+        switch(timeFilter) {
+          case '30days':
+            dateFilter = { createdAt: { $gte: thirtyDaysAgo } };
+            break;
+          case '90days':
+            dateFilter = { createdAt: { $gte: ninetyDaysAgo } };
+            break;
+          case '6months':
+            dateFilter = { createdAt: { $gte: sixMonthsAgo } };
+            break;
+          case '1year':
+            dateFilter = { createdAt: { $gte: oneYearAgo } };
+            break;
+          default:
+            dateFilter = { createdAt: { $gte: thirtyDaysAgo } };
+        }
+      }
+
+      const incidents = await Incident.find(dateFilter).sort({ createdAt: -1 });
 
       // Calculate uptime percentages for the last 30 days
       const uptimeData = {};
@@ -128,7 +157,8 @@ module.exports = {
         components: componentsWithInfo,
         incidents: formattedIncidents,
         uptimeData,
-        user: req.user
+        user: req.user,
+        timeFilter: req.query.timeFilter || '30days'
       });
     } catch (err) {
       console.error('Error fetching system status:', err);
@@ -255,8 +285,42 @@ module.exports = {
         console.error('Error syncing components from status app:', syncErr);
       }
 
-      // Get all incidents
-      const incidents = await Incident.find().sort({ createdAt: -1 });
+      // Get incidents with time filter from query parameter or default to all
+      const timeFilter = req.query.timeFilter || 'all';
+      let dateFilter = {};
+
+      if (timeFilter !== 'all') {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        const ninetyDaysAgo = new Date();
+        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+        switch(timeFilter) {
+          case '30days':
+            dateFilter = { createdAt: { $gte: thirtyDaysAgo } };
+            break;
+          case '90days':
+            dateFilter = { createdAt: { $gte: ninetyDaysAgo } };
+            break;
+          case '6months':
+            dateFilter = { createdAt: { $gte: sixMonthsAgo } };
+            break;
+          case '1year':
+            dateFilter = { createdAt: { $gte: oneYearAgo } };
+            break;
+          default:
+            dateFilter = {};
+        }
+      }
+
+      const incidents = await Incident.find(dateFilter).sort({ createdAt: -1 });
 
       // Get status info for display
       const overallStatusInfo = getOverallStatusInfo(systemStatus.overallStatus);
@@ -288,7 +352,8 @@ module.exports = {
         incidents: formattedIncidents,
         subscriptionCount,
         path: '/admin/system-status',
-        layout: 'layouts/admin'
+        layout: 'layouts/admin',
+        timeFilter: req.query.timeFilter || 'all'
       });
     } catch (err) {
       console.error('Error fetching system status for admin:', err);

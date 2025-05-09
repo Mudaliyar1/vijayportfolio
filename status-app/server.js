@@ -49,53 +49,35 @@ const connectDB = async () => {
     });
     console.log('MongoDB Connected');
 
-    // Clean up any existing invalid SystemStatus documents and incidents
+    // Check for existing SystemStatus documents
     try {
-      console.log('Cleaning up existing SystemStatus documents and incidents...');
-      await SystemStatus.deleteMany({});
-      await Incident.deleteMany({});
+      const existingSystemStatus = await SystemStatus.findOne();
+      if (!existingSystemStatus) {
+        console.log('No existing SystemStatus found, creating a new one...');
+        // Create a fresh system status with only the active endpoints
+        const freshSystemStatus = new SystemStatus({
+          overallStatus: 'operational',
+          components: endpointMonitor.endpoints.map(endpoint => ({
+            name: endpoint.name,
+            status: 'operational',
+            lastChecked: new Date(),
+            responseTime: 0,
+            statusCode: 200,
+            errorMessage: null,
+            endpoint: endpoint.endpoint
+          }))
+        });
 
-      // Create a fresh system status with only the active endpoints
-      const freshSystemStatus = new SystemStatus({
-        overallStatus: 'operational',
-        components: endpointMonitor.endpoints.map(endpoint => ({
-          name: endpoint.name,
-          status: 'operational',
-          lastChecked: new Date(),
-          responseTime: 0,
-          statusCode: 200,
-          errorMessage: null,
-          endpoint: endpoint.endpoint
-        }))
-      });
-
-      await freshSystemStatus.save();
-      console.log('SystemStatus documents and incidents cleaned up successfully.');
-      console.log('Created fresh system status with active endpoints only.');
+        await freshSystemStatus.save();
+        console.log('Created fresh system status with active endpoints.');
+      } else {
+        console.log('Existing SystemStatus found, no need to create a new one.');
+      }
     } catch (cleanupErr) {
-      console.error('Error cleaning up documents:', cleanupErr);
+      console.error('Error checking SystemStatus documents:', cleanupErr);
     }
 
-    // EMERGENCY FIX: Delete all incidents and prevent new ones from being created
-    await Incident.deleteMany({});
-    console.log('All incidents deleted for a fresh start');
-
-    // Create a clean system status with all components operational
-    const cleanSystemStatus = new SystemStatus({
-      overallStatus: 'operational',
-      components: endpointMonitor.endpoints.map(endpoint => ({
-        name: endpoint.name,
-        status: 'operational',
-        lastChecked: new Date(),
-        responseTime: 0,
-        statusCode: 200,
-        errorMessage: null,
-        endpoint: endpoint.endpoint
-      }))
-    });
-
-    await cleanSystemStatus.save();
-    console.log('Created clean system status with all components operational');
+    // System status is already created in the previous step if needed
 
     // Run initial monitoring
     await endpointMonitor.monitorEndpoints();
@@ -262,13 +244,42 @@ app.get('/', async (req, res) => {
       });
     }
 
-    // Get recent incidents (last 30 days)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    // Get incidents with time filter from query parameter or default to 30 days
+    const timeFilter = req.query.timeFilter || '30days';
+    let dateFilter = {};
 
-    const incidents = await Incident.find({
-      createdAt: { $gte: thirtyDaysAgo }
-    }).sort({ createdAt: -1 });
+    if (timeFilter !== 'all') {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      const ninetyDaysAgo = new Date();
+      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+      const oneYearAgo = new Date();
+      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+      switch(timeFilter) {
+        case '30days':
+          dateFilter = { createdAt: { $gte: thirtyDaysAgo } };
+          break;
+        case '90days':
+          dateFilter = { createdAt: { $gte: ninetyDaysAgo } };
+          break;
+        case '6months':
+          dateFilter = { createdAt: { $gte: sixMonthsAgo } };
+          break;
+        case '1year':
+          dateFilter = { createdAt: { $gte: oneYearAgo } };
+          break;
+        default:
+          dateFilter = { createdAt: { $gte: thirtyDaysAgo } };
+      }
+    }
+
+    const incidents = await Incident.find(dateFilter).sort({ createdAt: -1 });
 
     // Get uptime data
     const uptimeData = await uptimeCalculator.getUptimeData(30);
@@ -299,7 +310,8 @@ app.get('/', async (req, res) => {
       overallStatusInfo,
       components: componentsWithInfo,
       incidents: formattedIncidents,
-      uptimeData
+      uptimeData,
+      timeFilter: req.query.timeFilter || '30days'
     });
   } catch (err) {
     console.error('Error rendering status page:', err);
@@ -334,14 +346,50 @@ app.get('/api/status', async (req, res) => {
 // API route to get incidents
 app.get('/api/incidents', async (req, res) => {
   try {
-    // Get recent incidents (last 30 days by default)
-    const days = parseInt(req.query.days) || 30;
-    const daysAgo = new Date();
-    daysAgo.setDate(daysAgo.getDate() - days);
+    // Get incidents with time filter from query parameter
+    const timeFilter = req.query.timeFilter || req.query.days ? `${req.query.days}days` : '30days';
+    let dateFilter = {};
 
-    const incidents = await Incident.find({
-      createdAt: { $gte: daysAgo }
-    }).sort({ createdAt: -1 });
+    if (timeFilter !== 'all') {
+      // Support both new timeFilter parameter and legacy days parameter
+      if (timeFilter.endsWith('days') && !isNaN(parseInt(timeFilter))) {
+        const days = parseInt(timeFilter);
+        const daysAgo = new Date();
+        daysAgo.setDate(daysAgo.getDate() - days);
+        dateFilter = { createdAt: { $gte: daysAgo } };
+      } else {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        const ninetyDaysAgo = new Date();
+        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+        switch(timeFilter) {
+          case '30days':
+            dateFilter = { createdAt: { $gte: thirtyDaysAgo } };
+            break;
+          case '90days':
+            dateFilter = { createdAt: { $gte: ninetyDaysAgo } };
+            break;
+          case '6months':
+            dateFilter = { createdAt: { $gte: sixMonthsAgo } };
+            break;
+          case '1year':
+            dateFilter = { createdAt: { $gte: oneYearAgo } };
+            break;
+          default:
+            dateFilter = { createdAt: { $gte: thirtyDaysAgo } };
+        }
+      }
+    }
+
+    const incidents = await Incident.find(dateFilter).sort({ createdAt: -1 });
 
     res.json(incidents);
   } catch (err) {

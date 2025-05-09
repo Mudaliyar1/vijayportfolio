@@ -455,8 +455,11 @@ async function monitorEndpoints() {
   try {
     console.log(`[${new Date().toISOString()}] Running endpoint monitoring...`);
 
-    // EMERGENCY FIX: Force the base URL to be localhost:3000
-    const baseUrl = 'http://localhost:3000';
+    // Get the base URL from environment or use a default
+    const baseUrl = process.env.MAIN_APP_URL ||
+                   (process.env.NODE_ENV === 'production' ?
+                    'https://ftraiseai.onrender.com' :
+                    'http://localhost:3000');
 
     // Check all endpoints
     const results = await Promise.all(

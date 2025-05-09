@@ -5,9 +5,9 @@
       <h1 class="text-2xl font-bold text-white mb-2">System Status Management</h1>
       <p class="text-gray-400">Manage and update the operational status of FTRAISE AI services</p>
     </div>
-    
+
     <div class="mt-4 md:mt-0 flex space-x-2">
-      <a href="/status" target="_blank" class="px-4 py-2 bg-dark-200 text-white rounded-md hover:bg-dark-300 transition-colors">
+      <a href="<%= process.env.STATUS_APP_URL || 'http://localhost:3001' %>" target="_blank" class="px-4 py-2 bg-dark-200 text-white rounded-md hover:bg-dark-300 transition-colors">
         <i class="fas fa-external-link-alt mr-2"></i> View Public Status Page
       </a>
       <button type="button" class="px-4 py-2 bg-neon-blue text-white rounded-md hover:bg-blue-600 transition-colors" onclick="openNewIncidentModal()">
@@ -15,14 +15,14 @@
       </button>
     </div>
   </div>
-  
+
   <!-- Stats Cards -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
     <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-blue transition-colors">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-semibold">Current Status</h3>
         <div class="w-10 h-10 rounded-full flex items-center justify-center
-          <%= overallStatusInfo.color === 'green' ? 'bg-green-500/20 text-green-500' : 
+          <%= overallStatusInfo.color === 'green' ? 'bg-green-500/20 text-green-500' :
              overallStatusInfo.color === 'orange' ? 'bg-orange-500/20 text-orange-500' :
              overallStatusInfo.color === 'red' ? 'bg-red-500/20 text-red-500' :
              'bg-gray-500/20 text-gray-500' %>">
@@ -35,7 +35,7 @@
       </p>
       <p class="text-sm text-gray-400 mt-1">Last updated: <%= new Date(systemStatus.updatedAt).toLocaleTimeString() %></p>
     </div>
-    
+
     <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-blue transition-colors">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-semibold">Active Incidents</h3>
@@ -48,7 +48,7 @@
       </p>
       <p class="text-sm text-gray-400 mt-1">Ongoing incidents</p>
     </div>
-    
+
     <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-blue transition-colors">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-semibold">Subscribers</h3>
@@ -60,12 +60,12 @@
       <p class="text-sm text-gray-400 mt-1">Status update subscribers</p>
     </div>
   </div>
-  
+
   <!-- System Status Update Form -->
   <div class="bg-dark-200 rounded-lg border border-gray-700 shadow-xl overflow-hidden mb-8">
     <div class="p-6">
       <h2 class="text-xl font-semibold mb-4 text-white">Update System Status</h2>
-      
+
       <form action="/admin/system-status/update" method="POST">
         <div class="mb-6">
           <label class="block text-sm font-medium text-gray-400 mb-2">Overall System Status</label>
@@ -80,7 +80,7 @@
                 </div>
               </label>
             </div>
-            
+
             <div class="relative">
               <input type="radio" id="status-partial" name="overallStatus" value="partial_outage" class="hidden peer" <%= systemStatus.overallStatus === 'partial_outage' ? 'checked' : '' %>>
               <label for="status-partial" class="flex items-center p-4 bg-dark-100 border border-gray-700 rounded-lg cursor-pointer peer-checked:border-orange-500 peer-checked:bg-orange-500/10 hover:bg-dark-300 transition-colors">
@@ -91,7 +91,7 @@
                 </div>
               </label>
             </div>
-            
+
             <div class="relative">
               <input type="radio" id="status-major" name="overallStatus" value="major_outage" class="hidden peer" <%= systemStatus.overallStatus === 'major_outage' ? 'checked' : '' %>>
               <label for="status-major" class="flex items-center p-4 bg-dark-100 border border-gray-700 rounded-lg cursor-pointer peer-checked:border-red-500 peer-checked:bg-red-500/10 hover:bg-dark-300 transition-colors">
@@ -104,10 +104,10 @@
             </div>
           </div>
         </div>
-        
+
         <div class="mb-6">
           <label class="block text-sm font-medium text-gray-400 mb-2">Component Status</label>
-          
+
           <div class="bg-dark-100 rounded-lg border border-gray-700 overflow-hidden">
             <table class="min-w-full divide-y divide-gray-700">
               <thead class="bg-dark-300">
@@ -137,7 +137,7 @@
             </table>
           </div>
         </div>
-        
+
         <div class="flex justify-end">
           <button type="submit" class="px-6 py-2 bg-neon-blue text-white rounded-md hover:bg-blue-600 transition-colors">
             Update System Status
@@ -146,19 +146,46 @@
       </form>
     </div>
   </div>
-  
+
   <!-- Incident Management -->
   <div class="bg-dark-200 rounded-lg border border-gray-700 shadow-xl overflow-hidden mb-8">
     <div class="p-6">
-      <h2 class="text-xl font-semibold mb-4 text-white">Incident Management</h2>
-      
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+        <h2 class="text-xl font-semibold text-white">Incident Management</h2>
+
+        <div class="mt-2 md:mt-0">
+          <form action="" method="GET" class="flex items-center space-x-2">
+            <label for="timeFilter" class="text-sm text-gray-400">Time period:</label>
+            <select id="timeFilter" name="timeFilter" class="bg-dark-100 border border-gray-700 text-white text-sm rounded-md focus:ring-neon-blue focus:border-neon-blue p-2" onchange="this.form.submit()">
+              <option value="30days" <%= timeFilter === '30days' ? 'selected' : '' %>>Last 30 days</option>
+              <option value="90days" <%= timeFilter === '90days' ? 'selected' : '' %>>Last 90 days</option>
+              <option value="6months" <%= timeFilter === '6months' ? 'selected' : '' %>>Last 6 months</option>
+              <option value="1year" <%= timeFilter === '1year' ? 'selected' : '' %>>Last year</option>
+              <option value="all" <%= timeFilter === 'all' ? 'selected' : '' %>>All time</option>
+            </select>
+          </form>
+        </div>
+      </div>
+
       <% if (incidents.length === 0) { %>
         <div class="p-8 text-center">
           <div class="text-gray-400 mb-4">
             <i class="fas fa-check-circle text-5xl"></i>
           </div>
-          <h3 class="text-xl font-semibold text-white mb-2">No incidents reported</h3>
-          <p class="text-gray-400">There are no incidents in the system.</p>
+          <h3 class="text-xl font-semibold text-white mb-2">No incidents found</h3>
+          <p class="text-gray-400">
+            <% if (timeFilter === 'all') { %>
+              No incidents have been recorded in the system.
+            <% } else if (timeFilter === '1year') { %>
+              No incidents have been reported in the last year.
+            <% } else if (timeFilter === '6months') { %>
+              No incidents have been reported in the last 6 months.
+            <% } else if (timeFilter === '90days') { %>
+              No incidents have been reported in the last 90 days.
+            <% } else { %>
+              No incidents have been reported in the last 30 days.
+            <% } %>
+          </p>
           <button type="button" class="mt-4 px-6 py-2 bg-neon-blue text-white rounded-md hover:bg-blue-600 transition-colors" onclick="openNewIncidentModal()">
             Report New Incident
           </button>
@@ -184,7 +211,7 @@
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                      <%= incident.statusInfo.color === 'green' ? 'bg-green-500 text-white' : 
+                      <%= incident.statusInfo.color === 'green' ? 'bg-green-500 text-white' :
                          incident.statusInfo.color === 'yellow' ? 'bg-yellow-500 text-white' :
                          incident.statusInfo.color === 'orange' ? 'bg-orange-500 text-white' :
                          incident.statusInfo.color === 'blue' ? 'bg-blue-500 text-white' :
@@ -228,7 +255,7 @@
 <div id="new-incident-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
   <div class="flex items-center justify-center min-h-screen p-4">
     <div class="fixed inset-0 bg-black bg-opacity-75 transition-opacity" onclick="closeNewIncidentModal()"></div>
-    
+
     <div class="relative bg-dark-200 rounded-lg max-w-2xl w-full mx-auto shadow-xl overflow-hidden">
       <div class="p-6">
         <div class="flex justify-between items-center mb-4">
@@ -237,18 +264,18 @@
             <i class="fas fa-times"></i>
           </button>
         </div>
-        
+
         <form action="/admin/system-status/incidents" method="POST">
           <div class="mb-4">
             <label for="incident-title" class="block text-sm font-medium text-gray-400 mb-1">Incident Title</label>
             <input type="text" id="incident-title" name="title" required class="w-full bg-dark-100 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue">
           </div>
-          
+
           <div class="mb-4">
             <label for="incident-description" class="block text-sm font-medium text-gray-400 mb-1">Description</label>
             <textarea id="incident-description" name="description" rows="4" required class="w-full bg-dark-100 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue"></textarea>
           </div>
-          
+
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-400 mb-1">Affected Components</label>
             <div class="grid grid-cols-2 gap-2">
@@ -260,7 +287,7 @@
               <% }) %>
             </div>
           </div>
-          
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label for="incident-status" class="block text-sm font-medium text-gray-400 mb-1">Status</label>
@@ -271,7 +298,7 @@
                 <option value="resolved">Resolved</option>
               </select>
             </div>
-            
+
             <div>
               <label for="incident-severity" class="block text-sm font-medium text-gray-400 mb-1">Severity</label>
               <select id="incident-severity" name="severity" required class="w-full bg-dark-100 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue">
@@ -281,7 +308,7 @@
               </select>
             </div>
           </div>
-          
+
           <div class="flex justify-end space-x-3">
             <button type="button" class="px-4 py-2 bg-dark-100 text-white rounded-md hover:bg-dark-300 transition-colors" onclick="closeNewIncidentModal()">
               Cancel
@@ -300,7 +327,7 @@
 <div id="update-incident-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
   <div class="flex items-center justify-center min-h-screen p-4">
     <div class="fixed inset-0 bg-black bg-opacity-75 transition-opacity" onclick="closeUpdateIncidentModal()"></div>
-    
+
     <div class="relative bg-dark-200 rounded-lg max-w-2xl w-full mx-auto shadow-xl overflow-hidden">
       <div class="p-6">
         <div class="flex justify-between items-center mb-4">
@@ -309,7 +336,7 @@
             <i class="fas fa-times"></i>
           </button>
         </div>
-        
+
         <form id="update-incident-form" action="/admin/system-status/incidents/" method="POST">
           <div class="mb-4">
             <label for="update-status" class="block text-sm font-medium text-gray-400 mb-1">Status</label>
@@ -320,12 +347,12 @@
               <option value="resolved">Resolved</option>
             </select>
           </div>
-          
+
           <div class="mb-4">
             <label for="update-message" class="block text-sm font-medium text-gray-400 mb-1">Update Message</label>
             <textarea id="update-message" name="message" rows="4" required class="w-full bg-dark-100 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue"></textarea>
           </div>
-          
+
           <div class="flex justify-end space-x-3">
             <button type="button" class="px-4 py-2 bg-dark-100 text-white rounded-md hover:bg-dark-300 transition-colors" onclick="closeUpdateIncidentModal()">
               Cancel
@@ -346,48 +373,48 @@
     document.getElementById('new-incident-modal').classList.remove('hidden');
     document.body.classList.add('overflow-hidden');
   }
-  
+
   function closeNewIncidentModal() {
     document.getElementById('new-incident-modal').classList.add('hidden');
     document.body.classList.remove('overflow-hidden');
   }
-  
+
   // Update Incident Modal
   function openUpdateIncidentModal(incidentId, currentStatus) {
     const modal = document.getElementById('update-incident-modal');
     const form = document.getElementById('update-incident-form');
     const statusSelect = document.getElementById('update-status');
-    
+
     // Set form action
     form.action = `/admin/system-status/incidents/${incidentId}`;
-    
+
     // Set current status
     statusSelect.value = currentStatus;
-    
+
     // Show modal
     modal.classList.remove('hidden');
     document.body.classList.add('overflow-hidden');
   }
-  
+
   function closeUpdateIncidentModal() {
     document.getElementById('update-incident-modal').classList.add('hidden');
     document.body.classList.remove('overflow-hidden');
   }
-  
+
   // Close modals when clicking outside
   document.addEventListener('click', function(event) {
     const newIncidentModal = document.getElementById('new-incident-modal');
     const updateIncidentModal = document.getElementById('update-incident-modal');
-    
+
     if (event.target === newIncidentModal) {
       closeNewIncidentModal();
     }
-    
+
     if (event.target === updateIncidentModal) {
       closeUpdateIncidentModal();
     }
   });
-  
+
   // Close modals with Escape key
   document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
