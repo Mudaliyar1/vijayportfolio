@@ -27,7 +27,7 @@ router.get('/', (req, res) => {
     // Get the status app URL from environment or use a default
     const statusAppUrl = process.env.STATUS_APP_URL ||
                          (process.env.NODE_ENV === 'production' ?
-                          'https://ftraise-status.onrender.com' :
+                          'https://ftraise.status.onrender.com' :
                           'http://localhost:3001');
 
     console.log(`Using status app URL: ${statusAppUrl}`);
@@ -59,7 +59,7 @@ router.get('/', (req, res) => {
     // Get the status app URL from environment or use a default
     const statusAppUrl = process.env.STATUS_APP_URL ||
                        (process.env.NODE_ENV === 'production' ?
-                        'https://ftraise-status.onrender.com' :
+                        'https://ftraise.status.onrender.com' :
                         'http://localhost:3001');
     res.redirect(statusAppUrl);
   }
