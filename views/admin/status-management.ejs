@@ -33,7 +33,7 @@
         <span class="mr-2"><%= overallStatusInfo.icon %></span>
         <span><%= overallStatusInfo.text %></span>
       </p>
-      <p class="text-sm text-gray-400 mt-1">Last updated: <%= new Date(systemStatus.updatedAt).toLocaleTimeString() %></p>
+      <p class="text-sm text-gray-400 mt-1">Last updated: <span class="timestamp" data-timestamp="<%= systemStatus.updatedAt.getTime() %>"><%= new Date(systemStatus.updatedAt).toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata' }) %></span></p>
     </div>
 
     <div class="bg-dark-100 rounded-lg border border-gray-800 p-6 hover:border-neon-blue transition-colors">
@@ -207,7 +207,7 @@
                 <tr class="<%= incident.isOngoing ? 'bg-dark-100' : '' %> hover:bg-dark-300 transition-colors">
                   <td class="px-6 py-4">
                     <div class="text-sm font-medium text-white"><%= incident.title %></div>
-                    <div class="text-xs text-gray-400"><%= new Date(incident.startTime).toLocaleString() %></div>
+                    <div class="text-xs text-gray-400 timestamp" data-timestamp="<%= incident.startTime.getTime() %>"><%= new Date(incident.startTime).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }) %></div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
@@ -368,6 +368,29 @@
 </div>
 
 <script>
+  // Format all timestamps to local timezone
+  document.addEventListener('DOMContentLoaded', function() {
+    // Find all elements with timestamp data
+    const timestampElements = document.querySelectorAll('.timestamp');
+
+    // Convert each timestamp to local time
+    timestampElements.forEach(element => {
+      const timestamp = element.getAttribute('data-timestamp');
+      if (timestamp) {
+        const date = new Date(parseInt(timestamp));
+        // Format: DD/MM/YYYY, HH:MM:SS AM/PM
+        element.textContent = date.toLocaleString('en-US', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        });
+      }
+    });
+  });
+
   // New Incident Modal
   function openNewIncidentModal() {
     document.getElementById('new-incident-modal').classList.remove('hidden');

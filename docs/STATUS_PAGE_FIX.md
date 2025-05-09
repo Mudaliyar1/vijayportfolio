@@ -22,7 +22,7 @@ Modified the status bridge route in `routes/status-bridge.js` to use environment
 // Get the status app URL from environment or use a default
 const statusAppUrl = process.env.STATUS_APP_URL ||
                      (process.env.NODE_ENV === 'production' ?
-                      'https://ftraise.status.onrender.com' :
+                      'http://ftraise.status.onrender.com' :
                       'http://localhost:3001');
 
 console.log(`Using status app URL: ${statusAppUrl}`);
@@ -39,7 +39,7 @@ Made similar changes to the session bridge route in `routes/session-bridge.js`:
 // Get the status app URL from environment or use a default
 const statusAppUrl = process.env.STATUS_APP_URL ||
                      (process.env.NODE_ENV === 'production' ?
-                      'https://ftraise.status.onrender.com' :
+                      'http://ftraise.status.onrender.com' :
                       'http://localhost:3001');
 ```
 
@@ -59,7 +59,7 @@ Added the `STATUS_APP_URL` environment variable to the main application's `.env`
 
 ```
 # Status app URL
-STATUS_APP_URL=https://ftraise.status.onrender.com
+STATUS_APP_URL=http://ftraise.status.onrender.com
 ```
 
 Also updated the `.env.example` file to include this variable for future reference.
@@ -68,7 +68,7 @@ Also updated the `.env.example` file to include this variable for future referen
 
 1. Deploy the changes to both the main app and status app on Render.
 2. Ensure the environment variables are properly set in the Render dashboard:
-   - `STATUS_APP_URL=https://ftraise.status.onrender.com` in the main app
+   - `STATUS_APP_URL=http://ftraise.status.onrender.com` in the main app
    - `MAIN_APP_URL=https://ftraiseai.onrender.com` in the status app
 
 ## Testing

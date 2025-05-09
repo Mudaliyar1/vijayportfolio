@@ -11,7 +11,7 @@
 
 (function() {
   // Configuration
-  const STATUS_PAGE_URL = 'https://ftraise.status.onrender.com'; // Updated URL
+  const STATUS_PAGE_URL = 'http://ftraise.status.onrender.com'; // Updated URL
   const CHECK_INTERVAL = 10000; // 10 seconds
   const MAX_RETRIES = 3;
 
