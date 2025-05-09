@@ -1,6 +1,6 @@
 /**
  * Status Bridge Routes
- * 
+ *
  * These routes allow for sharing sessions between the main app and the status app
  */
 
@@ -24,10 +24,18 @@ setInterval(() => {
 // Route to redirect to status app with session token
 router.get('/', (req, res) => {
   try {
+    // Get the status app URL from environment or use a default
+    const statusAppUrl = process.env.STATUS_APP_URL ||
+                         (process.env.NODE_ENV === 'production' ?
+                          'https://ftraise-status.onrender.com' :
+                          'http://localhost:3001');
+
+    console.log(`Using status app URL: ${statusAppUrl}`);
+
     // Only create a token if the user is authenticated
     if (req.isAuthenticated()) {
       const token = crypto.randomBytes(32).toString('hex');
-      
+
       // Store token with session data (expires in 5 minutes)
       sessionTokens.set(token, {
         user: {
@@ -39,16 +47,21 @@ router.get('/', (req, res) => {
         isAdmin: req.user.isAdmin || req.user.role === 'admin',
         expires: Date.now() + (5 * 60 * 1000)
       });
-      
+
       // Redirect to status app with token
-      return res.redirect(`http://localhost:3001?session_token=${token}`);
+      return res.redirect(`${statusAppUrl}?session_token=${token}`);
     }
-    
+
     // If not authenticated, just redirect to status app
-    res.redirect('http://localhost:3001');
+    res.redirect(statusAppUrl);
   } catch (err) {
     console.error('Error in status bridge:', err);
-    res.redirect('http://localhost:3001');
+    // Get the status app URL from environment or use a default
+    const statusAppUrl = process.env.STATUS_APP_URL ||
+                       (process.env.NODE_ENV === 'production' ?
+                        'https://ftraise-status.onrender.com' :
+                        'http://localhost:3001');
+    res.redirect(statusAppUrl);
   }
 });
 
@@ -56,19 +69,19 @@ router.get('/', (req, res) => {
 router.get('/validate-token/:token', (req, res) => {
   try {
     const { token } = req.params;
-    
+
     if (sessionTokens.has(token)) {
       const sessionData = sessionTokens.get(token);
-      
+
       // Delete the token after use
       sessionTokens.delete(token);
-      
+
       return res.json({
         success: true,
         sessionData
       });
     }
-    
+
     res.status(404).json({
       success: false,
       message: 'Invalid or expired token'

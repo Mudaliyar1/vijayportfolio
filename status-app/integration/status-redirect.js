@@ -1,9 +1,9 @@
 /**
  * Status Page Redirect Script
- * 
+ *
  * This script can be added to the main application to redirect users to the status page
  * when the main application is down or experiencing issues.
- * 
+ *
  * Usage:
  * 1. Add this script to your main application's HTML
  * 2. Update the STATUS_PAGE_URL constant to point to your status page
@@ -11,19 +11,19 @@
 
 (function() {
   // Configuration
-  const STATUS_PAGE_URL = 'https://status.ftraiseai.onrender.com'; // Update this URL
+  const STATUS_PAGE_URL = 'https://ftraise-status.onrender.com'; // Updated URL
   const CHECK_INTERVAL = 10000; // 10 seconds
   const MAX_RETRIES = 3;
-  
+
   // Variables
   let retryCount = 0;
   let isRedirecting = false;
-  
+
   // Function to check if the main app is responsive
   function checkAppStatus() {
     // Only check if we're not already redirecting
     if (isRedirecting) return;
-    
+
     fetch('/health', {
       method: 'GET',
       headers: {
@@ -51,24 +51,24 @@
       handleError(`Failed to connect to server: ${error.message}`);
     });
   }
-  
+
   // Function to handle errors
   function handleError(errorMessage) {
     console.warn(`Status check failed: ${errorMessage}`);
     retryCount++;
-    
+
     if (retryCount >= MAX_RETRIES) {
       redirectToStatusPage();
     }
   }
-  
+
   // Function to redirect to status page
   function redirectToStatusPage() {
     if (isRedirecting) return;
     isRedirecting = true;
-    
+
     console.log(`Redirecting to status page after ${MAX_RETRIES} failed attempts`);
-    
+
     // Show a message to the user
     const redirectMessage = document.createElement('div');
     redirectMessage.style.position = 'fixed';
@@ -83,18 +83,18 @@
     redirectMessage.innerHTML = `
       <p>We're experiencing technical difficulties. Redirecting you to our status page...</p>
     `;
-    
+
     document.body.appendChild(redirectMessage);
-    
+
     // Redirect after a short delay
     setTimeout(() => {
       window.location.href = STATUS_PAGE_URL;
     }, 2000);
   }
-  
+
   // Start periodic checks
   setInterval(checkAppStatus, CHECK_INTERVAL);
-  
+
   // Also check immediately
   checkAppStatus();
 })();

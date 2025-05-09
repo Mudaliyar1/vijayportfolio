@@ -58,7 +58,10 @@ async function sendVerificationEmail(email, verificationToken) {
     ];
 
     // Get the base URL from environment or use a default
-    const baseUrl = process.env.STATUS_APP_URL || 'http://localhost:3001';
+    const baseUrl = process.env.STATUS_APP_URL ||
+                   (process.env.NODE_ENV === 'production' ?
+                    'https://ftraise-status.onrender.com' :
+                    'http://localhost:3001');
     const verificationUrl = `${baseUrl}/verify/${verificationToken}`;
 
     const emailContent = {
@@ -124,7 +127,10 @@ async function sendIncidentEmail(incident, subscribers) {
     }));
 
     // Get the base URL from environment or use a default
-    const baseUrl = process.env.STATUS_APP_URL || 'http://localhost:3001';
+    const baseUrl = process.env.STATUS_APP_URL ||
+                   (process.env.NODE_ENV === 'production' ?
+                    'https://ftraise-status.onrender.com' :
+                    'http://localhost:3001');
 
     const emailContent = {
       sender,

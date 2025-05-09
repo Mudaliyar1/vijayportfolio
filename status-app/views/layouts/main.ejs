@@ -121,7 +121,7 @@
         <% if (isAuthenticated && user && user.username) { %>
           <span class="text-gray-400">Welcome, <%= user.username %></span>
         <% } %>
-        <a href="http://localhost:3000" class="text-gray-400 hover:text-white transition-colors">
+        <a href="<%= process.env.MAIN_APP_URL || 'http://localhost:3000' %>" class="text-gray-400 hover:text-white transition-colors">
           <i class="fas fa-arrow-left mr-2"></i> Back to Main Site
         </a>
       </div>
