@@ -1,1 +1,1 @@
-web: node start-servers.js
+web: npm run start:all

@@ -245,8 +245,21 @@ app.use('/status', (req, res) => {
   // Get the status server port
   const statusPort = getStatusServerPort();
 
-  // Redirect to the status server
-  res.redirect(`http://localhost:${statusPort}/status${req.path === '/status' ? '' : req.path.substring('/status'.length)}${req.originalUrl.includes('?') ? req.originalUrl.substring(req.originalUrl.indexOf('?')) : ''}`);
+  // Determine the base URL for redirects
+  let baseUrl;
+  if (process.env.NODE_ENV === 'production') {
+    // In production, use the same hostname but different port
+    const host = req.get('host').split(':')[0]; // Get hostname without port
+    baseUrl = `https://${process.env.RENDER_EXTERNAL_HOSTNAME || host || 'ftraiseai.onrender.com'}`;
+
+    // For status page in production, we use a path-based approach instead of different ports
+    // This is because Render exposes only one port publicly
+    return res.redirect(`${baseUrl}/status-page${req.path === '/status' ? '' : req.path.substring('/status'.length)}${req.originalUrl.includes('?') ? req.originalUrl.substring(req.originalUrl.indexOf('?')) : ''}`);
+  } else {
+    // In development, use localhost with the status server port
+    baseUrl = `http://localhost:${statusPort}`;
+    return res.redirect(`${baseUrl}/status${req.path === '/status' ? '' : req.path.substring('/status'.length)}${req.originalUrl.includes('?') ? req.originalUrl.substring(req.originalUrl.indexOf('?')) : ''}`);
+  }
 });
 
 // Status bridge redirect
@@ -254,8 +267,20 @@ app.use('/status-bridge', (req, res) => {
   // Get the status server port
   const statusPort = getStatusServerPort();
 
-  // Redirect to the status server
-  res.redirect(`http://localhost:${statusPort}/status-bridge${req.originalUrl}`);
+  // Determine the base URL for redirects
+  let baseUrl;
+  if (process.env.NODE_ENV === 'production') {
+    // In production, use the same hostname but different port
+    const host = req.get('host').split(':')[0]; // Get hostname without port
+    baseUrl = `https://${process.env.RENDER_EXTERNAL_HOSTNAME || host || 'ftraiseai.onrender.com'}`;
+
+    // For status page in production, we use a path-based approach
+    return res.redirect(`${baseUrl}/status-page-bridge${req.originalUrl}`);
+  } else {
+    // In development, use localhost with the status server port
+    baseUrl = `http://localhost:${statusPort}`;
+    return res.redirect(`${baseUrl}/status-bridge${req.originalUrl}`);
+  }
 });
 
 // Health check for status page
@@ -263,8 +288,20 @@ app.use('/status/health', (req, res) => {
   // Get the status server port
   const statusPort = getStatusServerPort();
 
-  // Redirect to the status server health check
-  res.redirect(`http://localhost:${statusPort}/health`);
+  // Determine the base URL for redirects
+  let baseUrl;
+  if (process.env.NODE_ENV === 'production') {
+    // In production, use the same hostname but different port
+    const host = req.get('host').split(':')[0]; // Get hostname without port
+    baseUrl = `https://${process.env.RENDER_EXTERNAL_HOSTNAME || host || 'ftraiseai.onrender.com'}`;
+
+    // For status page in production, we use a path-based approach
+    return res.redirect(`${baseUrl}/status-page-health`);
+  } else {
+    // In development, use localhost with the status server port
+    baseUrl = `http://localhost:${statusPort}`;
+    return res.redirect(`${baseUrl}/health`);
+  }
 });
 
 // Status page error handler (must be after status routes)

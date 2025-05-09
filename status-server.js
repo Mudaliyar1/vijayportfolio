@@ -92,6 +92,16 @@ app.use((req, res, next) => {
   next();
 });
 
+// Add production-specific middleware
+if (process.env.NODE_ENV === 'production') {
+  // Add a middleware to handle the base path for status pages in production
+  app.use((req, res, next) => {
+    // Store the original URL for debugging
+    console.log(`Status Server: Received request for ${req.originalUrl}`);
+    next();
+  });
+}
+
 // Load models
 require('./models/SystemStatus');
 require('./models/Incident');
@@ -145,6 +155,22 @@ function getIncidentStatusInfo(status) {
 app.get('/', async (req, res) => {
   // Redirect root to /status
   res.redirect('/status');
+});
+
+// Production-specific routes (path-based approach for Render)
+app.get('/status-page', async (req, res) => {
+  // This route is used in production
+  return res.redirect('/status');
+});
+
+app.get('/status-page-bridge', async (req, res) => {
+  // This route is used in production
+  return res.redirect('/status-bridge');
+});
+
+app.get('/status-page-health', async (req, res) => {
+  // This route is used in production
+  return res.redirect('/health');
 });
 
 app.get('/status', async (req, res) => {
