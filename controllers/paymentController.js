@@ -7,26 +7,50 @@ const crypto = require('crypto');
 let Razorpay;
 let razorpay;
 
+// Function to create a mock Razorpay client
+function createMockRazorpay(reason) {
+  console.log(`Using mock Razorpay client in paymentController: ${reason}`);
+  return {
+    orders: {
+      create: async (options) => {
+        console.log('Using mock Razorpay order:', options);
+        return {
+          id: 'mock_order_' + Date.now(),
+          amount: options.amount || 0,
+          currency: options.currency || 'INR',
+          receipt: options.receipt || 'mock_receipt'
+        };
+      }
+    }
+  };
+}
+
 try {
-  Razorpay = require('razorpay');
-  razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET
-  });
-  console.log('Razorpay initialized successfully in paymentController');
+  // Check if required keys are present
+  if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+    console.error('Razorpay API keys are missing. Payment functionality will be limited.');
+    // Create a mock Razorpay for fallback
+    razorpay = createMockRazorpay('API keys missing');
+  } else {
+    // Initialize with actual keys
+    try {
+      Razorpay = require('razorpay');
+      razorpay = new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET
+      });
+      console.log('Razorpay initialized successfully in paymentController');
+    } catch (initError) {
+      console.error('Failed to initialize Razorpay with provided keys:', initError.message);
+      razorpay = createMockRazorpay('initialization error with provided keys');
+    }
+  }
 } catch (error) {
   console.error('Failed to initialize Razorpay in paymentController:', error.message);
   console.error('Payment functionality will be limited. Please ensure razorpay package is installed.');
 
   // Create a mock Razorpay for fallback
-  razorpay = {
-    orders: {
-      create: async () => {
-        console.error('Razorpay module not available. Cannot create real orders.');
-        return { id: 'mock_order_' + Date.now(), amount: 0, currency: 'INR' };
-      }
-    }
-  };
+  razorpay = createMockRazorpay('unexpected error');
 }
 
 module.exports = {

@@ -51,7 +51,6 @@ module.exports = {
         '/neural-dreamscape',
         '/website-builder',
         '/packages',
-        '/status',
         '/issues',
         '/issues/report',
         '/contact',

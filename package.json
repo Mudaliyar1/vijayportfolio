@@ -5,12 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "start:status": "node status-server.js",
-    "start:all": "node start-servers.js",
     "dev": "nodemon server.js",
-    "dev:status": "nodemon status-server.js",
-    "dev:all": "nodemon start-servers.js",
-    "kill-status-port": "node scripts/kill-status-port.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm install && node scripts/check-dependencies.js",
     "postinstall": "node -e \"require('fs').mkdirSync('public/uploads', { recursive: true }); require('fs').mkdirSync('public/images', { recursive: true }); require('fs').mkdirSync('logs', { recursive: true })\"",

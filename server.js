@@ -221,92 +221,7 @@ app.use('/api/health-check', require('./routes/api/health-check'));
 const crashDetectionMiddleware = require('./middleware/crashDetectionMiddleware');
 app.use(crashDetectionMiddleware);
 
-// Function to get the status server port
-function getStatusServerPort() {
-  // Try to read the port from the file
-  try {
-    const fs = require('fs');
-    if (fs.existsSync('status-server-port.txt')) {
-      const port = parseInt(fs.readFileSync('status-server-port.txt', 'utf8').trim());
-      if (!isNaN(port)) {
-        return port;
-      }
-    }
-  } catch (err) {
-    console.error('Error reading status server port file:', err);
-  }
-
-  // Fall back to environment variable or default
-  return process.env.STATUS_PORT || 3001;
-}
-
-// Status page redirect to the separate status server
-app.use('/status', (req, res) => {
-  // Get the status server port
-  const statusPort = getStatusServerPort();
-
-  // Determine the base URL for redirects
-  let baseUrl;
-  if (process.env.NODE_ENV === 'production') {
-    // In production, use the same hostname but different port
-    const host = req.get('host').split(':')[0]; // Get hostname without port
-    baseUrl = `https://${process.env.RENDER_EXTERNAL_HOSTNAME || host || 'ftraiseai.onrender.com'}`;
-
-    // For status page in production, we use a path-based approach instead of different ports
-    // This is because Render exposes only one port publicly
-    return res.redirect(`${baseUrl}/status-page${req.path === '/status' ? '' : req.path.substring('/status'.length)}${req.originalUrl.includes('?') ? req.originalUrl.substring(req.originalUrl.indexOf('?')) : ''}`);
-  } else {
-    // In development, use localhost with the status server port
-    baseUrl = `http://localhost:${statusPort}`;
-    return res.redirect(`${baseUrl}/status${req.path === '/status' ? '' : req.path.substring('/status'.length)}${req.originalUrl.includes('?') ? req.originalUrl.substring(req.originalUrl.indexOf('?')) : ''}`);
-  }
-});
-
-// Status bridge redirect
-app.use('/status-bridge', (req, res) => {
-  // Get the status server port
-  const statusPort = getStatusServerPort();
-
-  // Determine the base URL for redirects
-  let baseUrl;
-  if (process.env.NODE_ENV === 'production') {
-    // In production, use the same hostname but different port
-    const host = req.get('host').split(':')[0]; // Get hostname without port
-    baseUrl = `https://${process.env.RENDER_EXTERNAL_HOSTNAME || host || 'ftraiseai.onrender.com'}`;
-
-    // For status page in production, we use a path-based approach
-    return res.redirect(`${baseUrl}/status-page-bridge${req.originalUrl}`);
-  } else {
-    // In development, use localhost with the status server port
-    baseUrl = `http://localhost:${statusPort}`;
-    return res.redirect(`${baseUrl}/status-bridge${req.originalUrl}`);
-  }
-});
-
-// Health check for status page
-app.use('/status/health', (req, res) => {
-  // Get the status server port
-  const statusPort = getStatusServerPort();
-
-  // Determine the base URL for redirects
-  let baseUrl;
-  if (process.env.NODE_ENV === 'production') {
-    // In production, use the same hostname but different port
-    const host = req.get('host').split(':')[0]; // Get hostname without port
-    baseUrl = `https://${process.env.RENDER_EXTERNAL_HOSTNAME || host || 'ftraiseai.onrender.com'}`;
-
-    // For status page in production, we use a path-based approach
-    return res.redirect(`${baseUrl}/status-page-health`);
-  } else {
-    // In development, use localhost with the status server port
-    baseUrl = `http://localhost:${statusPort}`;
-    return res.redirect(`${baseUrl}/health`);
-  }
-});
-
-// Status page error handler (must be after status routes)
-const statusPageErrorHandler = require('./middleware/statusPageErrorHandler');
-app.use(statusPageErrorHandler);
+// Status routes have been removed
 
 // Simple health check routes for backward compatibility
 app.get('/health-checks', (req, res) => {
@@ -370,8 +285,7 @@ app.use('/admin/package-inquiries', require('./routes/admin-package-inquiries'))
 app.use('/admin/marketing-packages', require('./routes/admin-marketing-packages'));
 app.use('/admin/ip-tracker', require('./routes/admin-ip-tracker')); // IP tracker routes
 app.use('/admin/contact-messages', require('./routes/admin-contact-messages')); // Contact messages routes
-app.use('/admin/system-status', require('./routes/admin-system-status')); // System status management routes
-app.use('/admin/crash-test', require('./routes/admin-crash-test')); // Website crash testing routes
+// System status management routes removed
 app.use('/admin/issues', require('./routes/admin-issues')); // Issue management routes
 app.use('/admin/page-locks', require('./routes/admin-page-locks')); // Page lock management routes
 app.use('/admin/ads', require('./routes/admin-ads')); // Ad management routes
@@ -539,47 +453,17 @@ SubscriptionPlan.countDocuments().then(count => {
   }
 });
 
-// Function to resolve unresolved crash incidents on server startup
-async function resolveUnresolvedCrashIncidents() {
-  try {
-    const Incident = mongoose.model('Incident');
+// Function to resolve unresolved crash incidents has been removed
 
-    // Find all unresolved crash incidents (investigating or identified status)
-    const unresolvedCrashIncidents = await Incident.find({
-      title: { $regex: /crash|exception|shutdown/i },
-      status: { $in: ['investigating', 'identified'] }
-    });
-
-    console.log(`Found ${unresolvedCrashIncidents.length} unresolved crash incidents to auto-resolve`);
-
-    // Resolve each incident
-    for (const incident of unresolvedCrashIncidents) {
-      // Add an update that the server has restarted and resolved the issue
-      incident.updates.push({
-        message: 'Server has restarted and is now operational. This incident has been automatically resolved.',
-        status: 'resolved',
-        timestamp: new Date()
-      });
-
-      // Update the incident status and end time
-      incident.status = 'resolved';
-      incident.endTime = new Date();
-
-      // Save the incident
-      await incident.save();
-      console.log(`Auto-resolved crash incident: ${incident.title}`);
-    }
-  } catch (err) {
-    console.error('Error auto-resolving crash incidents:', err);
-  }
-}
+// Check environment variables
+const { checkEnvironmentVariables } = require('./scripts/check-env-vars');
 
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 
-  // Auto-resolve crash incidents after server starts
-  resolveUnresolvedCrashIncidents();
+  // Check environment variables
+  checkEnvironmentVariables();
 
   // Log API key status
   if (process.env.BREVO_API_KEY) {
@@ -593,5 +477,12 @@ app.listen(PORT, () => {
     console.log(`Using Cohere API key: ${process.env.COHERE_API_KEY.substring(0, 5)}...`);
   } else {
     console.log('Cohere API key is not configured - AI functionality will not work');
+  }
+
+  // Log Razorpay API key status
+  if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+    console.log(`Using Razorpay API keys: ${process.env.RAZORPAY_KEY_ID.substring(0, 5)}...`);
+  } else {
+    console.log('Razorpay API keys are not configured - payment functionality will be limited');
   }
 });

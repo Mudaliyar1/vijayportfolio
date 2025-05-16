@@ -5,11 +5,51 @@ const User = require('../models/User');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
-// Initialize Razorpay
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET
-});
+// Initialize Razorpay with error handling
+let razorpay;
+
+// Function to create a mock Razorpay client
+function createMockRazorpay(reason) {
+  console.log(`Using mock Razorpay client: ${reason}`);
+  return {
+    orders: {
+      create: async (options) => {
+        console.log('Using mock Razorpay order:', options);
+        return {
+          id: 'mock_order_' + Date.now(),
+          amount: options.amount || 0,
+          currency: options.currency || 'INR',
+          receipt: options.receipt || 'mock_receipt'
+        };
+      }
+    }
+  };
+}
+
+try {
+  // Check if required keys are present
+  if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+    console.error('Razorpay API keys are missing. Payment functionality will be limited.');
+    // Create a mock Razorpay for fallback
+    razorpay = createMockRazorpay('API keys missing');
+  } else {
+    // Initialize with actual keys
+    try {
+      razorpay = new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET
+      });
+      console.log('Razorpay initialized successfully in subscriptionController');
+    } catch (initError) {
+      console.error('Failed to initialize Razorpay with provided keys:', initError.message);
+      razorpay = createMockRazorpay('initialization error with provided keys');
+    }
+  }
+} catch (error) {
+  console.error('Failed to initialize Razorpay in subscriptionController:', error.message);
+  // Create a mock Razorpay for fallback
+  razorpay = createMockRazorpay('unexpected error');
+}
 
 // Get subscription page
 exports.getSubscriptionPage = async (req, res) => {
