@@ -22,5 +22,6 @@
   "env": {
     "NODE_ENV": "development"
   },
-  "ext": "js,json,ejs"
+  "ext": "js,json,ejs",
+  "exec": "node server.js"
 }
