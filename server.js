@@ -290,6 +290,7 @@ app.use('/admin/issues', require('./routes/admin-issues')); // Issue management 
 app.use('/admin/page-locks', require('./routes/admin-page-locks')); // Page lock management routes
 app.use('/admin/ads', require('./routes/admin-ads')); // Ad management routes
 app.use('/admin/settings', require('./routes/admin-settings')); // System settings routes
+app.use('/admin/api-keys', require('./routes/admin-api-keys')); // API key management routes
 
 
 // Maintenance mode middleware - applied after admin routes
@@ -318,6 +319,9 @@ app.use('/images', require('./routes/images'));
 app.use('/api/images', require('./routes/api-images'));
 app.use('/rate-limits', require('./routes/rate-limits'));
 app.use('/api/ai', require('./routes/ai-service')); // AI service route
+app.use('/api/static', require('./routes/api/static')); // Static API endpoint
+app.use('/api/dynamic', require('./routes/api/dynamic')); // Dynamic API endpoint
+app.use('/api', require('./routes/api/keys')); // API key management routes
 app.use('/digital-twin', require('./routes/digital-twin')); // Digital Twin routes
 app.use('/neural-dreamscape', require('./routes/neural-dreamscape')); // Neural Dreamscape routes
 app.use('/tech-ads', require('./routes/tech-ads')); // Tech Ads showcase routes

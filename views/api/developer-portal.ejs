@@ -1,0 +1,311 @@
+<div class="max-w-6xl mx-auto">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold mb-4">Developer Portal</h1>
+
+    <div class="bg-dark-100 p-6 rounded-lg border border-gray-700 mb-8">
+      <h2 class="text-2xl font-semibold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple">Welcome to the FTRAISE AI Developer Portal</h2>
+      <p class="mb-4 text-gray-300">Here you can manage your API keys and access the API documentation.</p>
+      <a href="/api/docs" class="px-4 py-2 rounded-md bg-gradient-to-r from-neon-blue to-neon-purple text-white hover:opacity-90 transition-opacity inline-block">
+        <i class="fas fa-book mr-2"></i> View API Documentation
+      </a>
+    </div>
+
+      <div class="bg-dark-100 rounded-lg border border-gray-700 overflow-hidden mb-8">
+        <div class="bg-gradient-to-r from-neon-blue to-neon-purple p-4">
+          <h3 class="text-xl font-semibold text-white mb-0">Create New API Key</h3>
+        </div>
+        <div class="p-6">
+          <form action="/api/create" method="POST">
+            <div class="mb-4">
+              <label for="name" class="block text-gray-300 mb-2">API Key Name</label>
+              <input type="text" class="w-full bg-dark-200 border border-gray-700 rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue"
+                id="name" name="name" placeholder="My Website API Key" required>
+              <p class="mt-1 text-sm text-gray-400">A descriptive name to help you identify this key</p>
+            </div>
+
+            <div class="mb-6">
+              <label class="block text-gray-300 mb-2">API Key Type</label>
+
+              <div class="bg-dark-200 border border-gray-700 rounded-md p-4 mb-3">
+                <div class="flex items-start">
+                  <div class="flex items-center h-5 mt-1">
+                    <input class="h-4 w-4 text-neon-blue focus:ring-neon-purple" type="radio" name="type" id="staticType" value="static" checked>
+                  </div>
+                  <div class="ml-3">
+                    <label class="font-medium text-white" for="staticType">
+                      <span class="text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple">Static API Key</span> - For use in HTML websites
+                    </label>
+                    <ul class="mt-1 text-sm text-gray-400 list-disc list-inside pl-1">
+                      <li>Limited to 10 requests per hour</li>
+                      <li>Can be restricted to specific domains/IPs</li>
+                      <li>Suitable for client-side JavaScript</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-dark-200 border border-gray-700 rounded-md p-4">
+                <div class="flex items-start">
+                  <div class="flex items-center h-5 mt-1">
+                    <input class="h-4 w-4 text-neon-blue focus:ring-neon-purple" type="radio" name="type" id="dynamicType" value="dynamic">
+                  </div>
+                  <div class="ml-3">
+                    <label class="font-medium text-white" for="dynamicType">
+                      <span class="text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple">Dynamic API Key</span> - For use in backend applications
+                    </label>
+                    <ul class="mt-1 text-sm text-gray-400 list-disc list-inside pl-1">
+                      <li>Higher rate limit (50 requests per hour)</li>
+                      <li>Full access to AI response</li>
+                      <li>Suitable for server-side applications</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="staticOptions" class="mb-6">
+              <div class="mb-4">
+                <label for="domains" class="block text-gray-300 mb-2">Allowed Domains (Optional)</label>
+                <input type="text" class="w-full bg-dark-200 border border-gray-700 rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue"
+                  id="domains" name="domains" placeholder="example.com, sub.example.com">
+                <p class="mt-1 text-sm text-gray-400">Comma-separated list of domains where this key can be used. Leave empty to allow all domains.</p>
+              </div>
+
+              <div>
+                <label for="ipAddresses" class="block text-gray-300 mb-2">Allowed IP Addresses (Optional)</label>
+                <input type="text" class="w-full bg-dark-200 border border-gray-700 rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue"
+                  id="ipAddresses" name="ipAddresses" placeholder="192.168.1.1, 10.0.0.1">
+                <p class="mt-1 text-sm text-gray-400">Comma-separated list of IP addresses where this key can be used. Leave empty to allow all IPs.</p>
+              </div>
+            </div>
+
+            <button type="submit" class="px-6 py-2 rounded-md bg-gradient-to-r from-neon-blue to-neon-purple text-white hover:opacity-90 transition-opacity">
+              <i class="fas fa-key mr-2"></i> Create API Key
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="bg-dark-100 rounded-lg border border-gray-700 overflow-hidden">
+        <div class="bg-gradient-to-r from-neon-blue to-neon-purple p-4">
+          <h3 class="text-xl font-semibold text-white mb-0">Your API Keys</h3>
+        </div>
+        <div class="p-6">
+          <% if (apiKeys && apiKeys.length > 0) { %>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-700">
+                <thead>
+                  <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Name</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Type</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Key</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Created</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Last Used</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-700">
+                  <% apiKeys.forEach(key => { %>
+                    <tr class="bg-dark-200 hover:bg-dark-300 transition-colors">
+                      <td class="px-4 py-3 whitespace-nowrap text-gray-300"><%= key.name %></td>
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs rounded-full <%= key.type === 'static' ? 'bg-blue-900 text-blue-200' : 'bg-green-900 text-green-200' %>">
+                          <%= key.type.charAt(0).toUpperCase() + key.type.slice(1) %>
+                        </span>
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        <div class="flex rounded-md overflow-hidden">
+                          <input type="text" class="flex-1 bg-dark-300 border border-gray-700 px-3 py-1 text-sm text-gray-300" value="<%= key.key %>" readonly>
+                          <button class="bg-dark-400 hover:bg-dark-500 text-gray-300 px-2 py-1 text-sm border border-gray-700 border-l-0 copy-btn" data-clipboard-text="<%= key.key %>" type="button">
+                            <i class="fas fa-copy"></i>
+                          </button>
+                        </div>
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs rounded-full <%= key.status === 'active' ? 'bg-green-900 text-green-200' : (key.status === 'disabled' ? 'bg-yellow-900 text-yellow-200' : 'bg-red-900 text-red-200') %>">
+                          <%= key.status.charAt(0).toUpperCase() + key.status.slice(1) %>
+                        </span>
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap text-gray-300"><%= new Date(key.createdAt).toLocaleDateString() %></td>
+                      <td class="px-4 py-3 whitespace-nowrap text-gray-300"><%= key.lastUsed ? new Date(key.lastUsed).toLocaleDateString() : 'Never' %></td>
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        <div class="relative">
+                          <button type="button" class="px-3 py-1 rounded bg-gradient-to-r from-neon-blue to-neon-purple text-white text-sm hover:opacity-90 transition-opacity dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            Actions
+                          </button>
+                          <ul class="dropdown-menu bg-dark-200 border border-gray-700 rounded-md shadow-lg py-1">
+                            <li>
+                              <a class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-300 hover:text-white" href="#" data-bs-toggle="modal" data-bs-target="#editModal<%= key._id %>">
+                                <i class="fas fa-edit mr-2"></i> Edit
+                              </a>
+                            </li>
+                            <li>
+                              <a class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-300 hover:text-white" href="#" data-bs-toggle="modal" data-bs-target="#regenerateModal<%= key._id %>">
+                                <i class="fas fa-sync mr-2"></i> Regenerate
+                              </a>
+                            </li>
+                            <li>
+                              <a class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-300 hover:text-white" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal<%= key._id %>">
+                                <i class="fas fa-trash mr-2"></i> Delete
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+
+                    <!-- Edit Modal -->
+                    <div class="modal fade" id="editModal<%= key._id %>" tabindex="-1" aria-labelledby="editModalLabel<%= key._id %>" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content bg-dark-100 border border-gray-700 rounded-lg shadow-xl">
+                          <div class="modal-header border-b border-gray-700 bg-gradient-to-r from-neon-blue to-neon-purple p-4">
+                            <h5 class="modal-title text-white font-semibold" id="editModalLabel<%= key._id %>">Edit API Key</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <form action="/api/update" method="POST">
+                            <div class="modal-body p-4">
+                              <input type="hidden" name="id" value="<%= key._id %>">
+
+                              <div class="mb-4">
+                                <label for="name<%= key._id %>" class="block text-gray-300 mb-2">API Key Name</label>
+                                <input type="text" class="w-full bg-dark-200 border border-gray-700 rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue"
+                                  id="name<%= key._id %>" name="name" value="<%= key.name %>" required>
+                              </div>
+
+                              <div class="mb-4">
+                                <label for="status<%= key._id %>" class="block text-gray-300 mb-2">Status</label>
+                                <select class="w-full bg-dark-200 border border-gray-700 rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue"
+                                  id="status<%= key._id %>" name="status">
+                                  <option value="active" <%= key.status === 'active' ? 'selected' : '' %>>Active</option>
+                                  <option value="disabled" <%= key.status === 'disabled' ? 'selected' : '' %>>Disabled</option>
+                                </select>
+                              </div>
+
+                              <% if (key.type === 'static') { %>
+                                <div class="mb-4">
+                                  <label for="domains<%= key._id %>" class="block text-gray-300 mb-2">Allowed Domains</label>
+                                  <input type="text" class="w-full bg-dark-200 border border-gray-700 rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue"
+                                    id="domains<%= key._id %>" name="domains" value="<%= key.domains ? key.domains.join(', ') : '' %>">
+                                  <p class="mt-1 text-sm text-gray-400">Comma-separated list of domains where this key can be used. Leave empty to allow all domains.</p>
+                                </div>
+
+                                <div class="mb-4">
+                                  <label for="ipAddresses<%= key._id %>" class="block text-gray-300 mb-2">Allowed IP Addresses</label>
+                                  <input type="text" class="w-full bg-dark-200 border border-gray-700 rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-blue"
+                                    id="ipAddresses<%= key._id %>" name="ipAddresses" value="<%= key.ipAddresses ? key.ipAddresses.join(', ') : '' %>">
+                                  <p class="mt-1 text-sm text-gray-400">Comma-separated list of IP addresses where this key can be used. Leave empty to allow all IPs.</p>
+                                </div>
+                              <% } %>
+                            </div>
+                            <div class="modal-footer border-t border-gray-700 p-4">
+                              <button type="button" class="px-4 py-2 bg-dark-300 text-gray-300 rounded-md hover:bg-dark-400 transition-colors" data-bs-dismiss="modal">Cancel</button>
+                              <button type="submit" class="px-4 py-2 rounded-md bg-gradient-to-r from-neon-blue to-neon-purple text-white hover:opacity-90 transition-opacity">Save Changes</button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Regenerate Modal -->
+                    <div class="modal fade" id="regenerateModal<%= key._id %>" tabindex="-1" aria-labelledby="regenerateModalLabel<%= key._id %>" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content bg-dark-100 border border-gray-700 rounded-lg shadow-xl">
+                          <div class="modal-header border-b border-gray-700 bg-gradient-to-r from-neon-blue to-neon-purple p-4">
+                            <h5 class="modal-title text-white font-semibold" id="regenerateModalLabel<%= key._id %>">Regenerate API Key</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body p-4">
+                            <div class="bg-red-900/30 border border-red-800 rounded-md p-4 mb-2">
+                              <p class="text-red-300 mb-0">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                Are you sure you want to regenerate this API key? This action cannot be undone and any applications using this key will need to be updated.
+                              </p>
+                            </div>
+                          </div>
+                          <div class="modal-footer border-t border-gray-700 p-4">
+                            <button type="button" class="px-4 py-2 bg-dark-300 text-gray-300 rounded-md hover:bg-dark-400 transition-colors" data-bs-dismiss="modal">Cancel</button>
+                            <form action="/api/regenerate" method="POST">
+                              <input type="hidden" name="id" value="<%= key._id %>">
+                              <button type="submit" class="px-4 py-2 rounded-md bg-gradient-to-r from-red-600 to-red-800 text-white hover:opacity-90 transition-opacity">
+                                <i class="fas fa-sync mr-2"></i> Regenerate Key
+                              </button>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Delete Modal -->
+                    <div class="modal fade" id="deleteModal<%= key._id %>" tabindex="-1" aria-labelledby="deleteModalLabel<%= key._id %>" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content bg-dark-100 border border-gray-700 rounded-lg shadow-xl">
+                          <div class="modal-header border-b border-gray-700 bg-gradient-to-r from-neon-blue to-neon-purple p-4">
+                            <h5 class="modal-title text-white font-semibold" id="deleteModalLabel<%= key._id %>">Delete API Key</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body p-4">
+                            <div class="bg-red-900/30 border border-red-800 rounded-md p-4 mb-2">
+                              <p class="text-red-300 mb-0">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                Are you sure you want to delete this API key? This action cannot be undone and any applications using this key will stop working.
+                              </p>
+                            </div>
+                          </div>
+                          <div class="modal-footer border-t border-gray-700 p-4">
+                            <button type="button" class="px-4 py-2 bg-dark-300 text-gray-300 rounded-md hover:bg-dark-400 transition-colors" data-bs-dismiss="modal">Cancel</button>
+                            <form action="/api/delete/<%= key._id %>" method="POST">
+                              <button type="submit" class="px-4 py-2 rounded-md bg-gradient-to-r from-red-600 to-red-800 text-white hover:opacity-90 transition-opacity">
+                                <i class="fas fa-trash mr-2"></i> Delete Key
+                              </button>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <div class="bg-dark-200 p-6 rounded-lg border border-gray-700 text-center">
+              <p class="text-gray-300 mb-0">You don't have any API keys yet. Create one using the form above.</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Toggle static options based on API key type
+  document.addEventListener('DOMContentLoaded', function() {
+    const staticType = document.getElementById('staticType');
+    const dynamicType = document.getElementById('dynamicType');
+    const staticOptions = document.getElementById('staticOptions');
+
+    function toggleStaticOptions() {
+      if (staticType.checked) {
+        staticOptions.style.display = 'block';
+      } else {
+        staticOptions.style.display = 'none';
+      }
+    }
+
+    staticType.addEventListener('change', toggleStaticOptions);
+    dynamicType.addEventListener('change', toggleStaticOptions);
+
+    // Initialize on page load
+    toggleStaticOptions();
+
+    // Initialize clipboard.js
+    new ClipboardJS('.copy-btn').on('success', function(e) {
+      e.trigger.innerHTML = 'Copied!';
+      setTimeout(function() {
+        e.trigger.innerHTML = 'Copy';
+      }, 2000);
+      e.clearSelection();
+    });
+  });
+</script>
