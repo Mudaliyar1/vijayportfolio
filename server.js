@@ -15,6 +15,9 @@ const useragent = require('useragent');
 // Load maintenance middleware
 const { maintenanceMiddleware } = require('./controllers/maintenanceController');
 
+// Load CORS middleware
+const corsMiddleware = require('./middleware/cors');
+
 // Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -318,10 +321,12 @@ app.use('/maintenance', require('./routes/maintenance'));
 app.use('/images', require('./routes/images'));
 app.use('/api/images', require('./routes/api-images'));
 app.use('/rate-limits', require('./routes/rate-limits'));
-app.use('/api/ai', require('./routes/ai-service')); // AI service route
-app.use('/api/static', require('./routes/api/static')); // Static API endpoint
-app.use('/api/dynamic', require('./routes/api/dynamic')); // Dynamic API endpoint
-app.use('/api', require('./routes/api/keys')); // API key management routes
+
+// Apply CORS middleware to API routes
+app.use('/api/ai', corsMiddleware, require('./routes/ai-service')); // AI service route
+app.use('/api/static', corsMiddleware, require('./routes/api/static')); // Static API endpoint
+app.use('/api/dynamic', corsMiddleware, require('./routes/api/dynamic')); // Dynamic API endpoint
+app.use('/api', corsMiddleware, require('./routes/api/keys')); // API key management routes
 app.use('/digital-twin', require('./routes/digital-twin')); // Digital Twin routes
 app.use('/neural-dreamscape', require('./routes/neural-dreamscape')); // Neural Dreamscape routes
 app.use('/tech-ads', require('./routes/tech-ads')); // Tech Ads showcase routes

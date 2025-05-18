@@ -45,14 +45,21 @@
 
           <section id="authentication">
             <h2 class="text-2xl font-semibold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple">Authentication</h2>
-            <p class="text-gray-300 mb-4">All API requests require authentication using an API key. Include your API key in the Authorization header of your requests:</p>
+            <p class="text-gray-300 mb-4">All API requests require authentication using an API key. Include your API key in the Authorization header of your requests with the "Bearer" prefix:</p>
 
-            <pre class="bg-dark-200 p-3 rounded-md text-gray-300 mb-4 overflow-x-auto"><code>Authorization: YOUR_API_KEY</code></pre>
+            <pre class="bg-dark-200 p-3 rounded-md text-gray-300 mb-4 overflow-x-auto"><code>Authorization: Bearer YOUR_API_KEY</code></pre>
 
             <div class="bg-yellow-900/30 border border-yellow-800 rounded-md p-4">
               <p class="text-yellow-300 mb-0">
                 <i class="fas fa-exclamation-triangle mr-2"></i>
-                <span class="font-medium">Important:</span> Keep your API keys secure and never expose them in client-side code (except for Static API keys which are designed for this purpose).
+                <span class="font-medium">Important:</span> The "Bearer" prefix is required. Without it, you'll receive an "API key is missing or invalid" error.
+              </p>
+            </div>
+
+            <div class="bg-yellow-900/30 border border-yellow-800 rounded-md p-4 mt-4">
+              <p class="text-yellow-300 mb-0">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                <span class="font-medium">Security Note:</span> Keep your API keys secure and never expose them in client-side code (except for Static API keys which are designed for this purpose).
               </p>
             </div>
           </section>
@@ -180,7 +187,18 @@
 
             <div class="bg-dark-200 rounded-lg border border-gray-700 p-6 mb-6">
               <h4 class="text-xl font-semibold mb-4 text-white">Step 2: Add Your API Key to Your Code</h4>
-              <p class="text-gray-300 mb-4">Replace <code class="bg-yellow-900/50 px-2 py-1 rounded text-yellow-300 font-mono">YOUR_API_KEY</code> in your code with your actual API key:</p>
+              <p class="text-gray-300 mb-4">Replace <code class="bg-yellow-900/50 px-2 py-1 rounded text-yellow-300 font-mono">YOUR_API_KEY</code> in your code with your actual API key. Make sure to keep the <code class="bg-dark-300 px-2 py-1 rounded text-gray-300 font-mono">Bearer</code> prefix:</p>
+
+              <div class="bg-dark-300 p-4 rounded-md mb-4 border border-gray-700">
+                <div class="flex items-center">
+                  <div class="text-red-400 mr-3"><i class="fas fa-times-circle text-xl"></i></div>
+                  <div class="text-gray-300 font-mono">Authorization: YOUR_API_KEY</div>
+                </div>
+                <div class="flex items-center mt-2">
+                  <div class="text-green-400 mr-3"><i class="fas fa-check-circle text-xl"></i></div>
+                  <div class="text-gray-300 font-mono">Authorization: Bearer YOUR_API_KEY</div>
+                </div>
+              </div>
 
               <div class="mb-6">
                 <h5 class="text-lg font-semibold mb-2 text-white">HTML/JavaScript Example:</h5>
@@ -192,7 +210,7 @@
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        <span class="bg-yellow-900/50 px-2 py-0.5 rounded text-yellow-300 font-mono">'Authorization': 'YOUR_STATIC_API_KEY'</span>
+        <span class="bg-yellow-900/50 px-2 py-0.5 rounded text-yellow-300 font-mono">'Authorization': 'Bearer YOUR_STATIC_API_KEY'</span>
       },
       body: JSON.stringify({ prompt })
     });
@@ -231,13 +249,36 @@ async function askAI(prompt) {
               </div>
             </div>
 
+            <div class="bg-dark-200 rounded-lg border border-gray-700 p-6 mb-6">
+              <h4 class="text-xl font-semibold mb-4 text-white">Step 3: Domain Configuration</h4>
+              <p class="text-gray-300 mb-4">For Static API keys, make sure to configure the allowed domains correctly:</p>
+
+              <div class="bg-dark-300 p-4 rounded-md mb-4 border border-gray-700">
+                <h5 class="text-lg font-semibold mb-2 text-white">Domain Settings</h5>
+                <ul class="list-disc list-inside text-gray-300 pl-2">
+                  <li class="mb-2">When creating a Static API key, specify the domains where it will be used</li>
+                  <li class="mb-2">Use the format: <code class="bg-dark-400 px-2 py-1 rounded">example.com, sub.example.com</code></li>
+                  <li class="mb-2">If left empty, the API key will work from any domain (not recommended)</li>
+                  <li class="mb-2">For local testing, include <code class="bg-dark-400 px-2 py-1 rounded">localhost</code> in the allowed domains</li>
+                </ul>
+              </div>
+
+              <div class="bg-yellow-900/20 border border-yellow-800 rounded-md p-4">
+                <p class="text-yellow-300 mb-0">
+                  <i class="fas fa-exclamation-triangle text-yellow-400 mr-2"></i>
+                  <span class="font-medium">Important:</span> If you get a <code class="bg-dark-400 px-2 py-1 rounded">403 Forbidden</code> error, it means your domain is not in the allowed list for that API key.
+                </p>
+              </div>
+            </div>
+
             <div class="bg-dark-200 rounded-lg border border-gray-700 p-6">
-              <h4 class="text-xl font-semibold mb-4 text-white">Step 3: Test Your Implementation</h4>
+              <h4 class="text-xl font-semibold mb-4 text-white">Step 4: Test Your Implementation</h4>
               <p class="text-gray-300 mb-4">After adding your API key, test your implementation to ensure it works correctly:</p>
               <ul class="list-disc list-inside text-gray-300 pl-2">
                 <li class="mb-2">For Static API keys, test from the domain you specified during creation</li>
                 <li class="mb-2">For Dynamic API keys, test from your server environment</li>
                 <li class="mb-2">Check for proper error handling and response parsing</li>
+                <li class="mb-2">Use our <a href="/api-test.html" target="_blank" class="text-neon-blue hover:text-neon-purple transition-colors">API Test Tool</a> to debug any issues</li>
               </ul>
 
               <div class="bg-green-900/20 border border-green-800 rounded-md p-4 mt-4">
@@ -329,7 +370,7 @@ async function askAI(prompt) {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            <span class="bg-yellow-900/50 px-2 py-0.5 rounded text-yellow-300 font-mono">'Authorization': 'YOUR_STATIC_API_KEY'</span>
+            <span class="bg-yellow-900/50 px-2 py-0.5 rounded text-yellow-300 font-mono">'Authorization': 'Bearer YOUR_STATIC_API_KEY'</span>
           },
           body: JSON.stringify({ prompt })
         });
@@ -374,7 +415,7 @@ class FTraiseAI {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': this.apiKey
+          'Authorization': `Bearer ${this.apiKey}`
         },
         body: JSON.stringify({
           prompt,
@@ -455,7 +496,7 @@ class FTraiseAI:
         url = f'{self.base_url}/dynamic'
         headers = {
             'Content-Type': 'application/json',
-            'Authorization': self.api_key
+            'Authorization': f'Bearer {self.api_key}'
         }
 
         # Set default options
